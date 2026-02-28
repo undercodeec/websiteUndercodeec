@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "question": "¿Cuánto cuesta crear un sitio web profesional?",
+    "answer": {
+      "part1": "El costo de diseño de páginas web en Quito varía según los requerimientos. Ofrecemos paquetes desde sitios informativos hasta plataformas complejas. Contáctanos para una cotización personalizada."
+    }
+  },
+  {
+    "id": 2,
+    "question": "¿Cuánto tiempo toma el desarrollo web?",
+    "answer": {
+      "part1": "Nuestro tiempo estándar para el desarrollo de páginas web es de 1 a 2 semanas. Esto depende de la complejidad del diseño y la entrega de contenido por parte del cliente."
+    }
+  },
+  {
+    "id": 3,
+    "question": "¿Ofrecen servicios de diseño web fuera de Quito?",
+    "answer": {
+      "part1": "¡Sí! Aunque estamos ubicados en Quito, Ecuador, trabajamos con clientes de todo el país y el mundo gracias a nuestras herramientas de gestión remota."
+    }
+  },
+  {
+    "id": 4,
+    "question": "¿Podré actualizar mi página web yo mismo?",
+    "answer": {
+      "part1": "Sí, desarrollamos sitios web autoadministrables. Te daremos acceso y capacitación para que puedas gestionar tu contenido fácilmente sin conocimientos técnicos avanzados."
+    }
+  },
+  {
+    "id": 5,
+    "question": "¿Qué incluye el servicio de diseño de páginas web?",
+    "answer": {
+      "part1": "Nuestros planes incluyen diseño personalizado, optimización SEO básica, integración con redes sociales, formularios de contacto y diseño adaptable a móviles (responsive)."
+    }
+  },
+  {
+    "id": 6,
+    "question": "¿Ofrecen hosting y dominio para mi página web?",
+    "answer": {
+      "part1": "Sí, nuestros paquetes de creación de páginas web profesionales incluyen dominio (.com) y hosting por un año, con soporte técnico y cuentas de correo corporativo."
+    }
+  },
+  {
+    "id": 7,
+    "question": "¿Mi sitio web estará optimizado para Google (SEO)?",
+    "answer": {
+      "part1": "Absolutamente. Todos nuestros proyectos de desarrollo web incluyen una estructura optimizada para SEO, asegurando que tu negocio sea visible en los motores de búsqueda como Google."
+    }
+  },
+  {
+    "id": 8,
+    "question": "¿Desarrollan aplicaciones móviles además de sitios web?",
+    "answer": {
+      "part1": "Sí, somos expertos en Desarrollo de Aplicaciones Web y Móviles para Android e iOS, ofreciendo soluciones tecnológicas integrales para tu empresa."
+    }
+  },
+  {
+    "id": 9,
+    "question": "¿Qué soporte ofrecen después de terminar la página web?",
+    "answer": {
+      "part1": "Ofrecemos soporte técnico continuo post-lanzamiento. Garantizamos el funcionamiento de tu sitio y estamos disponibles para actualizaciones o mejoras futuras de tu plataforma digital."
+    }
+  },
+  {
+    "id": 10,
+    "question": "¿Trabajan con emprendedores y PYMES en Ecuador?",
+    "answer": {
+      "part1": "¡Sí! Nos especializamos en apoyar a emprendedores y PYMES con soluciones de diseño web accesibles y escalables para impulsar su crecimiento digital."
+    }
+  },
+  {
+    "id": 11,
+    "question": "¿Qué formas de pago aceptan para el desarrollo web?",
+    "answer": {
+      "part1": "Aceptamos todas las tarjetas de crédito, transferencias bancarias y pagos en efectivo. Ofrecemos facilidades de pago para apoyar tu inversión digital."
+    }
+  },
+  {
+    "id": 12,
+    "question": "¿Cómo inicio mi proyecto de página web?",
+    "answer": {
+      "part1": "Es fácil. Elige uno de nuestros planes, contáctanos y un asesor experto en diseño web te guiará paso a paso para hacer realidad tu proyecto."
+    }
+  }
+]

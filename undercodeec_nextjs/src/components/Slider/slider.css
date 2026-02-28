@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Animated Gradient Background */
+.gradient-bg {
+  background: #f5e6e8;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+/* Rotating Background Pattern */
+.rotating-pattern {
+  animation: rotate-center 60s linear infinite;
+}
+
+@keyframes rotate-center {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Additional gradient blobs */
+.gradient-blob-1 {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  top: 20%;
+  right: 10%;
+  background: radial-gradient(circle, #643ff7 0%, transparent 70%);
+  filter: blur(110px);
+  opacity: 0.2;
+  animation: float3 22s ease-in-out infinite alternate;
+  z-index: 1;
+}
+
+.gradient-blob-2 {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  bottom: 30%;
+  left: 20%;
+  background: radial-gradient(circle, #fdbd55 0%, transparent 70%);
+  filter: blur(90px);
+  opacity: 0.15;
+  animation: float4 16s ease-in-out infinite alternate;
+  z-index: 1;
+}
+
+.gradient-blob-3 {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, #500c4c 0%, transparent 70%);
+  filter: blur(100px);
+  opacity: 0.18;
+  animation: float5 24s ease-in-out infinite alternate;
+  z-index: 1;
+}
+
+@keyframes float3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-120px, 60px) scale(0.95); }
+}
+
+@keyframes float4 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(90px, -70px) scale(1.1); }
+}
+
+@keyframes float5 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(calc(-50% + 50px), calc(-50% - 50px)) scale(1.05); }
+}
+
+/* Gradient Title Text */
+.gradient-title {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-image: linear-gradient(to right, 
+    #600b56 0%, 
+    #270f31 30%, 
+    #efa238 73%
+  );
+  font-size: 70px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+}
+
+/* Custom Slick Dots */
+.custom-dots {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.custom-dots li {
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: auto;
+}
+
+.custom-dots li.slick-active div {
+  background: rgba(255, 255, 255, 0.9) !important;
+  width: 32px;
+  border-radius: 9999px;
+}
+
+.custom-dots li button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.custom-dots li button:before {
+  display: none;
+}
+
+/* Slick Slider Overrides */
+.slick-slider {
+  position: relative;
+  height: 100%;
+}
+
+.slick-list,
+.slick-track {
+  height: 100%;
+}
+
+.slick-slide > div {
+  height: 100%;
+}
+
+/* Smooth Transitions */
+.slick-slide {
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* Hide default arrows on mobile */
+@media (max-width: 768px) {
+  .slick-arrow {
+    display: none !important;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .custom-dots {
+    bottom: 2rem !important;
+  }
+}

@@ -16,3 +16,8 @@ Thumbs.db
 # IDEs
 .vscode/
 .idea/
+
+# NEXTJS
+undercodeec_nextjs/node_modules/
+undercodeec_nextjs/.next/
+undercodeec_nextjs/out/

@@ -1,0 +1,114 @@
+[
+  {
+    "link": "https://gunsmithsec.com/",
+    "img": "/landing-preview/img/demos/gunsmit.webp",
+    "title": "Página Personalizada",
+    "type": "Gunsmiths",
+    "isNew": true,
+    "alt": "Diseño web personalizado para armería Gunsmiths"
+  },
+  {
+    "link": "https://lucavvapes.com/",
+    "img": "/landing-preview/img/demos/lucanvape.webp",
+    "title": "Página Personalizada",
+    "type": "Lucavvapes",
+    "isNew": true,
+    "alt": "Tienda en línea de vapes Lucavvapes"
+  },
+  {
+    "link": "https://juliojaramilloec.com/",
+    "img": "/landing-preview/img/demos/juliojaramillo.webp",
+    "title": "Página Personalizada",
+    "type": "Julio Jaramillo",
+    "isNew": true,
+    "alt": "Sitio web oficial Julio Jaramillo"
+  },
+  {
+    "link": "https://techco.ec/",
+    "img": "/landing-preview/img/demos/1.1.webp",
+    "title": "Páginas Informativa",
+    "type": "Techco",
+    "alt": "Diseño web corporativo para Techco Ecuador"
+  },
+  {
+    "link": "https://cortinasec.com/",
+    "img": "/landing-preview/img/demos/screencapture-cortinasec-2026-01-20-12_21_13.webp",
+    "title": "Página Personalizada",
+    "type": "Cortinas & Decoraciones",
+    "isFeatured": true,
+    "alt": "Catálogo web de Cortinas & Decoraciones"
+  },
+  {
+    "link": "https://junglaandina.com/",
+    "img": "/landing-preview/img/demos/3.3.webp",
+    "title": "Tienda Online",
+    "type": "Cafe Jungla Andina",
+    "isNew": true,
+    "alt": "E-commerce de café Jungla Andina"
+  },
+  {
+    "link": "https://www.casagangotena.com/es/",
+    "img": "/landing-preview/img/demos/4.4.webp",
+    "title": "Páginas Informativa",
+    "type": "Casa Gangotena",
+    "alt": "Sitio web turístico Casa Gangotena Quito"
+  },
+  {
+    "link": "https://thecave.ec/",
+    "img": "/landing-preview/img/demos/5.5.webp",
+    "title": "Páginas Informativa",
+    "type": "The Cave",
+    "alt": "Página web informativa The Cave"
+  },
+  {
+    "link": "https://tullpu.com/",
+    "img": "/landing-preview/img/demos/6.6.webp",
+    "title": "Tienda Online",
+    "type": "Tullpu",
+    "isFeatured": true,
+    "alt": "Tienda virtual Tullpu productos naturales"
+  },
+  {
+    "link": "https://art2000deco.com/",
+    "img": "/landing-preview/img/demos/7.7.webp",
+    "title": "Páginas Informativa",
+    "type": "art2000deco",
+    "isNew": true,
+    "alt": "Diseño web para Art2000Deco"
+  },
+  {
+    "link": "https://zerdoquito.com/",
+    "img": "/landing-preview/img/demos/8.8.webp",
+    "title": "Páginas Informativa",
+    "type": "Zerdo",
+    "alt": "Página web restaurante Zerdo Quito"
+  },
+  {
+    "link": "https://lagloriacasadevinos.com/",
+    "img": "/landing-preview/img/demos/9.9.webp",
+    "title": "Tienda Online",
+    "type": "La Gloria Casa de Vinos",
+    "alt": "E-commerce de vinos La Gloria"
+  },
+  {
+    "link": "https://gimnasiotaurus.com/",
+    "img": "/landing-preview/img/demos/10.10.webp",
+    "title": "Páginas Informativa",
+    "type": "Taurus GYM",
+    "alt": "Sitio web gimnasio Taurus GYM"
+  },
+  {
+    "link": "https://www.bacchus.ec/",
+    "img": "/landing-preview/img/demos/11.11.webp",
+    "title": "Tienda Online",
+    "type": "Bacchus",
+    "alt": "Tienda de licores online Bacchus"
+  },
+  {
+    "link": "https://servifri0.com/",
+    "img": "/landing-preview/img/demos/screencapture-servifri0-2026-01-20-12_33_55.webp",
+    "title": "Landing Page",
+    "type": "Servifrio",
+    "alt": "Landing page servicios de refrigeración Servifrio"
+  }
+]

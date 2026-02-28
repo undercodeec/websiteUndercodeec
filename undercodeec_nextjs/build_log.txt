@@ -1,0 +1,1115 @@
+﻿
+> undercodeec_nextjs@0.1.0 build
+> next build
+
+node.exe : ÔÜá 
+Warning: Next.js 
+inferred your 
+workspace root, but 
+it may not be correct.
+En línea: 1 Carácter: 
+1
++ & "C:\Users\USUARIO\
+AppData\Roaming\nvm\no
+dejs/node.exe" 
+"C:\Users\US ...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (ÔÜá Warnin   
+ g: Ne...not be co    
+rrect.:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+ We detected multiple 
+lockfiles and 
+selected the 
+directory of C:\Users\
+USUARIO\Documents\baku
+p mi portafolio\mi por
+tafolio\package-lock.j
+son as the root 
+directory.
+ To silence this 
+warning, set 
+`turbopack.root` in 
+your Next.js config, 
+or consider removing 
+one of the lockfiles 
+if it's not needed.
+   See https://nextjs.
+org/docs/app/api-refer
+ence/config/next-confi
+g-js/turbopack#root-di
+rectory for more 
+information.
+ Detected additional 
+lockfiles: 
+   * C:\Users\USUARIO\
+Documents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+package-lock.json
+
+Ôû▓ Next.js 16.1.2 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack 
+build failed with 12 
+errors:
+./undercodeec_nextjs/n
+ode_modules/lightgalle
+ry/css/lightgallery.cs
+s
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/node_modules/lightg
+allery/css/lightgaller
+y.css [Client 
+Component Browser]
+    ./undercodeec_next
+js/src/components/Saas
+/Culture.jsx [Client 
+Component Browser]
+    ./undercodeec_next
+js/src/app/nuestra-tra
+yectoria/page.tsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/nuestra-tra
+yectoria/page.tsx 
+[Server Component]
+
+
+./undercodeec_nextjs/n
+ode_modules/react-moda
+l-video/css/modal-vide
+o.css
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/node_modules/react-
+modal-video/css/modal-
+video.css [Client 
+Component Browser]
+    ./undercodeec_next
+js/src/components/Saas
+/AboutHeader.jsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/nuestra-tra
+yectoria/page.tsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/nuestra-tra
+yectoria/page.tsx 
+[Server Component]
+
+
+./undercodeec_nextjs/n
+ode_modules/slick-caro
+usel/slick/slick-theme
+.css
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/node_modules/slick-
+carousel/slick/slick-t
+heme.css [Client 
+Component Browser]
+    ./undercodeec_next
+js/src/components/Slid
+er/HeroSlider.jsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/page.tsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/page.tsx 
+[Server Component]
+
+
+./undercodeec_nextjs/n
+ode_modules/slick-caro
+usel/slick/slick.css
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/node_modules/slick-
+carousel/slick/slick.c
+ss [Client Component 
+Browser]
+    ./undercodeec_next
+js/src/components/Slid
+er/HeroSlider.jsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/page.tsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/page.tsx 
+[Server Component]
+
+
+./undercodeec_nextjs/n
+ode_modules/swiper/mod
+ules/autoplay/autoplay
+.min.css
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/node_modules/swiper
+/modules/autoplay/auto
+play.min.css [Client 
+Component Browser]
+    ./undercodeec_next
+js/src/components/Star
+tup/Testimonials.jsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/marketing-p
+ara-tu-negocio/page.ts
+x [Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/marketing-p
+ara-tu-negocio/page.ts
+x [Server Component]
+
+
+./undercodeec_nextjs/n
+ode_modules/swiper/mod
+ules/effect-fade/effec
+t-fade.min.css
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/node_modules/swiper
+/modules/effect-fade/e
+ffect-fade.min.css 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/components/Blog
+/BlogSlider.jsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/noticias/pa
+ge.tsx [Client 
+Component Browser]
+    ./undercodeec_next
+js/src/app/noticias/pa
+ge.tsx [Server 
+Component]
+
+
+./undercodeec_nextjs/n
+ode_modules/swiper/mod
+ules/keyboard/keyboard
+.min.css
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/node_modules/swiper
+/modules/keyboard/keyb
+oard.min.css [Client 
+Component Browser]
+    ./undercodeec_next
+js/src/components/Data
+Analysis/Projects.jsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/software-pa
+ra-tu-negocio/page.tsx
+ [Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/software-pa
+ra-tu-negocio/page.tsx
+ [Server Component]
+
+
+./undercodeec_nextjs/n
+ode_modules/swiper/mod
+ules/navigation/naviga
+tion.min.css
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/node_modules/swiper
+/modules/navigation/na
+vigation.min.css 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/components/Data
+Analysis/Projects.jsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/software-pa
+ra-tu-negocio/page.tsx
+ [Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/software-pa
+ra-tu-negocio/page.tsx
+ [Server Component]
+
+
+./undercodeec_nextjs/n
+ode_modules/swiper/mod
+ules/pagination/pagina
+tion.min.css
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/node_modules/swiper
+/modules/pagination/pa
+gination.min.css 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/components/Star
+tup/Project.jsx 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/marketing-p
+ara-tu-negocio/page.ts
+x [Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/marketing-p
+ara-tu-negocio/page.ts
+x [Server Component]
+
+
+./undercodeec_nextjs/n
+ode_modules/swiper/swi
+per.min.css
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/node_modules/swiper
+/swiper.min.css 
+[Client Component 
+Browser]
+    ./undercodeec_next
+js/src/components/Saas
+/Services.jsx [Client 
+Component Browser]
+    ./undercodeec_next
+js/src/app/servicios/p
+age.tsx [Client 
+Component Browser]
+    ./undercodeec_next
+js/src/app/servicios/p
+age.tsx [Server 
+Component]
+
+
+./undercodeec_nextjs/s
+rc/styles/globals.css
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/src/styles/globals.
+css [Client Component 
+Browser]
+    ./undercodeec_next
+js/src/app/layout.tsx 
+[Server Component]
+
+
+./undercodeec_nextjs/s
+rc/styles/preloader.cs
+s
+Error evaluating 
+Node.js code
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a PostCSS 
+plugin. The PostCSS 
+plugin has moved to a 
+separate package, so 
+to continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwindc
+ss/postcss` and 
+update your PostCSS 
+configuration.
+    [at lt (C:\Users\U
+SUARIO\Documents\bakup
+ mi portafolio\mi port
+afolio\undercodeec_nex
+tjs\node_modules\tailw
+indcss\dist\lib.js:38:
+1643)]
+    at turbopack:///[t
+urbopack-node]/transfo
+rms/postcss.ts:56:14 [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__ffa
+e644e._.js:165:20]
+    [at <anonymous>]
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5]
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26]
+    [at process.proces
+sTicksAndRejections (n
+ode:internal/process/t
+ask_queues:103:5)]
+
+Import trace:
+  Client Component 
+Browser:
+    ./undercodeec_next
+js/src/styles/preloade
+r.css [Client 
+Component Browser]
+    ./undercodeec_next
+js/src/app/layout.tsx 
+[Server Component]
+
+
+    at Module.init (tu
+rbopack:///[turbopack-
+node]/transforms/postc
+ss.ts:43:33) [C:\Users
+\USUARIO\Documents\bak
+up mi portafolio\mi po
+rtafolio\undercodeec_n
+extjs\.next\build\chun
+ks\[root-of-the-server
+]__ffae644e._.js:155:3
+5])
+    at run (turbopack:
+///[turbopack-node]/ip
+c/evaluate.ts:77:20) [
+C:\Users\USUARIO\Docum
+ents\bakup mi 
+portafolio\mi portafol
+io\undercodeec_nextjs\
+.next\build\chunks\[ro
+ot-of-the-server]__32f
+45f41._.js:429:26])
+    ... collapsed 22 
+duplicate lines 
+matching above 2 
+lines 11 times...

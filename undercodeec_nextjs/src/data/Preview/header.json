@@ -1,0 +1,106 @@
+{
+  "scene1": {
+    "one": [
+      {
+        "img": "/landing-preview/img/header/header_3.webp",
+        "depth": "0.10",
+        "class": "imgheader",
+        "alt": "Diseño de paginas web en Quito"
+      },
+      {
+        "img": "/landing-preview/img/header/header_3.webp",
+        "depth": "0.15",
+        "class": "btm1",
+        "alt": "Desarrollo de aplicaciones web Ecuador"
+      },
+      {
+        "img": "/landing-preview/img/header/header_3.webp",
+        "depth": "0.20",
+        "class": "btm2",
+        "alt": "Creación de páginas web profesionales"
+      }
+    ],
+    "three": [
+      {
+        "img": "/landing-preview/img/header/4.webp",
+        "depth": "0.10",
+        "class": "",
+        "alt": "Diseño web corporativo Quito"
+      },
+      {
+        "img": "/landing-preview/img/header/4.webp",
+        "depth": "0.15",
+        "class": "btm1",
+        "alt": "Agencia de diseño web Ecuador"
+      },
+      {
+        "img": "/landing-preview/img/header/4.webp",
+        "depth": "0.20",
+        "class": "btm2",
+        "alt": "Programación web a medida"
+      }
+    ],
+    "four": [
+      {
+        "img": "/landing-preview/img/header/header_8.webp",
+        "depth": "0.10",
+        "class": "",
+        "alt": "E-commerce y tiendas virtuales en Quito"
+      },
+      {
+        "img": "/landing-preview/img/header/header_8.webp",
+        "depth": "0.15",
+        "class": "btm1",
+        "alt": "Desarrollo de software Ecuador"
+      },
+      {
+        "img": "/landing-preview/img/header/header_8.webp",
+        "depth": "0.20",
+        "class": "btm2",
+        "alt": "Soluciones web empresariales"
+      }
+    ]
+  },
+  "scene2": {
+    "two": [
+      {
+        "img": "/landing-preview/img/header/header_2.webp",
+        "depth": "0.10",
+        "class": "",
+        "alt": "Diseño de interfaces web modernas"
+      },
+      {
+        "img": "/landing-preview/img/header/header_2.webp",
+        "depth": "0.15",
+        "class": "btm1",
+        "alt": "Experiencia de usuario UX/UI"
+      },
+      {
+        "img": "/landing-preview/img/header/header_2.webp",
+        "depth": "0.20",
+        "class": "btm2",
+        "alt": "Optimización SEO para web"
+      }
+    ],
+    "five": [
+      {
+        "img": "/landing-preview/img/header/header_1.webp",
+        "depth": "0.10",
+        "class": "",
+        "alt": "Marketing digital y diseño web"
+      },
+      {
+        "img": "/landing-preview/img/header/header_1.webp",
+        "depth": "0.15",
+        "class": "btm1",
+        "alt": "Posicionamiento web en buscadores"
+      },
+      {
+        "img": "/landing-preview/img/header/header_1.webp",
+        "depth": "0.20",
+        "class": "btm2",
+        "alt": "Consultoría tecnológica en Quito"
+      }
+    ]
+  }
+}

@@ -1,0 +1,383 @@
+{
+    "sitioWeb": {
+        "name": "Sitio Web",
+        "budgetRanges": [
+            {
+                "min": 120,
+                "max": 190,
+                "label": "Web Esencial",
+                "description": "One Page + Enlace a WhatsApp",
+                "features": [
+                    "Tu dominio.com & hosting por un año",
+                    "Inicio, servicios, nosotros, contacto",
+                    "SEO básico (búsquedas en Google palabra única)",
+                    "Diseño estándar",
+                    "Formulario de contacto",
+                    "Botones de WhatsApp"
+                ]
+            },
+            {
+                "min": 200,
+                "max": 290,
+                "label": "Web Profesional",
+                "description": "Hasta 5 secciones + Formulario",
+                "features": [
+                    "Tu dominio.com & hosting por un año",
+                    "Hasta 5 páginas más",
+                    "SEO avanzado (búsquedas en Google con palabras clave)",
+                    "Diseño moderno",
+                    "Formulario de contacto",
+                    "Google Analytics",
+                    "Botones de WhatsApp",
+                    "Correo corporativo"
+                ]
+            },
+            {
+                "min": 300,
+                "max": 320,
+                "label": "Web Premium",
+                "description": "Catálogo Pequeño o Web Avanzada",
+                "features": [
+                    "Tu dominio.com por un año",
+                    "Creación de redes sociales",
+                    "Hasta 5 páginas adicionales o más",
+                    "SEO con Google Ads (publicidad)",
+                    "Página editable",
+                    "Formulario de contacto",
+                    "Botones de WhatsApp",
+                    "Correos corporativos",
+                    "Copias de seguridad automáticas",
+                    "Seguridad integrada (firewall)"
+                ]
+            }
+        ],
+        "customQuote": {
+            "threshold": 320,
+            "label": "Cotización Personalizada",
+            "description": "Tu proyecto requiere características avanzadas. Ingresa el monto que tienes presupuestado."
+        },
+        "sectors": [
+            {
+                "id": "comercio",
+                "label": "Comercio y Ventas"
+            },
+            {
+                "id": "servicios",
+                "label": "Servicios Profesionales"
+            },
+            {
+                "id": "salud",
+                "label": "Salud y Bienestar"
+            },
+            {
+                "id": "construccion",
+                "label": "Construcción e Inmobiliaria"
+            },
+            {
+                "id": "agricultura",
+                "label": "Agricultura y Alimentos"
+            },
+            {
+                "id": "educacion",
+                "label": "Educación y Capacitación"
+            },
+            {
+                "id": "turismo",
+                "label": "Turismo y Hotelería"
+            },
+            {
+                "id": "arte",
+                "label": "Arte y Entretenimiento"
+            },
+            {
+                "id": "tecnologia",
+                "label": "Tecnología"
+            },
+            {
+                "id": "otros",
+                "label": "Otros"
+            }
+        ],
+        "domainOptions": [
+            {
+                "id": "tengo",
+                "label": "Ya tengo mi dominio comprado"
+            },
+            {
+                "id": "no_tengo",
+                "label": "No tengo, necesito uno"
+            }
+        ]
+    },
+    "desarrolloSoftware": {
+        "name": "Desarrollo de Software",
+        "objetivos": [
+            {
+                "id": "automatizar",
+                "label": "Automatizar procesos internos",
+                "desc": "Gestión de inventario, RRHH, CRM propio"
+            },
+            {
+                "id": "saas",
+                "label": "Crear un producto para vender (SaaS)",
+                "desc": "Sistema de suscripción para terceros"
+            },
+            {
+                "id": "reemplazar",
+                "label": "Reemplazar/Actualizar un sistema antiguo",
+                "desc": "Tienen un Excel gigante o un software viejo"
+            },
+            {
+                "id": "conectar",
+                "label": "Conectar sistemas",
+                "desc": "APIs, Integraciones"
+            }
+        ],
+        "estadoProyecto": [
+            {
+                "id": "idea",
+                "label": "Es solo una idea, necesito asesoría completa"
+            },
+            {
+                "id": "documentado",
+                "label": "Tengo los requerimientos claros documentados"
+            },
+            {
+                "id": "existente",
+                "label": "Ya existe una versión previa (necesito mejoras o soporte)"
+            }
+        ],
+        "escalaUsuarios": [
+            {
+                "id": "personal",
+                "label": "Solo yo / Menos de 5 personas"
+            },
+            {
+                "id": "equipo",
+                "label": "Pequeño equipo (5 - 20 personas)"
+            },
+            {
+                "id": "empresa",
+                "label": "Mediana empresa (20 - 100 personas)"
+            },
+            {
+                "id": "masivo",
+                "label": "Masivo / Público en general"
+            }
+        ],
+        "rolesUsuario": [
+            {
+                "id": "admin",
+                "label": "Administrador (Acceso total)"
+            },
+            {
+                "id": "empleados",
+                "label": "Empleados/Operadores (Acceso limitado)"
+            },
+            {
+                "id": "clientes",
+                "label": "Clientes (Panel externo)"
+            },
+            {
+                "id": "reportes",
+                "label": "Reportes Gerenciales"
+            }
+        ],
+        "integraciones": [
+            {
+                "id": "sri",
+                "label": "Facturación Electrónica (SRI)"
+            },
+            {
+                "id": "pagos",
+                "label": "Pasarelas de Pago (Cobros en línea)"
+            },
+            {
+                "id": "mapas",
+                "label": "Mapas / GPS"
+            },
+            {
+                "id": "whatsapp",
+                "label": "WhatsApp (Notificaciones automáticas)"
+            },
+            {
+                "id": "ninguna",
+                "label": "No, es un sistema independiente"
+            }
+        ],
+        "presupuestos": [
+            {
+                "id": "bajo",
+                "label": "Menos de $1,000",
+                "desc": "Probablemente no viable para software a medida"
+            },
+            {
+                "id": "mvp",
+                "label": "$1,000 - $3,000",
+                "desc": "MVP / Proyecto Pequeño"
+            },
+            {
+                "id": "pyme",
+                "label": "$3,000 - $5,000",
+                "desc": "Software Pyme"
+            },
+            {
+                "id": "complejo",
+                "label": "Más de $5,000",
+                "desc": "Proyecto Complejo"
+            },
+            {
+                "id": "cotizar",
+                "label": "No lo sé, necesito cotización",
+                "desc": ""
+            }
+        ],
+        "tiempos": [
+            {
+                "id": "urgente",
+                "label": "Lo antes posible (Urgente)"
+            },
+            {
+                "id": "corto",
+                "label": "En 1 a 2 meses"
+            },
+            {
+                "id": "largo",
+                "label": "No tengo apuro / Planificación a largo plazo"
+            }
+        ],
+        "mensajeCierre": "Gracias por la información. Al ser un desarrollo a medida, necesitamos analizar tus requerimientos técnicos para darte una propuesta exacta."
+    },
+    "tiendaOnline": {
+        "name": "Tienda Online",
+        "sectors": [
+            {
+                "id": "comercio",
+                "label": "Comercio y Ventas (Ropa, Tecnología, Accesorios)"
+            },
+            {
+                "id": "alimentos",
+                "label": "Alimentos y Bebidas (Restaurantes, Cafeterías)"
+            },
+            {
+                "id": "salud",
+                "label": "Salud y Bienestar (Farmacias, Suplementos)"
+            },
+            {
+                "id": "belleza",
+                "label": "Belleza y Cosmética"
+            },
+            {
+                "id": "hogar",
+                "label": "Hogar y Decoración"
+            },
+            {
+                "id": "ferreteria",
+                "label": "Ferretería y Construcción"
+            },
+            {
+                "id": "educacion",
+                "label": "Educación y Cursos"
+            },
+            {
+                "id": "tecnologia",
+                "label": "Tecnología y Servicios"
+            },
+            {
+                "id": "manufactura",
+                "label": "Manufactura / Industrial"
+            },
+            {
+                "id": "otro",
+                "label": "Otro"
+            }
+        ],
+        "domainOptions": [
+            {
+                "id": "tengo",
+                "label": "Ya tengo mi dominio comprado"
+            },
+            {
+                "id": "no_tengo",
+                "label": "No tengo, necesito uno"
+            },
+            {
+                "id": "migrar",
+                "label": "Quiero migrar mi tienda actual"
+            }
+        ],
+        "catalogSize": [
+            {
+                "id": "emprendedor",
+                "label": "1 - 30 productos (Paquete Emprendedor)",
+                "limit": 30
+            },
+            {
+                "id": "pyme",
+                "label": "30 - 100 productos (Paquete Pyme)",
+                "limit": 100
+            },
+            {
+                "id": "empresa",
+                "label": "100 - 500 productos (Paquete Empresa)",
+                "limit": 500
+            },
+            {
+                "id": "masivo",
+                "label": "Más de 500 / Carga Masiva (Requiere cotización especial)",
+                "limit": 9999
+            }
+        ],
+        "productTypes": [
+            {
+                "id": "fisicos",
+                "label": "Productos Físicos (Requieren envío)"
+            },
+            {
+                "id": "digitales",
+                "label": "Productos Digitales / Descargables"
+            },
+            {
+                "id": "servicios",
+                "label": "Servicios / Reservas"
+            }
+        ],
+        "shippingMethods": [
+            {
+                "id": "fija",
+                "label": "Tarifa Fija / Gratis (Configuración simple)"
+            },
+            {
+                "id": "variable",
+                "label": "Por Ciudad/Provincia (Configuración media)"
+            },
+            {
+                "id": "api",
+                "label": "Integración Automática (Servientrega/LaarCourier - Requiere API)"
+            }
+        ],
+        "paymentMethods": [
+            {
+                "id": "transferencia",
+                "label": "Transferencia Bancaria / Depósito"
+            },
+            {
+                "id": "tarjeta",
+                "label": "Tarjeta de Crédito (Pasarela de Pagos)"
+            },
+            {
+                "id": "contraentrega",
+                "label": "Pago Contra-entrega"
+            }
+        ],
+        "budgetRanges": [
+            {
+                "min": 300,
+                "max": 600,
+                "label": "Tienda Emprendedor",
+                "description": "Ideal para iniciar tu negocio online"
+            }
+        ],
+        "mensajeCierre": "Tu proyecto tiene requerimientos avanzados de logística. Agendemos una asesoría para darte el precio exacto."
+    }
+}
