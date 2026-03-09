@@ -3,7 +3,7 @@ import portfolioData from '@/data/Preview/portfolio.json';
 
 const Portfolio = () => {
   return (
-    <section className="portfolio-blocks section-padding bg-gray">
+    <section id="portafolio" className="portfolio-blocks section-padding bg-gray">
       <div className="container-fluid">
         <div className="row justify-content-center">
           <div className="col-lg-6 col-md-10">

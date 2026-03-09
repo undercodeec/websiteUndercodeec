@@ -195,9 +195,9 @@ const sitioWebPriceCards = [
     icon: 'triangle',
     features: [
       "Tu dominio.com & hosting por un año",
-      "Hasta 5 páginas internas detalladas",
+      "Hasta 8 páginas internas detalladas",
       "SEO avanzado para posicionamiento en Google",
-      "Diseño web moderno y personalizado",
+      "Diseño de páginas web estándar",
       "Formulario de contacto avanzado",
       "Integración Google Analytics",
       "Botones de WhatsApp flotantes",
@@ -213,7 +213,8 @@ const sitioWebPriceCards = [
     features: [
       "Tu dominio.com por un año gratis",
       "Gestión y creación de redes sociales",
-      "Hasta 5 páginas adicionales o blog",
+      "Hasta + 10 páginas adicionales ",
+      "Diseño web moderno y personalizado",
       "Campaña SEO con Google Ads (publicidad)",
       "Página web 100% editable",
       "Formularios de captación de leads",
@@ -235,7 +236,7 @@ const ecommercePriceCards = [
     icon: 'circle',
     features: [
       "Tu dominio.com & hosting por un año",
-      "Catálogo de hasta 30 productos",
+      "Catálogo de hasta 100 a 200 productos",
       "Pasarela de pagos (Tarjetas/Transferencias)",
       "Diseño web adaptable a móviles",
       "Panel administrativo autogestionable",
@@ -251,7 +252,7 @@ const ecommercePriceCards = [
     icon: 'triangle',
     features: [
       "Todo lo del plan Emprendedor",
-      "Hasta 100 productos en catálogo",
+      "Hasta 200 a 300 productos",
       "Integración con Facebook e Instagram Shopping",
       "Sistema de Cupones de descuento",
       "Correos corporativos para el equipo",
@@ -267,7 +268,7 @@ const ecommercePriceCards = [
     icon: 'star',
     features: [
       "Todo lo del plan Pyme",
-      "Productos ilimitados en tienda",
+      "Asta +1000 productos",
       "Multi-idioma / Multi-moneda internacional",
       "Programa de lealtad y puntos para clientes",
       "Integración automática con envíos",
@@ -775,9 +776,8 @@ const AffiliationSection = () => {
     const amount = wizardData.tipoPago === 'anticipo' ? Math.round(baseAmount / 2) : baseAmount;
     
     // Backend API URL - adjust for production
-    const BACKEND_URL = process.env.NODE_ENV === 'production' 
-      ? 'https://api.undercodeec.com' 
-      : 'http://localhost:3001';
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
+      || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
     
     // Prepare order data for email sending
     const orderData = {
@@ -852,14 +852,34 @@ const AffiliationSection = () => {
         setPaymentWindowOpen(true);
         setIsSubmitting(false);
         
-        
         // Monitor the popup window and active storage checks
         const clientTransactionId = data.clientTransactionId;
         console.log('🆔 Tracking PayPhone Transaction:', clientTransactionId);
 
         let pollingTick = 0;
+        let checkPaymentWindow;
 
-        const checkPaymentWindow = setInterval(async () => {
+        const handlePaymentMessage = (event) => {
+            if (event.data && event.data.type === 'PAYMENT_COMPLETED') {
+                console.log("✅ Pricing Form detected payment completion from popup");
+                if (paymentWindow && !paymentWindow.closed) {
+                    paymentWindow.close();
+                }
+                window.removeEventListener('message', handlePaymentMessage);
+                if (checkPaymentWindow) clearInterval(checkPaymentWindow);
+                setPaymentWindowOpen(false);
+                
+                // Clean up flags
+                localStorage.removeItem('paymentNotification');
+                localStorage.removeItem('paymentCompleted');
+                
+                handlePaymentCompleted(orderData);
+            }
+        };
+        
+        window.addEventListener('message', handlePaymentMessage);
+
+        checkPaymentWindow = setInterval(async () => {
           pollingTick++;
 
           // 1. ACTIVE BACKEND POLLING (Every ~2 seconds)
@@ -1000,9 +1020,8 @@ const AffiliationSection = () => {
 
   // Function to send order confirmation emails
   const sendOrderEmails = async (orderData) => {
-    const BACKEND_URL = process.env.NODE_ENV === 'production' 
-      ? 'https://api.undercodeec.com' 
-      : 'http://localhost:3001';
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
+      || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
     
     try {
       const response = await fetch(`${BACKEND_URL}/api/send-order-emails`, {
@@ -1346,9 +1365,8 @@ const AffiliationSection = () => {
     };
 
     try {
-        const BACKEND_URL = process.env.NODE_ENV === 'production' 
-            ? 'https://api.undercodeec.com' 
-            : 'http://localhost:3001';
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
+            || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
 
         const response = await fetch(`${BACKEND_URL}/api/send-webapp-request`, {
             method: 'POST',
@@ -1404,9 +1422,8 @@ const AffiliationSection = () => {
     };
 
     try {
-        const BACKEND_URL = process.env.NODE_ENV === 'production' 
-            ? 'https://api.undercodeec.com' 
-            : 'http://localhost:3001';
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
+            || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
 
         const response = await fetch(`${BACKEND_URL}/api/send-mobileapp-request`, {
             method: 'POST',
@@ -1462,9 +1479,8 @@ const AffiliationSection = () => {
     };
 
     try {
-        const BACKEND_URL = process.env.NODE_ENV === 'production' 
-            ? 'https://api.undercodeec.com' 
-            : 'http://localhost:3001';
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
+            || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
 
         const response = await fetch(`${BACKEND_URL}/api/send-moodle-request`, {
             method: 'POST',
@@ -1516,9 +1532,8 @@ const AffiliationSection = () => {
 
       try {
         // Use full URL if in production (same logic as payment)
-        const BACKEND_URL = process.env.NODE_ENV === 'production' 
-            ? 'https://api.undercodeec.com' 
-            : 'http://localhost:3001';
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
+            || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
 
         const response = await fetch(`${BACKEND_URL}/api/send-software-request`, {
             method: 'POST',

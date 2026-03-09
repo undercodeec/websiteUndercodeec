@@ -11,7 +11,7 @@ function PaymentResultContent() {
   const [message, setMessage] = useState('Verificando estado del pago...');
   const [transactionDetails, setTransactionDetails] = useState<any>(null);
   const [isPopup, setIsPopup] = useState(false);
-  
+
   // Debug logs state
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
 
@@ -23,9 +23,8 @@ function PaymentResultContent() {
   };
 
   // Backend URL configuration
-  const BACKEND_URL = process.env.NODE_ENV === 'production' 
-    ? 'https://api.undercodeec.com' 
-    : 'http://localhost:3001';
+  const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
+    || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
 
   useEffect(() => {
     // Check if this is running in a popup window
@@ -52,7 +51,7 @@ function PaymentResultContent() {
         // Retrieve order details from localStorage
         const pendingOrderData = localStorage.getItem('pendingOrderData');
         let orderData = null;
-        
+
         if (pendingOrderData) {
           try {
             orderData = JSON.parse(pendingOrderData);
@@ -65,7 +64,7 @@ function PaymentResultContent() {
         }
 
         addLog(`🔄 Calling confirm-payment API at ${BACKEND_URL}...`);
-        
+
         // Call backend to confirm payment and send emails
         const response = await fetch(`${BACKEND_URL}/api/confirm-payment`, {
           method: 'POST',
@@ -80,11 +79,11 @@ function PaymentResultContent() {
         });
 
         addLog(`📨 API Status: ${response.status}`);
-        
+
         if (!response.ok) {
-           const errorText = await response.text();
-           addLog(`❌ API Error Body: ${errorText}`);
-           throw new Error(`API Error: ${response.status}`);
+          const errorText = await response.text();
+          addLog(`❌ API Error Body: ${errorText}`);
+          throw new Error(`API Error: ${response.status}`);
         }
 
         const data = await response.json();
@@ -96,7 +95,7 @@ function PaymentResultContent() {
           setStatus('success');
           setMessage('¡Pago completado exitosamente! Procesando...');
           setTransactionDetails(data.details);
-          
+
           // Save payment completion flag to localStorage
           localStorage.setItem('paymentCompleted', JSON.stringify({
             success: true,
@@ -104,12 +103,12 @@ function PaymentResultContent() {
             amount: data.details?.amount,
             timestamp: Date.now()
           }));
-          
+
           addLog('💾 Saved to localStorage: paymentCompleted');
-          
+
           // Clear pending order data
           localStorage.removeItem('pendingOrderData');
-          
+
           // Notify parent window if this is a popup
           if (window.opener && !window.opener.closed) {
             addLog('📤 Sending postMessage to parent');
@@ -124,7 +123,7 @@ function PaymentResultContent() {
             } catch (e) {
               addLog(`❌ postMessage error: ${e}`);
             }
-            
+
             // Also trigger a storage event as backup
             localStorage.setItem('paymentNotification', JSON.stringify({
               type: 'PAYMENT_COMPLETED',
@@ -137,7 +136,7 @@ function PaymentResultContent() {
           } else {
             addLog('⚠️ No parent window found (not in popup mode)');
           }
-          
+
           // If popup, close after 5 seconds (give time for message to be received)
           if (isInPopup) {
             addLog('⏳ Closing popup in 5s...');
@@ -146,13 +145,13 @@ function PaymentResultContent() {
               window.close();
             }, 5000);
           }
-          
+
         } else if (data.transactionStatus === 2) {
           // Payment cancelled/rejected
           addLog('❌ Payment cancelled/rejected');
           setStatus('cancelled');
           setMessage('El pago fue cancelado o rechazado.');
-          
+
           // Notify parent window
           if (window.opener && !window.opener.closed) {
             window.opener.postMessage({
@@ -164,7 +163,7 @@ function PaymentResultContent() {
           addLog(`⚠️ Unknown status: ${data.transactionStatus}`);
           setStatus('error');
           setMessage(data.error || 'Hubo un problema verificando el pago.');
-          
+
           // Notify parent window
           if (window.opener && !window.opener.closed) {
             window.opener.postMessage({
@@ -180,7 +179,7 @@ function PaymentResultContent() {
         console.error('Error confirming payment:', error);
         setStatus('error');
         setMessage('Error de conexión. Por favor contacta a soporte.');
-        
+
         // Notify parent window of error
         if (window.opener && !window.opener.closed) {
           window.opener.postMessage({
@@ -205,7 +204,7 @@ function PaymentResultContent() {
             <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
           </>
         )}
-        
+
         {status === 'success' && (
           <>
             <h2 style={{ color: '#2ecc71' }}>¡Pago Exitoso!</h2>
@@ -237,7 +236,7 @@ function PaymentResultContent() {
           </>
         )}
       </div>
-      
+
       {/* Debug Logs Section */}
       <div style={{ marginTop: '40px', borderTop: '1px solid #ddd', paddingTop: '20px' }}>
         <h3 style={{ fontSize: '14px', color: '#888' }}>Debug Log (No cerrar si hay error):</h3>

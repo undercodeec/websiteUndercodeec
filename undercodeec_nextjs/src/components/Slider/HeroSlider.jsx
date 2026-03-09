@@ -11,6 +11,7 @@ import './slider.css';
 const backgroundPattern = '/assets/slider/6fa818bb935c0e2a1081f259d84df226b237a184.png';
 const monitorImage = '/assets/slider/6b71e3ffeb1745be4d8b903007d2836793483db6.png';
 const phoneImageFloating = '/assets/slider/27243ea8ef847ba47c211ec9091848db1ffe8454.png';
+const mobileImage = '/assets/slider/66f0344ac49f2d8983e5df4c83caa818ebfb5c45.png';
 import HeroModel from '@/components/3D/HeroModel';
 
 const slides = [
@@ -43,6 +44,18 @@ export default function HeroSlider() {
   const sliderRef = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentImage, setCurrentImage] = useState(0); // 0 = character, 1 = monitor
+  const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Alternar imagen cada 8 segundos
   useEffect(() => {
@@ -73,7 +86,7 @@ export default function HeroSlider() {
   };
 
   return (
-    <div className="tw-relative tw-w-full tw-h-screen tw-overflow-hidden">
+    <div className="tw-relative tw-w-full tw-h-[100dvh] tw-overflow-hidden">
       {/* Animated Gradient Background */}
       <div className="tw-absolute tw-inset-0 gradient-bg tw-z-0 tw-pointer-events-none" />
       
@@ -94,7 +107,7 @@ export default function HeroSlider() {
       {/* Slider */}
       <Slider ref={sliderRef} {...settings} className="tw-h-full tw-relative tw-z-30">
         {slides.map((slide, index) => (
-          <div key={index} className="tw-h-screen">
+          <div key={index} className="tw-h-[100dvh]">
             <div className="tw-relative tw-h-full tw-flex tw-items-center tw-justify-center tw-px-4 md:tw-px-8 lg:tw-px-16">
               <div className="tw-container tw-mx-auto tw-max-w-7xl">
                 <div className="tw-grid lg:tw-grid-cols-2 tw-gap-8 lg:tw-gap-16 tw-items-center">
@@ -110,7 +123,7 @@ export default function HeroSlider() {
                       initial={{ opacity: 0, y: 30 }}
                       animate={currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                       transition={{ duration: 0.6, delay: 0.4 }}
-                      className="gradient-title tw-text-[40px] md:tw-text-[64px] tw-font-bold tw-leading-tight"
+                      className="gradient-title tw-text-[32px] sm:tw-text-[40px] md:tw-text-[64px] tw-font-bold tw-leading-tight"
                     >
                       {slide.title}
                     </motion.h1>
@@ -136,6 +149,10 @@ export default function HeroSlider() {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          const section = document.getElementById('demos');
+                          if (section) section.scrollIntoView({ behavior: 'smooth' });
+                        }}
                         className="tw-px-8 tw-py-4 tw-rounded-full tw-font-bold tw-text-white tw-text-lg tw-transition-all tw-duration-300"
                         style={{ backgroundColor: '#600b56' }}
                       >
@@ -151,7 +168,7 @@ export default function HeroSlider() {
                       initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
                       animate={currentSlide === index ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.8, rotate: -10 }}
                       transition={{ duration: 0.8, delay: 0.3 }}
-                      className="tw-relative tw-hidden lg:tw-flex tw-items-center tw-justify-center"
+                      className="tw-relative tw-flex tw-items-center tw-justify-center"
                     >
                       {/* Glow Effect */}
                       <motion.div
@@ -180,96 +197,65 @@ export default function HeroSlider() {
                       </motion.div>
 
                       {/* Character */}
-                      <div className="tw-relative tw-flex tw-items-center tw-justify-center">
-                        <AnimatePresence mode="wait">
-                          {currentImage === 0 ? (
-                            <motion.div
-                                key="hero-model"
-                                className="tw-relative tw-drop-shadow-2xl"
-                                style={{ width: '500px', height: '500px' }}
-                                initial={{ 
-                                  opacity: 0, 
-                                  scale: 0.5, 
-                                  rotate: -45,
-                                  x: -100,
-                                  filter: 'blur(20px)'
-                                }}
-                                animate={{ 
-                                  opacity: 1, 
-                                  scale: 1, 
-                                  rotate: 0,
-                                  x: 0,
-                                  y: [0, -20, 0],
-                                  filter: 'blur(0px)'
-                                }}
-                                exit={{ 
-                                  opacity: 0, 
-                                  scale: 0.5, 
-                                  rotate: 45,
-                                  x: 100,
-                                  filter: 'blur(20px)'
-                                }}
-                                transition={{
-                                  opacity: { duration: 0.8, ease: 'easeInOut' },
-                                  scale: { duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] },
-                                  rotate: { duration: 0.8, ease: 'easeInOut' },
-                                  x: { duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] },
-                                  filter: { duration: 0.6 },
-                                  y: {
-                                    duration: 4,
-                                    repeat: Infinity,
-                                    ease: 'easeInOut',
-                                    delay: 0.8
-                                  }
-                                }}
-                            >
-                                <HeroModel />
-                            </motion.div>
-                          ) : (
-                            <motion.img
-                                key="monitor-image"
-                                src={monitorImage}
-                                alt="Web Developer Character"
-                                className="tw-relative tw-drop-shadow-2xl"
-                                style={{ width: '500px', height: '500px', objectFit: 'contain' }}
-                                initial={{ 
-                                opacity: 0, 
-                                scale: 0.5, 
-                                rotate: -45,
-                                x: 100,
-                                filter: 'blur(20px)'
-                                }}
-                                animate={{ 
-                                opacity: 1, 
-                                scale: 1, 
-                                rotate: 0,
-                                x: 0,
-                                y: [0, -20, 0],
-                                filter: 'blur(0px)'
-                                }}
-                                exit={{ 
-                                opacity: 0, 
-                                scale: 0.5, 
-                                rotate: 45,
-                                x: -100,
-                                filter: 'blur(20px)'
-                                }}
-                                transition={{
-                                opacity: { duration: 0.8, ease: 'easeInOut' },
-                                scale: { duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] },
-                                rotate: { duration: 0.8, ease: 'easeInOut' },
-                                x: { duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] },
-                                filter: { duration: 0.6 },
-                                y: {
-                                    duration: 4,
-                                    repeat: Infinity,
-                                    ease: 'easeInOut',
-                                    delay: 0.8
-                                }
-                                }}
-                            />
-                          )}
-                        </AnimatePresence>
+                      <div className="tw-relative tw-flex tw-items-center tw-justify-center tw-w-[280px] tw-h-[280px] md:tw-w-[400px] md:tw-h-[400px] lg:tw-w-[500px] lg:tw-h-[500px]">
+                        {/* Hero Model (3D Canvas) - We use display none when hidden to pause WebGL rendering and save resources */}
+                        <motion.div
+                            className="tw-absolute tw-inset-0 tw-drop-shadow-2xl"
+                            style={{ 
+                              pointerEvents: currentImage === 0 ? 'auto' : 'none',
+                              zIndex: currentImage === 0 ? 10 : 1
+                            }}
+                            initial={false}
+                            animate={{ 
+                              opacity: currentImage === 0 ? 1 : 0, 
+                              scale: currentImage === 0 ? 1 : 0.8, 
+                              rotate: currentImage === 0 ? 0 : 45,
+                              x: currentImage === 0 ? 0 : 50,
+                              y: [0, -20, 0],
+                              visibility: currentImage === 0 ? 'visible' : 'hidden'
+                            }}
+                            transition={{
+                              opacity: { duration: 0.5, ease: 'easeInOut' },
+                              scale: { duration: 0.5, ease: [0.43, 0.13, 0.23, 0.96] },
+                              rotate: { duration: 0.5, ease: 'easeInOut' },
+                              x: { duration: 0.5, ease: [0.43, 0.13, 0.23, 0.96] },
+                              y: { duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }
+                            }}
+                        >
+                            {isMobile || !mounted ? (
+                              <img src={mobileImage} alt="Mobile Character" className="tw-w-full tw-h-full tw-object-contain tw-drop-shadow-2xl" />
+                            ) : (
+                              <HeroModel isActive={currentImage === 0} />
+                            )}
+                        </motion.div>
+
+                        {/* Monitor Image */}
+                        <motion.img
+                            src={monitorImage}
+                            alt="Web Developer Character"
+                            className="tw-absolute tw-inset-0 tw-drop-shadow-2xl"
+                            style={{ 
+                              width: '100%', height: '100%', objectFit: 'contain',
+                              pointerEvents: currentImage === 1 ? 'auto' : 'none',
+                              zIndex: currentImage === 1 ? 10 : 1
+                            }}
+                            initial={false}
+                            animate={{ 
+                              opacity: currentImage === 1 ? 1 : 0, 
+                              scale: currentImage === 1 ? 1 : 0.8, 
+                              rotate: currentImage === 1 ? 0 : -45,
+                              x: currentImage === 1 ? 0 : -50,
+                              y: [0, -20, 0],
+                              visibility: currentImage === 1 ? 'visible' : 'hidden'
+                            }}
+                            transition={{
+                              opacity: { duration: 0.5, ease: 'easeInOut' },
+                              scale: { duration: 0.5, ease: [0.43, 0.13, 0.23, 0.96] },
+                              rotate: { duration: 0.5, ease: 'easeInOut' },
+                              x: { duration: 0.5, ease: [0.43, 0.13, 0.23, 0.96] },
+                              y: { duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }
+                            }}
+                        />
                         
                         {/* Floating Phone */}
                         <motion.img

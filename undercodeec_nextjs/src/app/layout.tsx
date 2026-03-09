@@ -51,9 +51,9 @@ export default function RootLayout({
         <link rel="stylesheet" href="/assets/css/style.css" />
         <link rel="stylesheet" href="/landing-preview/css/preview-style.css" />
         <link rel="stylesheet" href="/assets/css/animations.css" />
-       
+
       </head>
-      <body>
+      <body suppressHydrationWarning={true}>
         <AIAssistant />
         {children}
         <Script src="/assets/js/lib/pace.js" strategy="afterInteractive" />

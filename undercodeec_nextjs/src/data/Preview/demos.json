@@ -1,5 +1,21 @@
 [
   {
+    "link": "https://web.nsr.edu.ec/",
+    "img": "/landing-preview/img/demos/instituto.webp",
+    "title": "Página Personalizada",
+    "type": "Nuestra Señora del Rosario",
+    "isNew": true,
+    "alt": "Diseño web personalizado para Unidad Educativa NSR"
+  },
+  {
+    "link": "https://glogiklogistics.com/",
+    "img": "/landing-preview/img/demos/logik.webp",
+    "title": "Página Personalizada",
+    "type": "Glogik Logistics",
+    "isNew": true,
+    "alt": "Diseño web personalizado para Glogik Logistics"
+  },
+  {
     "link": "https://gunsmithsec.com/",
     "img": "/landing-preview/img/demos/gunsmit.webp",
     "title": "Página Personalizada",
