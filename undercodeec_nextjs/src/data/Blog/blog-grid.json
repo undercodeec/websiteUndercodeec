@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "image": "https://picsum.photos/400/250?random=1",
+    "category": "Marketing",
+    "date": "08 Nov",
+    "title": "Logistics Marketing Strategy: Customer Focus For Logistics...",
+    "excerpt": "Customer-focused logistics marketing that wins higher-value..."
+  },
+  {
+    "id": 2,
+    "image": "https://picsum.photos/400/250?random=2",
+    "category": "Marketing",
+    "date": "22 Jan",
+    "title": "LowFruits Review: The Ultimate Low Competition Keyword...",
+    "excerpt": "Honest LowFruits review from an agency that uses it daily. Pricing..."
+  },
+  {
+    "id": 3,
+    "image": "https://picsum.photos/400/250?random=3",
+    "categories": ["Marketing", "Web Dev"],
+    "category": "Marketing, Web Dev",
+    "date": "25 Dec",
+    "title": "10 Best Practices For Creating Effective HVAC Landing Page",
+    "excerpt": "10 proven best practices for HVAC landing pages that turn ad clicks int..."
+  },
+  {
+    "id": 4,
+    "image": "https://picsum.photos/400/250?random=4",
+    "category": "Web Dev",
+    "date": "24 Dec",
+    "title": "How Much Does A Landing Page Cost In 2026?",
+    "excerpt": "Landing page costs range from $300 to $10,000+. Exact price breakdown..."
+  }
+]

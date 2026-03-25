@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
 const Content = ({ list, rtl }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
   return (
     <div className="content">
       <div className="container">
@@ -16,21 +18,41 @@ const Content = ({ list, rtl }) => {
             <div className="section-head mb-30 style-5">
               <h2>{ rtl ? 'أكثر من 100' : 'Desarrollamos' } <span>{ rtl ? 'بوابة دفع' : 'Apps' }</span> </h2>
             </div>
-            <p>
+            <p className="mb-4">
               { rtl ? 'مع سوق Iteck ، اختر من بين مئات بوابات الدفع لعملائك. من PayPal إلى Stripe إلى Skrill ، Visa Debit ، Master Card ، إلخ' : 'Diseñamos apps a medida para satisfacer las necesidades específicas de tu empresa. Desde la gestión de pagos hasta la experiencia de usuario, todo ajustado a ti. ¡Descubre cómo podemos ayudarte hoy!' }
             </p>
-            <ul className="list-icon">
+            
+            <div className="line-links d-flex flex-column align-items-start">
               {
-                list.map((item, index) => (
-                  <li key={index}>
-                    <span className="icon">
-                      <i className={item.icon}></i>
-                    </span>
-                    <h6>{ item.title }</h6>
-                  </li>
-                ))
+                list.map((item, index) => {
+                  const isActive = activeIndex === index;
+                  return (
+                    <div key={index} className="w-100 mb-1">
+                      <a 
+                        href="#!" 
+                        onClick={(e) => { e.preventDefault(); setActiveIndex(isActive ? -1 : index); }}
+                        style={{
+                          borderColor: isActive ? '#600b56' : '#ddd',
+                          color: isActive ? '#600b56' : '#666',
+                          backgroundColor: isActive ? '#f8f9fa' : 'transparent',
+                          textDecoration: 'none',
+                          display: 'inline-block'
+                        }}
+                      >
+                        <i className={`${item.icon} me-2`}></i>
+                        { item.title }
+                      </a>
+                      
+                      {isActive && item.desc && (
+                        <div className="mt-1 mb-3 p-3 rounded-3 bg-light text-muted border border-light" style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                          { item.desc }
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
               }
-            </ul>
+            </div>
             <Link href="/aplicaciones-moviles" className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold mt-50">
               <span>{ rtl ? 'احجز عرضًا تجريبيًا مجانيًا ' : 'Saber Más' }</span>
             </Link>

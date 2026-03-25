@@ -11,7 +11,6 @@ import Philosophy from "@/components/Saas/Philosophy";
 import ChooseUs from "@/components/Saas/ChooseUs";
 import Clients from "@/components/Saas/Clients";
 import Numbers from "@/components/Saas/Numbers";
-import Culture from "@/components/Saas/Culture";
 import Team from "@/components/Saas/Team";
 import Contact from "@/components/Saas/Contact";
 import Footer from "@/components/Saas/Footer";
@@ -30,13 +29,12 @@ export default function NuestraTrayectoriaPage() {
       <TopNav style="5" rtl={false} />
       <Navbar navbarRef={navbarRef} bgTransparent={false} />
       <main className="about-page style-5">
-        <AboutHeader rtl={false} paddingTop={false} />
+        <AboutHeader rtl={false} />
         <Community rtl={false} />
         <Philosophy rtl={false} />
         <ChooseUs rtl={false} />
         <Clients padding={true} rtl={false} />
         <Numbers rtl={false} />
-        <Culture rtl={false} />
         <Team rtl={false} />
         <Contact rtl={false} />
       </main>

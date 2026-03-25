@@ -1,18 +1,23 @@
 {
   "lineLinks": [
-    "Cifrado de Datos",
-    "Autenticación Multifactor (MFA)",
-    "Cumplimiento de Normativas",
-    "Actualizaciones de Seguridad"
+    { "icon": "bi bi-shield-lock", "title": "Cifrado de Datos", "desc": "Protegemos la información sensible de tu empresa y clientes mediante algoritmos de cifrado de extremo a extremo, asegurando que los datos no puedan ser interceptados ni leídos por terceros." },
+    { "icon": "bi bi-fingerprint", "title": "Autenticación Multifactor (MFA)", "desc": "Añadimos capas adicionales de seguridad requiriendo múltiples métodos de verificación para acceder a tus sistemas, previniendo accesos no autorizados en todo momento." },
+    { "icon": "bi bi-check2-circle", "title": "Cumplimiento de Normativas", "desc": "Garantizamos que tu plataforma cumpla con los estándares legales y regulaciones de privacidad vigentes, brindando tranquilidad a tu negocio y confianza a tus usuarios." },
+    { "icon": "bi bi-arrow-repeat", "title": "Actualizaciones de Seguridad", "desc": "Mantenemos tu software protegido frente a nuevas amenazas tecnológicas mediante parches y actualizaciones continuas." }
   ],
   "list": [
-    { "icon": "bi bi-check2", "title": "Seguridad para tu aplicación" },
-    { "icon": "bi bi-check2", "title": "Fáciles de usar" },
-    { "icon": "bi bi-check2", "title": "Precios módicos" }
+    { "icon": "bi bi-palette", "title": "Diseño UX/UI Intuitivo", "desc": "Creamos interfaces modernas centradas en la experiencia del usuario, garantizando que tu aplicación sea atractiva, intuitiva y retenga a tus clientes a largo plazo." },
+    { "icon": "bi bi-phone", "title": "Desarrollo Nativo e Híbrido", "desc": "Construimos aplicaciones de alto rendimiento adaptadas tanto a iOS como Android, utilizando tecnologías de vanguardia que impulsan las metas de tu negocio." },
+    { "icon": "bi bi-hdd-network", "title": "Integración y Escalabilidad", "desc": "Tu aplicación estará lista para crecer contigo, conectándose sin problemas a tus sistemas actuales, bases de datos o pasarelas de pago seguras." }
   ],
   "texts": {
     "text1": "Haz que tu página web refleje completamente la identidad de tu negocio. Con nuestras herramientas de personalización intuitivas, puedes adaptar cada elemento de tu sitio para que se ajuste a tus necesidades.",
     "text2": "Desde el diseño hasta las funciones específicas, ofrecemos un control total sobre los permisos y las actividades de los proveedores. ¡No importa el tipo de negocio, personaliza cada rincón de tu sitio web y ofrece una experiencia única a tus clientes!"
   },
+  "webLinks": [
+    { "icon": "bi bi-brush", "title": "Diseño UI/UX Atractivo", "desc": "Creamos experiencias visuales cautivadoras, combinando arte y usabilidad para que tu sitio no solo se vea bien, sino que sea fácil de navegar." },
+    { "icon": "bi bi-code-slash", "title": "Desarrollo y Rendimiento", "desc": "Construimos sitios web ultra rápidos y responsivos utilizando las últimas tecnologías del mercado como React y Next.js." },
+    { "icon": "bi bi-cloud-check", "title": "Alojamiento y Escalabilidad", "desc": "Preparamos la infraestructura de tu proyecto para que crezca junto con tu negocio, asegurando estabilidad y seguridad en todo momento." }
+  ],
   "number": "42,500+"
 }

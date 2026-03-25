@@ -12,7 +12,7 @@ const About = ({ noPaddingTop, rtl }) => {
     <section className={`about ${noPaddingTop ? 'pt-0 pb-150':'section-padding'} style-5`} data-scroll-index="1">
       <Content1 links={data.lineLinks} rtl={rtl} />
       <Content2 list={data.list} rtl={rtl} />
-      <Content3 texts={data.texts} rtl={rtl} number={aboutData.number} />
+      <Content3 texts={data.texts} webLinks={data.webLinks || []} rtl={rtl} number={aboutData.number} />
     </section>
   )
 }

@@ -8,8 +8,13 @@ const Community = ({ rtl }) => {
   return (
     <section className="community pt-40 style-5">
       <div className="container">
-        <div className="section-head text-center mb-40 style-5">
-          <h2 className="mb-20">{ rtl ? 'لماذا' : '¿Por qué' } <span>{ rtl ? 'نحن' : 'elegirnos?' }</span> </h2>
+        <div className="sec-head text-center mb-40">
+          <h2 className="num">
+            <span className="color-grd">
+              { rtl ? 'لماذا' : 'COMUNIDAD' }<span className="thin"></span>
+            </span>
+          </h2>
+          <h3 className="text-capitalize tw-text-gray-900">{ rtl ? 'نحن' : '¿Por qué elegirnos?' }</h3>
         </div>
         <div className="content rounded-pill">
           {

@@ -138,34 +138,49 @@ const moodleSteps = [
 // Config for Landing Page - Price Cards
 const landingPriceCards = [
   { 
-    id: 'basico',
-    price: 80, 
-    label: 'Landing Básico', 
-    description: 'Tu dominio.com & hosting por un año. Ideal para campañas rápidas.',
+    id: 'lanzamiento',
+    price: 250, 
+    label: 'Plan de Lanzamiento', 
+    description: 'Lanza tu campaña en tiempo récord. Obtén una presencia digital funcional, rápida y atractiva.',
     icon: 'circle',
     features: [
-        "Tu dominio.com & hosting por un año",
-        "Diseño de Landing Page en Quito (una página)",
-        "SEO básico para buscadores",
-        "Diseño adaptable (Responsive)",
+        "Dominio.com y Hosting por 1 año",
+        "Diseño unico optimizado",
+        "Diseño 100% adaptable (Mobile-first)",
         "Formulario de contacto",
-        "Botones de WhatsApp"
+        "Botones flotantes de WhatsApp y Llamadas",
+        "SEO orgánico integrado",
+        "Soporte durante 1 mes y garantía de 1 año."
     ]
   },
   { 
-    id: 'profesional',
-    price: 160, 
-    label: 'Landing Profesional', 
-    description: 'Diseño personalizado y optimización SEO avanzada.',
+    id: 'crecimiento',
+    price: 600, 
+    label: 'Plan de Crecimiento', 
+    description: 'Diseño estratégico orientado a la conversión (CRO). Convertimos a tus visitantes en prospectos reales.',
     icon: 'triangle',
     features: [
-        "Tu dominio.com & hosting por un año",
-        "Secciones extendidas de alto impacto",
-        "SEO avanzado y Copywriting estratégico",
-        "Diseño web moderno y animaciones",
-        "Formulario de contacto + Lead Magnet",
-        "Google Analytics / Pixel de Facebook",
-        "Botones de WhatsApp"
+        "Todo lo del Plan Lanzamiento",
+        "Diseño semi-personalizado y UX",
+        "Copywriting persuasivo",
+        "Lead Magnet (descargables, cupones)",
+        "Google Analytics 4 y Píxel de Meta",
+        "Integración con Email Marketing/CRM"
+    ]
+  },
+  { 
+    id: 'autoridad',
+    price: 1500, 
+    label: 'Plan de Autoridad', 
+    description: 'El ecosistema definitivo de ventas. Creada desde cero, con datos y automatizaciones 24/7.',
+    icon: 'star',
+    features: [
+        "Todo lo del Plan Crecimiento",
+        "Diseño 100% a medida con animaciones",
+        "Pruebas A/B y mapas de calor",
+        "Integraciones complejas (Reservas, pasarelas)",
+        "Chatbots inteligentes con IA",
+        "SEO Avanzado y arquitectura de contenido"
     ]
   }
 ];
@@ -173,55 +188,48 @@ const landingPriceCards = [
 // Config for Website (Sitio Web) - Price Cards
 const sitioWebPriceCards = [
   { 
-    id: 'basico',
-    price: 120, 
-    label: 'Sitio Web Corporativo', 
-    description: 'Tu presencia digital profesional con dominio y hosting.',
+    id: 'lanzamiento',
+    price: 360, 
+    label: 'Plan de Lanzamiento', 
+    description: 'Tu negocio abierto al mundo 24/7. Una web profesional, rápida y optimizada para móviles que genera confianza en tus clientes.',
     icon: 'circle',
     features: [
-      "Tu dominio.com & hosting por un año",
-      "Página de inicio, servicios, nosotros, contacto",
-      "SEO básico (búsquedas en Google local)",
-      "Diseño de páginas web estándar",
-      "Formulario de contacto funcional",
-      "Botones de WhatsApp integrados"
+      "Diseño basado, optimizadas y adaptadas a la identidad de la marca",
+      "Estructura de 5 a 10 páginas (Inicio, Servicios, Nosotros, etc.)",
+      "Diseño 100% Mobile-first (obligatorio en 2026)",
+      "Configuración SEO orgánico integrado",
+      "Formularios de contacto e integración con WhatsApp",
+      "Dominio.com y Hosting por 1 año",
+      "Soporte durante 1 mes y garantía de 1 año."
     ]
   },
   { 
-    id: 'profesional',
-    price: 200, 
-    label: 'Empresarial & SEO', 
-    description: 'Hasta 5 páginas con estrategia de posicionamiento web.',
+    id: 'crecimiento',
+    price: 800, 
+    label: 'Plan de Crecimiento', 
+    description: 'Transformamos tus visitas en clientes. Un sitio web estratégico centrado en la UX, SEO y captura de prospectos.',
     icon: 'triangle',
     features: [
-      "Tu dominio.com & hosting por un año",
-      "Hasta 8 páginas internas detalladas",
-      "SEO avanzado para posicionamiento en Google",
-      "Diseño de páginas web estándar",
-      "Formulario de contacto avanzado",
-      "Integración Google Analytics",
-      "Botones de WhatsApp flotantes",
-      "Correos corporativos profesionales"
+      "Todo lo del Plan Lanzamiento",
+      "Diseño semi-personalizado orientado a la conversión (CRO)",
+      "SEO Avanzado y SEO Local",
+      "Cumplimiento de Core Web Vitals (carga rápida)",
+      "Integración con CRM, email marketing o Google Analytics",
+      "Redacción persuasiva (Copywriting)"
     ]
   },
   { 
-    id: 'premium',
-    price: 360, 
-    label: 'Sitio Web Premium', 
-    description: 'Solución completa con publicidad digital y máxima seguridad.',
+    id: 'autoridad',
+    price: 2000, 
+    label: 'Plan de Autoridad', 
+    description: 'El ecosistema digital definitivo. Diseño 100% a medida, integraciones complejas y rendimiento extremo.',
     icon: 'star',
     features: [
-      "Tu dominio.com por un año gratis",
-      "Gestión y creación de redes sociales",
-      "Hasta + 10 páginas adicionales ",
-      "Diseño web moderno y personalizado",
-      "Campaña SEO con Google Ads (publicidad)",
-      "Página web 100% editable",
-      "Formularios de captación de leads",
-      "Botones de WhatsApp multi-agente",
-      "Correos corporativos ilimitados",
-      "Copias de seguridad automáticas diarias",
-      "Seguridad integrada (Firewall WAF)"
+      "Todo lo del Plan Crecimiento",
+      "Diseño visual UX/UI 100% personalizado",
+      "Integraciones complejas (reservas, ERP, pasarelas)",
+      "Automatización de ventas y Chatbots con IA",
+      "Auditoría de seguridad avanzada y arquitectura escalable"
     ]
   }
 ];
@@ -229,52 +237,51 @@ const sitioWebPriceCards = [
 // Config for Ecommerce (Tienda Online) - Price Cards
 const ecommercePriceCards = [
   { 
-    id: 'emprendedor',
-    price: 350, 
-    label: 'Tienda Emprendedor', 
-    description: 'Ideal para iniciar tu negocio online en Ecuador.',
+    id: 'lanzamiento',
+    price: 550, 
+    label: 'Tienda de Lanzamiento', 
+    description: 'Lanza tu primera tienda online con todo lo necesario para vender de forma segura, rápida y sin complicaciones técnicas.',
     icon: 'circle',
     features: [
-      "Tu dominio.com & hosting por un año",
-      "Catálogo de hasta 100 a 200 productos",
-      "Pasarela de pagos (Tarjetas/Transferencias)",
-      "Diseño web adaptable a móviles",
-      "Panel administrativo autogestionable",
-      "Botón de WhatsApp para ventas",
-      "Certificado SSL (Sitio Seguro)"
+      "4 conceptos de diseño",
+      "Tienda administrable para subir productos",
+      "Carga inicial de 50 a 100 productos con opcion a mas",
+      "Integración de pasarelas de pago (Stripe, Paypal, etc.)",
+      "Dominio.com y Hosting por 1 año",
+      "Compra de productos por WhatsApp, Telegram y redes sociales",
+      "Métodos de envíos avanzados y SEO orgánico integrado",
+      "Soporte durante 1 mes y garantía de 1 año."
     ]
   },
   { 
-    id: 'pyme',
-    price: 550, 
-    label: 'Tienda Pyme', 
-    description: 'Para negocios en crecimiento que buscan vender más.',
+    id: 'crecimiento',
+    price: 850, 
+    label: 'Tienda de Crecimiento', 
+    description: 'Escala tus ventas con una tienda optimizada. Mejoramos la experiencia de compra e integramos automatizaciones.',
     icon: 'triangle',
     features: [
-      "Todo lo del plan Emprendedor",
-      "Hasta 200 a 300 productos",
-      "Integración con Facebook e Instagram Shopping",
-      "Sistema de Cupones de descuento",
-      "Correos corporativos para el equipo",
-      "Reportes de ventas básicos",
-      "Chat en vivo para atención al cliente"
+      "Todo lo del Plan Lanzamiento",
+      "Diseño semi a medida enfocado en UX y CRO",
+      "Búsqueda y filtrado avanzado de productos",
+      "Sincronización de inventario y recuperación de carritos (CRM)",
+      "Copys persuasivos y SEO técnico avanzado",
+      "Reglas de envío dinámicas e impuestos"
     ]
   },
   { 
-    id: 'empresa',
-    price: 850, 
-    label: 'Ecommerce Empresarial', 
-    description: 'Solución robusta para alto volumen de ventas online.',
+    id: 'elite',
+    price: 3490, 
+    label: 'Tienda Élite', 
+    description: 'Arquitectura de alto rendimiento para líderes del mercado. Velocidad extrema, IA e integraciones a medida.',
     icon: 'star',
     features: [
-      "Todo lo del plan Pyme",
-      "Asta +1000 productos",
-      "Multi-idioma / Multi-moneda internacional",
-      "Programa de lealtad y puntos para clientes",
-      "Integración automática con envíos",
-      "SEO Avanzado para E-commerce",
-      "Soporte técnico prioritario",
-      "API para integraciones externas"
+      "Todo lo del Plan Crecimiento",
+      "Desarrollo 100% a medida o arquitectura Headless",
+      "Integración API con ERPs empresariales (SAP, Oracle)",
+      "Motores de recomendación con Inteligencia Artificial",
+      "Arquitectura multi-idioma, multi-moneda o multi-almacén (sistema de inventario)",
+      "Checkout y lógica de negocio a medida",
+      
     ]
   }
 ];
@@ -318,9 +325,14 @@ const AffiliationSection = () => {
   const [checkingPayment, setCheckingPayment] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false); // New state for terms
   const paymentWindowRef = useRef(null);
+  const checkPaymentIntervalRef = useRef(null);
   
   // Google Apps Script URL
   const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJJ91bFrS7VwdksBOfZluJZ6pLmwhdVw4TTOBsSWPtX2B91YqEa8OUXUPEHBFnCLmrvg/exec';
+  
+  const formatPrice = (price) => {
+    return Number(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
   
   // Wizard form data state
   const [wizardData, setWizardData] = useState({
@@ -335,7 +347,7 @@ const AffiliationSection = () => {
     domainName: '',
     
     // Step 3 - Budget (Sitio Web)
-    budget: 120,
+    budget: 360,
     isCustomQuote: false,
     customBudget: '',
     paymentMethod: '',
@@ -356,6 +368,7 @@ const AffiliationSection = () => {
     // Método de pago
     metodoPago: '', // 'tarjeta' o 'transferencia'
     tipoPago: 'total', // 'anticipo' (50%) o 'total' (100%)
+    deferredMonths: 0, // 0, 3, 6, 12
     comprobante: null,
     
     // Card payment fields (for PayPhone integration)
@@ -568,7 +581,14 @@ const AffiliationSection = () => {
 
   // Handle wizard data changes
   const handleWizardChange = (field, value) => {
-    setWizardData(prev => ({ ...prev, [field]: value }));
+    setWizardData(prev => {
+      const updated = { ...prev, [field]: value };
+      // Si cambia a anticipo, resetear meses diferidos
+      if (field === 'tipoPago' && value === 'anticipo') {
+        updated.deferredMonths = 0;
+      }
+      return updated;
+    });
   };
 
   // Handle multi-select (checkboxes) for software wizard
@@ -763,7 +783,7 @@ const AffiliationSection = () => {
        planName = selectedCard?.label || 'Sitio Web';
     } else if (selectedPlan === 'Tienda Online') {
        selectedCard = ecommercePriceCards.find(card => card.id === selectedEcommercePlan);
-       baseAmount = selectedCard?.price || 350;
+       baseAmount = selectedCard?.price || 850;
        planName = selectedCard?.label || 'Tienda Online';
     } else {
        // Default to Landing Page logic
@@ -773,7 +793,11 @@ const AffiliationSection = () => {
     }
 
     // Calculate amount based on payment type (50% for anticipo, 100% for total)
-    const amount = wizardData.tipoPago === 'anticipo' ? Math.round(baseAmount / 2) : baseAmount;
+    let basePayment = wizardData.tipoPago === 'anticipo' ? Math.round(baseAmount / 2) : baseAmount;
+    
+    // Al pagar con tarjeta de crédito, se añade un 5% de recargo sobre el total
+    // NOTA: El interés de diferido NO se suma aquí. PayPhone y el Banco se encargan.
+    const amount = Math.round(basePayment * 1.05);
     
     // Backend API URL - adjust for production
     const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
@@ -857,7 +881,6 @@ const AffiliationSection = () => {
         console.log('🆔 Tracking PayPhone Transaction:', clientTransactionId);
 
         let pollingTick = 0;
-        let checkPaymentWindow;
 
         const handlePaymentMessage = (event) => {
             if (event.data && event.data.type === 'PAYMENT_COMPLETED') {
@@ -866,7 +889,10 @@ const AffiliationSection = () => {
                     paymentWindow.close();
                 }
                 window.removeEventListener('message', handlePaymentMessage);
-                if (checkPaymentWindow) clearInterval(checkPaymentWindow);
+                if (checkPaymentIntervalRef.current) {
+                    clearInterval(checkPaymentIntervalRef.current);
+                    checkPaymentIntervalRef.current = null;
+                }
                 setPaymentWindowOpen(false);
                 
                 // Clean up flags
@@ -879,7 +905,7 @@ const AffiliationSection = () => {
         
         window.addEventListener('message', handlePaymentMessage);
 
-        checkPaymentWindow = setInterval(async () => {
+        checkPaymentIntervalRef.current = setInterval(async () => {
           pollingTick++;
 
           // 1. ACTIVE BACKEND POLLING (Every ~2 seconds)
@@ -893,7 +919,8 @@ const AffiliationSection = () => {
                 
                 if (statusData.success && statusData.status === 'Approved') {
                   console.log('✅ Payment confirmed via Backend Polling!');
-                  clearInterval(checkPaymentWindow);
+                  if (checkPaymentIntervalRef.current) clearInterval(checkPaymentIntervalRef.current);
+                  checkPaymentIntervalRef.current = null;
                   setPaymentWindowOpen(false);
                   
                   // Close popup if still open
@@ -922,7 +949,8 @@ const AffiliationSection = () => {
           
           if (paymentNotification || paymentCompleted) {
             console.log('✅ Payment detected via active polling (LocalStorage)');
-            clearInterval(checkPaymentWindow);
+            if (checkPaymentIntervalRef.current) clearInterval(checkPaymentIntervalRef.current);
+            checkPaymentIntervalRef.current = null;
             setPaymentWindowOpen(false);
             
             // Clean up flags
@@ -940,7 +968,8 @@ const AffiliationSection = () => {
 
           // 3. Check if window was closed manually
           if (paymentWindow.closed) {
-            clearInterval(checkPaymentWindow);
+            if (checkPaymentIntervalRef.current) clearInterval(checkPaymentIntervalRef.current);
+            checkPaymentIntervalRef.current = null;
             setPaymentWindowOpen(false);
             
             // Check one last time
@@ -1005,6 +1034,12 @@ const AffiliationSection = () => {
   // Function to manually check payment status (called from UI when user returns)
   const checkPaymentStatus = async () => {
     setCheckingPayment(true);
+    
+    // Clear the polling interval to stop dual execution
+    if (checkPaymentIntervalRef.current) {
+      clearInterval(checkPaymentIntervalRef.current);
+      checkPaymentIntervalRef.current = null;
+    }
     
     // Get pending order data
     const savedOrderData = localStorage.getItem('pendingOrderData');
@@ -1658,7 +1693,7 @@ const AffiliationSection = () => {
         Selecciona el plan que mejor se adapte a tus necesidades.
       </p>
 
-      <div className="landing-price-cards">
+      <div className="landing-price-cards three-columns">
         {landingPriceCards.map((card) => (
           <div
             key={card.id}
@@ -1686,7 +1721,7 @@ const AffiliationSection = () => {
 
             {/* Price */}
             <div className="price-card-price">
-              ${card.price.toFixed(2)}
+              ${card.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
 
             {/* Features */}
@@ -1901,7 +1936,7 @@ const AffiliationSection = () => {
             >
               <span className="payment-type-name">Pago Total</span>
               <span className="payment-type-amount">
-                ${selectedLandingPlan ? landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80 : 80} USD
+                ${formatPrice(selectedLandingPlan ? landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80 : 80)} USD
               </span>
               <span className="payment-type-badge">100%</span>
             </button>
@@ -1912,7 +1947,7 @@ const AffiliationSection = () => {
             >
               <span className="payment-type-name">Anticipo</span>
               <span className="payment-type-amount">
-                ${Math.round((selectedLandingPlan ? landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80 : 80) / 2)} USD
+                ${formatPrice(Math.round((selectedLandingPlan ? landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80 : 80) / 2))} USD
               </span>
               <span className="payment-type-badge anticipo">50%</span>
             </button>
@@ -1949,11 +1984,91 @@ const AffiliationSection = () => {
           <div className="payment-content card-payment">
             <div className="payment-info-card">
               <p className="payment-security-note">Pago seguro procesado por PayPhone</p>
-              <p className="payment-note">
-                Monto a pagar: <strong>${wizardData.tipoPago === 'anticipo' 
-                  ? Math.round((landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80) / 2) 
-                  : (landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80)} USD</strong>
-              </p>
+              
+              {(() => {
+                const basePrice = landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80;
+                let subtotal = wizardData.tipoPago === 'anticipo' ? Math.round(basePrice / 2) : basePrice;
+                const canDefer = wizardData.tipoPago !== 'anticipo';
+                
+                const cardFee = subtotal * 0.05;
+                const finalTotal = Math.round(subtotal + cardFee); // Interés de diferido lo suma el Banco
+                const monthlyPayment = wizardData.deferredMonths > 0 ? Math.round(finalTotal / wizardData.deferredMonths * 100) / 100 : 0;
+
+                return (
+                  <>
+                    {canDefer && (
+                      <div className="deferral-options-container" style={{ margin: '15px 0', padding: '15px', backgroundColor: 'rgba(239, 162, 56, 0.05)', borderRadius: '8px', border: '1px solid rgba(239, 162, 56, 0.2)' }}>
+                        <h5 style={{ margin: '0 0 10px 0', color: '#efa238', fontSize: '14px' }}>Opciones de diferido:</h5>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '8px' }}>
+                          {[
+                            { value: 0, label: '1 Pago', sub: 'Corriente' },
+                            { value: 3, label: '3 Meses', sub: 'Con interés del banco' },
+                            { value: 6, label: '6 Meses', sub: 'Con interés del banco' },
+                            { value: 12, label: '12 Meses', sub: 'Con interés del banco' }
+                          ].map(option => (
+                            <div 
+                              key={option.value}
+                              onClick={() => handleWizardChange('deferredMonths', option.value)}
+                              style={{ 
+                                padding: '8px', 
+                                textAlign: 'center', 
+                                borderRadius: '6px', 
+                                cursor: 'pointer',
+                                border: wizardData.deferredMonths === option.value ? '1px solid #efa238' : '1px solid rgba(255,255,255,0.1)',
+                                backgroundColor: wizardData.deferredMonths === option.value ? 'rgba(239, 162, 56, 0.2)' : 'rgba(255,255,255,0.02)',
+                                transition: 'all 0.2s ease'
+                              }}
+                            >
+                              <div style={{ fontWeight: 'bold', fontSize: '13px', color: wizardData.deferredMonths === option.value ? '#fff' : '#ccc' }}>{option.label}</div>
+                              <div style={{ fontSize: '11px', color: wizardData.deferredMonths === option.value ? '#efa238' : '#888' }}>{option.sub}</div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {wizardData.deferredMonths > 0 && (
+                          <div style={{ marginTop: '12px', padding: '10px', fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.05)', borderLeft: '3px solid #ff9800', color: '#ddd' }}>
+                            <strong>⚠️ Importante:</strong> Para diferir, debes ingresar una <strong>tarjeta de crédito</strong> de los siguientes bancos habilitados:
+                            <ul style={{ margin: '8px 0 4px 0', paddingLeft: '18px', lineHeight: '1.6', columns: 2, columnGap: '10px' }}>
+                              <li>Produbanco (Visa / MC)</li>
+                              <li>Amazonas (Visa)</li>
+                              <li>Bolivariano (Visa / MC)</li>
+                              <li>Internacional (Visa / MC)</li>
+                              <li>Mutualista Azuay (Visa)</li>
+                              <li>Mutualista Imbabura (Visa)</li>
+                              <li>Machala (Visa / MC)</li>
+                              <li>BBP Bank (Visa)</li>
+                              <li>Coop. JEP (Visa / MC)</li>
+                              <li>Coop. Oscus (Visa / MC)</li>
+                              <li>Coop. Pilahuinito (Visa)</li>
+                            </ul>
+                            <span style={{ fontSize: '11px', color: '#aaa' }}>El cálculo final de cuotas e intereses dependerá de tu banco. Verás el valor exacto en PayPhone.</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    <p className="payment-note" style={{ marginBottom: '5px' }}>
+                      Subtotal: <strong>${formatPrice(subtotal)} USD</strong>
+                    </p>
+                    
+                    <p className="payment-note" style={{ marginBottom: '5px', fontSize: '0.9em', color: '#ff9800' }}>
+                      + 5% Comisión Tarjeta: <strong>${formatPrice(cardFee)} USD</strong>
+                    </p>
+                    
+                    <p className="payment-note" style={{ fontSize: '1.2em' }}>
+                      Base a pagar: <strong>${formatPrice(finalTotal)} USD</strong>
+                    </p>
+
+                    {wizardData.deferredMonths > 0 && (
+                      <div style={{ marginTop: '10px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '5px', borderLeft: '4px solid #efa238' }}>
+                        <p style={{ margin: 0, fontSize: '1.1em' }}>
+                          Mensualidad estimada: <strong style={{ color: '#efa238' }}>~ ${formatPrice(monthlyPayment)} / mes</strong> ({wizardData.deferredMonths} cuotas)
+                        </p>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
             
             {/* Show payment window open message */}
@@ -1998,9 +2113,12 @@ const AffiliationSection = () => {
                 disabled={!termsAccepted || isSubmitting || !wizardData.tipoCliente || !wizardData.rucCedula || !wizardData.razonSocial || !wizardData.email || !wizardData.telefono || !wizardData.callePrincipal || !wizardData.ciudad || !wizardData.provincia}
               >
                 <FaCreditCard style={{ marginRight: '10px' }} />
-                {isSubmitting ? 'Procesando...' : `Pagar $${wizardData.tipoPago === 'anticipo' 
-                  ? Math.round((landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80) / 2) 
-                  : (landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80)} con Tarjeta`}
+                {(() => {
+                  const basePrice = landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80;
+                  let subtotal = wizardData.tipoPago === 'anticipo' ? Math.round(basePrice / 2) : basePrice;
+                  const finalTotal = Math.round(subtotal * 1.05);
+                  return isSubmitting ? 'Procesando...' : `Pagar $${formatPrice(finalTotal)} con Tarjeta`;
+                })()}
               </button>
             )}
             
@@ -2171,7 +2289,7 @@ const AffiliationSection = () => {
 
             {/* Price */}
             <div className="price-card-price">
-              ${card.price.toFixed(2)}
+              ${card.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
 
             {/* Features */}
@@ -2379,7 +2497,7 @@ const AffiliationSection = () => {
             >
               <span className="payment-type-name">Pago Total</span>
               <span className="payment-type-amount">
-                ${selectedSitioWebPlan ? sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 120 : 120} USD
+                ${formatPrice(selectedSitioWebPlan ? sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 360 : 360)} USD
               </span>
               <span className="payment-type-badge">100%</span>
             </button>
@@ -2390,7 +2508,7 @@ const AffiliationSection = () => {
             >
               <span className="payment-type-name">Anticipo</span>
               <span className="payment-type-amount">
-                ${Math.round((selectedSitioWebPlan ? sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 120 : 120) / 2)} USD
+                ${formatPrice(Math.round((selectedSitioWebPlan ? sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 360 : 360) / 2))} USD
               </span>
               <span className="payment-type-badge anticipo">50%</span>
             </button>
@@ -2427,11 +2545,91 @@ const AffiliationSection = () => {
           <div className="payment-content card-payment">
             <div className="payment-info-card">
               <p className="payment-security-note">Pago seguro procesado por PayPhone</p>
-              <p className="payment-note">
-                Monto a pagar: <strong>${wizardData.tipoPago === 'anticipo' 
-                  ? Math.round((sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 120) / 2) 
-                  : (sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 120)} USD</strong>
-              </p>
+              
+              {(() => {
+                const basePrice = sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 360;
+                let subtotal = wizardData.tipoPago === 'anticipo' ? Math.round(basePrice / 2) : basePrice;
+                const canDefer = wizardData.tipoPago !== 'anticipo';
+                
+                const cardFee = subtotal * 0.05;
+                const finalTotal = Math.round(subtotal + cardFee); // Interés de diferido lo suma el Banco
+                const monthlyPayment = wizardData.deferredMonths > 0 ? Math.round(finalTotal / wizardData.deferredMonths * 100) / 100 : 0;
+
+                return (
+                  <>
+                    {canDefer && (
+                      <div className="deferral-options-container" style={{ margin: '15px 0', padding: '15px', backgroundColor: 'rgba(239, 162, 56, 0.05)', borderRadius: '8px', border: '1px solid rgba(239, 162, 56, 0.2)' }}>
+                        <h5 style={{ margin: '0 0 10px 0', color: '#efa238', fontSize: '14px' }}>Opciones de diferido:</h5>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '8px' }}>
+                          {[
+                            { value: 0, label: '1 Pago', sub: 'Corriente' },
+                            { value: 3, label: '3 Meses', sub: 'Con interés del banco' },
+                            { value: 6, label: '6 Meses', sub: 'Con interés del banco' },
+                            { value: 12, label: '12 Meses', sub: 'Con interés del banco' }
+                          ].map(option => (
+                            <div 
+                              key={option.value}
+                              onClick={() => handleWizardChange('deferredMonths', option.value)}
+                              style={{ 
+                                padding: '8px', 
+                                textAlign: 'center', 
+                                borderRadius: '6px', 
+                                cursor: 'pointer',
+                                border: wizardData.deferredMonths === option.value ? '1px solid #efa238' : '1px solid rgba(255,255,255,0.1)',
+                                backgroundColor: wizardData.deferredMonths === option.value ? 'rgba(239, 162, 56, 0.2)' : 'rgba(255,255,255,0.02)',
+                                transition: 'all 0.2s ease'
+                              }}
+                            >
+                              <div style={{ fontWeight: 'bold', fontSize: '13px', color: wizardData.deferredMonths === option.value ? '#fff' : '#ccc' }}>{option.label}</div>
+                              <div style={{ fontSize: '11px', color: wizardData.deferredMonths === option.value ? '#efa238' : '#888' }}>{option.sub}</div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {wizardData.deferredMonths > 0 && (
+                          <div style={{ marginTop: '12px', padding: '10px', fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.05)', borderLeft: '3px solid #ff9800', color: '#ddd' }}>
+                            <strong>⚠️ Importante:</strong> Para diferir, debes ingresar una <strong>tarjeta de crédito</strong> de los siguientes bancos habilitados:
+                            <ul style={{ margin: '8px 0 4px 0', paddingLeft: '18px', lineHeight: '1.6', columns: 2, columnGap: '10px' }}>
+                              <li>Produbanco (Visa / MC)</li>
+                              <li>Amazonas (Visa)</li>
+                              <li>Bolivariano (Visa / MC)</li>
+                              <li>Internacional (Visa / MC)</li>
+                              <li>Mutualista Azuay (Visa)</li>
+                              <li>Mutualista Imbabura (Visa)</li>
+                              <li>Machala (Visa / MC)</li>
+                              <li>BBP Bank (Visa)</li>
+                              <li>Coop. JEP (Visa / MC)</li>
+                              <li>Coop. Oscus (Visa / MC)</li>
+                              <li>Coop. Pilahuinito (Visa)</li>
+                            </ul>
+                            <span style={{ fontSize: '11px', color: '#aaa' }}>El cálculo final de cuotas e intereses dependerá de tu banco. Verás el valor exacto en PayPhone.</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    <p className="payment-note" style={{ marginBottom: '5px' }}>
+                      Subtotal: <strong>${formatPrice(subtotal)} USD</strong>
+                    </p>
+                    
+                    <p className="payment-note" style={{ marginBottom: '5px', fontSize: '0.9em', color: '#ff9800' }}>
+                      + 5% Comisión Tarjeta: <strong>${formatPrice(cardFee)} USD</strong>
+                    </p>
+                    
+                    <p className="payment-note" style={{ fontSize: '1.2em' }}>
+                      Base a pagar: <strong>${formatPrice(finalTotal)} USD</strong>
+                    </p>
+
+                    {wizardData.deferredMonths > 0 && (
+                      <div style={{ marginTop: '10px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '5px', borderLeft: '4px solid #efa238' }}>
+                        <p style={{ margin: 0, fontSize: '1.1em' }}>
+                          Mensualidad estimada: <strong style={{ color: '#efa238' }}>~ ${formatPrice(monthlyPayment)} / mes</strong> ({wizardData.deferredMonths} cuotas)
+                        </p>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
             
             {/* Show payment window open message */}
@@ -2476,9 +2674,12 @@ const AffiliationSection = () => {
                 disabled={!termsAccepted || isSubmitting || !wizardData.tipoCliente || !wizardData.rucCedula || !wizardData.razonSocial || !wizardData.email || !wizardData.telefono || !wizardData.callePrincipal || !wizardData.ciudad || !wizardData.provincia}
               >
                 <FaCreditCard style={{ marginRight: '10px' }} />
-                {isSubmitting ? 'Procesando...' : `Pagar $${wizardData.tipoPago === 'anticipo' 
-                  ? Math.round((sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 120) / 2) 
-                  : (sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 120)} con Tarjeta`}
+                {(() => {
+                  const basePrice = sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 360;
+                  let subtotal = wizardData.tipoPago === 'anticipo' ? Math.round(basePrice / 2) : basePrice;
+                  const finalTotal = Math.round(subtotal * 1.05);
+                  return isSubmitting ? 'Procesando...' : `Pagar $${formatPrice(finalTotal)} con Tarjeta`;
+                })()}
               </button>
             )}
             
@@ -2651,7 +2852,7 @@ const AffiliationSection = () => {
             
             {/* Price */}
             <div className="price-card-price">
-                ${card.price.toFixed(2)}
+                ${card.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             
             <ul className="price-card-features">
@@ -2865,7 +3066,7 @@ const AffiliationSection = () => {
             >
               <span className="payment-type-name">Pago Total</span>
               <span className="payment-type-amount">
-                ${selectedEcommercePlan ? ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 0 : 0} USD
+                ${formatPrice(selectedEcommercePlan ? ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 850 : 850)} USD
               </span>
               <span className="payment-type-badge">100%</span>
             </button>
@@ -2876,7 +3077,7 @@ const AffiliationSection = () => {
             >
               <span className="payment-type-name">Anticipo</span>
               <span className="payment-type-amount">
-                ${Math.round((selectedEcommercePlan ? ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 0 : 0) / 2)} USD
+                ${formatPrice(Math.round((selectedEcommercePlan ? ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 850 : 850) / 2))} USD
               </span>
               <span className="payment-type-badge anticipo">50%</span>
             </button>
@@ -2913,11 +3114,91 @@ const AffiliationSection = () => {
           <div className="payment-content card-payment">
             <div className="payment-info-card">
               <p className="payment-security-note">Pago seguro procesado por PayPhone</p>
-              <p className="payment-note">
-                Monto a pagar: <strong>${wizardData.tipoPago === 'anticipo' 
-                  ? Math.round((ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 0) / 2) 
-                  : (ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 0)} USD</strong>
-              </p>
+              
+              {(() => {
+                const basePrice = ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 850;
+                let subtotal = wizardData.tipoPago === 'anticipo' ? Math.round(basePrice / 2) : basePrice;
+                const canDefer = wizardData.tipoPago !== 'anticipo';
+                
+                const cardFee = subtotal * 0.05;
+                const finalTotal = Math.round(subtotal + cardFee); // Interés de diferido lo suma el Banco
+                const monthlyPayment = wizardData.deferredMonths > 0 ? Math.round(finalTotal / wizardData.deferredMonths * 100) / 100 : 0;
+
+                return (
+                  <>
+                    {canDefer && (
+                      <div className="deferral-options-container" style={{ margin: '15px 0', padding: '15px', backgroundColor: 'rgba(239, 162, 56, 0.05)', borderRadius: '8px', border: '1px solid rgba(239, 162, 56, 0.2)' }}>
+                        <h5 style={{ margin: '0 0 10px 0', color: '#efa238', fontSize: '14px' }}>Opciones de diferido:</h5>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '8px' }}>
+                          {[
+                            { value: 0, label: '1 Pago', sub: 'Corriente' },
+                            { value: 3, label: '3 Meses', sub: 'Con interés del banco' },
+                            { value: 6, label: '6 Meses', sub: 'Con interés del banco' },
+                            { value: 12, label: '12 Meses', sub: 'Con interés del banco' }
+                          ].map(option => (
+                            <div 
+                              key={option.value}
+                              onClick={() => handleWizardChange('deferredMonths', option.value)}
+                              style={{ 
+                                padding: '8px', 
+                                textAlign: 'center', 
+                                borderRadius: '6px', 
+                                cursor: 'pointer',
+                                border: wizardData.deferredMonths === option.value ? '1px solid #efa238' : '1px solid rgba(255,255,255,0.1)',
+                                backgroundColor: wizardData.deferredMonths === option.value ? 'rgba(239, 162, 56, 0.2)' : 'rgba(255,255,255,0.02)',
+                                transition: 'all 0.2s ease'
+                              }}
+                            >
+                              <div style={{ fontWeight: 'bold', fontSize: '13px', color: wizardData.deferredMonths === option.value ? '#fff' : '#ccc' }}>{option.label}</div>
+                              <div style={{ fontSize: '11px', color: wizardData.deferredMonths === option.value ? '#efa238' : '#888' }}>{option.sub}</div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {wizardData.deferredMonths > 0 && (
+                          <div style={{ marginTop: '12px', padding: '10px', fontSize: '12px', backgroundColor: 'rgba(255,255,255,0.05)', borderLeft: '3px solid #ff9800', color: '#ddd' }}>
+                            <strong>⚠️ Importante:</strong> Para diferir, debes ingresar una <strong>tarjeta de crédito</strong> de los siguientes bancos habilitados:
+                            <ul style={{ margin: '8px 0 4px 0', paddingLeft: '18px', lineHeight: '1.6', columns: 2, columnGap: '10px' }}>
+                              <li>Produbanco (Visa / MC)</li>
+                              <li>Amazonas (Visa)</li>
+                              <li>Bolivariano (Visa / MC)</li>
+                              <li>Internacional (Visa / MC)</li>
+                              <li>Mutualista Azuay (Visa)</li>
+                              <li>Mutualista Imbabura (Visa)</li>
+                              <li>Machala (Visa / MC)</li>
+                              <li>BBP Bank (Visa)</li>
+                              <li>Coop. JEP (Visa / MC)</li>
+                              <li>Coop. Oscus (Visa / MC)</li>
+                              <li>Coop. Pilahuinito (Visa)</li>
+                            </ul>
+                            <span style={{ fontSize: '11px', color: '#aaa' }}>El cálculo final de cuotas e intereses dependerá de tu banco. Verás el valor exacto en PayPhone.</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    <p className="payment-note" style={{ marginBottom: '5px' }}>
+                      Subtotal: <strong>${formatPrice(subtotal)} USD</strong>
+                    </p>
+                    
+                    <p className="payment-note" style={{ marginBottom: '5px', fontSize: '0.9em', color: '#ff9800' }}>
+                      + 5% Comisión Tarjeta: <strong>${formatPrice(cardFee)} USD</strong>
+                    </p>
+                    
+                    <p className="payment-note" style={{ fontSize: '1.2em' }}>
+                      Base a pagar: <strong>${formatPrice(finalTotal)} USD</strong>
+                    </p>
+
+                    {wizardData.deferredMonths > 0 && (
+                      <div style={{ marginTop: '10px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '5px', borderLeft: '4px solid #efa238' }}>
+                        <p style={{ margin: 0, fontSize: '1.1em' }}>
+                          Mensualidad estimada: <strong style={{ color: '#efa238' }}>~ ${formatPrice(monthlyPayment)} / mes</strong> ({wizardData.deferredMonths} cuotas)
+                        </p>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
             
             {/* Show payment window open message */}
@@ -2962,9 +3243,12 @@ const AffiliationSection = () => {
                 disabled={!termsAccepted || isSubmitting || !wizardData.tipoCliente || !wizardData.rucCedula || !wizardData.razonSocial || !wizardData.email || !wizardData.telefono || !wizardData.callePrincipal || !wizardData.ciudad || !wizardData.provincia}
               >
                 <FaCreditCard style={{ marginRight: '10px' }} />
-                {isSubmitting ? 'Procesando...' : `Pagar $${wizardData.tipoPago === 'anticipo' 
-                  ? Math.round((ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 0) / 2) 
-                  : (ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 0)} con Tarjeta`}
+                {(() => {
+                  const basePrice = ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 850;
+                  let subtotal = wizardData.tipoPago === 'anticipo' ? Math.round(basePrice / 2) : basePrice;
+                  const finalTotal = Math.round(subtotal * 1.05);
+                  return isSubmitting ? 'Procesando...' : `Pagar $${formatPrice(finalTotal)} con Tarjeta`;
+                })()}
               </button>
             )}
             
@@ -3459,18 +3743,18 @@ const AffiliationSection = () => {
         {!wizardData.isCustomQuote ? (
           <>
             <div className="budget-slider-container">
-              <div className="budget-amount highlight">${wizardData.budget} USD</div>
+              <div className="budget-amount highlight">${formatPrice(wizardData.budget)} USD</div>
               
               {/* Progress bar visual */}
               <div className="budget-progress-bar">
                 <div 
                   className="budget-progress-fill"
-                  style={{ width: `${((wizardData.budget - 120) / (320 - 120)) * 100}%` }}
+                  style={{ width: `${((wizardData.budget - 360) / (2000 - 360)) * 100}%` }}
                 ></div>
                 <input
                     type="range"
-                    min="120"
-                    max="320"
+                    min="360"
+                    max="2000"
                     step="10"
                     value={wizardData.budget}
                     onChange={(e) => handleWizardChange('budget', parseInt(e.target.value))}
@@ -3479,9 +3763,8 @@ const AffiliationSection = () => {
               </div>
 
               <div className="budget-labels" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>$120</span>
-                <span>$200</span>
-                <span>$320</span>
+                <span>$360</span>
+                <span>$2000+</span>
               </div>
             </div>
 
@@ -4670,7 +4953,7 @@ const AffiliationSection = () => {
                 </div>
                 <div className="confirmation-item">
                   <span className="label">Precio:</span>
-                  <span className="value">${landingPriceCards.find(c => c.id === selectedLandingPlan)?.price} USD</span>
+                  <span className="value">${formatPrice(landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80)} USD</span>
                 </div>
               </div>
               
@@ -4745,7 +5028,7 @@ const AffiliationSection = () => {
                 </div>
                 <div className="confirmation-item">
                   <span className="label">Precio:</span>
-                  <span className="value">${sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price} USD</span>
+                  <span className="value">${formatPrice(sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 360)} USD</span>
                 </div>
               </div>
               
@@ -4978,13 +5261,15 @@ const AffiliationSection = () => {
                         <FaArrowRight />
                       </button>
                     ) : (
-                      <button 
-                        className="btn-submit-wizard" 
-                        onClick={handleSubmit}
-                        disabled={loading || !isStepValid()}
-                      >
-                        {loading ? 'Procesando...' : 'FINALIZAR PROYECTO 🚀'}
-                      </button>
+                      !['Sitio Web', 'Tienda Online', 'Landing Page'].includes(selectedPlan) && (
+                        <button 
+                          className="btn-submit-wizard" 
+                          onClick={handleSubmit}
+                          disabled={loading || !isStepValid()}
+                        >
+                          {loading ? 'Procesando...' : 'FINALIZAR PROYECTO 🚀'}
+                        </button>
+                      )
                     )}
                   </div>
                 </>

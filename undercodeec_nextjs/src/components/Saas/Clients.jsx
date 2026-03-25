@@ -19,8 +19,12 @@ const Clients = ({ padding, rtl }) => {
 
   return (
     <section className={`clients style-5 ${padding ? 'section-padding':'pb-100'}`} data-scroll-index="2">
-      <div className="section-head text-center mb-40 style-5">
-        <h2 className="mb-20">{ rtl ? 'موثوق بنا من قبل آلاف' : 'Herramientas con las que ' } <span>{ rtl ? 'العملاء' : 'Trabajamos' }</span> </h2>
+      <div className="sec-head text-center mb-40">
+        <h2 className="num" style={{ marginTop: '40px' }}>
+          <span className="color-grd">
+            { rtl ? 'موثوق بنا من قبل آلاف' : 'NUESTRAS HERRAMIENTAS' }<span className="thin"></span>
+          </span>
+        </h2>
       </div>
       <div className="content">
         <div className="clients-slider5">

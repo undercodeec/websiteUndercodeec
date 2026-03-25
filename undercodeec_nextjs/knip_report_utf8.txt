@@ -1,0 +1,115 @@
+﻿[93m[4mUnused files[24m[39m (105)
+src/app/globals.css                                  
+src/app/page.module.css                              
+src/common/countdown.js                              
+src/common/parallaxie.js                             
+src/common/removeSlashFromPagination.js              
+src/common/scrollToTop.js                            
+src/common/timer.js                                  
+src/components/AnalyticsProvider.tsx                 
+src/components/AnimatedSection.jsx                   
+src/hooks/useScrollAnimation.js                      
+src/styles/animations.css                            
+public/assets/css/animations.css                     
+public/assets/css/one_pages.css                      
+public/assets/css/rtl_style.css                      
+public/assets/css/style.css                          
+public/assets/js/main.js                             
+public/landing-preview/css/custom-animations.css     
+public/landing-preview/css/preview-style.css         
+public/landing-preview/js/parallax.min.js            
+src/components/App/About2.jsx                        
+src/components/App/Culture.jsx                       
+src/components/App/Pricing.jsx                       
+src/components/App/Services.jsx                      
+src/components/App/Team.jsx                          
+src/components/Contact/Community.jsx                 
+src/components/DataAnalysis/Pricing.jsx              
+src/components/Navbars/AbsoluteContainer.jsx         
+src/components/Preview/Header.jsx                    
+src/components/Saas/Download.jsx                     
+src/components/Saas/Header.jsx                       
+src/components/ScrollToTop/index.jsx                 
+public/assets/css/common/_global.css                 
+public/assets/css/common/_responsive.css             
+public/assets/css/common/_variable.css               
+public/assets/css/elements/market.css                
+public/assets/css/elements/_404_page copy.css        
+public/assets/css/elements/_404_page.css             
+public/assets/css/elements/_about.css                
+public/assets/css/elements/_blog.css                 
+public/assets/css/elements/_blog_page.css            
+public/assets/css/elements/_buttons.css              
+public/assets/css/elements/_careers_details.css      
+public/assets/css/elements/_careers_page.css         
+public/assets/css/elements/_chat-banner.css          
+public/assets/css/elements/_collections.css          
+public/assets/css/elements/_comming_soon_page.css    
+public/assets/css/elements/_contact_page.css         
+public/assets/css/elements/_faq_page.css             
+public/assets/css/elements/_footer.css               
+public/assets/css/elements/_header.css               
+public/assets/css/elements/_integration.css          
+public/assets/css/elements/_navbar.css               
+public/assets/css/elements/_numbers.css              
+public/assets/css/elements/_portfolio.css            
+public/assets/css/elements/_portfolio_page.css       
+public/assets/css/elements/_pricing.css              
+public/assets/css/elements/_proccess.css             
+public/assets/css/elements/_process.css              
+public/assets/css/elements/_product_page.css         
+public/assets/css/elements/_searcing.css             
+public/assets/css/elements/_section_titles.css       
+public/assets/css/elements/_services.css             
+public/assets/css/elements/_services_details_page.css
+public/assets/css/elements/_shop_page.css            
+public/assets/css/elements/_side_menu.css            
+public/assets/css/elements/_single_project.css       
+public/assets/css/elements/_solutions.css            
+public/assets/css/elements/_timeline.css             
+public/assets/css/lib/all.min.css                    
+public/assets/css/lib/all.min_old.css                
+public/assets/css/lib/animate.css                    
+public/assets/css/lib/bootstrap-icons.css            
+public/assets/css/lib/bootstrap.min.css              
+public/assets/css/lib/bootstrap.rtl.min.css          
+public/assets/css/lib/jquery-ui.min.css              
+public/assets/css/lib/jquery.fancybox.css            
+public/assets/css/lib/lity.css                       
+public/assets/css/lib/swiper.min.css                 
+public/assets/js/lib/bootstrap.bundle.min.js         
+public/assets/js/lib/html5shiv.min.js                
+public/assets/js/lib/mixitup.min.js                  
+public/assets/js/lib/pace.js                         
+public/assets/js/lib/parallax.min.js                 
+public/assets/js/lib/scrollIt.min.js                 
+public/assets/js/lib/wow.min.js                      
+src/components/Navbars/AppNav/OnePageNav.jsx         
+src/components/Navbars/CloudNav/index.jsx            
+src/components/Navbars/CloudNav/TopNav.jsx           
+src/components/Navbars/CryptoNav/index.jsx           
+src/components/Navbars/CyberNav/index.jsx            
+src/components/Navbars/DigitalNav/index.jsx          
+src/components/Navbars/DigitalNav/OnePageNav.jsx     
+src/components/Navbars/DigitalNav/TopNav.jsx         
+src/components/Navbars/FreelancerNav/index.jsx       
+src/components/Navbars/HelpDeskNav/index.jsx         
+src/components/Navbars/HelpDeskNav/TopNav.jsx        
+src/components/Navbars/ITNav/index.jsx               
+src/components/Navbars/ITNav/OnePageNav.jsx          
+src/components/Navbars/NFTMarketplaceNav/index.jsx   
+src/components/Navbars/ITCreativeNav/index.jsx       
+src/components/Navbars/PaymentSolutionsNav/index.jsx 
+src/components/Navbars/SaasNav/OnePageNav.jsx        
+src/components/Navbars/SaasNav/PostNav.jsx           
+src/components/Navbars/SoftwareNav/index.jsx         
+src/components/Navbars/SoftwareNav/OnePageNav.jsx    
+[93m[4mUnused dependencies[24m[39m (3)
+clsx            package.json:16:6
+rc-slider       package.json:21:6
+tailwind-merge  package.json:32:6
+[93m[4mUnlisted dependencies[24m[39m (1)
+prop-types  src/components/CountTo/index.jsx:2:23
+[93m[4mUnused exports[24m[39m (1)
+fixRtlStylesheetsOrder  function  src/common/fixStylesheetsOrder.js:1:17
+[33m[4mConfiguration hints[24m (1)[39m

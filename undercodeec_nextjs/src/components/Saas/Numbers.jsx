@@ -21,13 +21,13 @@ const Numbers = ({ rtl }) => {
   return (
     <section className="numbers style-6" ref={numbersSectionRef}>
       <div className="container">
-        <div className="content pb-100 border-1 border-bottom brd-gray">
+        <div className="content pb-100">
           <div className="row">
             {
               data.map((number, index) => (
                 <div className="col-lg-4" key={index}>
                   <div className="number-card style-6">
-                    <h2 className="me-4 color-blue5">
+                    <h2 className="me-4 color-grd">
                       <CountTo className="counter" from={0} to={number.value} speed={1500} position={position} />
                       { number.operator && <span> +</span> }
                     </h2>

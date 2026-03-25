@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const Content = ({ links, rtl }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
   return (
     <div className="content">
       <div className="container">
@@ -10,20 +12,46 @@ const Content = ({ links, rtl }) => {
               <h2> { rtl ? 'المحسّنة' : 'Desarrollo de ' }<span>{ rtl ? 'تجارب المستخدم ' : 'Software' } </span></h2>
             </div>
             <p>{ rtl ? 'يمكن تبسيط عمليات التحميل والتحديث التي يقوم بها الموردون من خلال لوحات المعلومات الأمامية التي توفر سهولة الوصول بشكل أفضل.' : 'Nuestro enfoque está en proporcionar herramientas digitales esenciales que ayuden a tu empresa a mantenerse organizada, mejorar la experiencia del cliente y aumentar la productividad.' }</p>
-            <div className="line-links">
+            
+            <div className="line-links mt-3 d-flex flex-column align-items-start">
               {
-                links.map((link, index) => (<a href="#" key={index}>{ link }</a>))
+                links.map((link, index) => {
+                  const title = typeof link === 'string' ? link : link.title;
+                  const icon = typeof link === 'string' ? null : link.icon;
+                  const isActive = activeIndex === index;
+                  return (
+                    <div key={index} className="w-100 mb-1">
+                      <a 
+                        href="#!" 
+                        onClick={(e) => { e.preventDefault(); setActiveIndex(isActive ? -1 : index); }}
+                        style={{
+                          borderColor: isActive ? '#600b56' : '#ddd',
+                          color: isActive ? '#600b56' : '#666',
+                          backgroundColor: isActive ? '#f8f9fa' : 'transparent',
+                          textDecoration: 'none',
+                          display: 'inline-block'
+                        }}
+                      >
+                        {icon && <i className={`${icon} me-2`}></i>}
+                        { title }
+                      </a>
+                      
+                      {isActive && (typeof link !== 'string') && link.desc && (
+                        <div className="mt-1 mb-3 p-3 rounded-3 bg-light text-muted border border-light" style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                          { link.desc }
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
               }
             </div>
-            <a class="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold mt-50" href="/software-para-tu-negocio/"><span>Saber Más</span></a>
+
+            <a className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold mt-30" href="/software-para-tu-negocio/"><span>Saber Más</span></a>
           </div>
           <div className="col-lg-8 order-0 order-lg-2">
             <div className="img main-img1">
-              <img src="/assets/img/about/about_s5_1_1.webp" alt="" className="sm-circle" />
               <img src="/assets/img/about/abaut_baner1.webp" alt="" className="img-body" />
-              <img src="/assets/img/about/about_s5_1_3.webp" alt="" className="card1" />
-              <img src="/assets/img/about/about_s5_1_4.webp" alt="" className="card2" />
-              <img src="/assets/img/about/about_s5_1_5.webp" alt="" className="lg-circle" />
             </div>
           </div>
         </div>

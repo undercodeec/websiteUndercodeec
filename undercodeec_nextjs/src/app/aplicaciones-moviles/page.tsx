@@ -11,7 +11,7 @@ import Features from "@/components/App/Features";
 import About from "@/components/App/About";
 import Screenshots from "@/components/App/Screenshots";
 import Testimonials from "@/components/App/Testimonials";
-import Pricing from "@/components/App/Pricing";
+
 import FAQ from "@/components/App/FAQ";
 import Community from "@/components/App/Community";
 import Footer from "@/components/App/Footer";
@@ -47,8 +47,7 @@ export default function AplicacionesMovilesPage() {
         <Screenshots rtl={rtl} />
         {/* @ts-ignore */}
         <Testimonials rtl={rtl} />
-        {/* @ts-ignore */}
-        <Pricing rtl={rtl} />
+
         {/* @ts-ignore */}
         <FAQ rtl={rtl} />
         {/* @ts-ignore */}

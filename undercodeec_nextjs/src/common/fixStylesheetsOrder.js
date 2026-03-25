@@ -1,11 +1,3 @@
-export function fixRtlStylesheetsOrder() {
-  const bootstrap_rtl = document.head.querySelector('link[href="/assets/css/lib/bootstrap.rtl.min.css"]');
-  const style_css = document.head.querySelector('link[href="/assets/css/style.css"]');
-  const style_rtl_css = document.head.querySelector('link[href="/assets/css/rtl_style.css"]');
-  bootstrap_rtl && document.head.append(bootstrap_rtl);
-  style_css && document.head.append(style_css);
-  style_rtl_css && document.head.append(style_rtl_css);
-}
 
 export function fixPreviewStylesheetOrder() {
   const bootstrap_css = document.head.querySelector('link[href="/assets/css/lib/bootstrap.min.css"]');

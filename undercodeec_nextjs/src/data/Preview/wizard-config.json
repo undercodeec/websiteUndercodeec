@@ -3,56 +3,49 @@
         "name": "Sitio Web",
         "budgetRanges": [
             {
-                "min": 120,
-                "max": 190,
-                "label": "Web Esencial",
-                "description": "One Page + Enlace a WhatsApp",
+                "min": 360,
+                "max": 500,
+                "label": "Plan de Lanzamiento",
+                "description": "Presencia Viable - Tu negocio abierto al mundo",
                 "features": [
-                    "Tu dominio.com & hosting por un año",
-                    "Inicio, servicios, nosotros, contacto",
-                    "SEO básico (búsquedas en Google palabra única)",
-                    "Diseño estándar",
-                    "Formulario de contacto",
-                    "Botones de WhatsApp"
+                     "Diseño adaptado a tu marca",
+                     "Estructura de 5 a 10 páginas",
+                     "Diseño 100% Mobile-first",
+                     "Configuración SEO técnico",
+                     "Formularios funcionales y WhatsApp",
+                     "Certificado SSL y hosting"
                 ]
             },
             {
-                "min": 200,
-                "max": 290,
-                "label": "Web Profesional",
-                "description": "Hasta 5 secciones + Formulario",
+                "min": 510,
+                "max": 1000,
+                "label": "Plan de Crecimiento",
+                "description": "Máquina de Leads - Web estratégica y CRO",
                 "features": [
-                    "Tu dominio.com & hosting por un año",
-                    "Hasta 5 páginas más",
-                    "SEO avanzado (búsquedas en Google con palabras clave)",
-                    "Diseño moderno",
-                    "Formulario de contacto",
-                    "Google Analytics",
-                    "Botones de WhatsApp",
-                    "Correo corporativo"
+                     "Todo lo del Plan Lanzamiento",
+                     "Diseño semi-personalizado CRO",
+                     "SEO Avanzado y Local",
+                     "Core Web Vitals óptimos",
+                     "Integración CRM, Email y Analytics",
+                     "Copywriting persuasivo"
                 ]
             },
             {
-                "min": 300,
-                "max": 320,
-                "label": "Web Premium",
-                "description": "Catálogo Pequeño o Web Avanzada",
+                "min": 1010,
+                "max": 2000,
+                "label": "Plan de Autoridad",
+                "description": "Ecosistema Corporativo - Rendimiento extremo",
                 "features": [
-                    "Tu dominio.com por un año",
-                    "Creación de redes sociales",
-                    "Hasta 5 páginas adicionales o más",
-                    "SEO con Google Ads (publicidad)",
-                    "Página editable",
-                    "Formulario de contacto",
-                    "Botones de WhatsApp",
-                    "Correos corporativos",
-                    "Copias de seguridad automáticas",
-                    "Seguridad integrada (firewall)"
+                     "Todo lo del Plan Crecimiento",
+                     "Diseño UX/UI 100% a medida",
+                     "Integraciones complejas a medida",
+                     "Automatización y Chatbots IA",
+                     "Auditoría y arquitectura escalable"
                 ]
             }
         ],
         "customQuote": {
-            "threshold": 320,
+            "threshold": 2000,
             "label": "Cotización Personalizada",
             "description": "Tu proyecto requiere características avanzadas. Ingresa el monto que tienes presupuestado."
         },
@@ -372,10 +365,22 @@
         ],
         "budgetRanges": [
             {
-                "min": 300,
-                "max": 600,
-                "label": "Tienda Emprendedor",
+                "min": 850,
+                "max": 2000,
+                "label": "Tienda de Lanzamiento",
                 "description": "Ideal para iniciar tu negocio online"
+            },
+            {
+                "min": 2500,
+                "max": 10000,
+                "label": "Tienda de Crecimiento",
+                "description": "Escala tus ventas con una tienda optimizada"
+            },
+            {
+                "min": 20000,
+                "max": 50000,
+                "label": "Tienda Élite",
+                "description": "Arquitectura de alto rendimiento para líderes del mercado"
             }
         ],
         "mensajeCierre": "Tu proyecto tiene requerimientos avanzados de logística. Agendemos una asesoría para darte el precio exacto."

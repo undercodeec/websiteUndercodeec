@@ -138,6 +138,11 @@ const PreviewNavbar = ({ navbarRef }) => {
               </ul>
             </li>
             <li className="nav-item">
+              <Link className="nav-links dropLink" href='/blog'>
+                Blog
+              </Link>
+            </li>
+            <li className="nav-item">
               <a className="nav-links dropLink" href='/contacto'>
               Contáctanos
               </a>

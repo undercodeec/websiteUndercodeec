@@ -9,7 +9,6 @@ import Numbers from "@/components/DataAnalysis/Numbers";
 import Projects from "@/components/DataAnalysis/Projects";
 import ChooseUs from "@/components/DataAnalysis/ChooseUs";
 import Testimonials from "@/components/DataAnalysis/Testimonials";
-import Pricing from "@/components/DataAnalysis/Pricing";
 import Blog from "@/components/DataAnalysis/Blog";
 import Footer from "@/components/DataAnalysis/Footer";
 
@@ -29,7 +28,6 @@ export default function SoftwareParaTuNegocioPage() {
         <Projects />
         <ChooseUs />
         <Testimonials />
-        <Pricing rtl={false} />
         <Blog />
       </main>
       <Footer />

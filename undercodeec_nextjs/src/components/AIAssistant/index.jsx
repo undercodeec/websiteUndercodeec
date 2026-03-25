@@ -1,17 +1,122 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { RiRobot2Line, RiCloseLine, RiSendPlaneFill } from 'react-icons/ri';
+import { useState, useEffect, useRef } from 'react';
+import { RiRobot2Line, RiCloseLine, RiSendPlaneFill, RiMicFill, RiMicOffFill, RiVolumeUpFill, RiVolumeMuteFill } from 'react-icons/ri';
+
+const TypewriterMessage = ({ content, renderContent }) => {
+    const [visibleChars, setVisibleChars] = useState(0);
+    const [isFinished, setIsFinished] = useState(false);
+
+    useEffect(() => {
+        setVisibleChars(0);
+        setIsFinished(false);
+    }, [content]);
+
+    const waRegex = /\[wa-button\](.*?):\((https:\/\/wa\.me\/[^\)]+)\)/;
+    const payphoneRegex = /\[wa-button\](.*?):\((https:\/\/pay\.payphonetodoesposible\.com[^\)]+)\)/;
+    
+    let rawText = content;
+    let waStr = '';
+    let payphoneStr = '';
+
+    const waMatch = rawText.match(waRegex);
+    if (waMatch) {
+        waStr = waMatch[0];
+        rawText = rawText.replace(waRegex, '').trim();
+    }
+    
+    const payphoneMatch = rawText.match(payphoneRegex);
+    if (payphoneMatch) {
+        payphoneStr = payphoneMatch[0];
+        rawText = rawText.replace(payphoneRegex, '').trim();
+    }
+
+    useEffect(() => {
+        if (visibleChars < rawText.length) {
+            const timer = setTimeout(() => {
+                setVisibleChars(prev => Math.min(prev + 2, rawText.length)); 
+            }, 10);
+            return () => clearTimeout(timer);
+        } else {
+            setIsFinished(true);
+        }
+    }, [visibleChars, rawText.length]);
+
+    const displayedText = isFinished ? rawText : rawText.substring(0, visibleChars);
+    
+    let renderedContent = displayedText;
+    if (isFinished) {
+        if (waStr) renderedContent += `\n${waStr}`;
+        if (payphoneStr) renderedContent += `\n${payphoneStr}`;
+    }
+
+    return renderContent(renderedContent);
+};
 
 const AIAssistant = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const [messages, setMessages] = useState([
-        { role: 'assistant', content: 'Hola, soy el asistente virtual de Undercodeec, si necesitas ayuda o necesitas un proyecto, no dudes en preguntarme. ' }
-    ]);
+    const [chatModeSelected, setChatModeSelected] = useState(false);
+    const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     
+    // Voice Chat States
+    const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+    const [isListening, setIsListening] = useState(false);
+    const recognitionRef = useRef(null);
+
+    // Speech Recognition Setup
+    const finalTranscriptRef = useRef('');
+
+    useEffect(() => {
+        if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognitionRef.current = new SpeechRecognition();
+            recognitionRef.current.continuous = true;
+            recognitionRef.current.interimResults = true;
+            recognitionRef.current.lang = 'es-419'; // Español Latinoamérica general (mejor precisión)
+            recognitionRef.current.maxAlternatives = 3;
+
+            recognitionRef.current.onresult = (event) => {
+                let interimTranscript = '';
+                let finalChunk = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalChunk += transcript;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                if (finalChunk) {
+                    finalTranscriptRef.current += (finalTranscriptRef.current ? ' ' : '') + finalChunk;
+                }
+                setInputValue(finalTranscriptRef.current + interimTranscript);
+            };
+
+            recognitionRef.current.onend = () => {
+                setIsListening(false);
+            };
+        }
+    }, []);
+
+    const toggleListening = () => {
+        if (isListening) {
+            recognitionRef.current?.stop();
+            setIsListening(false);
+        } else {
+            finalTranscriptRef.current = '';
+            setInputValue('');
+            try {
+                recognitionRef.current?.start();
+                setIsListening(true);
+            } catch (err) {
+                console.error("Microphone error", err);
+            }
+        }
+    };
+
     // Play Notification Sound
     const playNotificationSound = () => {
         try {
@@ -64,6 +169,49 @@ const AIAssistant = () => {
         }
     };
 
+    const selectMode = async (useVoice) => {
+        setIsAudioEnabled(useVoice);
+        setChatModeSelected(true);
+        setIsLoading(true);
+
+        try {
+            const backendUrl = process.env.NEXT_PUBLIC_API_URL 
+                ? `${process.env.NEXT_PUBLIC_API_URL}/api/chat`
+                : (window.location.hostname === 'localhost' ? 'http://localhost:3001/api/chat' : 'https://api.undercodeec.com/api/chat');
+
+            const response = await fetch(backendUrl, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: 'SALUDO_INICIAL', useAudio: useVoice }),
+            });
+
+            const data = await response.json();
+
+            if (data.output_text) {
+                setMessages([{ role: 'assistant', content: data.output_text }]);
+                
+                if (data.audio_base64 && useVoice) {
+                    try {
+                        const audio = new Audio("data:audio/mp3;base64," + data.audio_base64);
+                        audio.volume = 0.9;
+                        audio.play().catch(e => console.log('Audio autoplay prevented by browser', e));
+                    } catch (e) {
+                        console.error('Error playing TTS audio:', e);
+                    }
+                } else if (!useVoice) {
+                    playNotificationSound();
+                }
+            } else {
+                 setMessages([{ role: 'assistant', content: 'Lo siento, hubo un error al procesar el mensaje.' }]);
+            }
+        } catch (error) {
+            console.error('Error sending init message:', error);
+            setMessages([{ role: 'assistant', content: 'Hola, soy el asistente virtual de Undercodeec, si necesitas ayuda o necesitas un proyecto, no dudes en preguntarme.' }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const toggleChat = () => {
         dismissHighlight();
         setIsOpen(!isOpen);
@@ -93,14 +241,29 @@ const AIAssistant = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message: userMessage.content }),
+                body: JSON.stringify({ 
+                    message: userMessage.content, 
+                    history: [...messages, userMessage], 
+                    useAudio: isAudioEnabled 
+                }),
             });
 
             const data = await response.json();
 
             if (data.output_text) {
                 setMessages(prev => [...prev, { role: 'assistant', content: data.output_text }]);
-                playNotificationSound();
+                
+                if (data.audio_base64) {
+                    try {
+                        const audio = new Audio("data:audio/mp3;base64," + data.audio_base64);
+                        audio.volume = 0.9;
+                        audio.play().catch(e => console.log('Audio autoplay prevented by browser', e));
+                    } catch (e) {
+                        console.error('Error playing TTS audio:', e);
+                    }
+                } else {
+                    playNotificationSound();
+                }
             } else {
                  setMessages(prev => [...prev, { role: 'assistant', content: 'Lo siento, hubo un error al procesar tu mensaje.' }]);
             }
@@ -133,7 +296,14 @@ const AIAssistant = () => {
         if (waMatch) {
             processedContent = processedContent.replace(waRegex, '').trim();
             const btnText = waMatch[1];
-            const btnUrl = waMatch[2];
+            let btnUrl = waMatch[2];
+            // Auto-encode the text= parameter if it contains unencoded chars
+            const textParamMatch = btnUrl.match(/(\?text=)(.*)/);
+            if (textParamMatch) {
+                const base = btnUrl.substring(0, btnUrl.indexOf('?text='));
+                const rawText = textParamMatch[2];
+                btnUrl = base + '?text=' + encodeURIComponent(decodeURIComponent(rawText));
+            }
             whatsappButton = (
                 <a 
                     href={btnUrl}
@@ -308,30 +478,48 @@ const AIAssistant = () => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                overflow: 'hidden'
+                                overflow: 'hidden',
+                                position: 'relative'
                             }}>
-                                <img src="/assets/slider/66f0344ac49f2d8983e5df4c83caa818ebfb5c45.png" alt="Asistente IA" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <iframe 
+                                    src="https://player.vimeo.com/video/1174861620?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&background=1" 
+                                    frameBorder="0" 
+                                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
+                                    style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '250%', height: '250%', pointerEvents: 'none' }} 
+                                    title="Asistente IA">
+                                </iframe>
                             </div>
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>Asistente IA</h4>
+                                <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>Karen Asistente IA</h4>
                                 <span style={{ fontSize: '11px', opacity: 0.8, display: 'block' }}>En línea</span>
                             </div>
                         </div>
-                        <button 
-                            onClick={toggleChat}
-                            style={{
-                                background: 'transparent',
-                                border: 'none',
-                                color: '#fff',
-                                cursor: 'pointer',
-                                padding: '5px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}
-                        >
-                            <RiCloseLine size={24} />
-                        </button>
+                        <div style={{ display: 'flex', gap: '5px' }}>
+                            <button 
+                                onClick={() => setIsAudioEnabled(!isAudioEnabled)}
+                                style={{
+                                    background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '5px'
+                                }}
+                                title={isAudioEnabled ? "Silenciar Voz IA" : "Activar Voz IA"}
+                            >
+                                {isAudioEnabled ? <RiVolumeUpFill size={22} /> : <RiVolumeMuteFill size={22} color="#ffb3b3" />}
+                            </button>
+                            <button 
+                                onClick={toggleChat}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#fff',
+                                    cursor: 'pointer',
+                                    padding: '5px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                <RiCloseLine size={24} />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Body */}
@@ -344,27 +532,51 @@ const AIAssistant = () => {
                         flexDirection: 'column',
                         gap: '15px'
                     }}>
-                        {messages.map((msg, index) => (
-                            <div key={index} style={{
-                                alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                                backgroundColor: msg.role === 'user' ? '#4A00E1' : '#fff',
-                                color: msg.role === 'user' ? '#fff' : '#333',
-                                padding: '12px 16px',
-                                borderRadius: '15px',
-                                borderTopLeftRadius: msg.role === 'user' ? '15px' : '2px',
-                                borderTopRightRadius: msg.role === 'user' ? '2px' : '15px',
-                                boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
-                                maxWidth: '85%',
-                                fontSize: '14px',
-                                lineHeight: '1.5',
-                                wordWrap: 'break-word'
-                            }}>
-                                {renderMessageContent(msg.content)}
+                        {!chatModeSelected ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '15px', padding: '10px', textAlign: 'center' }}>
+                                <h3 style={{ margin: 0, color: '#333', fontSize: '18px', fontWeight: 'bold' }}>¡Hola!</h3>
+                                <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px', lineHeight: '1.4' }}>Para brindarte una mejor experiencia, elige tu modo de interacción:</p>
+                                
+                                <button 
+                                    onClick={() => selectMode(true)}
+                                    style={{ width: '100%', padding: '14px 15px', borderRadius: '12px', border: 'none', backgroundColor: '#4A00E1', color: 'white', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 10px rgba(74,0,225,0.2)' }}
+                                >
+                                    <RiVolumeUpFill size={20} /> Conversar por Voz
+                                </button>
+                                
+                                <button 
+                                    onClick={() => selectMode(false)}
+                                    style={{ width: '100%', padding: '14px 15px', borderRadius: '12px', border: '1px solid #ddd', backgroundColor: 'white', color: '#555', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                >
+                                    <RiRobot2Line size={20} /> Conversar por Chat
+                                </button>
                             </div>
-                        ))}
+                        ) : (
+                            <>
+                                {messages.map((msg, index) => (
+                                    <div key={index} style={{
+                                        alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                                        backgroundColor: msg.role === 'user' ? '#4A00E1' : '#fff',
+                                        color: msg.role === 'user' ? '#fff' : '#333',
+                                        padding: '12px 16px',
+                                        borderRadius: '15px',
+                                        borderTopLeftRadius: msg.role === 'user' ? '15px' : '2px',
+                                        borderTopRightRadius: msg.role === 'user' ? '2px' : '15px',
+                                        boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+                                        maxWidth: '85%',
+                                        fontSize: '14px',
+                                        lineHeight: '1.5',
+                                        wordWrap: 'break-word'
+                                    }}>
+                                        {msg.role === 'assistant' ? (
+                                            <TypewriterMessage content={msg.content} renderContent={renderMessageContent} />
+                                        ) : (
+                                            renderMessageContent(msg.content)
+                                        )}
+                                    </div>
+                                ))}
                         
-                        {/* Cajas de sugerencias o "Quick Replies" */}
-                        {showSuggestions && messages.length === 1 && (
+                        {/* Cajas de sugerencias o "Quick Replies" */}                                {showSuggestions && messages.length <= 1 && (
                             <div style={{
                                 display: 'flex',
                                 flexDirection: 'column',
@@ -403,21 +615,68 @@ const AIAssistant = () => {
                             </div>
                         )}
 
+                            </>
+                        )}
+
                         {isLoading && (
                             <div style={{
                                 alignSelf: 'flex-start',
                                 backgroundColor: '#fff',
-                                padding: '10px',
-                                borderRadius: '10px',
-                                fontSize: '12px',
-                                color: '#999'
+                                padding: '12px 16px',
+                                borderRadius: '12px',
+                                maxWidth: '220px',
+                                width: '100%'
                             }}>
-                                Escribiendo...
+                                {/* Shimmer bars - Gemini style */}
+                                <style>{`
+                                    @keyframes geminiShimmer {
+                                        0% { background-position: -200% 0; }
+                                        100% { background-position: 200% 0; }
+                                    }
+                                    @keyframes geminiPulse {
+                                        0%, 100% { opacity: 0.4; }
+                                        50% { opacity: 1; }
+                                    }
+                                    @keyframes geminiSpark {
+                                        0%, 100% { transform: scale(0.8) rotate(0deg); opacity: 0.5; }
+                                        50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+                                    }
+                                `}</style>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                                    <span style={{
+                                        display: 'inline-block',
+                                        width: '18px',
+                                        height: '18px',
+                                        animation: 'geminiSpark 1.5s ease-in-out infinite',
+                                        fontSize: '14px',
+                                        lineHeight: '18px',
+                                        textAlign: 'center'
+                                    }}>✨</span>
+                                    <span style={{
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        color: '#888',
+                                        animation: 'geminiPulse 1.8s ease-in-out infinite'
+                                    }}>Pensando...</span>
+                                </div>
+                                {[100, 75, 50].map((w, i) => (
+                                    <div key={i} style={{
+                                        height: '8px',
+                                        width: `${w}%`,
+                                        borderRadius: '4px',
+                                        marginBottom: i < 2 ? '6px' : '0',
+                                        background: 'linear-gradient(90deg, #e8e8e8 25%, #d0d0f8 37%, #c4b5fd 50%, #d0d0f8 63%, #e8e8e8 75%)',
+                                        backgroundSize: '200% 100%',
+                                        animation: `geminiShimmer 1.8s ease-in-out infinite`,
+                                        animationDelay: `${i * 0.15}s`
+                                    }} />
+                                ))}
                             </div>
                         )}
                     </div>
 
                     {/* Footer / Input Area */}
+                    {chatModeSelected && (
                     <div style={{
                         padding: '15px',
                         backgroundColor: '#fff',
@@ -444,8 +703,24 @@ const AIAssistant = () => {
                              }}
                         />
                          <button 
+                            onClick={toggleListening}
+                            disabled={isLoading}
+                            title={isListening ? "Detener micrófono" : "Hablar por micrófono"}
+                            style={{
+                                width: '40px', height: '40px', borderRadius: '50%',
+                                backgroundColor: isListening ? '#FF4757' : '#f0f0f0',
+                                color: isListening ? '#fff' : '#666',
+                                border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                cursor: isLoading ? 'not-allowed' : 'pointer',
+                                transition: 'all 0.2s',
+                                boxShadow: isListening ? '0 0 10px rgba(255, 71, 87, 0.5)' : 'none',
+                                flexShrink: 0
+                             }}>
+                            {isListening ? <RiMicOffFill size={20} /> : <RiMicFill size={20} />}
+                         </button>
+                         <button 
                             onClick={() => handleSendMessage()}
-                            disabled={isLoading || !inputValue.trim()}
+                            disabled={isLoading || !inputValue.trim() || !chatModeSelected}
                             style={{
                                 width: '40px',
                                 height: '40px',
@@ -462,6 +737,7 @@ const AIAssistant = () => {
                             <RiSendPlaneFill size={18} style={{ marginLeft: '2px' }} />
                          </button>
                     </div>
+                    )}
                 </div>
             )}
 
@@ -486,7 +762,7 @@ const AIAssistant = () => {
                         pointerEvents: 'none',
                         marginRight: '10px'
                     }}>
-                        Habla con nuestro asistente
+                        Habla con nuestra asistente Karen
                         {/* Triangle arrow */}
                         <div style={{
                             position: 'absolute',
@@ -506,15 +782,15 @@ const AIAssistant = () => {
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                         style={{
-                            width: '60px',
-                            height: '60px',
+                            width: '85px',
+                            height: '85px',
                             borderRadius: '50%',
-                            background: 'linear-gradient(135deg, #4A00E1 0%, #8E2DE2 100%)',
+                            background: 'transparent',
                             color: '#fff',
                             border: showHighlight ? '3px solid #fff' : 'none',
                             boxShadow: showHighlight 
-                                ? '0 0 0 10px rgba(74, 0, 225, 0.4), 0 0 30px rgba(74, 0, 225, 0.8)' 
-                                : '0 4px 15px rgba(74, 0, 225, 0.4)',
+                                ? '0 0 0 10px rgba(255, 255, 255, 0.2), 0 0 30px rgba(0, 0, 0, 0.3)' 
+                                : '0 4px 15px rgba(0, 0, 0, 0.2)',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
@@ -527,18 +803,26 @@ const AIAssistant = () => {
                          onMouseOver={(e) => {
                             if (!showHighlight) {
                                 e.currentTarget.style.transform = 'scale(1.1)';
-                                e.currentTarget.style.boxShadow = '0 8px 25px rgba(74, 0, 225, 0.5)';
+                                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.3)';
                             }
                         }}
                         onMouseOut={(e) => {
                             if (!showHighlight) {
                                 e.currentTarget.style.transform = 'scale(1)';
-                                e.currentTarget.style.boxShadow = '0 4px 15px rgba(74, 0, 225, 0.4)';
+                                e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
                             }
                         }}
                         aria-label="Abrir asistente"
                     >
-                        <img src="/assets/slider/66f0344ac49f2d8983e5df4c83caa818ebfb5c45.png" alt="Asistente" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                        <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden', borderRadius: '50%', pointerEvents: 'none' }}>
+                            <iframe 
+                                src="https://player.vimeo.com/video/1174861620?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&background=1" 
+                                frameBorder="0" 
+                                allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
+                                style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '250%', height: '250%', pointerEvents: 'none' }} 
+                                title="Asistente IA">
+                            </iframe>
+                        </div>
                     </button>
                     {/* Notification Dot */}
                     <span style={{
@@ -566,15 +850,15 @@ const AIAssistant = () => {
                 @keyframes pulseHighlight {
                     0% {
                         transform: scale(1);
-                        box-shadow: 0 0 0 0 rgba(74, 0, 225, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);
+                        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7), 0 0 20px rgba(0, 0, 0, 0.2);
                     }
                     50% {
                         transform: scale(1.15);
-                        box-shadow: 0 0 0 15px rgba(74, 0, 225, 0.2), 0 0 40px rgba(255, 255, 255, 0.8);
+                        box-shadow: 0 0 0 15px rgba(255, 255, 255, 0.2), 0 0 40px rgba(0, 0, 0, 0.4);
                     }
                     100% {
                         transform: scale(1);
-                        box-shadow: 0 0 0 0 rgba(74, 0, 225, 0), 0 0 20px rgba(255, 255, 255, 0.5);
+                        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 0 20px rgba(0, 0, 0, 0.2);
                     }
                 }
             `}</style>
