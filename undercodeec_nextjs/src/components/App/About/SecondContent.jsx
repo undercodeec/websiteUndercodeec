@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const SecondContent = ({ accordions, rtl }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
   return (
     <div className="content sec-content">
       <div className="container">
@@ -18,25 +20,43 @@ const SecondContent = ({ accordions, rtl }) => {
                  'La seguridad es uno de los pilares fundamentales en el desarrollo de aplicaciones móviles. A medida que la tecnología avanza, también lo hacen las amenazas. Por eso, nos aseguramos de que cada aplicación que diseñamos esté protegida con los más altos estándares de seguridad, garantizando la privacidad y protección de los datos de los usuarios desde el primer momento.' 
                 }
               </p>
-              <div className="faq style-3 style-4">
-                <div className="accordion" id="accordionExample">
-                  {
-                    accordions.map((accordion, index) => (
-                      <div className="accordion-item" key={index}>
-                        <h2 className="accordion-header" id={`heading${accordion.id}`}>
-                          <button className={`accordion-button ${index !== 0 ?'collapsed':''}`} type="button" data-bs-toggle="collapse" data-bs-target={`#collapse${accordion.id}`} aria-expanded="true" aria-controls={`collapse${accordion.id}`}>
-                            { accordion.title }
-                          </button>
-                        </h2>
-                        <div id={`collapse${accordion.id}`} className={`accordion-collapse collapse ${index === 0 ?'show':''}`} aria-labelledby={`heading${accordion.id}`} data-bs-parent="#accordionExample">
-                          <div className="accordion-body">
+              
+              <div style={{ marginTop: '35px' }}>
+                {
+                  accordions.map((accordion, index) => {
+                    const isActive = activeIndex === index;
+                    return (
+                      <div key={index} className="w-100">
+                        <a 
+                          href="#!" 
+                          className="animated-link"
+                          onClick={(e) => { e.preventDefault(); setActiveIndex(isActive ? -1 : index); }}
+                          style={{
+                            position: 'relative',
+                            color: isActive ? '#600b56' : '#000',
+                            fontSize: '15px',
+                            fontWeight: 'bold',
+                            borderBottom: '1px solid rgba(153, 153, 153, 0.2)',
+                            padding: '13px 0',
+                            display: 'block',
+                            width: '100%',
+                            textDecoration: 'none',
+                            transition: 'color 0.3s ease'
+                          }}
+                        >
+                          {accordion.icon && <i className={`${accordion.icon} me-2`}></i>}
+                          { accordion.title }
+                        </a>
+                        
+                        {isActive && accordion.content && (
+                          <div className="text-muted" style={{ fontSize: '14px', lineHeight: '1.6', padding: '10px 0 5px' }}>
                             { accordion.content }
                           </div>
-                        </div>
+                        )}
                       </div>
-                    ))
-                  }
-                </div>
+                    );
+                  })
+                }
               </div>
               
             </div>

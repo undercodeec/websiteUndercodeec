@@ -61,7 +61,15 @@ const Projects = () => {
                           <div className="row align-items-center">
                             <div className="col-lg-6">
                               <div className="img">
-                                <img src={project.image} alt="" className="main-img" />
+                                {project.iframeUrl ? (
+                                  <iframe 
+                                    style={{ border: "1px solid rgba(0, 0, 0, 0.1)", width: "100%", height: "450px" }} 
+                                    src={`https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(project.iframeUrl)}`} 
+                                    allowFullScreen
+                                  />
+                                ) : (
+                                  <img src={project.image} alt="" className="main-img" />
+                                )}
                                 <div className="tags">
                                   <a href="#"> {project.tag} </a>
                                 </div>

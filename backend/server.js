@@ -66,7 +66,7 @@ app.get('/api/health', (req, res) => {
 
 // Endpoint de pago
 app.post('/api/create-payment', async (req, res) => {
-  const { amount, planName } = req.body;
+  const { amount, planName, orderData } = req.body;
 
   // Validación de entrada
   if (!amount || typeof amount !== 'number' || amount <= 0) {
@@ -119,6 +119,16 @@ app.post('/api/create-payment', async (req, res) => {
 
     if (!paymentLink) {
       return res.status(500).json({ error: 'No se recibió el link de pago desde PayPhone' });
+    }
+
+    // Guardar datos de la orden pendiente en memoria para cuando paguen (Webhook/Confirm)
+    if (orderData) {
+      console.log('💾 Guardando orderData para ClientTxId:', clientTransactionId);
+      pendingOrders.set(clientTransactionId, {
+        ...orderData,
+        fromPricingPage: true,
+        transactionId: null, // Se llenará al confirmar
+      });
     }
 
     res.json({ 
@@ -277,7 +287,9 @@ app.post('/api/payphone-webhook', async (req, res) => {
       if (pendingOrders.has(data.clientTransactionId)) {
         orderData = pendingOrders.get(data.clientTransactionId);
         console.log('✅ RECUPERADO orderData de la memoria para webhook:', data.clientTransactionId);
-        pendingOrders.delete(data.clientTransactionId);
+        // We mark it as processing but wait for success before deleting
+        orderData.webhookProcessed = true; 
+        pendingOrders.set(data.clientTransactionId, orderData);
       } else {
         console.log('⚠️ No pendingOrderData found in memory. Emails must be sent directly by frontend or retrieved from DB.');
       }
@@ -291,9 +303,11 @@ app.post('/api/payphone-webhook', async (req, res) => {
           await sendOrderEmailsInternal(orderData);
           console.log('✅ Correos de confirmación enviados desde Webhook');
           
-          if (orderData.fromChatbot) {
+          // Google Script for folder creation (for both Chatbot and Pricing Page)
+          if (orderData.fromChatbot || orderData.fromPricingPage) {
+             console.log('📁 Ejecutando Google Drive Script desde Webhook...');
              axios.post('https://script.google.com/macros/s/AKfycbwJJ91bFrS7VwdksBOfZluJZ6pLmwhdVw4TTOBsSWPtX2B91YqEa8OUXUPEHBFnCLmrvg/exec', {
-                 businessName: orderData.razonSocial,
+                 businessName: orderData.razonSocial || orderData.businessName,
                  email: orderData.email,
                  phone: orderData.telefono,
                  ruc: orderData.rucCedula,
@@ -301,6 +315,8 @@ app.post('/api/payphone-webhook', async (req, res) => {
                  price: orderData.planPrice
              }).catch(e => console.error("Error Google Script en Webhook:", e.message));
           }
+           // Now we can safe delete
+           pendingOrders.delete(data.clientTransactionId);
         } catch(emailError) {
           console.error('❌ Error enviando correos desde webhook:', emailError);
         }
@@ -328,7 +344,18 @@ app.post('/api/confirm-payment', async (req, res) => {
   
   if (!orderData && pendingOrders.has(clientTransactionId)) {
     orderData = pendingOrders.get(clientTransactionId);
-    console.log('✅ RECUPERADO orderData de la memoria para chatbot:', clientTransactionId);
+    console.log('✅ RECUPERADO orderData de la memoria para confirmación:', clientTransactionId);
+    
+    // Webhook Deduplication: If webhook already processed this, don't send emails again
+    if (orderData.webhookProcessed) {
+      console.log('⏭️ Webhook ya procesó este pedido. Evitando duplicidad de emails.');
+      return res.json({
+        success: true,
+        message: 'Pago ya procesado por Webhook',
+        alreadyProcessed: true
+      });
+    }
+    
     pendingOrders.delete(clientTransactionId);
   }
 
@@ -525,7 +552,10 @@ const ttsReplacements = [
   { pattern: /\$\s*([0-9.,]+)/g, replace: '$1 dólares ' },
   { pattern: /\$/g, replace: ' dólares ' },
   
-  // 7. Limpiar espacios extra generados por los reemplazos
+  // 7. Abreviaturas comunes
+  { pattern: /\b(etc\.|etc)\b/gi, replace: 'etcétera ' },
+  
+  // 8. Limpiar espacios extra generados por los reemplazos
   { pattern: /\s+/g, replace: ' ' }
 ];
 
@@ -538,8 +568,9 @@ async function generateTTS(text) {
         cleanText = cleanText.replace(rule.pattern, rule.replace);
     }
     cleanText = cleanText.trim();
+    const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${process.env.GOOGLE_TTS_API_KEY}`;
     const response = await axios.post(
-      `https://texttospeech.googleapis.com/v1/text:synthesize?key=${process.env.GOOGLE_TTS_API_KEY}`,
+      url,
       {
         input: { text: cleanText.substring(0, 1500) },
         voice: { languageCode: 'es-US', name: 'es-US-Journey-O' },
@@ -567,11 +598,13 @@ app.post('/api/chat', async (req, res) => {
       return await sendChatResponse(res, welcomeText, useAudio);
   }
 
-  if (!message) {
-    return res.status(400).json({ error: 'Message is required' });
+  if (!process.env.GEMINI_API_KEY) {
+    console.error('❌ Error: GEMINI_API_KEY no está definida en el entorno.');
+    return res.status(500).json({ error: 'Configuración del servidor incompleta (API Key faltante)' });
   }
 
   try {
+    console.log('[CHAT] Iniciando procesamiento con Gemini...');
     const systemInstruction = `Eres un Asistente Virtual Inteligente y Experto en Ventas de Undercodeec, una agencia de desarrollo de software y diseño web de vanguardia en Quito, Ecuador.
 Tu objetivo es ser un asistente tan completo y útil como el de Hostinger: profesional, empático, resolutivo y muy conocedor de la industria web.
 
@@ -678,12 +711,6 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
 "Recuerda que requerimos el 50% de anticipo para arrancar. Los pagos pueden hacerse al contado o puedes diferirlos con tu tarjeta de crédito a 3, 6 o 12 meses (con los intereses de tu banco)". 
 ¡DEBES mencionarlo obligatoriamente cada vez que hables de dinero, precios o le recomiendes planes al cliente!`;
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-pro", // Usando el modelo pro para mayor capacidad de razonamiento
-      systemInstruction: systemInstruction,
-      tools: [{ functionDeclarations: [generarCobroClienteTool, analizarSitioWebTool] }]
-    });
-
     // Formatear el historial de Next.js al formato de Gemini
     let conversationHistory = [];
     if (history && Array.isArray(history)) {
@@ -700,11 +727,34 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
     while (conversationHistory.length > 0 && conversationHistory[0].role === 'model') {
         conversationHistory.shift();
     }
-    conversationHistory.push({ role: 'user', parts: [{ text: message }] });
 
-    const chat = model.startChat({ history: conversationHistory.slice(0, -1) });
-    const result = await chat.sendMessage(message);
-    const response = result.response;
+    const availableModels = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-pro-latest", "gemini-flash-latest", "gemini-2.0-flash-001"];
+    let finalResponse;
+    let usedModelName = "";
+
+    for (const modelName of availableModels) {
+        try {
+            console.log(`[CHAT] Intentando con modelo: ${modelName}`);
+            const model = genAI.getGenerativeModel({
+                model: modelName,
+                systemInstruction: systemInstruction,
+                tools: [{ functionDeclarations: [generarCobroClienteTool, analizarSitioWebTool] }]
+            });
+
+            const chat = model.startChat({ history: conversationHistory.slice(0, -1) });
+            const result = await chat.sendMessage(message);
+            finalResponse = result.response;
+            usedModelName = modelName;
+            break; 
+        } catch (e) {
+            console.error(`❌ Falló ${modelName}:`, e.message);
+            if (modelName === availableModels[availableModels.length - 1]) {
+                throw e; // Si es el último, lanzamos el error
+            }
+        }
+    }
+
+    const response = finalResponse;
 
     // Verificar si Gemini decidió invocar una función
     const apiFunctionCalls = response.functionCalls ? response.functionCalls() : null;
@@ -921,10 +971,15 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
         }
     }
 
+    console.log('[CHAT] Enviando respuesta final al cliente.');
     await sendChatResponse(res, response.text(), useAudio);
   } catch (error) {
-    console.error('Error Google Gemini:', error);
-    res.status(500).json({ error: 'Error processing your request' });
+    console.error('❌ Error crítico en /api/chat:', error);
+    
+    res.status(500).json({ 
+        error: 'Error al procesar tu solicitud', 
+        details: error.message
+    });
   }
 });
 

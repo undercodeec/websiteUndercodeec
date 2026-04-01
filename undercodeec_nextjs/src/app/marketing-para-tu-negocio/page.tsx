@@ -1,34 +1,32 @@
 "use client";
 
+import { useEffect } from "react";
 import MainLayout from "@/layouts/Main";
-import Header from "@/components/Startup/Header";
-import About from "@/components/Startup/About";
-import Services from "@/components/Startup/Services";
-import Project from "@/components/Startup/Project";
-import ChooseUs from "@/components/Startup/ChooseUs";
-import Testimonials from "@/components/Startup/Testimonials";
+import MarketingHero from "@/components/Marketing/MarketingHero";
+import Blog from "@/components/Startup/Blog";
+
 import Clients from "@/components/Startup/Clients";
 import Numbers from "@/components/Startup/Numbers";
-import Team from "@/components/Startup/Team";
-import Blog from "@/components/Startup/Blog";
 import Contact from "@/components/Startup/Contact";
 import Footer from "@/components/Startup/Footer";
 
 export default function MarketingParaTuNegocioPage() {
+  useEffect(() => {
+    document.body.classList.add("home-style-6");
+    return () => document.body.classList.remove("home-style-6");
+  }, []);
+
+  const rtl = false;
+
   return (
     <MainLayout>
-      <Header rtl={false} isOnePage={false} />
       <main>
-        <About rtl={false} />
-        <Services rtl={false} />
-        <Project rtl={false} />
-        <ChooseUs rtl={false} />
-        <Testimonials rtl={false} />
-        <Clients rtl={false} />
+        <MarketingHero />
+        <Blog rtl={rtl} />
+
+        <Clients rtl={rtl} />
         <Numbers />
-        <Team rtl={false} />
-        <Blog rtl={false} />
-        <Contact rtl={false} />
+        <Contact rtl={rtl} />
       </main>
       <Footer />
     </MainLayout>

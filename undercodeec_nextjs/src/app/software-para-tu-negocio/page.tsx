@@ -5,12 +5,11 @@ import MainLayout from "@/layouts/Main";
 import Header from "@/components/DataAnalysis/Header";
 import Services from "@/components/DataAnalysis/Services";
 import About from "@/components/DataAnalysis/About";
-import Numbers from "@/components/DataAnalysis/Numbers";
 import Projects from "@/components/DataAnalysis/Projects";
-import ChooseUs from "@/components/DataAnalysis/ChooseUs";
-import Testimonials from "@/components/DataAnalysis/Testimonials";
-import Blog from "@/components/DataAnalysis/Blog";
+import Numbers from "@/components/DataAnalysis/Numbers";
 import Footer from "@/components/DataAnalysis/Footer";
+
+import FAQ from "@/components/DataAnalysis/FAQ";
 
 export default function SoftwareParaTuNegocioPage() {
   useEffect(() => {
@@ -24,11 +23,9 @@ export default function SoftwareParaTuNegocioPage() {
       <main>
         <Services />
         <About />
-        <Numbers />
         <Projects />
-        <ChooseUs />
-        <Testimonials />
-        <Blog />
+        <Numbers />
+        <FAQ />
       </main>
       <Footer />
     </MainLayout>

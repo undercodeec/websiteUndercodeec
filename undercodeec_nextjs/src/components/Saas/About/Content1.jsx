@@ -23,6 +23,7 @@ const Content = ({ links, rtl }) => {
                     <div key={index} className="w-100 mb-1">
                       <a 
                         href="#!" 
+                        className="animated-link"
                         onClick={(e) => { e.preventDefault(); setActiveIndex(isActive ? -1 : index); }}
                         style={{
                           borderColor: isActive ? '#600b56' : '#ddd',

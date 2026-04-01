@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const FirstContent = ({ features, rtl }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
   return (
     <div className="content frs-content"  id="about" data-scroll-index="2">
       <div className="container">
@@ -26,18 +28,44 @@ const FirstContent = ({ features, rtl }) => {
                     </> 
                 }
               </p>
-              <ul>
+              
+              <div style={{ marginTop: '35px' }}>
                 {
-                  features.map((item, index) => (
-                    <li className="d-flex align-items-center mb-3" key={index}>
-                      <small className="icon-30 bg-gray rounded-circle color-blue4 d-inline-flex align-items-center justify-content-center me-3">
-                        <i className={item.icon}></i>
-                      </small>
-                      <h6 className="fw-bold">{item.title}</h6>
-                    </li>
-                  ))
+                  features.map((item, index) => {
+                    const isActive = activeIndex === index;
+                    return (
+                      <div key={index} className="w-100">
+                        <a 
+                          href="#!" 
+                          className="animated-link"
+                          onClick={(e) => { e.preventDefault(); setActiveIndex(isActive ? -1 : index); }}
+                          style={{
+                            position: 'relative',
+                            color: isActive ? '#600b56' : '#000',
+                            fontSize: '15px',
+                            fontWeight: 'bold',
+                            borderBottom: '1px solid rgba(153, 153, 153, 0.2)',
+                            padding: '13px 0',
+                            display: 'block',
+                            width: '100%',
+                            textDecoration: 'none',
+                            transition: 'color 0.3s ease'
+                          }}
+                        >
+                          {item.icon && <i className={`${item.icon} me-2`}></i>}
+                          { item.title }
+                        </a>
+                        
+                        {isActive && item.desc && (
+                          <div className="text-muted" style={{ fontSize: '14px', lineHeight: '1.6', padding: '10px 0 5px' }}>
+                            { item.desc }
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
                 }
-              </ul>
+              </div>
              
             </div>
           </div>

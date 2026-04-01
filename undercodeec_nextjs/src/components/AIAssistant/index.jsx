@@ -175,9 +175,8 @@ const AIAssistant = () => {
         setIsLoading(true);
 
         try {
-            const backendUrl = process.env.NEXT_PUBLIC_API_URL 
-                ? `${process.env.NEXT_PUBLIC_API_URL}/api/chat`
-                : (window.location.hostname === 'localhost' ? 'http://localhost:3001/api/chat' : 'https://api.undercodeec.com/api/chat');
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+            const backendUrl = `${baseUrl}/api/chat`;
 
             const response = await fetch(backendUrl, { 
                 method: 'POST',
@@ -229,9 +228,8 @@ const AIAssistant = () => {
 
         try {
             // Determinar la URL del backend dinámicamente o usar localhost por defecto para dev
-            const backendUrl = process.env.NEXT_PUBLIC_API_URL 
-                ? `${process.env.NEXT_PUBLIC_API_URL}/api/chat`
-                : (window.location.hostname === 'localhost' ? 'http://localhost:3001/api/chat' : 'https://api.undercodeec.com/api/chat');
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+            const backendUrl = `${baseUrl}/api/chat`;
             
             // Si estamos en Vercel/Next.js y el backend está en otro puerto, necesitamos la URL completa.
             // Asumo que el backend corre en el puerto 3001 según el .env que vi.

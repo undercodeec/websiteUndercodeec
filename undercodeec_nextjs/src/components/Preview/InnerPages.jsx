@@ -800,8 +800,7 @@ const AffiliationSection = () => {
     const amount = Math.round(basePayment * 1.05);
     
     // Backend API URL - adjust for production
-    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
-      || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
     
     // Prepare order data for email sending
     const orderData = {
@@ -837,7 +836,8 @@ const AffiliationSection = () => {
         },
         body: JSON.stringify({
           amount: amount,
-          planName: `${planName} - ${wizardData.tipoPago === 'anticipo' ? 'Anticipo 50%' : 'Pago Total'}`
+          planName: `${planName} - ${wizardData.tipoPago === 'anticipo' ? 'Anticipo 50%' : 'Pago Total'}`,
+          orderData: orderData
         })
       });
       
@@ -1055,8 +1055,7 @@ const AffiliationSection = () => {
 
   // Function to send order confirmation emails
   const sendOrderEmails = async (orderData) => {
-    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
-      || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
     
     try {
       const response = await fetch(`${BACKEND_URL}/api/send-order-emails`, {
@@ -1400,8 +1399,7 @@ const AffiliationSection = () => {
     };
 
     try {
-        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
-            || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
 
         const response = await fetch(`${BACKEND_URL}/api/send-webapp-request`, {
             method: 'POST',
@@ -1457,8 +1455,7 @@ const AffiliationSection = () => {
     };
 
     try {
-        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
-            || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
 
         const response = await fetch(`${BACKEND_URL}/api/send-mobileapp-request`, {
             method: 'POST',
@@ -1514,8 +1511,7 @@ const AffiliationSection = () => {
     };
 
     try {
-        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
-            || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
 
         const response = await fetch(`${BACKEND_URL}/api/send-moodle-request`, {
             method: 'POST',
@@ -1567,8 +1563,7 @@ const AffiliationSection = () => {
 
       try {
         // Use full URL if in production (same logic as payment)
-        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
-            || (process.env.NODE_ENV === 'production' ? 'https://api.undercodeec.com' : 'http://localhost:3001');
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
 
         const response = await fetch(`${BACKEND_URL}/api/send-software-request`, {
             method: 'POST',

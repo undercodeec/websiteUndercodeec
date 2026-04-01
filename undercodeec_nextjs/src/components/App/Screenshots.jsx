@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import SwiperCore, { Autoplay } from 'swiper';
 import screenshots from '@/data/App/screenshots.json';
 
 import "swiper/css";
+import 'swiper/css/autoplay';
+
+SwiperCore.use([Autoplay]);
 
 const Screenshots = ({ rtl }) => {
   const [loadSwiper, setLoadSwiper] = useState(false);
@@ -29,7 +33,8 @@ const Screenshots = ({ rtl }) => {
               keyboard={true}
               loop={true}
               autoplay={{
-                delay: 4000
+                delay: 3000,
+                disableOnInteraction: false,
               }}
               speed={1000}
               centeredSlides={true}

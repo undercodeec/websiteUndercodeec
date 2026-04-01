@@ -25,7 +25,7 @@ const Header = ({ isOnePage, rtl }) => {
                     </>
                     :
                     <>
-                      Análisis SEO y marketing para tu <span><small>Negocio</small></span>
+                      Análisis SEO y marketing para <span>tu <small>Negocio</small></span>
                     </>
                   }
                 </h1>

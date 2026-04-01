@@ -1,11 +1,14 @@
 "use client";
 
-import PoliticaContenido from "@/components/Navbars/PlayConsole";
+import MainLayout from "@/layouts/Main";
+import ComingSoon from "@/components/ComingSoon";
 
 export default function PoliticasPlayConsolePage() {
   return (
-    <main className="politica-playconsole">
-      <PoliticaContenido />
-    </main>
+    <MainLayout>
+      <main className="politica-playconsole">
+        <ComingSoon />
+      </main>
+    </MainLayout>
   );
 }

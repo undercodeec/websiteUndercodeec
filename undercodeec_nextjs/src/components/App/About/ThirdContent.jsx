@@ -1,7 +1,8 @@
-import React from 'react';
-import Link from 'next/link';
+import React, { useState } from 'react';
 
 const ThirdContent = ({ features, rtl }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
   return (
     <div className="content trd-content">
       <div className="container">
@@ -14,21 +15,49 @@ const ThirdContent = ({ features, rtl }) => {
           <div className="col-lg-5">
             <div className="info">
               <div className="section-head style-4">
-                <h2 className="mb-30">{ rtl ? 'ركز أكثر مع' : ' Impulsa tu' } <span>{ rtl ? 'المظهر الداكن' : 'Negocio ' }</span> </h2>
+                <h2 className="mb-30">{ rtl ? 'ركز أكثر مع' : ' Impulsa tu' } <span>{ rtl ? 'المظهر الداكن' : 'Negocio ' }</span> </h2>
               </div>
               <p className="text mb-40">
                 { rtl ? 'قم بتطبيق سمات نوتيرو الأنيقة حسب ذوقك. تعمل السمات المظلمة بشكل ممتاز لأولئك الذين يفضلون الوضع الخالي من الإلهاء.' : 'Desarrollamos apps personalizadas con interfaces modernas y funcionales, como esta app de catálogo para restaurantes.' }
               </p>
-              <ul>
+              
+              <div style={{ marginTop: '35px' }}>
                 {
-                  features.map((feature, index) => (
-                    <li className={`d-flex align-items-center ${feature.active ? '':'op-4'}`} key={index}>
-                      <i className="bi bi-dot fs-2 me-2 lh-1 color-blue4"></i>
-                      <h6 className="fw-bold">{ feature.title }</h6>
-                    </li>
-                  ))
+                  features.map((feature, index) => {
+                    const isActive = activeIndex === index;
+                    return (
+                      <div key={index} className="w-100">
+                        <a 
+                          href="#!" 
+                          className="animated-link"
+                          onClick={(e) => { e.preventDefault(); setActiveIndex(isActive ? -1 : index); }}
+                          style={{
+                            position: 'relative',
+                            color: isActive ? '#600b56' : '#000',
+                            fontSize: '15px',
+                            fontWeight: 'bold',
+                            borderBottom: '1px solid rgba(153, 153, 153, 0.2)',
+                            padding: '13px 0',
+                            display: 'block',
+                            width: '100%',
+                            textDecoration: 'none',
+                            transition: 'color 0.3s ease'
+                          }}
+                        >
+                          {feature.icon && <i className={`${feature.icon} me-2`}></i>}
+                          { feature.title }
+                        </a>
+                        
+                        {isActive && feature.desc && (
+                          <div className="text-muted" style={{ fontSize: '14px', lineHeight: '1.6', padding: '10px 0 5px' }}>
+                            { feature.desc }
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
                 }
-              </ul>
+              </div>
               
             </div>
           </div>

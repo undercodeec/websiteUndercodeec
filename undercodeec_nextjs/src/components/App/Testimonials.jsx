@@ -32,23 +32,23 @@ const Testimonials = ({ rtl }) => {
       {/* Sección para el iframe de Figma */}
       <div className="d-flex flex-wrap justify-content-center gap-4 mt-5">
         {/* Techni Help Demo */}
-        <div className="iframe-container">
+        <div className="iframe-container" style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
           <iframe
-            style={{ border: '1px solid rgba(0, 0, 0, 0.1)' }}
+            style={{ border: '1px solid rgba(0, 0, 0, 0.1)', borderRadius: '20px', overflow: 'hidden' }}
             width="100%"
-            height="450"
-            src="https://embed.figma.com/proto/4qQ45FdE4pRC7jhbWQmPsO/Aplicacion-Techni-Help-Demo--Community-?node-id=76-74&p=f&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=1&embed-host=share"
+            height="700"
+            src="https://embed.figma.com/proto/4qQ45FdE4pRC7jhbWQmPsO/Aplicacion-Techni-Help-Demo--Community-?node-id=1-2&p=f&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=0&embed-host=share"
             allowFullScreen
           ></iframe>
         </div>
 
         {/* Restaurante App Demo */}
-        <div className="iframe-container">
+        <div className="iframe-container" style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
           <iframe
-            style={{ border: '1px solid rgba(0, 0, 0, 0.1)' }}
+            style={{ border: '1px solid rgba(0, 0, 0, 0.1)', borderRadius: '20px', overflow: 'hidden' }}
             width="100%"
-            height="450"
-            src="https://embed.figma.com/proto/EZkEOnTlJBVg6gykhUtf2V/Restaurante-App-Demo?node-id=3-2&p=f&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=3%3A2&show-proto-sidebar=1&embed-host=share"
+            height="700"
+            src="https://embed.figma.com/proto/EZkEOnTlJBVg6gykhUtf2V/Restaurante-App-Demo?node-id=3-2&p=f&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=3%3A2&show-proto-sidebar=0&embed-host=share"
             allowFullScreen
           ></iframe>
         </div>

@@ -73,7 +73,7 @@ const BlogGrid = () => {
                     <small className="text-muted" style={{ fontSize: '12px' }}>{blog.date}</small>
                   </div>
                   <h6 className="card-title fw-bold mb-3 line-clamp-2" style={{ lineHeight: '1.4' }}>
-                    <Link href="#" className="text-dark text-decoration-none">
+                    <Link href={`/blog/${blog.slug || blog.id}`} className="text-dark text-decoration-none">
                       {blog.title}
                     </Link>
                   </h6>

@@ -1,32 +1,22 @@
 [
   {
-    "image": "/assets/img/projects/portafolio3.webp",
+    "image": "",
+    "iframeUrl": "https://www.figma.com/make/FumtXAu1SYLEN1DZWC6g5x/Landing-page-marketplace?fullscreen=1&t=JEOmCDTnQztARTYY-1",
     "tag": "Sistema de Controrl de Pagos",
     "title": "FitSport ahora cuenta con su propio Sistema de Control de Pagos Personalizado",
     "text": "FitSport, un gimnasio dedicado a ofrecer el mejor servicio y atención a sus miembros, ahora cuenta con un sistema de control de pagos completamente personalizado. Este sistema ha sido diseñado específicamente para optimizar la gestión de pagos de sus clientes, asegurando que cada transacción se registre de manera eficiente y precisa.",
     "button": {
-      
       "link": "/portafolio"
     }
   },
   {
-    "image": "/assets/img/projects/portafolio1.webp",
-    "tag": "Sistema de Inventariado",
+    "image": "",
+    "iframeUrl": "https://www.figma.com/make/goRxYNyP94kJzU1mLDnrik/Proyecto-Figaros?t=ywJFgM1WmfbRHHRw-1",
+    "tag": "Sistema Agendamiento de Turnos",
     "title": "Sistema de Inventario Personalizado para Figaros Barber Shop",
     "text": "Figaros Barber Shop ahora cuenta con su propio Sistema de Inventario completamente personalizado, diseñado para optimizar la gestión de productos de manera eficiente y con una interfaz intuitiva. Este sistema ha sido creado específicamente para satisfacer las necesidades del negocio, asegurando que siempre haya control total sobre el stock disponible y facilitando el proceso de ventas y pedidos.",
     "button": {
-      
-      "link": "/portafolio"
-    }
-  },
-  {
-    "image": "/assets/img/projects/portafolio2.webp",
-    "tag": "Sistema de Facturacion",
-    "title": "Butic - Sistema de Facturación Eficiente y Seguro",
-    "text": "Butic ha implementado un sistema de facturación a medida, diseñado específicamente para optimizar la gestión de transacciones y mejorar la eficiencia operativa del negocio. Este sistema ha sido desarrollado para satisfacer las necesidades únicas de Butic, asegurando un control total sobre las facturas generadas y facilitando el proceso de ventas de manera rápida y sin errores.",
-    "button": {
-      
-      "link": "/portafolio"
+      "link": "#"
     }
   }
 ]

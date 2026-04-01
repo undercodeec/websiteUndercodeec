@@ -1999,8 +1999,6 @@ img.testi-globe1 {
 
 .mb-100 {
   margin-bottom: 100px !important;
-  left: -71px;
-  position: relative;
 }
 
 .mb-150 {
@@ -2857,8 +2855,7 @@ button.btn.btn-success {
 img.softunder {
   width: 400px;
   position: absolute;
-  top: 95px;
-  left: 500px;
+  
 }
 
 .section-head.style-8 h6 {
@@ -4660,14 +4657,14 @@ header.style-6 .info h1 {
 header.style-6 .info h1 span {
   color: #fff;
   position: relative;
-  padding: 10px 40px;
+  padding: 10px 20px;
 }
 
 header.style-6 .info h1 span small {
   color: #fff;
   position: relative;
   z-index: 2;
-  font-size: 85px;
+  font-size: 68px;
 }
 
 header.style-6 .info h1 span::before {
@@ -4751,9 +4748,9 @@ header.style-6 .info .form .form-group input::placeholder {
 
 header.style-6 .hand-mega {
   position: absolute;
-  width: 20%;
-  top: 20%;
-  left: 0;
+  width: 15%;
+  top: 15%;
+  left: 2%;
   -o-object-fit: contain;
   object-fit: contain;
   -o-object-position: left;
@@ -4795,9 +4792,9 @@ header.style-6 .head6-charts {
 
 header.style-6 .head6-rocket {
   position: absolute;
-  width: 30%;
-  bottom: 5%;
-  right: -30px;
+  width: 20%;
+  bottom: 10%;
+  right: -20px;
   z-index: 2;
 }
 
@@ -7576,6 +7573,28 @@ img.googlecali {
   text-align: center;
 }
 
+.banner-left-marketing h2 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.banner-left-marketing h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.banner-left-marketing p {
+  font-size: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
 .banner-left {
   background: linear-gradient(60deg,
       #ffcc00,
@@ -8061,6 +8080,7 @@ section.clients.style-5 {
   align-items: center;
   justify-content: center;
   padding: 40px;
+  margin-top: 50px;
   z-index: 1;
 }
 
@@ -13845,8 +13865,6 @@ section.clients.style-5 {
 
 .numbers.style-8 .content {
   position: relative;
-  padding-top: 240px;
-  padding-bottom: 380px;
 }
 
 .numbers.style-8 .content .logo-icon {
@@ -22254,3 +22272,25 @@ footer.style-15 .foot p {
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 } */
+
+/* Animated hover link - reusable pill hover effect */
+.animated-link {
+  position: relative;
+}
+
+.animated-link::after {
+  position: absolute;
+  content: "";
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(to right, #600b56, #efa238);
+  -webkit-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.animated-link:hover::after {
+  width: 100%;
+}

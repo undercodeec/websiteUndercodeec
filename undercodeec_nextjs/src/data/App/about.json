@@ -1,33 +1,35 @@
 {
   "features": [
-    { "icon": "fas fa-tag", "title": "Interactividad y facilidad de uso" },
-    { "icon": "fas fa-sync", "title": "Estética coherente" },
-    { "icon": "fas fa-text-width", "title": "Optimización para todos los dispositivos" },
-    { "icon": "fas fa-text-width", "title": "Accesibilidad" }
-    
+    { "icon": "bi bi-hand-index-thumb", "title": "Interactividad y facilidad de uso", "desc": "Diseñamos flujos intuitivos para que el usuario disfrute cada interacción, con gestos naturales, transiciones suaves y una navegación sin fricciones que fideliza desde el primer uso." },
+    { "icon": "bi bi-palette2", "title": "Estética coherente", "desc": "Aplicamos sistemas de diseño consistentes con paletas de colores, tipografías y componentes alineados a la identidad de tu marca en cada pantalla de la aplicación." },
+    { "icon": "bi bi-phone", "title": "Optimización para todos los dispositivos", "desc": "Tu aplicación se adapta perfectamente a cualquier tamaño de pantalla, desde smartphones compactos hasta tablets, garantizando una experiencia visual impecable en cada dispositivo." },
+    { "icon": "bi bi-universal-access", "title": "Accesibilidad", "desc": "Implementamos estándares de accesibilidad (WCAG) para que tu app sea inclusiva, permitiendo que todas las personas puedan utilizarla sin barreras." }
   ],
   "accordions": [
     {
       "id": 1,
+      "icon": "bi bi-shield-lock",
       "title": "Protección de datos sensibles",
       "content": "La información de los usuarios, transacciones y datos privados deben ser manejados con la máxima protección, usando técnicas avanzadas de encriptación y autenticación."
     },
     {
       "id": 2,
+      "icon": "bi bi-cpu",
       "title": "Integración con sistemas de seguridad en tiempo real",
       "content": "Implementamos protocolos de seguridad en tiempo real para detectar y prevenir vulnerabilidades antes de que se conviertan en un problema."
     },
     {
       "id": 3,
+      "icon": "bi bi-file-earmark-check",
       "title": "Cumplimiento de regulaciones",
       "content": "Todas las aplicaciones desarrolladas cumplen con los estándares internacionales de seguridad, garantizando que se adhieren a las normativas como el GDPR, entre otras."
     }
   ],
   "thirdFeatures": [
-    { "active": false, "title": "Mostrar productos o servicios de forma atractiva" },
-    { "active": true, "title": "Integrar pedidos, reservas o ventas en línea" },
-    { "active": false, "title": "Usar modo oscuro y diseño adaptado a tu marca" },
-    { "active": false, "title": "Mejorar la experiencia del cliente desde cualquier dispositivo" }
+    { "icon": "bi bi-bag-heart", "title": "Mostrar productos o servicios de forma atractiva", "desc": "Diseñamos catálogos visuales y galerías interactivas que destacan lo mejor de tu oferta, capturando la atención de tus clientes al instante." },
+    { "icon": "bi bi-cart-check", "title": "Integrar pedidos, reservas o ventas en línea", "desc": "Conectamos tu app con sistemas de pago, gestión de pedidos y reservas para que tus clientes compren o agenden directamente desde su dispositivo." },
+    { "icon": "bi bi-moon-stars", "title": "Usar modo oscuro y diseño adaptado a tu marca", "desc": "Ofrecemos temas personalizables incluyendo modo oscuro elegante, adaptando cada elemento visual a la identidad de tu marca." },
+    { "icon": "bi bi-phone-vibrate", "title": "Mejorar la experiencia del cliente desde cualquier dispositivo", "desc": "Optimizamos cada interacción para que tu aplicación funcione de manera fluida y consistente en smartphones, tablets y más." }
   ],
   "integrations": [
     "/assets/img/logos/iconapp1.webp",
