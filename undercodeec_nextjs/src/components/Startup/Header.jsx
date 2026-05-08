@@ -3,43 +3,26 @@ import Navbar from '@/components/Navbars/StartupNav';
 import OnePageNavbar from '@/components/Navbars/StartupNav/OnePageNav';
 import NavbarRTL from '@/components/Navbars/StartupNav/RTLNav';
 
-const Header = ({ isOnePage, rtl }) => {
+const Header = ({ isOnePage }) => {
   return (
     <header className="style-6">
       <div className="content" data-scroll-index="0">
         {
           isOnePage ? 
-           <OnePageNavbar rtl={rtl} />
+           <OnePageNavbar />
            : 
-            rtl ? (<NavbarRTL />) : (<Navbar />)
+            (<Navbar />)
         }
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-lg-8">
               <div className="info">
-                <h1>
-                  {
-                    rtl ?
-                    <>
-                      التسويق الالكترونى هو <span> <small> المستقبل </small> </span>
-                    </>
-                    :
+                  <h1>
                     <>
                       Análisis SEO y marketing para <span>tu <small>Negocio</small></span>
                     </>
-                  }
-                </h1>
+                  </h1>
                 <div className="text">
-                  {
-                    rtl ?
-                    <>
-                       ضمان أفضل عائد على الاستثمار لمتطلبات حملة تحسين محركات البحث (SEO) الخاصة بك. <br />
-                      احصل على تحليل SEO المجاني الخاص بك
-                    </>
-                    :
-                    <>
-                    </>
-                  }
                 </div>
                 
               </div>

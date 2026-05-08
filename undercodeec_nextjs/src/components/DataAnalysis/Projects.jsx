@@ -50,7 +50,8 @@ const Projects = () => {
                   mousewheel={false}
                   keyboard={true}
                   autoplay={{
-                    delay: 4000
+                    delay: 10000,
+                    disableOnInteraction: true
                   }}
                   loop={false}
                 >
@@ -77,16 +78,17 @@ const Projects = () => {
                             </div>
                             <div className="col-lg-6">
                               <div className="info">
-                                <div className="logo">
-                                  <img src={project.logo} alt="" />
-                                </div>
-                                <h4 className="title"> {project.title} </h4>
                                 <p> {project.text} </p>
                                 <div className="proj-det">
                                   {/* Se eliminaron las secciones de "client" */}
                                   {/* Solo mostramos el botón "Ver Portafolio" */}
-                                  <a href={project.button.link} className="view-portfolio-btn">
-                                    {project.button.text}
+                                  <a 
+                                    href={project.iframeUrl || project.button.link} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="btn blue5-3Dbutn"
+                                  >
+                                    Ver demo
                                   </a>
                                 </div>
                               </div>

@@ -2,28 +2,29 @@ import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { Pagination, Autoplay } from 'swiper';
 import testimonials from '@/data/Saas/testimonials.json';
-import testimonialsRTL from '@/data/Saas/testimonials-rtl.json';
+
 
 import "swiper/css";
 import 'swiper/css/autoplay';
 import 'swiper/css/pagination';
 
-SwiperCore.use([Pagination, Autoplay]);
+// SwiperCore.use([Pagination, Autoplay]); // Deprecated pattern
 
-const Testimonials = ({ rtl }) => {
-  const testimonialsData = rtl ? testimonialsRTL : testimonials;
+const Testimonials = ({}) => {
+  const testimonialsData = testimonials;
 
   return (
     <section className="testimonials section-padding bg-gray5 style-5" data-scroll-index="5">
       <div className="container">
         <div className="section-head text-center mb-60 style-5">
-          <h2 className="mb-20">{ rtl ? 'مراجعات' : 'Reseñas de' } <span>{ rtl ? 'العملاء' : 'Empresas' }</span> </h2>
-          <p>{ rtl ? 'لقد أحببت Iteck من آلاف العملاء في جميع أنحاء العالم وحصلت على ثقة من الشركات الكبرى.' : 'Undercodeec es valorado por nuestros clientes y cuenta con la confianza de empresas tanto pequeñas como grandes.' }</p>
+          <h2 className="mb-20">{ 'Reseñas de' } <span>{ 'Empresas' }</span> </h2>
+          <p>{ 'Undercodeec es valorado por nuestros clientes y cuenta con la confianza de empresas tanto pequeñas como grandes.' }</p>
         </div>
       </div>
       <div className="content">
         <div className="testimonial-slider position-relative style-5">
           <Swiper
+            modules={[Pagination, Autoplay]}
             className="swiper-container pb-70"
             spaceBetween={0}
             slidesPerView={4}

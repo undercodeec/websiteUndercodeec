@@ -1,0 +1,59 @@
+PAQUETE DE CONTRATOS DE DESARROLLO DE SOFTWARE
+Este documento contiene las plantillas legales y directrices técnicas para la contratación de servicios de desarrollo de software, optimizadas para su implementación en entornos digitales.
+1. CONTRATO DE DESARROLLO DE SOFTWARE SIMPLIFICADO
+(Recomendado para proyectos pequeños: páginas web, tiendas online y comerciales de corta duración)
+I. IDENTIFICACIÓN DIGITAL DE LAS PARTES
+EL PRESTADOR: [Nombre/Razón Social], con NIF/RUC [Número], correo electrónico [Email] y domicilio en [Dirección].
+EL CLIENTE: [Nombre/Razón Social], con NIF/RUC [Número], representado por [Nombre], correo electrónico [Email].
+II. ALCANCE DEL PROYECTO (SCOPE)
+El Prestador se compromete a desarrollar: [Descripción breve del proyecto].
+Requerimientos incluidos: [Listar funcionalidades específicas].
+Exclusiones estrictas: Cualquier funcionalidad no listada se considera fuera de alcance. Se excluye específicamente: [Ej. Hosting, carga de contenido, SEO].
+III. MODELO DE FACTURACIÓN Y PAGOS
+El precio total es de [Monto] + Impuestos, bajo la modalidad de Precio Fijo.
+Hito / Entregable
+Porcentaje / Monto
+Firma del contrato e inicio
+[Porcentaje]%
+Entrega de versión Beta para pruebas
+[Porcentaje]%
+Aceptación Técnica y Lanzamiento
+[Porcentaje]%
+
+IV. PROPIEDAD INTELECTUAL Y CÓDIGO FUENTE
+La titularidad de los derechos de propiedad intelectual se regirá por las siguientes reglas:
+Modalidad Estándar: Si el Cliente abona únicamente el costo de desarrollo y levantamiento a producción, el Prestador otorga una Licencia de Uso no exclusiva para operar el software. El Prestador retiene la propiedad íntegra del código fuente.
+Modalidad de Propiedad: Únicamente si el Cliente ha pagado el rubro específico por "Adquisición de Código Fuente", el Prestador transferirá la propiedad total y exclusiva del código fuente al Cliente tras el pago del 100% de los honorarios.
+V. ACTA DE ACEPTACIÓN TÉCNICA (UAT)
+Tras la entrega, el Cliente tiene [X] días para reportar fallos. Si no hay comunicación en dicho plazo, se entiende por aceptado el proyecto para el pago final.
+VI. CONFIDENCIALIDAD Y PROTECCIÓN DE DATOS
+Ambas partes se obligan a proteger la información sensible. El Prestador cumplirá con la normativa de protección de datos en el manejo de la información del Cliente.
+2. ESTRUCTURA CONTRACTUAL MODULAR (PROYECTOS GRANDES)
+2.1 ACUERDO DE CONFIDENCIALIDAD (NDA)
+Documento independiente vinculado a la fase de negociación. Prohíbe la divulgación de secretos industriales, algoritmos y estrategias comerciales bajo pena de sanciones económicas.
+2.2 CONTRATO MARCO DE SERVICIOS (MSA)
+Establece las reglas permanentes de la relación:
+Propiedad Intelectual: Sigue la lógica de "Pago por Código = Propiedad".
+Limitación de Responsabilidad: Topada al monto pagado en los últimos 6 meses.
+Resolución de Disputas: Sometimiento a arbitraje digital o tribunales específicos.
+2.3 DECLARACIÓN DE TRABAJO (SOW)
+Anexo operativo bajo modelo Time & Materials (Tiempo y Materiales). Define las tarifas por hora, el equipo asignado y los ciclos de entrega (Sprints).
+2.4 ACUERDO DE NIVEL DE SERVICIO (SLA)
+Prioridad
+Tiempo de Respuesta
+Tiempo de Resolución
+Crítica (Caída total)
+< 2 horas
+< 8 horas
+Alta (Fallo parcial)
+< 8 horas
+< 24 horas
+
+3. DIRECTRICES PARA LA IMPLEMENTACIÓN ELECTRÓNICA
+CONSENTIMIENTO Y ACEPTACIÓN DIGITAL
+Para la validez legal del acuerdo tipo Click-wrap, el usuario debe ver el siguiente texto antes de aceptar:
+"Al hacer clic en 'Aceptar', usted reconoce que ha leído la totalidad de este contrato y acepta quedar vinculado legalmente por sus términos. Esta acción constituye una firma electrónica con plenos efectos jurídicos de acuerdo con la legislación vigente en materia de comercio electrónico."
+REQUISITOS TÉCNICOS
+Registro de Log de Auditoría (IP, Fecha, Hora).
+Acceso previo obligatorio al documento (Scroll).
+Envío automático del contrato firmado en PDF al correo electrónico del cliente.

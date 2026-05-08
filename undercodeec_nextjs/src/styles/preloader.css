@@ -1,6 +1,7 @@
 
 /* --------------- Start Preloader --------------- */
 .pace {
+  display: none !important;
   pointer-events: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -59,10 +60,10 @@
   left: 0;
   height: 50%;
   width: 100%;
-  background: -webkit-gradient(linear, left top, right top, from(#600b56 ), to(#150E23 ));
-  background: -webkit-linear-gradient(left, #600b56  0%, #150E23 100%);
-  background: -o-linear-gradient(left, #600b56  0%, #150E23 100%);
-  background: linear-gradient(to right, #600b56  0%, #150E23 100%);
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%, #150E23), color-stop(5%, #600b56), color-stop(95%, #600b56), color-stop(100%, #150E23));
+  background: -webkit-linear-gradient(left, #150E23 0%, #600b56 5%, #600b56 95%, #150E23 100%);
+  background: -o-linear-gradient(left, #150E23 0%, #600b56 5%, #600b56 95%, #150E23 100%);
+  background: linear-gradient(to right, #150E23 0%, #600b56 5%, #600b56 95%, #150E23 100%);
   -webkit-transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
   -o-transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
   transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1); }
@@ -73,21 +74,6 @@
 #preloader:after {
   bottom: 0; }
 
-#preloader.isdone {
-  visibility: hidden;
-  -webkit-transition-delay: 0.5s;
-  -o-transition-delay: 0.5s;
-  transition-delay: 0.5s; }
-
-#preloader.isdone:after,
-#preloader.isdone:before {
-  height: 0;
-  -webkit-transition: all 0.4s cubic-bezier(1, 0, 0.55, 1);
-  -o-transition: all 0.4s cubic-bezier(1, 0, 0.55, 1);
-  transition: all 0.4s cubic-bezier(1, 0, 0.55, 1);
-  -webkit-transition-delay: 0.3s;
-  -o-transition-delay: 0.3s;
-  transition-delay: 0.3s; }
 
 .loading {
   position: fixed;

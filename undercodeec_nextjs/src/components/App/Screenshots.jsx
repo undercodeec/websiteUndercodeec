@@ -8,7 +8,7 @@ import 'swiper/css/autoplay';
 
 SwiperCore.use([Autoplay]);
 
-const Screenshots = ({ rtl }) => {
+const Screenshots = ({}) => {
   const [loadSwiper, setLoadSwiper] = useState(false);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const Screenshots = ({ rtl }) => {
         {
           loadSwiper && (
             <Swiper
-              dir={rtl ? 'rtl' : 'ltr'}
+              dir={'ltr'}
               className="swiper-container"
               spaceBetween={0}
               slidesPerView={5}

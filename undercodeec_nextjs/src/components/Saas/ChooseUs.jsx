@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Monitor, Smartphone, ShoppingCart, Code } from 'lucide-react';
 
-const ChooseUs = ({ rtl }) => {
+const ChooseUs = ({}) => {
 
   return (
     <section className="choose-us style-6">
@@ -43,7 +43,7 @@ const ChooseUs = ({ rtl }) => {
                   marginBottom: '20px',
                   paddingBottom: '15px'
                 }}>
-                  { rtl ? 'خدماتنا' : 'Nuestros Servicios' }
+                  { 'Nuestros Servicios' }
                 </h3>
               </div>
               
@@ -88,8 +88,8 @@ const ChooseUs = ({ rtl }) => {
                   </div>
                 </li>
               </ul>
-              <Link href={ rtl ? "/rtl-page-services" : "/servicios" } className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold mt-60 px-5">
-                <span>{ rtl ? 'مشاهدة المزيد' : 'Saber Mas' }</span>
+              <Link href={ "/servicios" } className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold mt-60 px-5">
+                <span>{ 'Saber Mas' }</span>
               </Link>
             </div>
           </div>

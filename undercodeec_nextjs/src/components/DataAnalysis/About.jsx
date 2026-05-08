@@ -5,17 +5,17 @@ const securityFeatures = [
   {
     title: "Cifrado de Datos",
     icon: Lock,
-    desc: "Protegemos tu información sensible con algoritmos de cifrado avanzados para asegurar que solo personal autorizado tenga acceso."
+    desc: "Protegemos la información sensible de tu empresa con algoritmos de cifrado avanzados (AES-256, TLS) para asegurar que solo personal autorizado tenga acceso a los datos de tu negocio en Ecuador."
   },
   {
     title: "Autenticación Multifactor (MFA)",
     icon: Fingerprint,
-    desc: "Añadimos capas extra de seguridad requiriendo múltiples formas de verificación para acceder a tus sistemas críticos."
+    desc: "Añadimos capas extra de seguridad requiriendo múltiples formas de verificación para acceder a tus sistemas críticos, protegiendo tu software empresarial contra accesos no autorizados."
   },
   {
     title: "Cumplimiento de Normativas",
     icon: ClipboardCheck,
-    desc: "Aseguramos que tu software cumpla con los estándares legales y regulaciones de protección de datos vigentes y locales."
+    desc: "Aseguramos que tu software empresarial cumpla con los estándares legales, regulaciones de protección de datos y normativas vigentes en Ecuador, incluyendo certificaciones del SRI para facturación electrónica."
   },
   {
     title: "Actualizaciones de Seguridad",
@@ -34,15 +34,15 @@ const About = () => {
           <div className="row align-items-center justify-content-between">
             <div className="col-lg-6">
               <div className="img mb-4 mb-lg-0 wow fadeIn">
-                <img src="/assets/img/about/3d_vector2.svg" alt="" />
+                <img src="/assets/img/about/3d_vector2.svg" alt="Seguridad en software empresarial para PYMES en Ecuador - protección de datos" />
               </div>
             </div>
             <div className="col-lg-5">
               <div className="info">
                 <div className="section-head style-8 mb-40">
-                  <h3 className="wow fadeInUp"> Seguridad de Software</h3>
+                  <h3 className="wow fadeInUp"> Seguridad de Software Empresarial en Ecuador</h3>
                 </div>
-                <p className="color-666 wow fadeInUp"> En Undercodeec, la seguridad de tus datos y la privacidad de tu negocio son nuestra prioridad. Nuestras soluciones de software están diseñadas con estrictas medidas de seguridad para garantizar que toda la información que maneja tu empresa esté protegida frente a amenazas externas. </p>
+                <p className="color-666 wow fadeInUp"> En Undercodeec, la seguridad de tus datos y la privacidad de tu negocio son nuestra prioridad. Nuestras soluciones de software empresarial para PYMES en Ecuador están diseñadas con estrictas medidas de seguridad — cifrado de datos, autenticación multifactor y cumplimiento de normativas — para garantizar que toda la información que maneja tu empresa esté protegida frente a amenazas externas y vulnerabilidades. </p>
                 <div className="line-links d-flex flex-column align-items-start mt-30">
                   {
                     securityFeatures.map((feature, index) => {

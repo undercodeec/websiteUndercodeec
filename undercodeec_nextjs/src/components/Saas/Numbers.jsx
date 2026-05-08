@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import CountTo from '../CountTo';
 import numbers from '@/data/Saas/numbers.json';
-import numbersRTL from '@/data/Saas/numbers-rtl.json';
 
-const Numbers = ({ rtl }) => {
+
+const Numbers = ({}) => {
   const numbersSectionRef = useRef(null);
   const [position, setPosition] = useState({ from: 3000, to: 3340 });
-  const data = rtl ? numbersRTL : numbers;
+  const data = numbers;
 
   useEffect(() => {
     const numbersSection = numbersSectionRef.current;

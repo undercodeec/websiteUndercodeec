@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Clients = ({ rtl }) => {
+const Clients = ({}) => {
   return (
     <section className="choose-us section-padding style-6" data-scroll-index="9">
       <div className="container">

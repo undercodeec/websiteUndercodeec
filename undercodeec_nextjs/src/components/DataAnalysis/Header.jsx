@@ -48,10 +48,10 @@ const Header = () => {
                   transition={{ duration: 0.6, delay: 0.2 }}
                   className="gradient-title tw-text-[32px] sm:tw-text-[40px] md:tw-text-[60px] tw-font-bold tw-leading-tight"
                 >
-                  Soluciones de Software Esenciales <br /> para Pequeños Negocios
+                  Desarrollo de Software Empresarial <br />a Medida para PYMES en Ecuador
                   <span className="ms-2 tw-inline-block tw-relative">
-                    <img src="/assets/img/header/subrrayado.png" alt="" className="tw-absolute tw--bottom-4 tw-left-0 tw-w-full tw-opacity-70" style={{ zIndex: -1 }} />
-                    <img src="/assets/img/header/head5_pen.png" alt="" className="tw-absolute tw--top-6 tw--right-8 tw-w-12" />
+                    <img src="/assets/img/header/subrrayado.png" alt="Subrayado decorativo software empresarial" className="tw-absolute tw--bottom-4 tw-left-0 tw-w-full tw-opacity-70" style={{ zIndex: -1 }} />
+                    <img src="/assets/img/header/head5_pen.png" alt="Desarrollo de software personalizado Ecuador" className="tw-absolute tw--top-6 tw--right-8 tw-w-12" />
                   </span>
                 </motion.h1>
 
@@ -61,7 +61,7 @@ const Header = () => {
                   transition={{ duration: 0.6, delay: 0.4 }}
                   className="tw-text-lg md:tw-text-xl tw-leading-relaxed tw-max-w-2xl tw-text-gray-900"
                 >
-                  En Undercodeec, nos especializamos en ofrecer soluciones de software integrales y personalizadas diseñadas para optimizar la eficiencia y crecimiento de tu pequeño o mediano negocio.
+                  En Undercodeec, nos especializamos en desarrollo de software a medida en Quito y Ecuador. Ofrecemos soluciones integrales y personalizadas — CRM, sistemas de inventarios, facturación electrónica certificada SRI, e-commerce y automatización de procesos — diseñadas para optimizar la eficiencia, productividad y crecimiento de tu PYME o negocio.
                 </motion.p>
               </motion.div>
 
@@ -72,19 +72,6 @@ const Header = () => {
                 transition={{ duration: 0.8, delay: 0.3 }}
                 className="tw-relative tw-flex tw-items-center tw-justify-center tw-h-[400px] lg:tw-h-[500px]"
               >
-                {/* Glow Effect */}
-                <motion.div
-                  animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [0.3, 0.6, 0.3],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                  }}
-                  className="tw-absolute tw-inset-0 tw-rounded-full tw-blur-3xl"
-                  style={{ background: '#ba27f4' }}
-                />
                 
                 {/* Rotating Ring */}
                 <motion.div
@@ -103,7 +90,7 @@ const Header = () => {
                    <div className="tw-relative tw-w-full tw-h-full tw-z-20 tw-flex tw-justify-center tw-items-center">
                       <motion.img 
                         src="/assets/img/header/Animation3DSoftware.webp" 
-                        alt="Software Solutions" 
+                        alt="Soluciones de software empresarial a medida en Ecuador - CRM, inventarios, facturación electrónica" 
                         className="tw-w-[80%] lg:tw-w-full tw-max-w-[500px] tw-object-contain tw-drop-shadow-2xl"
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}

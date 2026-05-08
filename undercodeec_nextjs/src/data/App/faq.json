@@ -3,67 +3,63 @@
     "id": 1,
     "question": "¿Cómo sé si mi idea es viable para una aplicación móvil?",
     "answer": {
-      "part1": "Nosotros trabajamos contigo para evaluar tu idea y te ayudamos a determinar su viabilidad en el mercado, considerando aspectos como el público objetivo, la funcionalidad y la tecnología necesaria para desarrollarla. "    }
+      "part1": "Nuestro equipo de desarrollo de aplicaciones móviles en Quito trabaja contigo para evaluar tu idea y determinar su viabilidad en el mercado ecuatoriano, considerando aspectos como el público objetivo, la funcionalidad y la tecnología más adecuada (Android, iOS o multiplataforma) para desarrollarla con éxito."
+    }
   },
   {
     "id": 2,
-    "question": "¿Qué tipo de aplicaciones móviles pueden desarrollar?",
+    "question": "¿Qué tipo de aplicaciones móviles desarrollan en Ecuador?",
     "answer": {
-      "part1": "Desarrollamos aplicaciones móviles para diversas plataformas (iOS y Android) en sectores como comercio electrónico, educación, entretenimiento, salud, redes sociales, productividad, entre otros."
+      "part1": "Somos una empresa de desarrollo de apps en Quito que crea aplicaciones nativas y multiplataforma para Android e iOS en diversos sectores: e-commerce, delivery y logística, educación, salud, gestión empresarial, redes sociales, productividad y más. Utilizamos tecnologías como Flutter y React Native."
     }
   },
   {
     "id": 3,
-    "question": "¿Cuánto tiempo tomará desarrollar mi aplicación móvil?",
+    "question": "¿Cuánto tiempo toma desarrollar una aplicación móvil profesional?",
     "answer": {
-      "part1": "El tiempo de desarrollo depende de la complejidad del proyecto. Para aplicaciones sencillas puede tomar entre 1 a 3 meses, mientras que aplicaciones más complejas pueden requerir entre 6 y 12 meses."
+      "part1": "El tiempo de desarrollo de una app depende de la complejidad del proyecto. Para aplicaciones móviles sencillas puede tomar entre 1 a 3 meses, mientras que apps más complejas con integraciones avanzadas pueden requerir entre 6 y 12 meses. Trabajamos con metodología ágil para entregar avances continuos."
     }
   },
   {
     "id": 4,
-    "question": "¿Cuál es el costo de desarrollar una aplicación móvil?",
+    "question": "¿Cuál es el costo de desarrollar una aplicación móvil en Ecuador?",
     "answer": {
-      "part1": "El costo varía según la funcionalidad, el diseño y las características de seguridad que necesite la aplicación. Realizamos un presupuesto personalizado después de analizar los requisitos del proyecto."
-      
+      "part1": "El presupuesto de desarrollo de aplicaciones móviles varía según la funcionalidad, el diseño UI/UX y las características de seguridad requeridas. Realizamos una cotización personalizada después de analizar los requisitos de tu proyecto. Ofrecemos precios competitivos para PYMES y empresas en Ecuador."
     }
   },
   {
     "id": 5,
-    "question": " ¿Mi aplicación será compatible con todos los dispositivos?",
+    "question": "¿Mi aplicación será compatible con todos los dispositivos Android e iOS?",
     "answer": {
-      "part1": "Sí, diseñamos aplicaciones optimizadas para garantizar la mejor experiencia de usuario en la mayoría de dispositivos móviles y tabletas, tanto en Android como en iOS. "
+      "part1": "Sí, diseñamos aplicaciones móviles optimizadas para garantizar la mejor experiencia de usuario en la mayoría de smartphones y tablets, tanto en Android como en iOS. Realizamos pruebas exhaustivas de compatibilidad y publicamos tu app en Play Store y App Store."
     }
   },
   {
     "id": 6,
-    "question": "¿Puedo realizar cambios o actualizaciones en mi aplicación después de su lanzamiento?",
+    "question": "¿Ofrecen soporte y actualizaciones después del lanzamiento de la app?",
     "answer": {
-      "part1": "Sí, ofrecemos soporte post-lanzamiento para realizar actualizaciones, correcciones de errores o agregar nuevas funcionalidades según lo necesites."
-      
+      "part1": "Sí, ofrecemos soporte técnico post-lanzamiento continuo para realizar actualizaciones, correcciones de errores, mejoras de rendimiento o agregar nuevas funcionalidades según las necesidades de tu negocio y los comentarios de tus usuarios."
     }
   },
   {
     "id": 7,
-    "question": " ¿Qué medidas de seguridad implementan en la aplicación?",
+    "question": "¿Qué medidas de seguridad implementan en las aplicaciones móviles?",
     "answer": {
-      "part1": "Aplicamos encriptación de datos, autenticación segura (como 2FA) y seguimos las mejores prácticas para proteger los datos de los usuarios y garantizar la seguridad de la aplicación en todo momento."
-      
+      "part1": "Aplicamos encriptación de datos, autenticación segura (como 2FA), tokens JWT y seguimos las mejores prácticas de seguridad móvil para proteger los datos de los usuarios y garantizar la seguridad de tu aplicación en Android e iOS en todo momento."
     }
   },
   {
     "id": 8,
-    "question": "¿Puedo integrar mi aplicación con otros sistemas o plataformas?",
+    "question": "¿Pueden integrar mi aplicación con otros sistemas o plataformas?",
     "answer": {
-      "part1": "Sí, trabajamos para integrar tu aplicación con otras plataformas, como sistemas de pago, CRM, redes sociales, o bases de datos externas, asegurando una interoperabilidad fluida."
-      
+      "part1": "Sí, somos expertos en integración de APIs y desarrollo de software a medida. Conectamos tu aplicación móvil con pasarelas de pago, sistemas CRM, redes sociales, bases de datos externas o ERPs, asegurando una interoperabilidad fluida para tu negocio en Ecuador."
     }
   },
   {
     "id": 9,
     "question": "¿Cómo puedo medir el rendimiento de mi aplicación después del lanzamiento?",
     "answer": {
-      "part1": "Ofrecemos herramientas de análisis y métricas que te permitirán realizar un seguimiento de cómo los usuarios interactúan con la aplicación, las descargas, el comportamiento y otras métricas clave para mejorar la experiencia."
-      
+      "part1": "Implementamos herramientas de analytics como Firebase y Google Analytics que te permitirán realizar un seguimiento detallado de descargas, comportamiento de usuarios, métricas de retención y otras KPIs clave para optimizar la experiencia y el crecimiento de tu app en el mercado ecuatoriano."
     }
   }
 ]

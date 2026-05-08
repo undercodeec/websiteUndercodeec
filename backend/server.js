@@ -7,6 +7,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const cheerio = require('cheerio'); // Fallback scraping
 const puppeteer = require('puppeteer'); // Advanced scraping for design context
 require('dotenv').config();
+const db = require('./db_pg');
 
 const app = express();
 const pendingOrders = new Map(); // Store pending orders from Chatbot
@@ -1251,41 +1252,46 @@ async function sendOrderEmailsInternal(orderData) {
   }
 }
 
-// Helper to save order to Supabase
-const supabase = require('./supabaseClient');
-
-async function saveOrderToSupabase(orderData) {
+// Helper to save order to local MariaDB
+async function saveOrderToDB(orderData) {
   try {
     const { 
       planName, planPrice, transactionId, amountPaid, 
       metodoPago, tipoPago, voucherUrl 
     } = orderData;
 
-    const { data, error } = await supabase
-      .from('orders')
-      .insert([
-        {
-          plan_name: planName,
-          amount: amountPaid || planPrice, // Use paid amount or total price
-          client_info: orderData,
-          payment_status: metodoPago === 'transferencia' ? 'pending' : 'approved',
-          payment_method: metodoPago,
-          voucher_url: voucherUrl || null,
-          transaction_id: transactionId || null,
-          created_at: new Date().toISOString()
-        }
-      ])
-      .select();
+    const query = `
+      INSERT INTO orders (
+        plan_name, amount, client_info, payment_status, 
+        payment_method, voucher_url, transaction_id
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id
+    `;
 
-    if (error) throw error;
-    console.log('✅ Order saved to Supabase:', data ? data[0]?.id : 'unknown ID');
-    return data ? data[0] : null;
+    const values = [
+      planName,
+      amountPaid || planPrice,
+      JSON.stringify(orderData),
+      metodoPago === 'transferencia' ? 'pending' : 'approved',
+      metodoPago,
+      voucherUrl || null,
+      transactionId || null
+    ];
+
+    const result = await db.query(query, values);
+    
+    console.log('✅ Order saved to PostgreSQL (DBUND), ID:', result.rows[0].id);
+    return { id: result.rows[0].id };
 
   } catch (error) {
-    console.error('❌ Error saving order to Supabase:', error.message);
-    // We don't throw here to avoid failing the email/response flow
+    console.error('❌ Error saving order to Local DB:', error.message);
     return null;
   }
+}
+
+// Keep the old name for compatibility
+async function saveOrderToSupabase(orderData) {
+  return await saveOrderToDB(orderData);
 }
 
 // Endpoint para enviar correos de confirmación de pedido
@@ -1587,6 +1593,9 @@ app.post('/api/send-software-request', async (req, res) => {
       return res.status(400).json({ error: 'Verificación de ReCAPTCHA fallida' });
     }
 
+    // 1. Guardar Lead en la Base de Datos
+    await saveLeadToDB('software', softwareNombre, softwareEmail, softwareTelefono, req.body);
+
     // 2. Enviar correo al administrador
     const adminEmailHtml = `
       <!DOCTYPE html>
@@ -1691,7 +1700,10 @@ app.post('/api/send-webapp-request', async (req, res) => {
   */
 
   try {
-     // 1. Enviar correo al administrador
+     // 1. Guardar Lead en la Base de Datos
+     await saveLeadToDB('webapp', contactName, contactEmail, contactPhone, req.body);
+
+     // 2. Enviar correo al administrador
     const adminEmailHtml = `
       <!DOCTYPE html>
       <html>
@@ -1804,7 +1816,10 @@ app.post('/api/send-mobileapp-request', async (req, res) => {
   } = req.body;
 
   try {
-     // 1. Enviar correo al administrador
+     // 1. Guardar Lead en la Base de Datos
+     await saveLeadToDB('mobileapp', contactName, contactEmail, contactPhone, req.body);
+
+     // 2. Enviar correo al administrador
     const adminEmailHtml = `
       <!DOCTYPE html>
       <html>
@@ -1908,7 +1923,10 @@ app.post('/api/send-moodle-request', async (req, res) => {
   } = req.body;
 
   try {
-     // 1. Enviar correo al administrador
+     // 1. Guardar Lead en la Base de Datos
+     await saveLeadToDB('moodle', contactName, contactEmail, contactPhone, req.body);
+
+     // 2. Enviar correo al administrador
     const adminEmailHtml = `
       <!DOCTYPE html>
       <html>
@@ -1988,6 +2006,210 @@ app.post('/api/send-moodle-request', async (req, res) => {
   } catch (error) {
     console.error('Error procesando solicitud de Moodle:', error);
     res.status(500).json({ error: 'Error interno al procesar la solicitud' });
+  }
+});
+
+// Helper to save leads to DB
+async function saveLeadToDB(formType, name, email, phone, data) {
+  try {
+    const query = `
+      INSERT INTO leads (form_type, name, email, phone, data)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id
+    `;
+    const values = [formType, name, email, phone || '', JSON.stringify(data)];
+    const result = await db.query(query, values);
+    console.log(`✅ Lead saved to DB (${formType}), ID:`, result.rows[0].id);
+    return result.rows[0].id;
+  } catch (error) {
+    console.error('❌ Error saving lead to DB:', error.message);
+    return null;
+  }
+}
+
+// Middleware for Admin Auth
+const adminAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ success: false, error: 'Acceso no autorizado' });
+  }
+  const token = authHeader.split(' ')[1];
+  if (token !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ success: false, error: 'Token inválido' });
+  }
+  next();
+};
+
+// Verification Codes Store
+let activeVerificationCodes = {};
+
+// Helper to update env file persistently
+const fs = require('fs');
+const path = require('path');
+const updateEnvFile = (key, value) => {
+  try {
+    const envPath = path.join(__dirname, '.env');
+    if (!fs.existsSync(envPath)) return;
+    let envContent = fs.readFileSync(envPath, 'utf8');
+    const regex = new RegExp(`^${key}=.*`, 'm');
+    if (regex.test(envContent)) {
+      envContent = envContent.replace(regex, `${key}=${value}`);
+    } else {
+      envContent += `\n${key}=${value}`;
+    }
+    fs.writeFileSync(envPath, envContent, 'utf8');
+    console.log(`✅ Persistently updated ${key} in .env file`);
+  } catch (error) {
+    console.error(`❌ Error updating .env file for ${key}:`, error.message);
+  }
+};
+
+// Admin Login (Step 1: Credentials)
+app.post('/api/admin/login', async (req, res) => {
+  const { email, password, recaptchaToken } = req.body;
+  
+  // reCAPTCHA Verification
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secretKey) {
+    console.error('RECAPTCHA_SECRET_KEY no configurado');
+    return res.status(500).json({ success: false, error: 'Error de configuración del servidor' });
+  }
+
+  if (!recaptchaToken) {
+    return res.status(400).json({ success: false, error: 'Verificación de ReCAPTCHA requerida' });
+  }
+
+  try {
+    const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
+    const recaptchaResponse = await axios.post(verificationUrl);
+    const { success } = recaptchaResponse.data;
+
+    if (!success) {
+      console.error('ReCAPTCHA de login falló:', recaptchaResponse.data);
+      return res.status(400).json({ success: false, error: 'Verificación de ReCAPTCHA fallida' });
+    }
+  } catch (error) {
+    console.error('Error al conectar con reCAPTCHA:', error);
+    return res.status(500).json({ success: false, error: 'Error al verificar reCAPTCHA' });
+  }
+
+  const adminEmail = process.env.ADMIN_EMAIL || 'undercodeec@gmail.com';
+  
+  if (email === adminEmail && password === process.env.ADMIN_PASSWORD) {
+    // Generate 6 digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    activeVerificationCodes[email.toLowerCase()] = {
+      code,
+      expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes validity
+    };
+
+    try {
+      await transporter.sendMail({
+        from: `"Undercodeec Admin Security" <${process.env.EMAIL_USER}>`,
+        to: adminEmail,
+        subject: 'Código de Verificación - Panel de Administración',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h2 style="color: #600b56; text-align: center; margin-bottom: 20px;">🛡️ Control de Acceso Undercodeec</h2>
+            <p>Se ha detectado un intento de inicio de sesión en tu panel de administración.</p>
+            <p>Por favor, ingresa el siguiente código de verificación de 6 dígitos en la pantalla de inicio de sesión para completar el acceso:</p>
+            <div style="background: #fdf2f8; border: 1.5px dashed #efa238; border-radius: 8px; padding: 15px; text-align: center; margin: 25px 0;">
+              <span style="font-size: 36px; font-weight: bold; color: #600b56; letter-spacing: 6px;">${code}</span>
+            </div>
+            <p style="font-size: 12px; color: #777; text-align: center;">Este código es de uso único y expirará en 5 minutos.</p>
+          </div>
+        `
+      });
+      return res.json({ success: true, requireVerification: true });
+    } catch (error) {
+      console.error('Error al enviar el correo del código 2FA:', error);
+      return res.status(500).json({ success: false, error: 'Error al enviar el código de verificación por correo' });
+    }
+  }
+  
+  return res.status(401).json({ success: false, error: 'Credenciales de administrador incorrectas' });
+});
+
+// Admin Verify Code (Step 2: 2FA Verification)
+app.post('/api/admin/verify', (req, res) => {
+  const { email, password, code } = req.body;
+  const adminEmail = process.env.ADMIN_EMAIL || 'undercodeec@gmail.com';
+  
+  if (email === adminEmail && password === process.env.ADMIN_PASSWORD) {
+    const record = activeVerificationCodes[email.toLowerCase()];
+    if (record && record.code === code && record.expiresAt > Date.now()) {
+      delete activeVerificationCodes[email.toLowerCase()]; // single use
+      return res.json({ success: true, token: process.env.ADMIN_PASSWORD });
+    }
+    return res.status(400).json({ success: false, error: 'Código inválido o expirado' });
+  }
+  return res.status(401).json({ success: false, error: 'Credenciales inválidas' });
+});
+
+// Admin Change Password (Settings Tab)
+app.post('/api/admin/change-password', adminAuth, (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (currentPassword === process.env.ADMIN_PASSWORD) {
+    process.env.ADMIN_PASSWORD = newPassword;
+    updateEnvFile('ADMIN_PASSWORD', newPassword);
+    return res.json({ success: true, message: 'Contraseña actualizada correctamente de forma persistente' });
+  }
+  return res.status(400).json({ success: false, error: 'La contraseña actual es incorrecta' });
+});
+
+// Admin Dashboard - Transferencias
+app.get('/api/admin/transfers', adminAuth, async (req, res) => {
+  try {
+    const result = await db.query("SELECT * FROM orders WHERE payment_method = 'transferencia' ORDER BY created_at DESC");
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Error fetching transfers' });
+  }
+});
+
+// Admin Dashboard - Leads
+app.get('/api/admin/leads', adminAuth, async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM leads ORDER BY created_at DESC');
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Error fetching leads' });
+  }
+});
+
+// Restored Contact Route
+app.post('/api/send-contact', async (req, res) => {
+  const { name, email, phone, website, option, message, recaptchaToken } = req.body;
+  try {
+    await saveLeadToDB('contacto', name, email, phone, req.body);
+    const html = `<h2>Nuevo Contacto</h2><p><b>Nombre:</b> ${name}</p><p><b>Email:</b> ${email}</p><p><b>Teléfono:</b> ${phone}</p><p><b>Opción:</b> ${option}</p><p><b>Mensaje:</b> ${message}</p>`;
+    await transporter.sendMail({
+      from: `"Undercodeec Contacto" <${process.env.EMAIL_USER}>`,
+      to: 'undercodeec@gmail.com',
+      subject: `Nuevo contacto web de ${name}`,
+      html
+    });
+    res.json({ status: 'success', message: 'Mensaje enviado exitosamente' });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: 'Error interno' });
+  }
+});
+
+// Restored Marketing Route
+app.post('/api/send-marketing', async (req, res) => {
+  const { nombre, email, telefono, empresa, objetivo, plan, recaptchaToken } = req.body;
+  try {
+    await saveLeadToDB('marketing', nombre, email, telefono, req.body);
+    const html = `<h2>Nuevo Lead de Marketing</h2><p><b>Nombre:</b> ${nombre}</p><p><b>Email:</b> ${email}</p><p><b>Teléfono:</b> ${telefono}</p><p><b>Empresa:</b> ${empresa}</p><p><b>Objetivo:</b> ${objetivo}</p><p><b>Plan de interés:</b> ${plan}</p>`;
+    await transporter.sendMail({
+      from: `"Undercodeec Marketing" <${process.env.EMAIL_USER}>`,
+      to: 'undercodeec@gmail.com',
+      subject: `Solicitud de Marketing: ${nombre}`,
+      html
+    });
+    res.json({ success: true, message: 'Solicitud enviada' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Error interno' });
   }
 });
 

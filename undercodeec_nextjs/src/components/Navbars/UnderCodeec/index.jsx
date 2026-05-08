@@ -6,7 +6,7 @@ import {
     FaWhatsapp,
 } from 'react-icons/fa';
 import ReactGA from 'react-ga4';
-
+import { playSoundWithFade } from '@/utils/audio';
 const UnderCodeec = () => {
     return (
         <div className="undercodeec-container">
@@ -64,6 +64,9 @@ const UnderCodeec = () => {
                                     location: 'UnderCodeec'
                                 });
                             }
+                            
+                            // Reproducir sonido
+                            playSoundWithFade();
                         }}
                     >
                         <FaGlobe /> Nuestra Página Web & Galería de Proyectos

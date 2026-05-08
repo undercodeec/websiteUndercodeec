@@ -4,17 +4,17 @@ import React, { useState, useEffect, useCallback } from 'react';
 const contentSets = [
   {
     h2: '¡Bienvenido!',
-    h4: 'Ecuador ya es digital',
-    p: 'En los últimos años, las personas buscan todo en internet.',
+    h4: 'El marketing digital en Ecuador ya es esencial',
+    p: 'En los últimos años, las personas en Quito y todo Ecuador buscan productos y servicios en internet. Tu negocio necesita presencia digital para crecer.',
   },
   {
     h2: '¿Qué es Inbound Marketing?',
-    h4: 'Una forma moderna de atraer clientes',
-    p: 'Conecta con personas interesadas en lo que ofreces sin interrumpir su experiencia. Crea relaciones reales con contenido útil, y convierte visitas en ventas. Así, tus clientes llegan a ti de forma natural.',
+    h4: 'Estrategias de posicionamiento web para atraer clientes',
+    p: 'Conecta con personas interesadas en lo que ofreces mediante SEO, contenido de valor y redes sociales. El inbound marketing convierte visitas en ventas reales para tu empresa en Ecuador.',
   },
 ];
 
-const Blog = ({ rtl }) => {
+const Blog = ({}) => {
   const [displayH2, setDisplayH2] = useState('');
   const [displayH4, setDisplayH4] = useState('');
   const [displayP, setDisplayP] = useState('');
@@ -96,14 +96,37 @@ const Blog = ({ rtl }) => {
   }, []);
 
   return (
-    <section className="flex-section flex flex-wrap items-center justify-center gap-10 py-12 px-6">
+    <section className="flex-section flex flex-wrap items-center justify-center gap-0 lg:gap-10 pt-0 pb-8 lg:py-12 px-0 lg:px-6">
 
       {/* Banner + social icons side by side */}
       {/* ✏️ Ajustar gap para separar los iconos del banner. Ejemplo: gap: '60px' */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+      <style>{`
+        .marketing-banner-responsive {
+          left: 0 !important;
+          width: 92% !important;
+          margin: 0 auto !important;
+          padding: 20px 15px !important;
+        }
+        .marketing-social-responsive {
+          display: none !important;
+        }
+        @media (min-width: 992px) {
+          .marketing-banner-responsive {
+            left: 120px !important;
+            width: 453px !important;
+            margin: 0 !important;
+            padding: 30px !important;
+          }
+          .marketing-social-responsive {
+            display: flex !important;
+            margin-left: 100px !important;
+          }
+        }
+      `}</style>
+      <div className="flex flex-col lg:flex-row items-center gap-0 lg:gap-16 w-full lg:w-auto px-0 lg:px-0">
         {/* Cuadro con burbujas estilo lámpara de lava */}
-        <div className="banner-left-marketing">
-          <div className="lava-bubbles">
+        <div className="banner-left-marketing marketing-banner-responsive">
+          <div className="lava-bubbles d-lg-none">
             <span className="bubble-floating"></span>
             <span className="bubble-floating"></span>
             <span className="bubble-floating"></span>
@@ -116,8 +139,7 @@ const Blog = ({ rtl }) => {
         </div>
 
         {/* Social icons al costado derecho */}
-        {/* ✏️ Ajustar marginLeft para mover los iconos más a la derecha. Ejemplo: marginLeft: '30px' */}
-        <div className="social-icons" style={{ marginLeft: '100px', position: 'relative', zIndex: 10 }}>
+        <div className="social-icons marketing-social-responsive relative z-10 mt-6 lg:mt-0 gap-4 justify-center">
           <a href="https://www.facebook.com/undercodeec" target="_blank" rel="noopener noreferrer" className="facebook">
             <i className="fab fa-facebook-f"></i>
           </a>
@@ -138,8 +160,7 @@ const Blog = ({ rtl }) => {
       </div>
 
       {/* Imagen al lado con cabeza animada */}
-      {/* ✏️ Ajustar marginLeft para mover la imagen a la izquierda. Ejemplo: marginLeft: '-100px' */}
-      <div className="relative max-w-sm w-full" style={{ marginLeft: '-120px' }}>
+      <div className="relative max-w-sm w-full lg:-ml-20 mt-12 lg:mt-0 px-4 lg:px-0 mx-auto">
         {/* Imagen base del cuerpo */}
         <img
           src="/assets/img/choose_us/imgiboock.webp"

@@ -20,10 +20,10 @@ export default function ContactoPage() {
 
   return (
     <MainLayout>
-      <TopNav style="5" rtl={false} />
+      <TopNav style="5" />
       <Navbar navbarRef={navbarRef} bgTransparent={false} />
       <main className="contact-page style-5">
-        <ContactSection />
+        <ContactSection style="5" />
         <Map />
       </main>
       <Footer noWave={true} />

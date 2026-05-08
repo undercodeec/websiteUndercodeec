@@ -31,9 +31,9 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light style-1 nav-preview py-0" ref={navbarRef}>
       <div className="container-xxl">
-        <a className="navbar-brand" href="#">
+        <Link className="navbar-brand" href="/">
           <img src="/assets/img/undercode-logo.png" alt="" />
-        </a>
+        </Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
           data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
           aria-label="Toggle navigation">
@@ -43,22 +43,22 @@ const Navbar = () => {
           <ul className="navbar-nav m-auto mb-2 mb-lg-0">
 
             <li className="nav-item">
-              <a className="nav-links dropLink" href='/'>
+              <Link className="nav-links dropLink" href='/'>
                 Inicio
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-links dropLink" href='/nuestra-trayectoria'>
+              <Link className="nav-links dropLink" href='/nuestra-trayectoria'>
                 Nuestra trayectoria
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-links dropLink" href='/servicios'>
+              <Link className="nav-links dropLink" href='/servicios'>
                 Servicios
-              </a>
+              </Link>
             </li>
             <li className="nav-item dropDown megaMenu col3">
-              <a className="nav-links dropLink active" href="#">
+              <a className="nav-links dropLink" href="#">
                 Todo en Uno
                 <small className="icon ms-1"><i className="bi bi-chevron-down me-1"></i></small>
               </a>
@@ -98,71 +98,8 @@ const Navbar = () => {
                             */}
                   </ul>
                 </li>
-                {/* 
-                        <li className="dropdown-items">
-                          <a href="#" className="menuLink">one-page</a>
-                          <ul className="subDropDown">
-                            <li>
-                              <Link href="/aplicaciones-moviles-onePage" className="subLink">
-                                App Landing
-                              </Link>
-                            </li>
-                            <li>
-                              <Link href="/home-digital-agency-onePage" className="subLink">
-                                Digital Agency
-                              </Link>
-                            </li>
-                            <li>
-                              <Link href="/marketing-para-tu-negocio-onePage" className="subLink">
-                                Marketing Startup
-                              </Link>
-                            </li>
-                            <li>
-                              <Link href="/home-saas-technology-onePage" className="subLink">
-                                Software company
-                              </Link>
-                            </li>
-                            <li>
-                              <Link href="/home-saas-technology-onePage" className="subLink">
-                                Saas Technology
-                              </Link>
-                            </li>
-                            <li>
-                              <Link href="/home-it-solutions-onePage" className="subLink">
-                                IT Solution
-                              </Link>
-                            </li>
-                            <li>
-                              <Link href="/page-shop-app" className="subLink">
-                                shop
-                              </Link>
-                            </li>
-                          </ul>
-                        </li>
-                        
-                        <li className="dropdown-items">
-                          <a href="#" className="menuLink">RTL</a>
-                          <ul className="subDropDown">
-                            <li>
-                              <Link href="/rtl-marketing-para-tu-negocio" className="subLink">
-                                Marketing Startup
-                              </Link>
-                            </li>
-                            <li>
-                              <Link href="/rtl-marketing-para-tu-negocio-onePage" className="subLink">
-                                Marketing Startup one page
-                              </Link>
-                            </li>
-                            <li>
-                              <Link href="/rtl-page-shop" className="subLink">
-                                shop
-                              </Link>
-                            </li>
-                          </ul>
-                        </li>
-                        */}
-              </ul>
-            </li>
+                </ul>
+              </li>
             <li className="nav-item">
               <Link className="nav-links dropLink" href='/blog'>
                 Blog

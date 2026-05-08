@@ -8,7 +8,7 @@ import 'swiper/css/autoplay';
 
 SwiperCore.use([Autoplay]);
 
-const Clients = ({ padding, rtl }) => {
+const Clients = ({ padding }) => {
   const [loadSwiper, setLoadSwiper] = useState(false);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const Clients = ({ padding, rtl }) => {
       <div className="sec-head text-center mb-40">
         <h2 className="num" style={{ marginTop: '40px' }}>
           <span className="color-grd">
-            { rtl ? 'موثوق بنا من قبل آلاف' : 'NUESTRAS HERRAMIENTAS' }<span className="thin"></span>
+            { 'NUESTRAS HERRAMIENTAS' }<span className="thin"></span>
           </span>
         </h2>
       </div>
@@ -32,7 +32,7 @@ const Clients = ({ padding, rtl }) => {
             loadSwiper && (
               <Swiper
                 className="swiper-container"
-                dir={rtl ? 'rtl' : 'ltr'}
+                dir={'ltr'}
                 spaceBetween={0}
                 centeredSlides={true}
                 slidesPerView={6}

@@ -2,35 +2,36 @@
   {
     "image": "/assets/img/icons/appc1.webp",
     "title": {
-      "text1": "Rendimiento y velocidad"
+      "text1": "Alto rendimiento",
+      "text2": "y velocidad"
     }
   },
   {
     "image": "/assets/img/icons/appc2.webp",
     "title": {
-      "text1": "Precios módicos",
-      "text2": "para ti"
+      "text1": "Precios accesibles",
+      "text2": "para PYMES en Ecuador"
     }
   },
   {
     "image": "/assets/img/icons/appc3.webp",
     "title": {
       "text1": "Notificaciones push",
-      "text2": "para tu app"
+      "text2": "para tu app móvil"
     },
     "new": true
   },
   {
     "image": "/assets/img/icons/appc4.webp",
     "title": {
-      "text1": "Aplicaciones móviles ",
-      "text2": "seguras y de alto rendimiento"
+      "text1": "Apps Android e iOS",
+      "text2": "seguras y profesionales"
     }
   },
   {
     "image": "/assets/img/icons/appc5.webp",
     "title": {
-      "text1": "Encuéntrala en Play Store ",
+      "text1": "Publicación en Play Store",
       "text2": "y App Store"
     }
   }

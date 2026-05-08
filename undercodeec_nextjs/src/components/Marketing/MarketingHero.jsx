@@ -12,9 +12,34 @@ export default function MarketingHero() {
         <Navbar />
       </div>
 
-      {/* Animated Gradient Background */}
-      <div className="tw-absolute tw-inset-0 gradient-bg tw-z-0 tw-pointer-events-none" />
-      
+      {/* Lava Lamp Animated Background — soft Hero colors */}
+      <style>{`
+        .marketing-lava-bg {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            60deg,
+            #f5e6e8,
+            #e8d0f0,
+            #f0d0e8,
+            #fde8c8,
+            #d8c8f8,
+            #f5e6e8
+          );
+          background-size: 400% 400%;
+          animation: marketingLavaLamp 15s ease-in-out infinite;
+          z-index: 0;
+        }
+        @keyframes marketingLavaLamp {
+          0%   { background-position: 0% 50%; }
+          25%  { background-position: 50% 75%; }
+          50%  { background-position: 100% 50%; }
+          75%  { background-position: 50% 25%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
+      <div className="marketing-lava-bg tw-pointer-events-none" />
+
       {/* Rotating Background Pattern */}
       <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-pointer-events-none tw-z-[1]">
         <img 
@@ -44,7 +69,7 @@ export default function MarketingHero() {
       {/* Charts — top right */}
       <motion.img
         src="/assets/img/header/header5_linechart.png"
-        alt="Charts"
+        alt="Gráficos de análisis SEO y métricas de rendimiento digital"
         className="tw-absolute tw-drop-shadow-2xl tw-z-[5] tw-hidden md:tw-block"
         style={{ width: '10%', top: '15%', right: '3%' }}
         animate={{ scale: [1, 1.08, 1] }}
@@ -54,7 +79,7 @@ export default function MarketingHero() {
       {/* Rating Stars — bottom left */}
       <motion.img
         src="/assets/img/header/head6_rating.png"
-        alt="Rating"
+        alt="Calificación de clientes satisfechos con estrategias de marketing digital en Quito"
         className="tw-absolute tw-drop-shadow-2xl tw-z-[5] tw-hidden md:tw-block"
         style={{ width: '13%', bottom: '15%', left: '8%' }}
         animate={{ scale: [1, 1.05, 1] }}
@@ -64,7 +89,7 @@ export default function MarketingHero() {
       {/* Rocket — bottom right */}
       <motion.img
         src="/assets/img/header/rocket.png"
-        alt="Rocket"
+        alt="Cohete simbolizando el crecimiento digital de tu negocio en Ecuador"
         className="tw-absolute tw-drop-shadow-2xl tw-z-[5] tw-hidden md:tw-block"
         style={{ width: '12%', bottom: '8%', right: '5%' }}
         animate={{ y: [0, -20, 0] }}
@@ -74,7 +99,7 @@ export default function MarketingHero() {
       {/* Target — bottom center */}
       <motion.img
         src="/assets/img/header/target_3d.png"
-        alt="Target"
+        alt="Objetivo de campañas publicitarias y posicionamiento web en Ecuador"
         className="tw-absolute tw-drop-shadow-2xl tw-z-[5] tw-hidden md:tw-block"
         style={{ width: '10%', bottom: '5%', left: '42%' }}
         animate={{ rotate: [0, 360] }}
@@ -99,39 +124,12 @@ export default function MarketingHero() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="gradient-title tw-text-[32px] sm:tw-text-[40px] md:tw-text-[64px] tw-font-bold tw-leading-tight"
               >
-                Análisis SEO y marketing para tu Negocio
+                Agencia de Marketing Digital y SEO en Ecuador para tu Negocio
               </motion.h1>
 
-              {/* Description */}
-              <motion.p
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="tw-text-lg md:tw-text-xl lg:tw-text-2xl tw-leading-relaxed tw-max-w-2xl tw-text-gray-800"
-              >
-                Tu socio estratégico en el mundo digital. Potenciamos tu marca con estrategias de marketing innovadoras y análisis SEO de precisión para alcanzar resultados excepcionales.
-              </motion.p>
+             
 
-              {/* CTA Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.7 }}
-                className="tw-flex tw-flex-wrap tw-gap-4 tw-pt-4"
-              >
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="tw-px-8 tw-py-4 tw-rounded-full tw-font-bold tw-text-white tw-text-lg tw-transition-all tw-duration-300"
-                  style={{ backgroundColor: '#600b56' }}
-                  onClick={() => {
-                    const section = document.getElementById('demos');
-                    if (section) section.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                >
-                  Ver Portafolio
-                </motion.button>
-              </motion.div>
+
             </motion.div>
 
             {/* === Banner-right image as main visual === */}
@@ -145,12 +143,12 @@ export default function MarketingHero() {
               <div className="banner-right" style={{ position: 'relative', width: '100%', maxWidth: '350px' }}>
                 <img
                   src="/assets/img/choose_us/banerimg_1.webp"
-                  alt="Banner gráfico"
+                  alt="Servicios de marketing digital y posicionamiento SEO en Ecuador - Undercodeec"
                   className="body-img"
                 />
                 <img
                   src="/assets/img/choose_us/banercabeza.webp"
-                  alt="Cabeza animada"
+                  alt="Equipo de marketing digital profesional en Quito, Ecuador"
                   className="head-img"
                   style={{ top: '2.5%', left: '28%', width: '16%' }}
                 />

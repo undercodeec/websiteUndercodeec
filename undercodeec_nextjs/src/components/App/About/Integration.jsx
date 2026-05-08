@@ -1,11 +1,11 @@
 import React from 'react';
 
-const Integration = ({ integrations, rtl }) => {
+const Integration = ({ integrations }) => {
   return (
     <div className="integration pt-60" data-scroll-index="3">
       <div className="section-head text-center style-4">
-        <h2 className="mb-20">{ rtl ? 'متوافق مع' : 'Integración con tus' } <span>{ rtl ? 'التطبيقات الشعبية' : 'aplicaciones' }</span> </h2>
-        <p>{ rtl ? 'نوتيرو يتكامل مع التطبيقات الشعبية. تساعدك على التواصل والتعاون بسهولة' : 'Integramos tus aplicaciones con plataformas seguras y reconocidas' }</p>
+        <h2 className="mb-20">{ 'Integración con tus' } <span>{ 'aplicaciones' }</span> </h2>
+        <p>{ 'Integramos tus aplicaciones con plataformas seguras y reconocidas' }</p>
       </div>
       <div className="container">
         <div className="content">

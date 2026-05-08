@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import DOMPurify from 'dompurify';
 import blogData from '@/data/Blog/blog-grid.json';
 
 const BlogGrid = () => {
@@ -59,7 +60,7 @@ const BlogGrid = () => {
                   <img src={blog.image} className="card-img-top" alt={blog.title} style={{ height: '200px', objectFit: 'cover' }} />
                 )}
                 {blog.iframe && (
-                  <div className="w-100" dangerouslySetInnerHTML={{ __html: blog.iframe }} />
+                  <div className="w-100" dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(blog.iframe, { ADD_TAGS: ['iframe'], ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'src'] }) : blog.iframe }} />
                 )}
                 <div className="card-body p-4 d-flex flex-column">
                   <div className="d-flex justify-content-between align-items-center mb-3">

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-const Blogs = ({ blogs, isWide, style, rtl }) => {
+const Blogs = ({ blogs, isWide, style }) => {
   return (
     <div className={isWide ? 'col-lg-10':'col-lg-8'}>
       {
@@ -20,7 +20,7 @@ const Blogs = ({ blogs, isWide, style, rtl }) => {
                     <i className="bi bi-clock me-1"></i>
                     <a href="#" className="op-8">{ blog.time }</a>
                   </small>
-                  <Link href={ rtl ? "/rtl-page-single-post" : "/page-single-post-5" } className="card-title mb-10">
+                  <Link href={ "/page-single-post-5" } className="card-title mb-10">
                     { blog.title }
                   </Link>
                   <p className="fs-13px color-666">{ blog.desc } [...]</p>
@@ -30,7 +30,7 @@ const Blogs = ({ blogs, isWide, style, rtl }) => {
                         { blog.userImgLetter }
                       </span>
                       <a href="#">
-                        <small className="text-muted">{ rtl ? 'بواسطة' : 'By' }</small> { blog.username }
+                        <small className="text-muted">{ 'By' }</small> { blog.username }
                       </a>
                     </div>
                     <div className="r-side mt-1">

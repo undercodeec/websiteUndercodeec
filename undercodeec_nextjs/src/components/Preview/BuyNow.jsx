@@ -1,15 +1,15 @@
 import React from 'react';
 import faq from '@/data/App/faq-home.json';
-import faqRTL from '@/data/App/faq-rtl.json';
 
-const FAQ = ({ rtl }) => {
-  const data = rtl ? faqRTL : faq;
+
+const FAQ = ({}) => {
+  const data = faq;
 
   return (
     <section className="faq section-padding style-4 pt-50" data-scroll-index="7">
       <div className="container">
         <div className="section-head text-center style-4 animate-fadeUp">
-          <h2 className="mb-30">{ rtl ? 'بحاجة إلى' : 'Preguntas Frecuentes sobre' } <span>{ rtl ? 'دعم ؟' : 'Sitios Web' }</span> </h2>
+          <h2 className="mb-30">{ 'Preguntas Frecuentes sobre' } <span>{ 'Sitios Web' }</span> </h2>
         </div>
         <div className="content">
           <div className="faq style-3 style-4">
@@ -29,7 +29,7 @@ const FAQ = ({ rtl }) => {
                           <div id={`collapse${item.id + 10}`} className="accordion-collapse collapse rounded-0" aria-labelledby={`heading${item.id + 10}`} data-bs-parent="#accordionSt4">
                             <div className="accordion-body">
                               {
-                                rtl ? item.answer : <div dangerouslySetInnerHTML={{ __html: item.answer.part1 }} />
+                                <div dangerouslySetInnerHTML={{ __html: item.answer.part1 }} />
                               }
                             </div>
                           </div>
@@ -53,7 +53,7 @@ const FAQ = ({ rtl }) => {
                           <div id={`collapse${item.id + 10}`} className="accordion-collapse collapse rounded-0" aria-labelledby={`heading${item.id + 10}`} data-bs-parent="#accordionSt4">
                             <div className="accordion-body">
                               {
-                                rtl ? item.answer : <div dangerouslySetInnerHTML={{ __html: item.answer.part1 }} />
+                                <div dangerouslySetInnerHTML={{ __html: item.answer.part1 }} />
                               }
                             </div>
                           </div>

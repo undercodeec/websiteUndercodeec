@@ -22,9 +22,13 @@ const loadGoogleTagManager = () => {
 };
 
 const loadingPace = () => {
-  let preloader = document.querySelector("#preloader");
+  let preloader = document.querySelector("#preloader-pace");
 
-  if (!preloader) return;
+  if (!preloader) {
+    // If no pace element, just load GTM and return
+    loadGoogleTagManager();
+    return;
+  }
 
   // Check if page is already loaded or Pace is done
   if (document.body.classList.contains("pace-done") || document.readyState === "complete") {

@@ -1,11 +1,11 @@
 /* global fbq */
 import React, { useEffect, useState } from 'react';
 import chooseUsData from '@/data/Startup/chooseus.json';
-import chooseUsDataRTL from '@/data/Startup/chooseus-rtl.json';
+
 import ReactGA from 'react-ga4';
 
-const ChooseUs = ({ rtl }) => {
-  const data = rtl ? chooseUsDataRTL : chooseUsData;
+const ChooseUs = ({}) => {
+  const data = chooseUsData;
   const [showWhatsappMessage, setShowWhatsappMessage] = useState(false);
 
   useEffect(() => {

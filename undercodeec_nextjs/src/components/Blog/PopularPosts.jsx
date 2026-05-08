@@ -1,15 +1,15 @@
 import React from 'react';
 import Link from 'next/link';
 import posts from '@/data/Blog/popular-posts.json';
-import postsRTL from '@/data/Blog/popular-posts-rtl.json';
 
-const PopularPosts = ({ style = "4", rtl }) => {
-  const postsData = rtl ? postsRTL : posts;
+
+const PopularPosts = ({ style = "4" }) => {
+  const postsData = posts;
 
   return (
     <section className="popular-posts pt-50 pb-100 border-bottom brd-gray">
       <div className="container">
-        <h5 className="post-sc-title text-center text-uppercase mb-70">{ rtl ? 'أخبار شائعة' : 'Noticias Populares' }</h5>
+        <h5 className="post-sc-title text-center text-uppercase mb-70">{ 'Noticias Populares' }</h5>
         <div className="row gx-5">
           {
             postsData.map((post, index) => (
@@ -20,12 +20,12 @@ const PopularPosts = ({ style = "4", rtl }) => {
                   </div>
                   <div className="card-body px-0">
                     <small className="d-block date mt-10 fs-10px fw-bold">
-                      <a href="#" className={`text-uppercase border-end brd-gray pe-3 me-3 color-blue${style}`}>{ rtl ? 'أخبار' : 'News' }</a>
+                      <a href="#" className={`text-uppercase border-end brd-gray pe-3 me-3 color-blue${style}`}>{ 'News' }</a>
                       <i className="bi bi-clock me-1"></i>
-                      <a href="#" className="op-8">{ rtl ? 'موعد النشر' : 'Posted on' } { post.time }</a>
+                      <a href="#" className="op-8">{ 'Posted on' } { post.time }</a>
                     </small>
                     <h5 className="fw-bold mt-10 title">
-                      <Link href={ rtl ? "/rtl-page-single-post" : "/page-single-post-5" }> 
+                      <Link href={ "/page-single-post-5" }> 
                         { post.title }
                       </Link>
                     </h5>
@@ -37,7 +37,7 @@ const PopularPosts = ({ style = "4", rtl }) => {
                           { post.userImgLetter }
                         </span>
                         <a href="#" className="mt-1">
-                          { rtl ? 'بواسطة' : 'By' } { post.username }
+                          { 'By' } { post.username }
                         </a>
                       </div>
                       <div className="r-side mt-1">

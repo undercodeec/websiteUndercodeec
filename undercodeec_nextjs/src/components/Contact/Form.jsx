@@ -1,5 +1,4 @@
 /* global fbq */
-import ReCAPTCHA from "react-google-recaptcha";
 import React, { useState, useRef } from "react";
 import ReactGA from 'react-ga4';
 
@@ -15,9 +14,18 @@ const ContactSection = ({ style }) => {
     message: "",
     terms: false
   });
-  const [recaptchaToken, setRecaptchaToken] = useState(null); // 👈 Nuevo estado para el token
 
-  const recaptchaRef = useRef(null); // 👈 NUEVO
+  const executeRecaptcha = async (action) => {
+    if (typeof window !== 'undefined' && window.grecaptcha && window.grecaptcha.enterprise) {
+      try {
+        const token = await window.grecaptcha.enterprise.execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, {action});
+        return token;
+      } catch (err) {
+        console.error("Recaptcha error:", err);
+      }
+    }
+    return null;
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -50,15 +58,16 @@ const ContactSection = ({ style }) => {
       return;
     }
 
-    if (!recaptchaToken) {
-      alert("Por favor completa el reCAPTCHA.");
+    const token = await executeRecaptcha('CONTACT');
+    if (!token) {
+      alert("Error conectando con el servicio reCAPTCHA. Intente de nuevo.");
       return;
     }
-    const token = recaptchaToken;
 
 
     try {
-      const response = await fetch('https://www.undercodeec.com/send-form.php', {
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+      const response = await fetch(`${BACKEND_URL}/api/send-contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +85,6 @@ const ContactSection = ({ style }) => {
       });
 
       const text = await response.text();
-      console.log("Respuesta del servidor:", text);
 
       try {
         const result = JSON.parse(text);
@@ -94,13 +102,6 @@ const ContactSection = ({ style }) => {
             message: "",
             terms: false
           });
-          setRecaptchaToken(null); // limpia el token guardado
-
-
-          // Limpiar reCAPTCHA
-          if (recaptchaRef.current) {
-            recaptchaRef.current.reset();
-          }
 
         } else {
           alert(`Error: ${result.message}`);
@@ -203,6 +204,7 @@ const ContactSection = ({ style }) => {
               rows={4}
               value={formData.message}
               onChange={handleChange}
+              required
             />
           </div>
 
@@ -218,13 +220,7 @@ const ContactSection = ({ style }) => {
             </label>
           </div>
 
-          {/* reCAPTCHA aquí 👇 */}
-
-          <ReCAPTCHA
-            ref={recaptchaRef}
-            sitekey="6Lf_OSsrAAAAAORgEcrisGsaYvGk1CtX2sPD24Fr"
-            onChange={(token) => setRecaptchaToken(token)}
-          />
+          {/* reCAPTCHA migrado a Enterprise (Transparente) 👇 */}
 
           <button type="submit" className="form-submit">
             Enviar

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { RiRobot2Line, RiCloseLine, RiSendPlaneFill, RiMicFill, RiMicOffFill, RiVolumeUpFill, RiVolumeMuteFill } from 'react-icons/ri';
 
 const TypewriterMessage = ({ content, renderContent }) => {
@@ -54,6 +55,8 @@ const TypewriterMessage = ({ content, renderContent }) => {
 };
 
 const AIAssistant = () => {
+    const pathname = usePathname();
+    const isHiddenPath = pathname?.startsWith('/admin') || pathname?.startsWith('/contratos');
     const [isOpen, setIsOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [chatModeSelected, setChatModeSelected] = useState(false);
@@ -142,32 +145,10 @@ const AIAssistant = () => {
         setShowSuggestions(false);
     };
     
-    // Highlight effect states
-    const [showHighlight, setShowHighlight] = useState(false);
-    const [hasBeenHighlighted, setHasBeenHighlighted] = useState(false);
+    // Highlight effect states removed
+    const showHighlight = false;
 
-    // Timer for the 8 seconds highlight effect
-    useEffect(() => {
-        // Obtenemos si ya se resaltó antes en esta sesión para no molestarlo en cada página
-        const alreadyHighlighted = sessionStorage.getItem('chatbot_highlighted');
-        
-        if (!alreadyHighlighted) {
-            const timer = setTimeout(() => {
-                if (!isOpen) { // Only highlight if they haven't opened it already
-                    setShowHighlight(true);
-                }
-            }, 8000);
-            return () => clearTimeout(timer);
-        }
-    }, [isOpen]);
-
-    const dismissHighlight = () => {
-        if (showHighlight) {
-            setShowHighlight(false);
-            setHasBeenHighlighted(true);
-            sessionStorage.setItem('chatbot_highlighted', 'true');
-        }
-    };
+    const dismissHighlight = () => {};
 
     const selectMode = async (useVoice) => {
         setIsAudioEnabled(useVoice);
@@ -358,15 +339,23 @@ const AIAssistant = () => {
                         );
                         
                         // Listen for payment completion from payment-result.html
+                        // SECURITY: Orígenes permitidos para postMessage de pagos
+                        const allowedOrigins = [
+                            'https://pay.payphonetodoesposible.com',
+                            'https://api.undercodeec.com',
+                            window.location.origin
+                        ];
                         const handlePaymentMessage = (event) => {
+                            // SECURITY: Verificar que el mensaje viene de un origen permitido
+                            if (!allowedOrigins.includes(event.origin)) {
+                                return;
+                            }
                             if (event.data && event.data.type === 'PAYMENT_COMPLETED') {
-                                console.log("✅ Chatbot detected payment completion from popup");
                                 if (paymentWindow && !paymentWindow.closed) {
                                     paymentWindow.close();
                                 }
                                 window.removeEventListener('message', handlePaymentMessage);
                                 
-                                // Opcional: Puedes agregar un mensaje del asistente confirmando el pago.
                                 setMessages(prev => [...prev, { role: 'assistant', content: '✅ ¡He confirmado tu pago exitosamente! En breve recibirás los correos con tu recibo y acceso a Google Drive.' }]);
                             }
                         };
@@ -415,6 +404,8 @@ const AIAssistant = () => {
             </div>
         );
     };
+
+    if (isHiddenPath) return null;
 
     return (
         <>

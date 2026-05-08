@@ -1,20 +1,25 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import plans from '@/data/Saas/plans.json';
-import plansRTL from '@/data/Saas/plans-rtl.json';
 
-const Pricing = ({ rtl }) => {
-  const data = useMemo(() => rtl ? plansRTL : plans, [rtl]);
+
+const Pricing = ({}) => {
+  const data = plans;
   const [features, setFeatures] = useState([]);
 
   useEffect(() => {
+    if (!data || !data.length || !data[0].features) return;
+
     let formattedFeatures = [];
 
     data[0].features.forEach(feature => formattedFeatures.push({ title: feature.title, data: [] })) ;
 
     data.forEach((plan, i) => {
+      if (!plan.features) return;
       plan.features.forEach((feature, x) => {
-        formattedFeatures[x].data[i] = feature.checked !== undefined ? feature.checked : feature.content;
+        if (formattedFeatures[x]) {
+          formattedFeatures[x].data[i] = feature.checked !== undefined ? feature.checked : feature.content;
+        }
       })
     });
 

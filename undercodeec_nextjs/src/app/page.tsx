@@ -32,7 +32,7 @@ export default function HomePage() {
       <Features />
       <Demos />
       <InnerPages />
-      <BuyNow rtl={false} />
+      <BuyNow />
       <Portfolio />
       <Codei />
       <BestFeatures />

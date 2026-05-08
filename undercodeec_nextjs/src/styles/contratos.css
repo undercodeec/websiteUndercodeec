@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --legal-bg: #0c0e13;
+  --legal-surface: #13161d;
+  --legal-surface-alt: #181c25;
+  --legal-border: rgba(186,163,120,.12);
+  --legal-border-strong: rgba(186,163,120,.25);
+  --legal-gold: #baa378;
+  --legal-gold-light: #d4c09a;
+  --legal-gold-dim: rgba(186,163,120,.08);
+  --legal-text: #e8e4dc;
+  --legal-text-muted: #9a9589;
+  --legal-text-dim: #6b675f;
+  --legal-heading: #f2efe8;
+  --legal-accent: #c9a96e;
+  --legal-shadow: 0 4px 30px rgba(0,0,0,.4);
+  --legal-serif: 'Cormorant Garamond', Georgia, serif;
+  --legal-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --legal-danger: #e74c3c;
+}
+
+/* Page */
+.contratos-page { background:var(--legal-bg); min-height:100vh; position:relative; overflow-x:hidden; }
+.contratos-page::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(186,163,120,.03) 0%,transparent 70%),radial-gradient(ellipse 50% 50% at 80% 90%,rgba(186,163,120,.02) 0%,transparent 70%); pointer-events:none; z-index:0; }
+
+/* Hero */
+.contratos-hero { position:relative; padding:120px 0 60px; text-align:center; border-bottom:1px solid var(--legal-border); z-index:1; }
+.contratos-hero::after { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:120px; height:1px; background:linear-gradient(90deg,transparent,var(--legal-gold),transparent); }
+.contratos-hero__icon { display:inline-flex; align-items:center; justify-content:center; width:72px; height:72px; border-radius:50%; border:1px solid var(--legal-border-strong); background:var(--legal-gold-dim); margin-bottom:28px; animation:contratos-fadeInUp .8s ease-out; }
+.contratos-hero__icon svg { width:32px; height:32px; color:var(--legal-gold); }
+.contratos-hero__badge { display:inline-block; font-family:var(--legal-sans); font-size:11px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--legal-gold); background:var(--legal-gold-dim); border:1px solid var(--legal-border); padding:6px 20px; border-radius:20px; margin-bottom:24px; animation:contratos-fadeInUp .8s ease-out .1s both; }
+.contratos-hero__title { font-family:var(--legal-serif); font-size:clamp(2rem,4.5vw,3.2rem); font-weight:600; color:var(--legal-heading); line-height:1.2; margin:0 0 16px; letter-spacing:-.5px; animation:contratos-fadeInUp .8s ease-out .2s both; }
+.contratos-hero__subtitle { font-family:var(--legal-sans); font-size:15px; font-weight:300; color:var(--legal-text-muted); max-width:600px; margin:0 auto; line-height:1.7; animation:contratos-fadeInUp .8s ease-out .3s both; }
+
+/* Content */
+.contratos-content { position:relative; z-index:1; max-width:880px; margin:0 auto; padding:60px 24px 100px; }
+
+/* ── STEPPER ──────────────────────────── */
+.contratos-stepper { display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:48px; animation:contratos-fadeInUp .6s ease-out .4s both; }
+.contratos-step { display:flex; align-items:center; gap:10px; cursor:default; }
+.contratos-step__circle { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--legal-sans); font-size:13px; font-weight:600; border:2px solid var(--legal-border); color:var(--legal-text-dim); background:transparent; transition:all .3s ease; }
+.contratos-step--active .contratos-step__circle { border-color:var(--legal-gold); color:var(--legal-bg); background:var(--legal-gold); }
+.contratos-step--done .contratos-step__circle { border-color:var(--legal-gold); color:var(--legal-gold); background:var(--legal-gold-dim); }
+.contratos-step__label { font-family:var(--legal-sans); font-size:13px; color:var(--legal-text-dim); transition:color .3s; }
+.contratos-step--active .contratos-step__label { color:var(--legal-gold-light); font-weight:500; }
+.contratos-step--done .contratos-step__label { color:var(--legal-gold); }
+.contratos-step__line { width:60px; height:1px; background:var(--legal-border); margin:0 16px; }
+.contratos-step__line--done { background:var(--legal-gold); }
+
+/* ── CONTRACT SELECTOR (Step 1) ──────── */
+.contratos-selector { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:12px; }
+.contratos-card { background:var(--legal-surface); border:2px solid var(--legal-border); border-radius:14px; padding:32px 28px; cursor:pointer; transition:all .35s ease; position:relative; overflow:hidden; }
+.contratos-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(186,163,120,.04),transparent); opacity:0; transition:opacity .35s; }
+.contratos-card:hover { border-color:var(--legal-border-strong); transform:translateY(-3px); box-shadow:var(--legal-shadow); }
+.contratos-card:hover::before { opacity:1; }
+.contratos-card--selected { border-color:var(--legal-gold) !important; background:var(--legal-surface-alt); }
+.contratos-card--selected::after { content:'✓'; position:absolute; top:16px; right:16px; width:28px; height:28px; border-radius:50%; background:var(--legal-gold); color:var(--legal-bg); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; }
+.contratos-card__icon { width:48px; height:48px; border-radius:12px; background:var(--legal-gold-dim); border:1px solid var(--legal-border); display:flex; align-items:center; justify-content:center; margin-bottom:20px; }
+.contratos-card__icon svg { width:24px; height:24px; color:var(--legal-gold); }
+.contratos-card__tag { font-family:var(--legal-sans); font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--legal-gold); background:var(--legal-gold-dim); padding:4px 12px; border-radius:12px; display:inline-block; margin-bottom:12px; }
+.contratos-card__title { font-family:var(--legal-serif); font-size:22px; font-weight:600; color:var(--legal-heading); margin:0 0 10px; }
+.contratos-card__desc { font-family:var(--legal-sans); font-size:13.5px; color:var(--legal-text-muted); line-height:1.7; margin:0 0 16px; }
+.contratos-card__features { list-style:none; padding:0; margin:0; }
+.contratos-card__features li { font-family:var(--legal-sans); font-size:12.5px; color:var(--legal-text-dim); padding:6px 0 6px 18px; position:relative; }
+.contratos-card__features li::before { content:'›'; position:absolute; left:0; color:var(--legal-gold); font-weight:700; font-size:16px; line-height:1; }
+
+/* ── FORM (Step 2) ───────────────────── */
+.contratos-form { animation:contratos-fadeInUp .5s ease-out; }
+.contratos-form__group { margin-bottom:36px; }
+.contratos-form__group-title { font-family:var(--legal-serif); font-size:20px; font-weight:600; color:var(--legal-heading); margin:0 0 20px; padding-bottom:12px; border-bottom:1px solid var(--legal-border); display:flex; align-items:center; gap:10px; }
+.contratos-form__group-title::before { content:''; width:3px; height:18px; background:var(--legal-gold); border-radius:2px; display:inline-block; }
+.contratos-form__row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.contratos-form__row--single { grid-template-columns:1fr; }
+.contratos-form__field { display:flex; flex-direction:column; gap:6px; }
+.contratos-form__label { font-family:var(--legal-sans); font-size:12px; font-weight:500; color:var(--legal-text-muted); letter-spacing:.5px; text-transform:uppercase; }
+.contratos-form__input,
+.contratos-form__textarea,
+.contratos-form__select { font-family:var(--legal-sans); font-size:14px; color:var(--legal-text); background:var(--legal-surface); border:1px solid var(--legal-border); border-radius:8px; padding:12px 16px; outline:none; transition:border-color .3s,box-shadow .3s; }
+.contratos-form__input:focus,
+.contratos-form__textarea:focus,
+.contratos-form__select:focus { border-color:var(--legal-gold); box-shadow:0 0 0 3px var(--legal-gold-dim); }
+.contratos-form__input::placeholder,
+.contratos-form__textarea::placeholder { color:var(--legal-text-dim); }
+.contratos-form__textarea { resize:vertical; min-height:80px; }
+.contratos-form__select { cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9589' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; }
+.contratos-form__input--error { border-color:var(--legal-danger) !important; }
+.contratos-form__error { font-family:var(--legal-sans); font-size:11px; color:var(--legal-danger); margin-top:2px; }
+
+/* Hitos grid */
+.contratos-form__hitos { display:grid; grid-template-columns:1fr auto; gap:10px 16px; align-items:center; background:var(--legal-surface); border:1px solid var(--legal-border); border-radius:10px; padding:20px; }
+.contratos-form__hito-label { font-family:var(--legal-sans); font-size:13px; color:var(--legal-text-muted); }
+.contratos-form__hito-input { width:80px; text-align:center; }
+
+/* Modality radio */
+.contratos-form__radios { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.contratos-form__radio { background:var(--legal-surface); border:2px solid var(--legal-border); border-radius:10px; padding:18px 20px; cursor:pointer; transition:all .3s; }
+.contratos-form__radio:hover { border-color:var(--legal-border-strong); }
+.contratos-form__radio--selected { border-color:var(--legal-gold); background:var(--legal-surface-alt); }
+.contratos-form__radio-title { font-family:var(--legal-serif); font-size:16px; font-weight:600; color:var(--legal-heading); margin-bottom:4px; }
+.contratos-form__radio-desc { font-family:var(--legal-sans); font-size:12px; color:var(--legal-text-dim); line-height:1.5; }
+
+/* ── BUTTONS ─────────────────────────── */
+.contratos-actions { display:flex; justify-content:space-between; align-items:center; margin-top:40px; padding-top:24px; border-top:1px solid var(--legal-border); }
+.contratos-btn { font-family:var(--legal-sans); font-size:14px; font-weight:500; padding:12px 28px; border-radius:8px; cursor:pointer; transition:all .3s ease; display:inline-flex; align-items:center; gap:8px; border:none; }
+.contratos-btn--primary { background:var(--legal-gold); color:var(--legal-bg); }
+.contratos-btn--primary:hover { background:var(--legal-gold-light); transform:translateY(-1px); }
+.contratos-btn--primary:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+.contratos-btn--secondary { background:transparent; color:var(--legal-gold); border:1px solid var(--legal-border); }
+.contratos-btn--secondary:hover { background:var(--legal-gold-dim); border-color:var(--legal-border-strong); }
+.contratos-btn--download { background:linear-gradient(135deg,var(--legal-gold),var(--legal-accent)); color:var(--legal-bg); font-weight:600; padding:14px 32px; border-radius:10px; font-size:15px; }
+.contratos-btn--download:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(186,163,120,.25); }
+
+/* ── PREVIEW (Step 3) ────────────────── */
+.contratos-preview { animation:contratos-fadeInUp .5s ease-out; }
+.contratos-preview__toolbar { display:flex; justify-content:flex-end; gap:12px; margin-bottom:24px; padding:16px 0; border-bottom:1px solid var(--legal-border); }
+
+/* PDF Render Container */
+.contratos-pdf { background:#fff; color:#1a1a1a; border-radius:8px; padding:52px 48px; font-family:'Cormorant Garamond',Georgia,serif; overflow:hidden; box-shadow:0 2px 20px rgba(0,0,0,.5); }
+.contratos-pdf__header { text-align:center; border-bottom:2px solid #baa378; padding-bottom:28px; margin-bottom:32px; }
+.contratos-pdf__logo { font-family:'Cormorant Garamond',Georgia,serif; font-size:24px; font-weight:700; color:#baa378; letter-spacing:2px; margin-bottom:6px; }
+.contratos-pdf__doc-title { font-size:20px; font-weight:600; color:#1a1a1a; margin:8px 0 4px; }
+.contratos-pdf__doc-sub { font-family:'Inter',sans-serif; font-size:11px; color:#888; }
+.contratos-pdf__section { margin-bottom:24px; }
+.contratos-pdf__section-title { font-size:16px; font-weight:700; color:#1a1a1a; margin:0 0 6px; padding-bottom:6px; border-bottom:1px solid #e5e0d5; }
+.contratos-pdf__section-roman { font-size:13px; font-weight:700; color:#baa378; margin-right:6px; }
+.contratos-pdf__text { font-family:'Inter',sans-serif; font-size:12.5px; color:#333; line-height:1.75; margin:6px 0; }
+.contratos-pdf__text strong { color:#1a1a1a; }
+.contratos-pdf__field-value { color:#baa378; font-weight:600; }
+.contratos-pdf__table { width:100%; border-collapse:collapse; margin:12px 0; font-family:'Inter',sans-serif; font-size:12px; }
+.contratos-pdf__table th { background:#f7f4ee; padding:10px 14px; text-align:left; font-weight:600; color:#1a1a1a; border-bottom:2px solid #e5e0d5; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+.contratos-pdf__table td { padding:10px 14px; border-bottom:1px solid #eee; color:#333; }
+.contratos-pdf__highlight { background:#faf8f4; border-left:3px solid #baa378; padding:12px 16px; margin:10px 0; border-radius:0 6px 6px 0; }
+.contratos-pdf__highlight-label { font-family:'Inter',sans-serif; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:#baa378; margin-bottom:4px; }
+.contratos-pdf__module { border:1px solid #e5e0d5; border-radius:8px; padding:16px 18px; margin-bottom:14px; }
+.contratos-pdf__module-num { font-size:11px; font-weight:600; color:#baa378; letter-spacing:1px; }
+.contratos-pdf__module-title { font-size:15px; font-weight:600; color:#1a1a1a; margin:2px 0 6px; }
+.contratos-pdf__module-text { font-family:'Inter',sans-serif; font-size:12px; color:#555; line-height:1.7; }
+.contratos-pdf__bullets { list-style:none; padding:0; margin:8px 0 0; }
+.contratos-pdf__bullets li { font-family:'Inter',sans-serif; font-size:12px; color:#555; padding:5px 0 5px 16px; position:relative; border-bottom:1px solid #f0ede6; }
+.contratos-pdf__bullets li:last-child { border-bottom:none; }
+.contratos-pdf__bullets li::before { content:'—'; position:absolute; left:0; color:#baa378; font-weight:600; }
+.contratos-pdf__acceptance { background:#faf8f4; border:1px solid #e5e0d5; border-radius:8px; padding:20px; margin:20px 0; }
+.contratos-pdf__acceptance-title { font-size:15px; font-weight:600; color:#1a1a1a; margin:0 0 10px; }
+.contratos-pdf__quote { font-style:italic; font-size:12.5px; color:#555; line-height:1.7; padding:12px 16px; border-left:3px solid #baa378; background:#f5f2ec; border-radius:0 6px 6px 0; margin:10px 0; }
+.contratos-pdf__reqs { margin:10px 0; }
+.contratos-pdf__req { display:flex; align-items:flex-start; gap:8px; font-family:'Inter',sans-serif; font-size:12px; color:#555; margin-bottom:6px; }
+.contratos-pdf__req::before { content:'✓'; color:#baa378; font-weight:700; flex-shrink:0; }
+.contratos-pdf__footer { text-align:center; margin-top:32px; padding-top:20px; border-top:2px solid #baa378; }
+.contratos-pdf__footer-text { font-family:'Inter',sans-serif; font-size:10px; color:#999; }
+.contratos-pdf__sig-area { display:grid; grid-template-columns:1fr 1fr; gap:40px; margin:32px 0; }
+.contratos-pdf__sig-block { text-align:center; padding-top:48px; border-top:1px solid #ccc; }
+.contratos-pdf__sig-label { font-family:'Inter',sans-serif; font-size:11px; color:#888; text-transform:uppercase; letter-spacing:1px; }
+.contratos-pdf__sig-name { font-size:14px; font-weight:600; color:#1a1a1a; margin-top:4px; }
+
+/* Table of Contents, Section, Subsection — kept from original */
+.contratos-toc { background:var(--legal-surface); border:1px solid var(--legal-border); border-radius:12px; padding:32px 36px; margin-bottom:56px; animation:contratos-fadeInUp .8s ease-out .4s both; }
+.contratos-toc__title { font-family:var(--legal-serif); font-size:18px; font-weight:600; color:var(--legal-gold); margin:0 0 20px; display:flex; align-items:center; gap:10px; }
+.contratos-toc__title::before { content:''; display:inline-block; width:3px; height:18px; background:var(--legal-gold); border-radius:2px; }
+
+/* Footer */
+.contratos-footer { text-align:center; padding:40px 24px 60px; border-top:1px solid var(--legal-border); position:relative; z-index:1; }
+.contratos-footer::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:80px; height:1px; background:linear-gradient(90deg,transparent,var(--legal-gold),transparent); }
+.contratos-footer__text { font-family:var(--legal-sans); font-size:12px; color:var(--legal-text-dim); letter-spacing:.5px; }
+.contratos-footer__brand { color:var(--legal-gold); font-weight:500; }
+.contratos-footer__back { display:inline-flex; align-items:center; gap:8px; margin-top:20px; font-family:var(--legal-sans); font-size:13px; font-weight:500; color:var(--legal-gold); text-decoration:none; padding:10px 24px; border:1px solid var(--legal-border); border-radius:24px; transition:all .3s ease; }
+.contratos-footer__back:hover { background:var(--legal-gold-dim); border-color:var(--legal-border-strong); color:var(--legal-gold-light); }
+
+/* Animations */
+@keyframes contratos-fadeInUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+/* Responsive */
+@media (max-width:768px) {
+  .contratos-hero { padding:100px 20px 48px; }
+  .contratos-content { padding:40px 18px 80px; }
+  .contratos-selector { grid-template-columns:1fr; }
+  .contratos-form__row { grid-template-columns:1fr; }
+  .contratos-form__radios { grid-template-columns:1fr; }
+  .contratos-stepper { flex-wrap:wrap; gap:8px; }
+  .contratos-step__label { display:none; }
+  .contratos-step__line { width:30px; margin:0 8px; }
+  .contratos-pdf { padding:28px 20px; }
+  .contratos-pdf__sig-area { grid-template-columns:1fr; gap:24px; }
+  .contratos-actions { flex-direction:column; gap:12px; }
+  .contratos-actions .contratos-btn { width:100%; justify-content:center; }
+}
+@media (max-width:480px) {
+  .contratos-hero__title { font-size:1.6rem; }
+  .contratos-card { padding:24px 20px; }
+}
+
+/* Print / PDF generation overrides */
+@media print {
+  .contratos-page { background:#fff !important; }
+  .contratos-hero, .contratos-stepper, .contratos-actions, .contratos-footer, .contratos-preview__toolbar { display:none !important; }
+  .contratos-pdf { box-shadow:none; border-radius:0; padding:20px; }
+}

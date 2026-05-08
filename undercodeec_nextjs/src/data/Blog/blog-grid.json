@@ -513,8 +513,8 @@
   {
     "id": 4,
     "slug": "whatsapp-marketing-ventas-b2b-ecommerce-ia",
-    "image": "https://picsum.photos/400/250?random=4",
-    "heroImage": "https://picsum.photos/1200/500?random=4",
+    "image": "/assets/img/blog/whatsapp_marketing_ia.png",
+    "heroImage": "/assets/img/blog/whatsapp_marketing_ia.png",
     "category": "Marketing",
     "date": "15 Dic",
     "author": {
@@ -551,7 +551,7 @@
       },
       {
         "type": "image",
-        "src": "https://picsum.photos/800/400?random=41",
+        "src": "/assets/img/blog/whatsapp_chatbots_ia.png",
         "alt": "Asistentes con IA para WhatsApp Marketing - Chatbots y Atención al Cliente 24/7"
       },
       {
@@ -572,7 +572,7 @@
       },
       {
         "type": "image",
-        "src": "https://picsum.photos/800/400?random=42",
+        "src": "/assets/img/blog/whatsapp_ecommerce_sales.png",
         "alt": "Estrategias de WhatsApp para E-commerce B2C - Recuperación de carritos y Ventas sin fricción"
       },
       {
@@ -593,7 +593,7 @@
       },
       {
         "type": "image",
-        "src": "https://picsum.photos/800/400?random=43",
+        "src": "/assets/img/blog/whatsapp_b2b_erp.png",
         "alt": "WhatsApp Business API en el entorno B2B - Automatización de Pedidos e Integración ERP"
       },
       {

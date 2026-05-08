@@ -19,7 +19,7 @@ export default function NotFoundPage() {
   return (
     <MainLayout>
       {/* @ts-ignore */}
-      <TopNav style="5" rtl={false} />
+      <TopNav style="5" />
       {/* @ts-ignore */}
       <Navbar navbarRef={navbarRef} />
       <main className="erorr-404-page style-5">

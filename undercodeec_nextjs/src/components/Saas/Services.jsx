@@ -1,13 +1,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay } from 'swiper';
 import services from '@/data/Saas/services.json';
-import servicesRTL from '@/data/Saas/services-rtl.json';
+
 
 import "swiper/css";
+import "swiper/css/autoplay";
 
-const Services = ({ rtl }) => {
-  const servicesData = rtl ? servicesRTL : services;
+const Services = ({}) => {
+  const servicesData = services;
 
   return (
     <section className="services section-padding bg-white pb-50 style-6">
@@ -15,7 +17,7 @@ const Services = ({ rtl }) => {
         <div className="row justify-content-center">
           <div className="col-lg-8">
             <div className="section-head text-center mb-60 style-5">
-              <h2 className="mb-20">{rtl ? 'اهم' : 'Nuestros'} <span>{rtl ? 'خدماتنا' : 'Servicios Top'}</span> </h2>
+              <h2 className="mb-20">{'Nuestros'} <span>{'Servicios Top'}</span> </h2>
               <p>
               </p>
             </div>
@@ -25,6 +27,7 @@ const Services = ({ rtl }) => {
       <div className="content">
         <div className="services-slider position-relative style-6">
           <Swiper
+            modules={[Autoplay]}
             className="swiper-container"
             slidesPerView={6}
             centeredSlides={true}

@@ -26,17 +26,17 @@ export default function NuestraTrayectoriaPage() {
 
   return (
     <MainLayout>
-      <TopNav style="5" rtl={false} />
+      <TopNav style="5" />
       <Navbar navbarRef={navbarRef} bgTransparent={false} />
       <main className="about-page style-5">
-        <AboutHeader rtl={false} />
-        <Community rtl={false} />
-        <Philosophy rtl={false} />
-        <ChooseUs rtl={false} />
-        <Clients padding={true} rtl={false} />
-        <Numbers rtl={false} />
-        <Team rtl={false} />
-        <Contact rtl={false} />
+        <AboutHeader />
+        <Community />
+        <Philosophy />
+        <ChooseUs />
+        <Clients padding={true} />
+        <Numbers />
+        <Team />
+        <Contact />
       </main>
       <Footer noWave={true} />
     </MainLayout>

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { Navigation, Pagination, Autoplay, EffectFade } from 'swiper';
 import slides from '@/data/Blog/slides.json';
-import slidesRTL from '@/data/Blog/slides-rtl.json';
+
 
 // Import Swiper styles
 import 'swiper/css';
@@ -14,8 +14,8 @@ import 'swiper/css/effect-fade';
 
 SwiperCore.use([Navigation, Pagination, Autoplay, EffectFade]);
 
-const BlogSlider = ({ style = "4", rtl }) => {
-  const data = rtl ? slidesRTL : slides;
+const BlogSlider = ({ style = "4" }) => {
+  const data = slides;
 
   // Función para manejar imágenes y videos
 const renderMedia = (media) => {
@@ -39,8 +39,8 @@ const renderMedia = (media) => {
     <section className="blog-slider pt-50 pb-50 style-1">
       <div className="container">
         <div className={`section-head text-center mb-60 style-${style}`}>
-          <h2 className="mb-20">{ rtl ? 'أخر' : 'Nuestras' } <span>{ rtl ? 'الأخبار' : 'Noticias' }</span></h2>
-          <div className="text color-666">{ rtl ? 'احصل على اخر الاخبار من خلال المدونه ناقش وشارك الخبر مع الاصدقاء' : 'Descubre articulos de tu interes' }</div>
+          <h2 className="mb-20">{ 'Nuestras' } <span>{ 'Noticias' }</span></h2>
+          <div className="text color-666">{ 'Descubre articulos de tu interes' }</div>
         </div>
         <div className="blog-details-slider">
           <Swiper
@@ -78,10 +78,10 @@ const renderMedia = (media) => {
                           <div className="cont">
                             <small className="date small mb-20"> 
                               <a href="#" className="text-uppercase border-end brd-gray pe-3 me-3">{ slide.type }</a>
-                              <i className="far fa-clock me-2"></i>{ rtl ? 'موعد النشر' : 'Posted on' } <a href="#">{ slide.time }</a> 
+                              <i className="far fa-clock me-2"></i>{ 'Posted on' } <a href="#">{ slide.time }</a> 
                             </small>
                             <h2 className="title">
-                              <Link href={ rtl ? "/rtl-page-single-post" : "/page-single-post-5"}>{ slide.title }</Link>
+                              <Link href={ "/page-single-post-5"}>{ slide.title }</Link>
                             </h2>
                             <p className="fs-13px mt-10 text-light text-info">
                               { slide.desc } [...]

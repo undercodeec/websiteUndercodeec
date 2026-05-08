@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TopNav = ({ style, rtl }) => {
+const TopNav = ({ style }) => {
   return (
     <div className={`top-navbar style-${style}`}>
      

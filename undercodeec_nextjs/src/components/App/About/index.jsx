@@ -1,23 +1,23 @@
 import React from 'react';
 import aboutData from '@/data/App/about.json';
-import aboutDataRTL from '@/data/App/about-rtl.json';
+
 import FirstContent from './FirstContent';
 import SecondContent from './SecondContent';
 import ThirdContent from './ThirdContent';
 import Integration from './Integration';
 
-const About = ({ noFirstContent, noIntegration, noWave, rtl }) => {
-  const data = rtl ? aboutDataRTL : aboutData;
+const About = ({ noFirstContent, noIntegration, noWave }) => {
+  const data = aboutData;
 
   return (
     <section className={`about ${noWave ? '':'section-padding'} style-4`}>
       {
-        !noFirstContent && (<FirstContent features={data.features} rtl={rtl} />)
+        !noFirstContent && (<FirstContent features={data.features} />)
       }
-      <SecondContent accordions={data.accordions} rtl={rtl} />
-      <ThirdContent features={data.thirdFeatures} rtl={rtl} />
+      <SecondContent accordions={data.accordions} />
+      <ThirdContent features={data.thirdFeatures} />
       {
-        !noIntegration && (<Integration integrations={data.integrations} rtl={rtl} />)
+        !noIntegration && (<Integration integrations={data.integrations} />)
       }
       {
         !noWave && (

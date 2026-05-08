@@ -20,7 +20,7 @@ export default function BlogDetailClient({ post }: { post: any }) {
 
   return (
     <MainLayout>
-      <TopNav style="5" rtl={false} />
+      <TopNav style="5" />
       <Navbar navbarRef={navbarRef} bgTransparent={false} />
       <main className="blog-page style-5">
         {post ? (

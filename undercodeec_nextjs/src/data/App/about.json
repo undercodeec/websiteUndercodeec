@@ -1,35 +1,35 @@
 {
   "features": [
-    { "icon": "bi bi-hand-index-thumb", "title": "Interactividad y facilidad de uso", "desc": "Diseñamos flujos intuitivos para que el usuario disfrute cada interacción, con gestos naturales, transiciones suaves y una navegación sin fricciones que fideliza desde el primer uso." },
-    { "icon": "bi bi-palette2", "title": "Estética coherente", "desc": "Aplicamos sistemas de diseño consistentes con paletas de colores, tipografías y componentes alineados a la identidad de tu marca en cada pantalla de la aplicación." },
-    { "icon": "bi bi-phone", "title": "Optimización para todos los dispositivos", "desc": "Tu aplicación se adapta perfectamente a cualquier tamaño de pantalla, desde smartphones compactos hasta tablets, garantizando una experiencia visual impecable en cada dispositivo." },
-    { "icon": "bi bi-universal-access", "title": "Accesibilidad", "desc": "Implementamos estándares de accesibilidad (WCAG) para que tu app sea inclusiva, permitiendo que todas las personas puedan utilizarla sin barreras." }
+    { "icon": "bi bi-hand-index-thumb", "title": "Interactividad y experiencia de usuario móvil", "desc": "Diseñamos flujos intuitivos para aplicaciones móviles en Ecuador con gestos naturales, transiciones suaves y una navegación sin fricciones que fideliza usuarios desde el primer uso en Android e iOS." },
+    { "icon": "bi bi-palette2", "title": "Diseño UI/UX coherente para tu marca", "desc": "Aplicamos sistemas de diseño profesional con paletas de colores, tipografías y componentes alineados a la identidad de tu marca en cada pantalla de tu aplicación móvil." },
+    { "icon": "bi bi-phone", "title": "Apps optimizadas para todos los dispositivos", "desc": "Tu aplicación móvil se adapta perfectamente a cualquier tamaño de pantalla, desde smartphones compactos hasta tablets, garantizando una experiencia visual impecable en dispositivos Android e iOS." },
+    { "icon": "bi bi-universal-access", "title": "Accesibilidad en aplicaciones móviles", "desc": "Implementamos estándares de accesibilidad (WCAG) para que tu app sea inclusiva, permitiendo que todas las personas en Ecuador y el mundo puedan utilizarla sin barreras." }
   ],
   "accordions": [
     {
       "id": 1,
       "icon": "bi bi-shield-lock",
-      "title": "Protección de datos sensibles",
-      "content": "La información de los usuarios, transacciones y datos privados deben ser manejados con la máxima protección, usando técnicas avanzadas de encriptación y autenticación."
+      "title": "Protección de datos en apps móviles",
+      "content": "La información de los usuarios, transacciones y datos privados de tu aplicación móvil son manejados con la máxima protección, usando técnicas avanzadas de encriptación y autenticación segura en Android e iOS."
     },
     {
       "id": 2,
       "icon": "bi bi-cpu",
-      "title": "Integración con sistemas de seguridad en tiempo real",
-      "content": "Implementamos protocolos de seguridad en tiempo real para detectar y prevenir vulnerabilidades antes de que se conviertan en un problema."
+      "title": "Seguridad en tiempo real para aplicaciones",
+      "content": "Implementamos protocolos de seguridad en tiempo real en el desarrollo de apps móviles para detectar y prevenir vulnerabilidades antes de que se conviertan en un problema para tu negocio."
     },
     {
       "id": 3,
       "icon": "bi bi-file-earmark-check",
-      "title": "Cumplimiento de regulaciones",
-      "content": "Todas las aplicaciones desarrolladas cumplen con los estándares internacionales de seguridad, garantizando que se adhieren a las normativas como el GDPR, entre otras."
+      "title": "Cumplimiento de regulaciones de datos",
+      "content": "Todas las aplicaciones móviles desarrolladas por Undercodeec en Ecuador cumplen con los estándares internacionales de seguridad, garantizando que se adhieren a las normativas como GDPR y regulaciones locales de protección de datos."
     }
   ],
   "thirdFeatures": [
-    { "icon": "bi bi-bag-heart", "title": "Mostrar productos o servicios de forma atractiva", "desc": "Diseñamos catálogos visuales y galerías interactivas que destacan lo mejor de tu oferta, capturando la atención de tus clientes al instante." },
-    { "icon": "bi bi-cart-check", "title": "Integrar pedidos, reservas o ventas en línea", "desc": "Conectamos tu app con sistemas de pago, gestión de pedidos y reservas para que tus clientes compren o agenden directamente desde su dispositivo." },
-    { "icon": "bi bi-moon-stars", "title": "Usar modo oscuro y diseño adaptado a tu marca", "desc": "Ofrecemos temas personalizables incluyendo modo oscuro elegante, adaptando cada elemento visual a la identidad de tu marca." },
-    { "icon": "bi bi-phone-vibrate", "title": "Mejorar la experiencia del cliente desde cualquier dispositivo", "desc": "Optimizamos cada interacción para que tu aplicación funcione de manera fluida y consistente en smartphones, tablets y más." }
+    { "icon": "bi bi-bag-heart", "title": "Apps de e-commerce: productos y servicios atractivos", "desc": "Diseñamos catálogos visuales y galerías interactivas en tu aplicación móvil de e-commerce que destacan lo mejor de tu oferta, capturando la atención de tus clientes al instante." },
+    { "icon": "bi bi-cart-check", "title": "Integración de pedidos, reservas y ventas online", "desc": "Conectamos tu app móvil con pasarelas de pago, gestión de pedidos y sistemas de reservas para que tus clientes en Ecuador compren o agenden directamente desde cualquier dispositivo." },
+    { "icon": "bi bi-moon-stars", "title": "Modo oscuro y branding personalizado", "desc": "Ofrecemos temas personalizables incluyendo modo oscuro elegante, adaptando cada elemento visual de tu aplicación a la identidad de tu marca para una experiencia premium." },
+    { "icon": "bi bi-phone-vibrate", "title": "Experiencia móvil excepcional en cualquier dispositivo", "desc": "Optimizamos cada interacción para que tu aplicación funcione de manera fluida y consistente en smartphones y tablets Android e iOS, garantizando alto rendimiento y satisfacción del usuario." }
   ],
   "integrations": [
     "/assets/img/logos/iconapp1.webp",

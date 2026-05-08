@@ -31,7 +31,7 @@ const Services = () => {
     <section className="services style-8 section-padding">
       <div className="container">
         <div className="section-head style-8 text-center mb-80 wow fadeInUp">
-          <h3> Nuestros Servicios </h3>
+          <h3> Nuestros Servicios de Software Empresarial </h3>
         </div>
       </div>
       <div className="content wow fadeInUp">

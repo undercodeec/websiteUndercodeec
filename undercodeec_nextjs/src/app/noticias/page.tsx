@@ -5,7 +5,6 @@ import navbarScrollEffect from "@/common/navbarScrollEffect";
 import MainLayout from "@/layouts/Main";
 import TopNav from "@/components/Navbars/TopNav";
 import Navbar from "@/components/Navbars/SaasNav";
-import ComingSoon from "@/components/ComingSoon";
 import Footer from "@/components/Saas/Footer";
 
 export default function NoticiasPage() {
@@ -19,10 +18,15 @@ export default function NoticiasPage() {
 
   return (
     <MainLayout>
-      <TopNav style="5" rtl={false} />
+      <TopNav style="5" />
       <Navbar navbarRef={navbarRef} bgTransparent={false} />
       <main className="blog-page style-5 color-5">
-        <ComingSoon />
+        <section className="section-padding text-center" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="container">
+            <h1 className="mb-30">Noticias</h1>
+            <p className="text-muted">Próximamente publicaremos novedades y noticias relevantes.</p>
+          </div>
+        </section>
       </main>
       <Footer noWave={true} />
     </MainLayout>

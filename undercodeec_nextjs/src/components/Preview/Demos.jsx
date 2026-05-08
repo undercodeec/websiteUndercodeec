@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import demos from '@/data/Preview/demos.json';
-
+import TradingCard from './TradingCard';
 const Demos = () => {
   const [demosRows, setDemosRows] = useState([]);
 
@@ -10,7 +10,11 @@ const Demos = () => {
     let rowIndex = 0;
     let rowsItems = [[]];
 
-    demos.forEach((demo, i) => {
+    // Ensure we only process a number of items that is a multiple of 3 to prevent incomplete rows
+    const remainder = demos.length % 3;
+    const itemsToProcess = remainder !== 0 ? demos.slice(0, -remainder) : demos;
+
+    itemsToProcess.forEach((demo, i) => {
       if (i > 0 && i % demosInRow === 0) {
         rowIndex++;
         rowsItems[rowIndex] = [];
@@ -33,12 +37,8 @@ const Demos = () => {
                   PORTAFOLIO<span className="thin"></span>
                 </span>
               </h2>
-              <h3 className="text-capitalize">Sitios web increibles</h3>
-              <p className="color-777">
-              Diseño y desarrollo de sitios web únicos que capturan la esencia de tu marca y conectan con tu audiencia.
-
-
-              </p>
+              <h3 className="text-capitalize tw-text-[32px] tw-font-semibold">Sitios web increibles</h3>
+             
             </div>
           </div>
         </div>
@@ -46,37 +46,7 @@ const Demos = () => {
           <div className="row" key={r}>
             {demos.map((demo, i) => (
               <div className="col-lg-4 col-md-6" key={i}>
-                <div
-                  className={`item animate-scaleUp hover-lift ${demo.isNew ? 'item_ribbon green' : ''} ${
-                    demo.isComingSoon || demo.isArrived
-                      ? 'item_ribbon orange'
-                      : ''
-                  } ${demo.isFeatured ? 'item_ribbon red' : ''}`}
-                  style={{ transitionDelay: `${i * 100}ms` }}
-                >
-                  <Link href={demo.link || '#'} target="_blank">
-                    <div className="img">
-                      <img src={demo.img} alt={demo.alt} />
-                    </div>
-                    <div className="info">
-                      <span>{demo.title}</span>
-                      <h6>{demo.type}</h6>
-                    </div>
-                  </Link>
-                  {(demo.isNew ||
-                    demo.isComingSoon ||
-                    demo.isFeatured ||
-                    demo.isArrived) && (
-                    <div className="new_demo_label">
-                      <span>
-                        {demo.isNew && 'New'}
-                        {demo.isComingSoon && 'Soon'}
-                        {demo.isFeatured && 'Hot'}
-                        {demo.isArrived && 'Arrived'}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                <TradingCard demo={demo} index={i} />
               </div>
             ))}
           </div>

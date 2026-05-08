@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ThirdContent = ({ features, rtl }) => {
+const ThirdContent = ({ features }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -15,10 +15,10 @@ const ThirdContent = ({ features, rtl }) => {
           <div className="col-lg-5">
             <div className="info">
               <div className="section-head style-4">
-                <h2 className="mb-30">{ rtl ? 'ركز أكثر مع' : ' Impulsa tu' } <span>{ rtl ? 'المظهر الداكن' : 'Negocio ' }</span> </h2>
+                <h2 className="mb-30">{ ' Impulsa tu' } <span>{ 'Negocio ' }</span> </h2>
               </div>
               <p className="text mb-40">
-                { rtl ? 'قم بتطبيق سمات نوتيرو الأنيقة حسب ذوقك. تعمل السمات المظلمة بشكل ممتاز لأولئك الذين يفضلون الوضع الخالي من الإلهاء.' : 'Desarrollamos apps personalizadas con interfaces modernas y funcionales, como esta app de catálogo para restaurantes.' }
+                { 'Desarrollamos apps personalizadas con interfaces modernas y funcionales, como esta app de catálogo para restaurantes.' }
               </p>
               
               <div style={{ marginTop: '35px' }}>

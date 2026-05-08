@@ -1,7 +1,7 @@
 import React from 'react';
 import clients from '@/data/App/clients.json';
 
-const Clients = ({ rtl }) => {
+const Clients = ({}) => {
   return (
     <section className="clients style-4">
       <div className="container">

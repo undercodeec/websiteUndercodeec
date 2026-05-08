@@ -14,7 +14,7 @@ import 'lightgallery/css/lightgallery.css';
 
 SwiperCore.use([Pagination, Autoplay]);
 
-const Culture = ({ rtl }) => {
+const Culture = ({}) => {
   const [loadSwiper, setLoadSwiper] = useState(false);
   let lgGallery = useMemo(() => null, []);
 
@@ -31,7 +31,7 @@ const Culture = ({ rtl }) => {
   return (
     <section className="culture section-padding style-5">
       <div className="section-head text-center mb-70 style-5">
-        <h2 className="mb-20">{ rtl ? 'اكتشف' : 'Donde la magia' } <span>{ rtl ? 'ثقافتنا' : 'ocurre' }</span> </h2>
+        <h2 className="mb-20">{ 'Donde la magia' } <span>{ 'ocurre' }</span> </h2>
       </div>
       <div className="content">
         <div className="culture-slider position-relative pb-80 style-5">
@@ -39,7 +39,7 @@ const Culture = ({ rtl }) => {
             loadSwiper &&
             <Swiper
               className="swiper-container"
-              dir={rtl ? 'rtl' : 'ltr'}
+              dir={'ltr'}
               slidesPerView={4}
               spaceBetween={30}
               centeredSlides={true}

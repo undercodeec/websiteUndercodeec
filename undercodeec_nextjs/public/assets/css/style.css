@@ -635,7 +635,7 @@ small.text {
 }
 
 .section-padding {
-  padding: 10px 0;
+  padding: 50px 0;
 }
 
 .swiper-pagination {
@@ -8080,7 +8080,7 @@ section.clients.style-5 {
   align-items: center;
   justify-content: center;
   padding: 40px;
-  margin-top: 50px;
+  margin-top: 70px;
   z-index: 1;
 }
 
@@ -8204,59 +8204,176 @@ section.clients.style-5 {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  animation: fadeInOverlay 0.3s ease;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal-formulario {
-  background: linear-gradient(135deg, #150E23, #600B56);
+  background: linear-gradient(145deg, #1a0e2e, #600B56, #2a1045);
   color: white;
-  padding: 2rem;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 500px;
+  padding: 2.5rem 2.5rem 2rem;
+  border-radius: 20px;
+  width: 94%;
+  max-width: 650px;
   position: relative;
-  height: 80%;
-  /* Altura máxima del formulario */
   overflow-y: auto;
-  /* Habilitar scroll si el contenido excede la altura */
-  max-height: 600px;
-  /* Ajusta la altura máxima del formulario */
+  max-height: 90vh;
+  box-shadow: 0 25px 60px rgba(96, 11, 86, 0.4), 0 0 0 1px rgba(255,255,255,0.08);
+  animation: slideUpModal 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpModal {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-formulario h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  background: linear-gradient(90deg, #fff, #e0b0ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.modal-formulario > p {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 1.2rem;
+}
+
+.modal-formulario form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .modal-formulario input,
 .modal-formulario textarea {
   width: 100%;
-  margin-top: 1rem;
-  padding: 0.8rem;
-  border: none;
-  border-radius: 8px;
+  margin-top: 0.7rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+  outline: none;
 }
 
-.modal-formulario button {
-  margin-top: 1rem;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  background: #6640f4;
-  color: white;
-  font-weight: bold;
-  border-radius: 8px;
+.modal-formulario input::placeholder,
+.modal-formulario textarea::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+.modal-formulario input:focus,
+.modal-formulario textarea:focus {
+  border-color: rgba(160, 100, 255, 0.6);
+  background: rgba(255,255,255,0.12);
+  box-shadow: 0 0 0 3px rgba(160, 100, 255, 0.15);
+}
+
+.modal-formulario textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.modal-formulario .form-terms {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.8rem;
+  margin-bottom: 0.2rem;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.3;
+}
+
+.modal-formulario .form-terms input[type="checkbox"] {
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  accent-color: #a064ff;
   cursor: pointer;
+}
+
+.modal-formulario .form-terms label {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.6);
+}
+
+.modal-formulario .form-terms a {
+  color: #c89dff;
+  text-decoration: underline;
+}
+
+.modal-formulario button[type="submit"] {
+  margin-top: 1rem;
+  padding: 0.9rem 2rem;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed, #a855f7, #c084fc);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-formulario button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45);
+  background: linear-gradient(135deg, #6d28d9, #9333ea, #a855f7);
+}
+
+.modal-formulario button[type="submit"]:active {
+  transform: translateY(0);
 }
 
 .modal-close {
   position: absolute;
-  top: 10px;
-  right: 15px;
-  background: transparent;
+  top: 14px;
+  right: 16px;
+  background: rgba(255,255,255,0.1);
   border: none;
-  font-size: 1.5rem;
-  color: white;
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.7);
   cursor: pointer;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
 }
+
+.modal-close:hover {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  transform: rotate(90deg);
+}
+
 
 /* --------------- choose-us style-7 --------------- */
 .choose-us.style-7 {
@@ -8887,7 +9004,7 @@ section.clients.style-5 {
 
 .projects.style-8 .section-head .swiper-button-next:hover,
 .projects.style-8 .section-head .swiper-button-prev:hover {
-  background: var(--color-orange1);
+  background: #600b56;
   color: #fff;
 }
 
@@ -8927,6 +9044,7 @@ section.clients.style-5 {
   border-radius: 10px;
   position: relative;
   height: 410px;
+  overflow: hidden;
 }
 
 .projects.style-8 .img .main-img {
@@ -8935,6 +9053,19 @@ section.clients.style-5 {
   height: 100%;
   -o-object-fit: cover;
   object-fit: cover;
+  object-position: top;
+  -webkit-transition: object-position 7s linear, -webkit-transform 0.3s ease;
+  transition: object-position 7s linear, -webkit-transform 0.3s ease;
+  -o-transition: object-position 7s linear, transform 0.3s ease;
+  transition: object-position 7s linear, transform 0.3s ease;
+  transition: object-position 7s linear, transform 0.3s ease, -webkit-transform 0.3s ease;
+}
+
+.projects.style-8 .img:hover .main-img {
+  object-position: bottom;
+  -webkit-transform: scale(1.02);
+  -ms-transform: scale(1.02);
+  transform: scale(1.02);
 }
 
 .projects.style-8 .img .tags {
@@ -14232,8 +14363,8 @@ section.clients.style-5 {
   width: 100%;
   height: 60%;
   background-image: url(../img/0011.png);
-  background-size: 80%;
-  background-repeat: repeat;
+  background-size: cover;
+  background-repeat: no-repeat;
   background-position: bottom;
   opacity: 0.08;
   -webkit-filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(1003%) contrast(103%);
@@ -22293,4 +22424,18 @@ footer.style-15 .foot p {
 
 .animated-link:hover::after {
   width: 100%;
+}
+
+/* Custom 3D Button Style */
+butn.blue5-3Dbutn, .btn.blue5-3Dbutn {
+    background: var(--color-blue5);
+    -webkit-box-shadow: 0px 4px 0px 0px var(--color-blue4);
+    box-shadow: 0px 4px 0px 0px var(--color-blue4);
+    -webkit-filter: drop-shadow(0 13px 20px #07397235);
+    filter: drop-shadow(0 13px 20px #07397235);
+    font-size: 12px;
+    color: #fff !important;
+    padding: 10px 20px;
+    border-radius: 5px;
+    display: inline-block;
 }

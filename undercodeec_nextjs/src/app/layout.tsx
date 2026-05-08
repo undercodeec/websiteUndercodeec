@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import AIAssistant from "@/components/AIAssistant";
+import CustomCursor from "@/components/CustomCursor";
+import AudioMuteButton from "@/components/AudioMuteButton";
+import PageTransition from "@/components/PageTransition";
 import "@/styles/globals.css";
 import "@/styles/preloader.css";
+import "@/styles/trading-card.css";
 
 export const metadata: Metadata = {
   title: "Undercodeec - Diseño de Páginas Web en Quito y Ecuador",
@@ -54,8 +58,13 @@ export default function RootLayout({
 
       </head>
       <body suppressHydrationWarning={true}>
+        <CustomCursor />
         <AIAssistant />
-        {children}
+        <AudioMuteButton />
+        <PageTransition>
+          {children}
+        </PageTransition>
+        <Script src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`} strategy="beforeInteractive" />
         <Script src="/assets/js/lib/pace.js" strategy="afterInteractive" />
         <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />
         <Script src="/landing-preview/js/parallax.min.js" strategy="afterInteractive" />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const SecondContent = ({ accordions, rtl }) => {
+const SecondContent = ({ accordions }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -10,13 +10,10 @@ const SecondContent = ({ accordions, rtl }) => {
           <div className="col-lg-5 order-2 order-lg-0">
             <div className="info">
               <div className="section-head style-4">
-                <h2 className="mb-30">{ rtl ? 'ملاحظاتك' : 'Estándares de' } <span> { rtl ? 'في امان' : 'Seguridad' } </span></h2>
+                <h2 className="mb-30">{ 'Estándares de' } <span> { 'Seguridad' } </span></h2>
               </div>
               <p className="text mb-40">
                 {
-                 rtl ? 
-                 'يتزامن تلقائيًا عبر جميع أجهزتك. يمكنك أيضًا الوصول إلى الملاحظات وكتابتها بدون اتصال بالإنترنت'
-                 :
                  'La seguridad es uno de los pilares fundamentales en el desarrollo de aplicaciones móviles. A medida que la tecnología avanza, también lo hacen las amenazas. Por eso, nos aseguramos de que cada aplicación que diseñamos esté protegida con los más altos estándares de seguridad, garantizando la privacidad y protección de los datos de los usuarios desde el primer momento.' 
                 }
               </p>

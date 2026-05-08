@@ -16,17 +16,51 @@ export default function MarketingParaTuNegocioPage() {
     return () => document.body.classList.remove("home-style-6");
   }, []);
 
-  const rtl = false;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Marketing Digital y SEO en Ecuador",
+    "description": "Servicios de marketing digital, posicionamiento SEO, manejo de redes sociales, Google Ads y Facebook Ads para empresas y PYMES en Quito y Ecuador.",
+    "provider": {
+      "@type": "Organization",
+      "name": "Undercodeec",
+      "url": "https://undercodeec.com",
+      "logo": "https://undercodeec.com/assets/img/undercode-logo.png",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Quito",
+        "addressCountry": "EC"
+      }
+    },
+    "areaServed": {
+      "@type": "Country",
+      "name": "Ecuador"
+    },
+    "serviceType": [
+      "Marketing Digital",
+      "Posicionamiento SEO",
+      "Manejo de Redes Sociales",
+      "Google Ads",
+      "Facebook Ads",
+      "Inbound Marketing",
+      "Branding Digital",
+      "Consultoría de Marketing"
+    ]
+  };
 
   return (
     <MainLayout>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <main>
         <MarketingHero />
-        <Blog rtl={rtl} />
+        <Blog />
 
-        <Clients rtl={rtl} />
+        <Clients />
         <Numbers />
-        <Contact rtl={rtl} />
+        <Contact />
       </main>
       <Footer />
     </MainLayout>

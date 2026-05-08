@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import services from '@/data/Startup/services.json';
-import servicesRTL from '@/data/Startup/services-rtl.json';
+
 
 import "swiper/css";
 
-const Services = ({ rtl }) => {
+const Services = ({}) => {
   const [load, setLoad] = useState(false);
-  const servicesData = rtl ? servicesRTL : services;
+  const servicesData = services;
 
   useEffect(() => {
     setLoad(true);

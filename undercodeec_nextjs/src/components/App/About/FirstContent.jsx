@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const FirstContent = ({ features, rtl }) => {
+const FirstContent = ({ features }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -15,19 +15,11 @@ const FirstContent = ({ features, rtl }) => {
           <div className="col-lg-5">
             <div className="info">
               <div className="section-head style-4">
-                <h2 className="mb-30">{ rtl ? 'تطبيق لاصحاب' : 'Diseño' } <span> { rtl ? 'الابداع' : 'Creativo' } </span> </h2>
+                <h2 className="mb-30">{ 'Diseño' } <span> { 'Creativo' } </span> </h2>
               </div>
-              <p className="text mb-40">
-                {
-                  rtl && 'حافظ على تركيزك وإنتاجيتك مع مساحة  خالية من الفوضى. الطرق المرنة لتنظيم ملاحظاتك: علامات التجزئة ، دفاتر الملاحظات المتداخلة ، تثبيت الملاحظات في أعلى قائمة الملاحظات ، إلخ.'
-                }
-                { 
-                  !rtl && 
-                    <>
-                      El diseño en aplicaciones móviles es más que solo una apariencia visual, es la clave para una experiencia de usuario fluida y atractiva. <br />  Un diseño bien pensado no solo mejora la interacción, sino que también hace que la navegación sea intuitiva, eficiente y placentera.
-                    </> 
-                }
-              </p>
+                <p className="text mb-40">
+                  El diseño en aplicaciones móviles es más que solo una apariencia visual, es la clave para una experiencia de usuario fluida y atractiva. <br />  Un diseño bien pensado no solo mejora la interacción, sino que también hace que la navegación sea intuitiva, eficiente y placentera.
+                </p>
               
               <div style={{ marginTop: '35px' }}>
                 {

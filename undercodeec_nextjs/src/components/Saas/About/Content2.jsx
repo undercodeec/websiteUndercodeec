@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 
-const Content = ({ list, rtl }) => {
+const Content = ({ list }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -16,10 +16,10 @@ const Content = ({ list, rtl }) => {
           </div>
           <div className="col-lg-4">
             <div className="section-head mb-30 style-5">
-              <h2>{ rtl ? 'أكثر من 100' : 'Desarrollamos' } <span>{ rtl ? 'بوابة دفع' : 'Apps' }</span> </h2>
+              <h2>{ 'Desarrollamos' } <span>{ 'Apps' }</span> </h2>
             </div>
             <p className="mb-4">
-              { rtl ? 'مع سوق Iteck ، اختر من بين مئات بوابات الدفع لعملائك. من PayPal إلى Stripe إلى Skrill ، Visa Debit ، Master Card ، إلخ' : 'Diseñamos apps a medida para satisfacer las necesidades específicas de tu empresa. Desde la gestión de pagos hasta la experiencia de usuario, todo ajustado a ti. ¡Descubre cómo podemos ayudarte hoy!' }
+              { 'Diseñamos apps a medida para satisfacer las necesidades específicas de tu empresa. Desde la gestión de pagos hasta la experiencia de usuario, todo ajustado a ti. ¡Descubre cómo podemos ayudarte hoy!' }
             </p>
             
             <div className="line-links d-flex flex-column align-items-start">
@@ -55,7 +55,7 @@ const Content = ({ list, rtl }) => {
               }
             </div>
             <Link href="/aplicaciones-moviles" className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold mt-50">
-              <span>{ rtl ? 'احجز عرضًا تجريبيًا مجانيًا ' : 'Saber Más' }</span>
+              <span>{ 'Saber Más' }</span>
             </Link>
           </div>
         </div>

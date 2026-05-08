@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   },
   // Allow JSX files to be imported
   pageExtensions: ["ts", "tsx", "js", "jsx"],
+  turbopack: {
+    root: import.meta.dirname,
+  },
 };
 
 export default nextConfig;

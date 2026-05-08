@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Content = ({ texts, webLinks, number, rtl }) => {
+const Content = ({ texts, webLinks, number }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -9,7 +9,7 @@ const Content = ({ texts, webLinks, number, rtl }) => {
         <div className="row align-items-center">
           <div className="col-lg-4 order-2 order-lg-0">
             <div className="section-head mb-30 style-5">
-              <h2>{ rtl ? 'سهل' : 'Desarrollo y ' } <span>{ rtl ? 'التخصيص' : 'Diseño Web' }</span> </h2>
+              <h2>{ 'Desarrollo y ' } <span>{ 'Diseño Web' }</span> </h2>
             </div>
             <p>
               { texts.text1 }

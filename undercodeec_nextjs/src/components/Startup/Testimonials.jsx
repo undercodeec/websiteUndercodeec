@@ -8,7 +8,7 @@ import 'swiper/css/navigation';
 
 SwiperCore.use([Navigation, Autoplay]);
 
-const Testimonials = ({ rtl }) => {
+const Testimonials = ({}) => {
   const [load, setLoad] = useState(false);
 
   useEffect(() => {

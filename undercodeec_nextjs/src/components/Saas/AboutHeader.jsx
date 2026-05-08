@@ -19,7 +19,7 @@ const rocketPosition = {
   bottom: '10%'   // Mueve la nave hacia arriba desde abajo
 };
 
-const AboutHeader = ({ rtl }) => {
+const AboutHeader = ({}) => {
   return (
     <div className="tw-relative tw-w-full tw-h-[100dvh] tw-min-h-[700px] tw-overflow-hidden">
       {/* Animated Gradient Background */}
@@ -66,7 +66,7 @@ const AboutHeader = ({ rtl }) => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="gradient-title tw-text-[32px] sm:tw-text-[40px] md:tw-text-[60px] tw-font-bold tw-leading-tight"
               >
-                { rtl ? 'نحن نقدم حلول تكنولوجيا المعلومات المثالية لأي' : <>Transformamos tus ideas en soluciones digitales <br/> innovadoras</> }
+                <>Transformamos tus ideas en soluciones digitales <br/> innovadoras</>
                 <span className="ms-2 tw-inline-block tw-relative">
                   <img src="/assets/img/header/subrrayado.png" alt="" className="tw-absolute tw--bottom-4 tw-left-0 tw-w-full tw-opacity-70" style={{ zIndex: -1 }} />
                   <img src="/assets/img/header/head5_pen.png" alt="" className="tw-absolute tw--top-6 tw--right-8 tw-w-12" />
@@ -79,7 +79,7 @@ const AboutHeader = ({ rtl }) => {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="tw-text-lg md:tw-text-xl tw-leading-relaxed tw-max-w-2xl tw-text-gray-900"
               >
-                { rtl ? 'يساعدك Iteck على توحيد هوية علامتك التجارية من خلال جمع وتخزين ' : 'Nos especializamos en diseño web innovador y en el desarrollo de aplicaciones móviles a medida que no solo cumplen, sino que superan las expectativas de nuestros clientes. ' }
+                { 'Nos especializamos en diseño web innovador y en el desarrollo de aplicaciones móviles a medida que no solo cumplen, sino que superan las expectativas de nuestros clientes. ' }
               </motion.p>
             </motion.div>
 
@@ -90,19 +90,6 @@ const AboutHeader = ({ rtl }) => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="tw-relative tw-flex tw-items-center tw-justify-center tw-h-[400px] lg:tw-h-[500px]"
             >
-              {/* Glow Effect */}
-              <motion.div
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.3, 0.6, 0.3],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                }}
-                className="tw-absolute tw-inset-0 tw-rounded-full tw-blur-3xl"
-                style={{ background: '#ba27f4' }}
-              />
               
               {/* Rotating Ring */}
               <motion.div

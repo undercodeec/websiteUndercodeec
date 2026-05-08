@@ -23,14 +23,14 @@ export default function ServiciosPage() {
 
   return (
     <MainLayout>
-      <TopNav style="5" rtl={false} />
+      <TopNav style="5" />
       <Navbar navbarRef={navbarRef} bgTransparent={false} />
       <main className="services-page style-5">
-        <Features isServices={true} rtl={false} />
-        <Services rtl={false} />
-        <About noPaddingTop={true} rtl={false} />
-        <Testimonials rtl={false} />
-        <Pricing rtl={false} />
+        <Features isServices={true} />
+        <Services />
+        <About noPaddingTop={true} />
+        <Testimonials />
+        <Pricing />
       </main>
       <Footer noWave={true} />
     </MainLayout>

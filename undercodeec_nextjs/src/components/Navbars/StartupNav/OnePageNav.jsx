@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import navbarScrollEffect from "@/common/navbarScrollEffect";
 import scrollToSection from '@/common/scrollToSection';
 
-const OnePageNav = ({ rtl }) => {
+const OnePageNav = ({}) => {
   const navbarRef = useRef(null);
 
   useEffect(() => {
@@ -41,42 +41,42 @@ const OnePageNav = ({ rtl }) => {
           <ul className="navbar-nav m-auto mb-2 mb-lg-0">
             <li className="nav-item dropdown">
               <a className="nav-link dropdown-toggle" data-scroll-nav="1" onClick={scrollToSection}>
-                { rtl ? "من نحن" : "about us" }
+                { "about us" }
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" data-scroll-nav="2" onClick={scrollToSection}>
-                { rtl ? "خدماتنا" : "services" }
+                { "services" }
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" data-scroll-nav="3" onClick={scrollToSection}>
-                { rtl ? "مشاريعنا" : "portfolio" }
+                { "portfolio" }
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" data-scroll-nav="4" onClick={scrollToSection}>
-                { rtl ? "لماذا نحن" : "why us" }
+                { "why us" }
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" data-scroll-nav="5" onClick={scrollToSection}>
-                { rtl ? "اراء العملاء" : "testimonials" }
+                { "testimonials" }
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" data-scroll-nav="6" onClick={scrollToSection}>
-                { rtl ? "عملائنا" : "clients" }
+                { "clients" }
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" data-scroll-nav="7" onClick={scrollToSection}>
-                { rtl ? "فريق العمل" : "team" }
+                { "team" }
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" data-scroll-nav="8" onClick={scrollToSection}>
-                { rtl ? "المدونة" : "blog" }
+                { "blog" }
               </a>
             </li>
           </ul>
@@ -85,7 +85,7 @@ const OnePageNav = ({ rtl }) => {
               <a href="#0" className="btn rounded-pill butn-blue6 hover-blue2 sm-butn fw-bold" data-scroll-nav="9" onClick={scrollToSection}>
                 <span>
                   <i className="bi bi-chat-dots me-2"></i>
-                   { rtl ? "لنتحدث الأن !" : "Let’s Chat!" }
+                   { "Let’s Chat!" }
                 </span>
               </a>
             </div>

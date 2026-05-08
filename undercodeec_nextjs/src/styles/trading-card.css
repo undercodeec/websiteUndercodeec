@@ -1,0 +1,172 @@
+.trading-card-container {
+  perspective: 1200px;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 5 / 7;
+  margin: 0 auto;
+  transform-style: preserve-3d;
+}
+
+.trading-card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 20px;
+  transform-style: preserve-3d;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  background-color: #e0e0e0;
+}
+
+.trading-card:hover {
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.trading-card-content {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: 
+    linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.3) 100%),
+    url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.15"/></svg>'),
+    linear-gradient(to bottom right, #f4f4f4, #c8c8c8);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  transform: translateZ(0); /* Needed to keep children in same 3d space */
+  transform-style: preserve-3d;
+  /* Thick metallic border effect */
+  border: 10px solid #e0e0e0;
+  border-top-color: #f8f8f8;
+  border-left-color: #f0f0f0;
+  border-right-color: #c0c0c0;
+  border-bottom-color: #b0b0b0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.trading-card-image-wrapper {
+  flex: 0 0 50%;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  transform: translateZ(40px);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: #111;
+}
+
+.trading-card-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transition: object-position 7s linear, transform 0.3s ease;
+}
+
+.trading-card-container:hover .trading-card-image-wrapper img {
+  object-position: bottom;
+  transform: scale(1.02);
+}
+
+.trading-card-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 15px 5px 0;
+  transform: translateZ(60px);
+}
+
+.trading-card-text h3 {
+  font-family: 'Arial Black', Impact, sans-serif;
+  font-size: 26px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  letter-spacing: -1px;
+  color: #000;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+  line-height: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.trading-card-text p {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #222;
+  letter-spacing: 0.5px;
+  margin-bottom: 0;
+  line-height: 1.4;
+}
+
+.trading-card-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 5px 0;
+  transform: translateZ(30px);
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 10px;
+  color: #222;
+}
+
+.trading-card-footer-center {
+  flex: 1;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+/* Shine and Hologram overlays */
+.trading-card-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px; /* Inside the border */
+  background: radial-gradient(
+    farthest-corner circle at var(--pointer-x) var(--pointer-y),
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.2) 30%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  mix-blend-mode: overlay;
+  opacity: var(--opacity, 0);
+  pointer-events: none;
+  transform: translateZ(65px);
+}
+
+.trading-card-hologram {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background-image: 
+    linear-gradient(
+      115deg, 
+      transparent 20%, 
+      rgba(255, 0, 255, 0.5) 30%, 
+      rgba(0, 255, 255, 0.5) 40%, 
+      transparent 50%, 
+      rgba(255, 255, 0, 0.5) 60%, 
+      transparent 70%
+    );
+  background-position: var(--bg-x) var(--bg-y);
+  background-size: 300% 300%;
+  mix-blend-mode: color-dodge;
+  pointer-events: none;
+  transform: translateZ(64px);
+  filter: brightness(1.2) contrast(1.2);
+}
+
+@media (min-width: 768px) {
+  .staggered-margin {
+    margin-top: 100px !important;
+  }
+}

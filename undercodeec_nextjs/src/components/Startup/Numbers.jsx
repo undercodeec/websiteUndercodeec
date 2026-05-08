@@ -1,6 +1,5 @@
 /* global fbq */
-import React, { useState, useRef } from 'react';
-import ReCAPTCHA from "react-google-recaptcha";
+import React, { useState } from 'react';
 import ReactGA from 'react-ga4';
 
 
@@ -15,9 +14,19 @@ const Numbers = () => {
     email: '',
     presupuesto: ''
   });
-  const recaptchaRef = useRef();
   const [mensajeEnviado, setMensajeEnviado] = useState('');
-  const [recaptchaToken, setRecaptchaToken] = useState('');
+
+  const executeRecaptcha = async (action) => {
+    if (typeof window !== 'undefined' && window.grecaptcha && window.grecaptcha.enterprise) {
+      try {
+        const token = await window.grecaptcha.enterprise.execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, {action});
+        return token;
+      } catch (err) {
+        console.error("Recaptcha error:", err);
+      }
+    }
+    return null;
+  };
 
   const handleOpenModal = () => {
     ReactGA.event({
@@ -44,20 +53,20 @@ const Numbers = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-
-    if (!recaptchaToken) {
-      setMensajeEnviado('❌ Por favor completa el reCAPTCHA.');
+    const token = await executeRecaptcha('MARKETING');
+    if (!token) {
+      setMensajeEnviado('❌ Error conectando con el servicio reCAPTCHA. Intente de nuevo.');
       return;
     }
 
-
     try {
-      const response = await fetch('https://www.undercodeec.com/send-marketing.php', {
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+      const response = await fetch(`${BACKEND_URL}/api/send-marketing`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          'g-recaptcha-response': recaptchaToken, // Este campo será validado en el backend
+          'g-recaptcha-response': token,
         }),
       });
 
@@ -77,11 +86,6 @@ const Numbers = () => {
           terms: false,
         });
 
-        // Limpiar reCAPTCHA
-        setRecaptchaToken('');
-        if (recaptchaRef.current) {
-          recaptchaRef.current.reset();
-        }
       } else {
         // error reportado por PHP
         console.error('Error backend:', data);
@@ -229,14 +233,7 @@ const Numbers = () => {
                 </label>
               </div>
 
-              {/* reCAPTCHA configurado como invisible */}
-
-
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey="6Lf_OSsrAAAAAORgEcrisGsaYvGk1CtX2sPD24Fr"
-                onChange={(token) => setRecaptchaToken(token)}
-              />
+              {/* reCAPTCHA migrado a Enterprise (Transparente) */}
 
 
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Content = ({ links, rtl }) => {
+const Content = ({ links }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -9,9 +9,9 @@ const Content = ({ links, rtl }) => {
         <div className="row align-items-center">
           <div className="col-lg-4 order-2 order-lg-0">
             <div className="section-head mb-30 style-5">
-              <h2> { rtl ? 'المحسّنة' : 'Desarrollo de ' }<span>{ rtl ? 'تجارب المستخدم ' : 'Software' } </span></h2>
+              <h2> { 'Desarrollo de ' }<span>{ 'Software' } </span></h2>
             </div>
-            <p>{ rtl ? 'يمكن تبسيط عمليات التحميل والتحديث التي يقوم بها الموردون من خلال لوحات المعلومات الأمامية التي توفر سهولة الوصول بشكل أفضل.' : 'Nuestro enfoque está en proporcionar herramientas digitales esenciales que ayuden a tu empresa a mantenerse organizada, mejorar la experiencia del cliente y aumentar la productividad.' }</p>
+            <p>{ 'Nuestro enfoque está en proporcionar herramientas digitales esenciales que ayuden a tu empresa a mantenerse organizada, mejorar la experiencia del cliente y aumentar la productividad.' }</p>
             
             <div className="line-links mt-3 d-flex flex-column align-items-start">
               {

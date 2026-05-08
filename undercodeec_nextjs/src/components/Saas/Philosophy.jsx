@@ -1,7 +1,7 @@
 import React from 'react';
 import Script from 'next/script';
 
-const Philosophy = ({ rtl }) => {
+const Philosophy = ({}) => {
   return (
     <section className="about section-padding style-5 style-6">
       <div className="content border-0 p-0">
@@ -11,7 +11,7 @@ const Philosophy = ({ rtl }) => {
               <div className="sec-head mb-30">
                 <h2 className="num">
                   <span className="color-grd">
-                    { rtl ? 'كلمة' : 'NUESTRA' }<span className="thin"></span>
+                    { 'NUESTRA' }<span className="thin"></span>
                   </span>
                 </h2>
                 <h3 style={{
@@ -24,16 +24,16 @@ const Philosophy = ({ rtl }) => {
                   marginBottom: '20px',
                   paddingBottom: '15px'
                 }}>
-                  { rtl ? 'عنا' : 'Filosofía' }
+                  { 'Filosofía' }
                 </h3>
               </div>
               <p>
-                { rtl ? 'مثل أي وكالة عظيمة ، نحن الأفضل بنتاجئنا التي قدمناها لعملنا الأخير. يلتزم مطورونا بالحفاظ على أعلى معايير الويب حتى يتحمل موقعك اختبار الزمن.' : 'En nuestra agencia, creemos que la calidad de nuestro trabajo es lo que realmente nos define. Cada proyecto es una oportunidad para ofrecer soluciones innovadoras y eficientes, siempre con un enfoque en la satisfacción total de nuestros clientes. Nos comprometemos a mantener los más altos estándares de diseño web y desarrollo de aplicaciones móviles, asegurándonos de que cada detalle de tu proyecto esté alineado con tus objetivos.' }
+                { 'En nuestra agencia, creemos que la calidad de nuestro trabajo es lo que realmente nos define. Cada proyecto es una oportunidad para ofrecer soluciones innovadoras y eficientes, siempre con un enfoque en la satisfacción total de nuestros clientes. Nos comprometemos a mantener los más altos estándares de diseño web y desarrollo de aplicaciones móviles, asegurándonos de que cada detalle de tu proyecto esté alineado con tus objetivos.' }
               </p>
               <div className="line-links">
-                <a href="#">{ rtl ? 'كن الأول في صناعة تكنولوجيا المعلومات' : 'Innovación constante' }</a>
-                <a href="#">{ rtl ? 'سعر تنافسى' : 'Precios Competitivos' }</a>
-                <a href="#">{ rtl ? 'تحسين مستوى حياتك' : 'Enfoque en el usuario' }</a>
+                <a href="#">{ 'Innovación constante' }</a>
+                <a href="#">{ 'Precios Competitivos' }</a>
+                <a href="#">{ 'Enfoque en el usuario' }</a>
               </div>
             </div>
             <div className="col-lg-6">

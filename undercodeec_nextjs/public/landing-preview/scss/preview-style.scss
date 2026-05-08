@@ -21,10 +21,26 @@ h5,h6{
 
 // ------- dropdown & megamenu -------
 .nav-preview{
-    background-color: #ffffffbe !important;
+    background: linear-gradient(to right, #150E23 0%, #600b56 5%, #600b56 95%, #150E23 100%) !important;
     width: 100%;
+
+    &.style-1 .navbar-brand {
+        width: 125px !important;
+        @media (max-width: 991px) {
+            width: 80px !important;
+        }
+    }
+
+    .preview-logo {
+        width: 100% !important;
+        max-width: 100%;
+    }
+
     &.nav-scroll{
-        background-color: #fff !important;
+        background: linear-gradient(to right, #150E23 0%, #600b56 5%, #600b56 95%, #150E23 100%) !important;
+        @media (max-width: 991px) {
+            position: absolute !important;
+        }
     }
     .navbar-nav{
         position: relative;

@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaCreditCard, FaExchangeAlt, FaUpload, FaCheck, FaArrowLeft, FaArrowRight, FaStore, FaChartLine, FaRocket, FaUniversity } from 'react-icons/fa';
 import ReactGA from 'react-ga4';
-import ReCAPTCHA from 'react-google-recaptcha';
 import wizardConfig from '@/data/Preview/wizard-config.json';
-import { supabase } from '@/lib/supabaseClient';
+// import { supabase } from '@/lib/supabaseClient'; // Supabase is paused, moving to local backend
 
 // SVG Icons for project types
 const icons = {
@@ -297,8 +296,6 @@ const AffiliationSection = () => {
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('');
   const [loading, setLoading] = useState(false);
-  const [recaptchaToken, setRecaptchaToken] = useState('');
-  const recaptchaRef = useRef(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [showError, setShowError] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -327,8 +324,27 @@ const AffiliationSection = () => {
   const paymentWindowRef = useRef(null);
   const checkPaymentIntervalRef = useRef(null);
   
-  // Google Apps Script URL
-  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJJ91bFrS7VwdksBOfZluJZ6pLmwhdVw4TTOBsSWPtX2B91YqEa8OUXUPEHBFnCLmrvg/exec';
+  // Google Apps Script URL (Security: usar variable de entorno para no exponer la URL)
+  const GOOGLE_SCRIPT_URL = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbwJJ91bFrS7VwdksBOfZluJZ6pLmwhdVw4TTOBsSWPtX2B91YqEa8OUXUPEHBFnCLmrvg/exec';
+
+  // Security: Orígenes permitidos para postMessage de pagos
+  const ALLOWED_PAYMENT_ORIGINS = [
+    'https://pay.payphonetodoesposible.com',
+    'https://api.undercodeec.com',
+    ...(typeof window !== 'undefined' ? [window.location.origin] : [])
+  ];
+
+  const executeRecaptcha = async (action) => {
+    if (typeof window !== 'undefined' && window.grecaptcha && window.grecaptcha.enterprise) {
+      try {
+        const token = await window.grecaptcha.enterprise.execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, {action});
+        return token;
+      } catch (err) {
+        console.error("Recaptcha error:", err);
+      }
+    }
+    return null;
+  };
   
   const formatPrice = (price) => {
     return Number(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -480,19 +496,18 @@ const AffiliationSection = () => {
         return; // Skip PayPhone internal messages
       }
       
-      // Only log relevant messages
-      if (event.data && event.data.type) {
-        console.log('📨 Received payment message:', event.data);
+      // SECURITY: Verificar que el mensaje viene de un origen permitido
+      if (!ALLOWED_PAYMENT_ORIGINS.includes(event.origin)) {
+        return; // Ignorar mensajes de orígenes desconocidos
       }
       
       // Check if the message is about payment
       if (event.data && event.data.type) {
         if (event.data.type === 'PAYMENT_COMPLETED' && event.data.success) {
-          console.log('✅ Payment completed message received');
           setPaymentWindowOpen(false);
           
-          // Get order data from localStorage
-          const savedOrderData = localStorage.getItem('pendingOrderData');
+          // SECURITY: Usar sessionStorage en lugar de localStorage para datos sensibles
+          const savedOrderData = sessionStorage.getItem('pendingOrderData');
           if (savedOrderData) {
             const orderData = JSON.parse(savedOrderData);
             handlePaymentCompleted(orderData);
@@ -501,11 +516,9 @@ const AffiliationSection = () => {
             setShowConfirmation(true);
           }
         } else if (event.data.type === 'PAYMENT_CANCELLED') {
-          console.log('❌ Payment cancelled message received');
           setPaymentWindowOpen(false);
           alert('El pago fue cancelado. Puedes intentar de nuevo.');
         } else if (event.data.type === 'PAYMENT_ERROR') {
-          console.log('⚠️ Payment error message received');
           setPaymentWindowOpen(false);
           alert('Hubo un error con el pago. Por favor intenta de nuevo o contacta a soporte.');
         }
@@ -515,15 +528,13 @@ const AffiliationSection = () => {
     // Also listen for storage events as backup (popup writes to localStorage)
     const handleStorageChange = (event) => {
       if (event.key === 'paymentNotification') {
-        console.log('📦 Storage notification received');
         try {
           const data = JSON.parse(event.newValue);
           if (data && data.type === 'PAYMENT_COMPLETED' && data.success) {
-            console.log('✅ Payment completed (via storage)');
             setPaymentWindowOpen(false);
             localStorage.removeItem('paymentNotification');
             
-            const savedOrderData = localStorage.getItem('pendingOrderData');
+            const savedOrderData = sessionStorage.getItem('pendingOrderData');
             if (savedOrderData) {
               const orderData = JSON.parse(savedOrderData);
               handlePaymentCompleted(orderData);
@@ -829,6 +840,8 @@ const AffiliationSection = () => {
     };
     
     try {
+      // SECURITY NOTE: El backend DEBE validar el precio basándose en planId y tipoPago,
+      // no confiar en el amount enviado desde el frontend.
       const response = await fetch(`${BACKEND_URL}/api/create-payment`, {
         method: 'POST',
         headers: {
@@ -836,6 +849,9 @@ const AffiliationSection = () => {
         },
         body: JSON.stringify({
           amount: amount,
+          planId: selectedPlan === 'Sitio Web' ? selectedSitioWebPlan : (selectedPlan === 'Tienda Online' ? selectedEcommercePlan : selectedLandingPlan),
+          tipoPago: wizardData.tipoPago,
+          projectType: selectedPlan,
           planName: `${planName} - ${wizardData.tipoPago === 'anticipo' ? 'Anticipo 50%' : 'Pago Total'}`,
           orderData: orderData
         })
@@ -849,8 +865,8 @@ const AffiliationSection = () => {
       const data = await response.json();
       
       if (data.paymentUrl) {
-        // Save order data to localStorage for email sending after payment completion
-        localStorage.setItem('pendingOrderData', JSON.stringify(orderData));
+        // SECURITY: Usar sessionStorage para datos sensibles (se limpia al cerrar pestaña)
+        sessionStorage.setItem('pendingOrderData', JSON.stringify(orderData));
         
         // Track payment initiation
         ReactGA.event({
@@ -878,13 +894,15 @@ const AffiliationSection = () => {
         
         // Monitor the popup window and active storage checks
         const clientTransactionId = data.clientTransactionId;
-        console.log('🆔 Tracking PayPhone Transaction:', clientTransactionId);
 
         let pollingTick = 0;
 
         const handlePaymentMessage = (event) => {
+            // SECURITY: Verificar origen del mensaje
+            if (!ALLOWED_PAYMENT_ORIGINS.includes(event.origin)) {
+                return;
+            }
             if (event.data && event.data.type === 'PAYMENT_COMPLETED') {
-                console.log("✅ Pricing Form detected payment completion from popup");
                 if (paymentWindow && !paymentWindow.closed) {
                     paymentWindow.close();
                 }
@@ -948,7 +966,6 @@ const AffiliationSection = () => {
           const paymentCompleted = localStorage.getItem('paymentCompleted');
           
           if (paymentNotification || paymentCompleted) {
-            console.log('✅ Payment detected via active polling (LocalStorage)');
             if (checkPaymentIntervalRef.current) clearInterval(checkPaymentIntervalRef.current);
             checkPaymentIntervalRef.current = null;
             setPaymentWindowOpen(false);
@@ -997,13 +1014,10 @@ const AffiliationSection = () => {
   const handlePaymentCompleted = async (orderData) => {
     setCheckingPayment(true);
     
-    console.log('🎉 Processing payment completion...', orderData);
-    
     try {
       // Submit to Google Drive to create folder and send content link
       // This is separate from the payment confirmation emails
       await submitToGoogleDrive();
-      console.log('✅ Carpeta de Google Drive creada');
 
       // Send confirmation emails (Critical fix: ensure emails are sent if popup didn't do it)
       await sendOrderEmails(orderData);
@@ -1016,8 +1030,6 @@ const AffiliationSection = () => {
         value: orderData?.amountPaid || 0
       });
       
-      console.log('✅ Pago procesado correctamente');
-      
       // Show confirmation in the same component
       setShowConfirmation(true);
       
@@ -1027,7 +1039,8 @@ const AffiliationSection = () => {
       setShowConfirmation(true);
     } finally {
       setCheckingPayment(false);
-      localStorage.removeItem('pendingOrderData');
+      // SECURITY: Limpiar datos sensibles de sessionStorage
+      sessionStorage.removeItem('pendingOrderData');
     }
   };
   
@@ -1042,7 +1055,7 @@ const AffiliationSection = () => {
     }
     
     // Get pending order data
-    const savedOrderData = localStorage.getItem('pendingOrderData');
+    const savedOrderData = sessionStorage.getItem('pendingOrderData');
     if (!savedOrderData) {
       setCheckingPayment(false);
       alert('No se encontró información del pago pendiente.');
@@ -1058,12 +1071,19 @@ const AffiliationSection = () => {
     const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
     
     try {
+      // SECURITY: Generar token reCAPTCHA para autorizar el envío de correos
+      const recaptchaToken = await executeRecaptcha('ORDER_EMAILS');
+      if (!recaptchaToken) {
+          alert('Por favor, completa el ReCAPTCHA o recarga la página.');
+          return;
+      }
+      
       const response = await fetch(`${BACKEND_URL}/api/send-order-emails`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ orderData })
+        body: JSON.stringify({ orderData, recaptchaToken })
       });
       
       if (response.ok) {
@@ -1079,6 +1099,13 @@ const AffiliationSection = () => {
   // Handle transfer payment submission (send emails immediately)
   const handleTransferSubmit = async () => {
     setIsSubmitting(true);
+
+    const recaptchaToken = await executeRecaptcha('TRANSFERENCIA');
+    if (!recaptchaToken) {
+      alert('Por favor, completa el ReCAPTCHA o recarga la página.');
+      setIsSubmitting(false);
+      return;
+    }
     
     let selectedCard;
     let baseAmount;
@@ -1103,24 +1130,24 @@ const AffiliationSection = () => {
     let publicVoucherUrl = null;
 
     try {
-      // 1. Upload Voucher to Supabase if exists
+      // 1. Upload Voucher to BACKEND if exists
       if (wizardData.comprobante) {
         const file = wizardData.comprobante;
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const formData = new FormData();
+        formData.append('voucher', file);
 
-        const { error: uploadError } = await supabase.storage
-          .from('voucher')
-          .upload(fileName, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('voucher')
-          .getPublicUrl(fileName);
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
         
-        publicVoucherUrl = publicUrl;
-        console.log('✅ Comprobante subido al confirmar:', publicVoucherUrl);
+        const uploadRes = await fetch(`${BACKEND_URL}/api/upload-voucher`, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!uploadRes.ok) throw new Error('Error al subir el comprobante al servidor');
+
+        const uploadData = await uploadRes.json();
+        publicVoucherUrl = uploadData.voucherUrl;
+        console.log('✅ Comprobante subido al servidor:', publicVoucherUrl);
       }
     } catch (uploadErr) {
       console.error('Error uploading voucher:', uploadErr);
@@ -1358,12 +1385,27 @@ const AffiliationSection = () => {
     return genericSteps;
   };
 
-  // Handle file upload
+  // Handle file upload — SECURITY: Validar tipo y tamaño
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      handleWizardChange('comprobante', file);
+    if (!file) return;
+
+    // Validar tipo de archivo permitido
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Solo se permiten imágenes (JPG, PNG, WebP) o archivos PDF.');
+      e.target.value = '';
+      return;
     }
+
+    // Validar tamaño máximo (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('El archivo no puede superar los 5MB.');
+      e.target.value = '';
+      return;
+    }
+
+    handleWizardChange('comprobante', file);
   };
 
   // Handle Web App submission
@@ -1373,8 +1415,15 @@ const AffiliationSection = () => {
         alert('Por favor, ingresa tu Nombre y Email para contactarte.');
         return;
     }
-
+    
     setLoading(true);
+
+    const recaptchaToken = await executeRecaptcha('WEBAPP');
+    if (!recaptchaToken) {
+        alert('Por favor, completa el ReCAPTCHA o recarga la página.');
+        setLoading(false);
+        return;
+    }
 
     const webAppData = {
         appWebObjetivo: wizardData.appWebObjetivo,
@@ -1395,7 +1444,8 @@ const AffiliationSection = () => {
         contactEmail: wizardData.softwareEmail,
         contactPhone: wizardData.softwareTelefono,
 
-        projectType: 'Aplicación Web'
+        projectType: 'Aplicación Web',
+        recaptchaToken
     };
 
     try {
@@ -1433,8 +1483,15 @@ const AffiliationSection = () => {
         alert('Por favor, ingresa tu Nombre y Email para contactarte.');
         return;
     }
-
+    
     setLoading(true);
+
+    const recaptchaToken = await executeRecaptcha('MOBILEAPP');
+    if (!recaptchaToken) {
+        alert('Por favor, completa el ReCAPTCHA o recarga la página.');
+        setLoading(false);
+        return;
+    }
 
     const mobileAppData = {
         appMobilePlataforma: wizardData.appMobilePlataforma,
@@ -1451,7 +1508,8 @@ const AffiliationSection = () => {
         contactEmail: wizardData.softwareEmail,
         contactPhone: wizardData.softwareTelefono,
 
-        projectType: 'Aplicación Móvil'
+        projectType: 'Aplicación Móvil',
+        recaptchaToken
     };
 
     try {
@@ -1489,8 +1547,15 @@ const AffiliationSection = () => {
         alert('Por favor, ingresa tu Nombre y Email para contactarte.');
         return;
     }
-
+    
     setLoading(true);
+
+    const recaptchaToken = await executeRecaptcha('MOODLE');
+    if (!recaptchaToken) {
+        alert('Por favor, completa el ReCAPTCHA o recarga la página.');
+        setLoading(false);
+        return;
+    }
 
     const moodleData = {
         moodleUso: wizardData.moodleUso,
@@ -1507,7 +1572,8 @@ const AffiliationSection = () => {
         contactEmail: wizardData.softwareEmail,
         contactPhone: wizardData.softwareTelefono,
 
-        projectType: 'Moodle Institucional'
+        projectType: 'Moodle Institucional',
+        recaptchaToken
     };
 
     try {
@@ -1542,8 +1608,9 @@ const AffiliationSection = () => {
 
     // Special handling for Software Development
     if (selectedPlan === 'Desarrollo de Software') {
+      const recaptchaToken = await executeRecaptcha('SOFTWARE');
       if (!recaptchaToken) {
-        alert('Por favor, completa el ReCAPTCHA.');
+        alert('Por favor, completa el ReCAPTCHA o recarga la página.');
         setLoading(false);
         return;
       }
@@ -1611,6 +1678,13 @@ const AffiliationSection = () => {
         // If Path A (Standard), continue to payment/default flow
     }
 
+    const recaptchaToken = await executeRecaptcha('WIZARD_GENERIC');
+    if (!recaptchaToken) {
+        alert('Por favor, completa el ReCAPTCHA o recarga la página.');
+        setLoading(false);
+        return;
+    }
+
     try {
       // Track completion
       ReactGA.event({
@@ -1635,8 +1709,11 @@ const AffiliationSection = () => {
         }
       });
       formDataToSend.append('plan', selectedPlan);
+      formDataToSend.append('g-recaptcha-response', recaptchaToken);
 
-      const response = await fetch('https://www.undercodeec.com/guardar_datos.php', {
+      // SECURITY: Migrado de guardar_datos.php legacy a la API Node.js centralizada
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+      const response = await fetch(`${BACKEND_URL}/api/save-wizard-data`, {
         method: 'POST',
         body: formDataToSend
       });
@@ -1645,7 +1722,8 @@ const AffiliationSection = () => {
         setShowSuccessAlert(true);
         setFormSubmitted(true);
       } else {
-        alert('Error al enviar la información.');
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error || 'Error al enviar la información.'}`);
       }
     } catch (error) {
       console.error('Error en handleSubmit:', error);
@@ -4197,13 +4275,7 @@ const AffiliationSection = () => {
           />
         </div>
 
-        <div className="wizard-input-group full-width" style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6LfIt2QsAAAAAJwngIzmatfk4QAzY_YhhQUKJY0H"}
-              onChange={(token) => setRecaptchaToken(token)}
-            />
-        </div>
+
 
         {/* Success message after form completion indicator */}
         <div className="software-closing-message full-width">
