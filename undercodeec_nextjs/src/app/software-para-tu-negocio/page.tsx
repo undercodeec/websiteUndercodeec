@@ -20,32 +20,23 @@ export default function SoftwareParaTuNegocioPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": "Software Empresarial a Medida en Ecuador",
-    "description": "Desarrollo de software personalizado para PYMES en Ecuador: CRM, sistema de inventarios, facturación electrónica certificada SRI, e-commerce y automatización de procesos. Soporte técnico local en Quito.",
+    "name": "Software Empresarial a Medida",
+    "description": "Desarrollo de software personalizado para empresas: CRM, sistema de inventarios, facturación electrónica, e-commerce y automatización de procesos. Soporte técnico especializado.",
     "provider": {
       "@type": "Organization",
       "name": "Undercodeec",
       "url": "https://undercodeec.com",
-      "logo": "https://undercodeec.com/assets/img/undercode-logo.png",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Quito",
-        "addressCountry": "EC"
-      }
-    },
-    "areaServed": {
-      "@type": "Country",
-      "name": "Ecuador"
+      "logo": "https://undercodeec.com/assets/img/undercode-logo.png"
     },
     "serviceType": [
       "Software CRM",
       "Sistema de Inventarios",
-      "Facturación Electrónica SRI",
+      "Facturación Electrónica",
       "E-commerce y Tienda Online",
       "Automatización de Procesos",
       "Software ERP",
       "Desarrollo de Software a Medida",
-      "Transformación Digital PYMES"
+      "Transformación Digital Empresarial"
     ]
   };
 
@@ -55,7 +46,7 @@ export default function SoftwareParaTuNegocioPage() {
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "¿Cuánto tiempo toma desarrollar un sistema de software a medida para mi negocio en Ecuador?",
+        "name": "¿Cuánto tiempo toma desarrollar un sistema de software a medida para mi negocio?",
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "El tiempo de desarrollo de software empresarial varía según la complejidad, pero un MVP funcional suele estar listo en 4 a 8 semanas. Trabajamos con metodologías ágiles para entregarte avances quincenales."
@@ -66,7 +57,7 @@ export default function SoftwareParaTuNegocioPage() {
         "name": "¿Puedo empezar con un módulo básico e ir ampliando mi software empresarial?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "¡Totalmente! Diseñamos arquitecturas de software escalables para PYMES en Ecuador. Puedes comenzar con funciones críticas como CRM o facturación electrónica y añadir nuevos módulos a medida que tu negocio crezca."
+          "text": "Sí. Diseñamos arquitecturas de software escalables para pequeñas y medianas empresas. Puedes comenzar con funciones críticas como CRM o facturación electrónica y añadir nuevos módulos a medida que tu negocio crezca."
         }
       },
       {
@@ -74,7 +65,7 @@ export default function SoftwareParaTuNegocioPage() {
         "name": "¿Mis datos empresariales están seguros en el software que desarrollan?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "La seguridad es el núcleo de nuestro desarrollo de software en Ecuador. Implementamos cifrado de datos AES-256, autenticación multifactor, cumplimiento con normativas del SRI y estándares internacionales de protección de datos."
+          "text": "La seguridad es el núcleo de nuestro desarrollo de software. Implementamos cifrado de datos AES-256, autenticación multifactor, cumplimiento normativo y estándares internacionales de protección de datos."
         }
       }
     ]

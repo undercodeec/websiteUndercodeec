@@ -19,27 +19,18 @@ export default function MarketingParaTuNegocioPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": "Marketing Digital y SEO en Ecuador",
-    "description": "Servicios de marketing digital, posicionamiento SEO, manejo de redes sociales, Google Ads y Facebook Ads para empresas y PYMES en Quito y Ecuador.",
+    "name": "Marketing Digital y SEO",
+    "description": "Servicios de marketing digital, posicionamiento SEO, gestión de redes sociales, Google Ads y Facebook Ads para empresas y negocios.",
     "provider": {
       "@type": "Organization",
       "name": "Undercodeec",
       "url": "https://undercodeec.com",
-      "logo": "https://undercodeec.com/assets/img/undercode-logo.png",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Quito",
-        "addressCountry": "EC"
-      }
-    },
-    "areaServed": {
-      "@type": "Country",
-      "name": "Ecuador"
+      "logo": "https://undercodeec.com/assets/img/undercode-logo.png"
     },
     "serviceType": [
       "Marketing Digital",
       "Posicionamiento SEO",
-      "Manejo de Redes Sociales",
+      "Gestión de Redes Sociales",
       "Google Ads",
       "Facebook Ads",
       "Inbound Marketing",

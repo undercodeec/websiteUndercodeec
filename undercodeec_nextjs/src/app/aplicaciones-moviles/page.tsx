@@ -31,22 +31,13 @@ export default function AplicacionesMovilesPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": "Desarrollo de Aplicaciones Móviles en Ecuador",
-    "description": "Empresa de desarrollo de aplicaciones móviles nativas y multiplataforma para Android e iOS en Quito, Ecuador. Diseño UI/UX profesional, apps de e-commerce, delivery y gestión empresarial.",
+    "name": "Desarrollo de Aplicaciones Móviles",
+    "description": "Empresa de desarrollo de aplicaciones móviles nativas y multiplataforma para Android e iOS. Diseño UI/UX profesional, apps de e-commerce, delivery y gestión empresarial.",
     "provider": {
       "@type": "Organization",
       "name": "Undercodeec",
       "url": "https://undercodeec.com",
-      "logo": "https://undercodeec.com/assets/img/undercode-logo.png",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Quito",
-        "addressCountry": "EC"
-      }
-    },
-    "areaServed": {
-      "@type": "Country",
-      "name": "Ecuador"
+      "logo": "https://undercodeec.com/assets/img/undercode-logo.png"
     },
     "serviceType": [
       "Desarrollo de Apps Android",
@@ -66,10 +57,10 @@ export default function AplicacionesMovilesPage() {
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "¿Qué tipo de aplicaciones móviles desarrollan en Ecuador?",
+        "name": "¿Qué tipo de aplicaciones móviles desarrollan?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Somos una empresa de desarrollo de apps en Quito que crea aplicaciones nativas y multiplataforma para Android e iOS en diversos sectores: e-commerce, delivery y logística, educación, salud, gestión empresarial, redes sociales, productividad y más."
+          "text": "Somos una empresa de desarrollo de apps que crea aplicaciones nativas y multiplataforma para Android e iOS en diversos sectores: e-commerce, delivery y logística, educación, salud, gestión empresarial, redes sociales, productividad y más."
         }
       },
       {
@@ -77,7 +68,7 @@ export default function AplicacionesMovilesPage() {
         "name": "¿Cuánto tiempo toma desarrollar una aplicación móvil profesional?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "El tiempo de desarrollo de una app depende de la complejidad del proyecto. Para aplicaciones móviles sencillas puede tomar entre 1 a 3 meses, mientras que apps más complejas con integraciones avanzadas pueden requerir entre 6 y 12 meses."
+          "text": "El tiempo de desarrollo de una app depende de la complejidad del proyecto. Para aplicaciones móviles sencillas puede tomar entre 1 y 3 meses, mientras que apps más complejas con integraciones avanzadas pueden requerir entre 6 y 12 meses."
         }
       },
       {
@@ -85,7 +76,7 @@ export default function AplicacionesMovilesPage() {
         "name": "¿Mi aplicación será compatible con todos los dispositivos Android e iOS?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Sí, diseñamos aplicaciones móviles optimizadas para garantizar la mejor experiencia de usuario en la mayoría de smartphones y tablets, tanto en Android como en iOS. Publicamos tu app en Play Store y App Store."
+          "text": "Sí. Diseñamos aplicaciones móviles optimizadas para garantizar la mejor experiencia de usuario en la mayoría de smartphones y tablets, tanto en Android como en iOS. Publicamos tu app en Play Store y App Store."
         }
       }
     ]
