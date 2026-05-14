@@ -143,21 +143,13 @@
             }
 
             try {
-                // Get order data if available
-                const pendingOrderData = localStorage.getItem('pendingOrderData');
-                let orderData = null;
-                if (pendingOrderData) {
-                    try {
-                        orderData = JSON.parse(pendingOrderData);
-                        log('✅ Datos de orden recuperados de localStorage');
-                    } catch(e) { log('⚠️ Error parseando orderData'); }
-                }
-
+                // SECURITY: Ya no enviamos orderData desde el cliente. El backend lo
+                // recupera de pendingOrders (registrado al crear el pago).
                 log(`🔄 Enviando a backend: ${BACKEND_URL}/api/confirm-payment`);
                 const response = await fetch(`${BACKEND_URL}/api/confirm-payment`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id, clientTransactionId, orderData })
+                    body: JSON.stringify({ id, clientTransactionId })
                 });
 
                 log(`📨 Estado HTTP: ${response.status}`);

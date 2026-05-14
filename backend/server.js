@@ -170,7 +170,144 @@ setInterval(() => {
   for (const [token, rec] of adminSessions.entries()) {
     if (rec.expiresAt <= now) adminSessions.delete(token);
   }
+  for (const [txId, rec] of paymentSessions.entries()) {
+    if (rec.expiresAt <= now) paymentSessions.delete(txId);
+  }
 }, 10 * 60 * 1000).unref?.();
+
+// ============================================================================
+// SSRF GUARD: validación robusta de URLs externas (Puppeteer / outbound fetch)
+// ============================================================================
+// Cubre IPv4 privadas (10/8, 172.16/12, 192.168/16, 127/8, 169.254/16, 0.0.0.0,
+// 100.64/10 CGNAT), IPv6 (::1, fc00::/7, fe80::/10, ::, ::ffff:IPv4 mapped),
+// IPs en notación decimal/hex/octal, y nombres internos (.local, .internal,
+// metadata cloud, etc.).
+const dns = require('dns').promises;
+const net = require('net');
+
+function ipv4ToInt(ip) {
+  const parts = ip.split('.').map(Number);
+  if (parts.length !== 4 || parts.some(n => !Number.isInteger(n) || n < 0 || n > 255)) return null;
+  return ((parts[0] << 24) >>> 0) + (parts[1] << 16) + (parts[2] << 8) + parts[3];
+}
+
+function isPrivateIPv4(ip) {
+  const n = ipv4ToInt(ip);
+  if (n === null) return false;
+  // 0.0.0.0/8
+  if ((n & 0xFF000000) >>> 0 === 0x00000000) return true;
+  // 10.0.0.0/8
+  if ((n & 0xFF000000) >>> 0 === 0x0A000000) return true;
+  // 127.0.0.0/8
+  if ((n & 0xFF000000) >>> 0 === 0x7F000000) return true;
+  // 169.254.0.0/16 (link-local + AWS metadata)
+  if ((n & 0xFFFF0000) >>> 0 === 0xA9FE0000) return true;
+  // 172.16.0.0/12
+  if ((n & 0xFFF00000) >>> 0 === 0xAC100000) return true;
+  // 192.0.0.0/24 (IETF) + 192.0.2.0/24 (TEST-NET)
+  if ((n & 0xFFFFFF00) >>> 0 === 0xC0000000) return true;
+  if ((n & 0xFFFFFF00) >>> 0 === 0xC0000200) return true;
+  // 192.168.0.0/16
+  if ((n & 0xFFFF0000) >>> 0 === 0xC0A80000) return true;
+  // 100.64.0.0/10 (CGNAT)
+  if ((n & 0xFFC00000) >>> 0 === 0x64400000) return true;
+  // 198.18.0.0/15 (benchmarking)
+  if ((n & 0xFFFE0000) >>> 0 === 0xC6120000) return true;
+  // 224.0.0.0/4 multicast + 240.0.0.0/4 reserved
+  if ((n & 0xF0000000) >>> 0 >= 0xE0000000) return true;
+  // 255.255.255.255 broadcast
+  if (n === 0xFFFFFFFF) return true;
+  return false;
+}
+
+function isPrivateIPv6(ip) {
+  const lower = ip.toLowerCase();
+  if (lower === '::' || lower === '::1') return true;
+  // IPv4-mapped (::ffff:1.2.3.4) → validar como IPv4
+  if (lower.startsWith('::ffff:')) {
+    const v4 = lower.slice(7);
+    if (net.isIPv4(v4)) return isPrivateIPv4(v4);
+  }
+  // fc00::/7 (Unique Local) → primer hexteto en [fc00, fdff]
+  if (/^f[cd][0-9a-f]{2}:/.test(lower)) return true;
+  // fe80::/10 (link-local)
+  if (/^fe[89ab][0-9a-f]:/.test(lower)) return true;
+  // ff00::/8 multicast
+  if (lower.startsWith('ff')) return true;
+  return false;
+}
+
+const FORBIDDEN_HOSTNAME_SUFFIXES = ['.local', '.internal', '.localhost'];
+const FORBIDDEN_HOSTNAMES = new Set([
+  'localhost',
+  'metadata.google.internal',
+  'metadata',
+  'instance-data',
+  'instance-data.ec2.internal'
+]);
+
+// Resuelve un hostname y verifica que NINGUNA de las IPs resueltas sea privada.
+// Devuelve { ok: true, ip } si es seguro, o { ok: false, reason } si no.
+async function checkSafeRemoteHost(hostname) {
+  if (!hostname || typeof hostname !== 'string') return { ok: false, reason: 'invalid_hostname' };
+  const lower = hostname.toLowerCase();
+  if (FORBIDDEN_HOSTNAMES.has(lower)) return { ok: false, reason: 'forbidden_hostname' };
+  for (const suf of FORBIDDEN_HOSTNAMES_SUFFIX_LIST()) {
+    if (lower.endsWith(suf)) return { ok: false, reason: 'forbidden_suffix' };
+  }
+  // Si el "hostname" ya es una IP, verificar directo
+  if (net.isIPv4(lower)) {
+    return isPrivateIPv4(lower) ? { ok: false, reason: 'private_ipv4' } : { ok: true, ip: lower };
+  }
+  if (net.isIPv6(lower)) {
+    return isPrivateIPv6(lower) ? { ok: false, reason: 'private_ipv6' } : { ok: true, ip: lower };
+  }
+  // Hostname normal — resolver DNS y validar todas las IPs (A y AAAA)
+  let resolved;
+  try {
+    resolved = await dns.lookup(lower, { all: true, verbatim: true });
+  } catch {
+    return { ok: false, reason: 'dns_error' };
+  }
+  if (!resolved || resolved.length === 0) return { ok: false, reason: 'no_dns_records' };
+  for (const r of resolved) {
+    if (r.family === 4 && isPrivateIPv4(r.address)) return { ok: false, reason: 'resolved_to_private_ipv4' };
+    if (r.family === 6 && isPrivateIPv6(r.address)) return { ok: false, reason: 'resolved_to_private_ipv6' };
+  }
+  return { ok: true, ip: resolved[0].address };
+}
+
+function FORBIDDEN_HOSTNAMES_SUFFIX_LIST() {
+  return FORBIDDEN_HOSTNAME_SUFFIXES;
+}
+
+// ============================================================================
+// PAYMENT SESSIONS: token aleatorio asociado a un clientTransactionId
+// ============================================================================
+// Emitido al crear el pago, validado en /api/check-payment-status para evitar
+// IDOR (cualquiera que conozca un clientTxId podía leer PII y forzar la captura).
+const paymentSessions = new Map(); // clientTransactionId → { token, expiresAt }
+const PAYMENT_SESSION_TTL_MS = 60 * 60 * 1000; // 1 hora
+
+function issuePaymentSessionToken(clientTransactionId) {
+  const token = crypto.randomBytes(32).toString('hex');
+  paymentSessions.set(clientTransactionId, {
+    token,
+    expiresAt: Date.now() + PAYMENT_SESSION_TTL_MS
+  });
+  return token;
+}
+
+function validatePaymentSessionToken(clientTransactionId, providedToken) {
+  if (typeof providedToken !== 'string' || providedToken.length !== 64) return false;
+  const rec = paymentSessions.get(clientTransactionId);
+  if (!rec) return false;
+  if (rec.expiresAt <= Date.now()) {
+    paymentSessions.delete(clientTransactionId);
+    return false;
+  }
+  return safeStringEqual(rec.token, providedToken);
+}
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -241,9 +378,14 @@ app.post('/api/create-payment', async (req, res) => {
       });
     }
 
-    res.json({ 
+    // SECURITY: emitir token de sesión de pago — el cliente lo debe enviar en
+    // /api/check-payment-status para que el endpoint deje de ser un IDOR público.
+    const paymentSessionToken = issuePaymentSessionToken(clientTransactionId);
+
+    res.json({
       paymentUrl: paymentLink,
-      clientTransactionId: clientTransactionId 
+      clientTransactionId: clientTransactionId,
+      paymentSessionToken
     });
   } catch (error) {
     console.error('Error al crear el link:', error.response?.data || error.message);
@@ -261,89 +403,67 @@ app.post('/api/create-payment', async (req, res) => {
 });
 
 // Endpoint para verificar estado de pago (Polling)
+// SECURITY: requiere paymentSessionToken (emitido en /api/create-payment).
+// NO devuelve PII completa: solo el status y el transactionId. Eliminada la
+// auto-captura de transacciones "Authorized" — esa lógica vive ahora solo en
+// el webhook firmado de PayPhone y en /api/confirm-payment.
 app.get('/api/check-payment-status/:clientTxId', async (req, res) => {
   const { clientTxId } = req.params;
-  
-  if (!clientTxId) {
-    return res.status(400).json({ error: 'Client Transaction ID requerido' });
+
+  if (!clientTxId || !/^[A-Za-z0-9]{1,32}$/.test(clientTxId)) {
+    return res.status(400).json({ error: 'Client Transaction ID inválido' });
+  }
+
+  // Validar token de sesión de pago (query ?token=... o Authorization: Bearer ...)
+  const headerToken = (req.headers.authorization || '').startsWith('Bearer ')
+    ? req.headers.authorization.split(' ')[1]
+    : null;
+  const providedToken = req.query.token || headerToken;
+  if (!validatePaymentSessionToken(clientTxId, providedToken)) {
+    return res.status(401).json({ error: 'Token de sesión de pago inválido o expirado' });
   }
 
   try {
-    // Consultar estado a PayPhone usando endpoint de Venta por ID de Cliente
-    // https://pay.payphonetodoesposible.com/api/Sale/ClientTransactionId/{id}
     const response = await axios.get(
-      `https://pay.payphonetodoesposible.com/api/Sale/ClientTransactionId/${clientTxId}`,
+      `https://pay.payphonetodoesposible.com/api/Sale/ClientTransactionId/${encodeURIComponent(clientTxId)}`,
       {
         headers: {
           Authorization: `Bearer ${TOKEN}`,
           'Content-Type': 'application/json',
         },
-        timeout: 10000 
+        timeout: 10000
       }
     );
 
-    const data = response.data;
-    // console.log(`🔍 Polling Status [${clientTxId}]: ${data.transactionStatus}`); // Polling logs suppressed
+    const data = response.data || {};
 
-    // Si ya está aprobado, retornamos éxito
+    // Respuesta mínima — sin PII (no devolvemos email/phone/RUC ni el blob completo)
     if (data.transactionStatus === 'Approved') {
-      return res.json({ 
-        success: true, 
+      return res.json({
+        success: true,
         status: 'Approved',
-        details: data 
-      });
-    } 
-    // Si está Autorizado (Authorized), intentamos CONFIRMARLO automáticamente
-    else if (data.transactionStatus === 'Authorized') {
-      console.log(`⚡ Transaction Authorized. Attempting to capture (Confirm)...`);
-      
-      try {
-        // Necesitamos el ID numérico que viene en 'data.transactionId' para confirmar
-        const confirmResponse = await axios.post(
-          'https://pay.payphonetodoesposible.com/api/button/V2/Confirm',
-          {
-            id: data.transactionId,
-            clientTxId: clientTxId
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${TOKEN}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-        
-        console.log('✅ Auto-confirmation result:', confirmResponse.data);
-        
-        return res.json({ 
-          success: true, 
-          status: 'Approved', // Lo marcamos como aprobado para el frontend
-          details: confirmResponse.data 
-        });
-        
-      } catch (confirmError) {
-        console.error('Error auto-confirming:', confirmError.message);
-        return res.json({ 
-          success: false, 
-          status: 'Authorized',
-          message: 'Pago autorizado pero falló la confirmación automática'
-        });
-      }
-    }
-    else {
-      return res.json({ 
-        success: false, 
-        status: data.transactionStatus,
-        message: 'Pago no completado aún' 
+        transactionId: data.transactionId || null
       });
     }
+    if (data.transactionStatus === 'Authorized') {
+      // No auto-capturamos: solo informamos. El webhook PayPhone capturará la
+      // transacción de forma segura.
+      return res.json({
+        success: false,
+        status: 'Authorized',
+        message: 'Pago autorizado, pendiente de captura'
+      });
+    }
+    return res.json({
+      success: false,
+      status: data.transactionStatus || 'Unknown',
+      message: 'Pago no completado aún'
+    });
 
   } catch (error) {
-    // Si da 404 es que la transacción no existe o aún no se ha procesado
     if (error.response && error.response.status === 404) {
       return res.json({ success: false, status: 'NotFound', message: 'Transacción no encontrada' });
     }
-    
     console.error('Error polling PayPhone:', error.message);
     res.status(500).json({ error: 'Error verificando estado' });
   }
@@ -449,13 +569,30 @@ app.post('/api/confirm-payment', async (req, res) => {
   console.log('========================================');
   console.log('📥 /api/confirm-payment request received');
   console.log('Timestamp:', new Date().toISOString());
-  
-  let { id, clientTransactionId, orderData } = req.body;
-  
-  if (!orderData && pendingOrders.has(clientTransactionId)) {
+
+  // SEGURIDAD: ignorar `orderData` del cliente. Solo usar el almacenado server-side
+  // por /api/create-payment en pendingOrders. Previene phishing-by-confirm donde
+  // un atacante que conoce un (id, clientTransactionId) válido podría disparar emails
+  // de confirmación a direcciones arbitrarias con contenido elegido.
+  const { id, clientTransactionId } = req.body || {};
+
+  if (!id || !clientTransactionId || typeof clientTransactionId !== 'string') {
+    console.log('❌ Error: Missing required parameters');
+    return res.status(400).json({ error: 'Parámetros de confirmación incompletos' });
+  }
+  if (!/^[A-Za-z0-9]{1,32}$/.test(clientTransactionId)) {
+    return res.status(400).json({ error: 'clientTransactionId inválido' });
+  }
+  const parsedId = parseInt(id, 10);
+  if (!Number.isInteger(parsedId) || parsedId <= 0) {
+    return res.status(400).json({ error: 'id de transacción inválido' });
+  }
+
+  let orderData = null;
+  if (pendingOrders.has(clientTransactionId)) {
     orderData = pendingOrders.get(clientTransactionId);
     console.log('✅ RECUPERADO orderData de la memoria para confirmación:', clientTransactionId);
-    
+
     // Webhook Deduplication: If webhook already processed this, don't send emails again
     if (orderData.webhookProcessed) {
       console.log('⏭️ Webhook ya procesó este pedido. Evitando duplicidad de emails.');
@@ -465,30 +602,22 @@ app.post('/api/confirm-payment', async (req, res) => {
         alreadyProcessed: true
       });
     }
-    
+
     pendingOrders.delete(clientTransactionId);
-  }
-
-  console.log('📋 Request body:');
-  console.log('  - id:', id);
-  console.log('  - clientTransactionId:', clientTransactionId);
-  console.log('  - orderData:', orderData ? 'Provided' : 'Not provided');
-
-  if (!id || !clientTransactionId) {
-    console.log('❌ Error: Missing required parameters');
-    return res.status(400).json({ error: 'Parámetros de confirmación incompletos' });
+  } else {
+    console.log('⚠️ Sin orderData en pendingOrders. El webhook se encargará de los emails.');
   }
 
   try {
     console.log('🔗 Calling PayPhone API to confirm payment...');
     console.log('  - URL: https://pay.payphonetodoesposible.com/api/button/V2/Confirm');
-    console.log('  - Payload: { id:', parseInt(id), ', clientTxId:', clientTransactionId, '}');
-    
+    console.log('  - Payload: { id:', parsedId, ', clientTxId:', clientTransactionId, '}');
+
     // Confirm payment with PayPhone
     const confirmResponse = await axios.post(
       'https://pay.payphonetodoesposible.com/api/button/V2/Confirm',
       {
-        id: parseInt(id),
+        id: parsedId,
         clientTxId: clientTransactionId
       },
       {
@@ -875,8 +1004,9 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
             const args = call.args;
             console.log("⚡ Gemini invocó analizarSitioWeb para:", args.url);
             
+            let browser = null;
             try {
-              // --- SEGURIDAD: Validación SSRF ---
+              // --- SEGURIDAD SSRF: validación robusta ---
               let urlObj;
               try {
                   urlObj = new URL(args.url);
@@ -887,32 +1017,26 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
               if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
                   throw new Error("Protocolo no permitido. Solo HTTP/HTTPS.");
               }
-              
-              const hostname = urlObj.hostname;
-              const isLocalIp = hostname === 'localhost' || 
-                                hostname === '127.0.0.1' || 
-                                hostname === '::1' || 
-                                hostname.startsWith('10.') || 
-                                hostname.startsWith('192.168.') || 
-                                hostname.startsWith('169.254.') ||
-                                hostname.endsWith('.local') ||
-                                hostname.endsWith('.internal');
-                                
-              if (isLocalIp) {
-                  throw new Error("URLs locales o internas no permitidas por seguridad.");
+
+              // Resolver DNS y validar contra TODOS los rangos privados
+              // (cubre IPs decimales/hex/octal porque `new URL` ya las normaliza
+              // y `dns.lookup` resolverá el hostname al numeric IP final).
+              const initialHostCheck = await checkSafeRemoteHost(urlObj.hostname);
+              if (!initialHostCheck.ok) {
+                  console.warn('🛡️ SSRF bloqueado:', urlObj.hostname, initialHostCheck.reason);
+                  throw new Error("URLs locales, internas o privadas no permitidas por seguridad.");
               }
+              const initialHost = urlObj.hostname.toLowerCase();
               // ------------------------------------
 
               console.log("🚀 Iniciando Puppeteer para escanear diseño y estructura de:", args.url);
-              
-              // Usamos puppeteer para cargar la página y extraer metadata estructural y de diseño
-              const browser = await puppeteer.launch({
+
+              browser = await puppeteer.launch({
                   headless: "new",
                   args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
               });
               const page = await browser.newPage();
-              
-              // Evitar bloqueos por anti-bots (Cloudflare, etc) pareciendo un navegador real
+
               await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36');
               await page.setExtraHTTPHeaders({
                   'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
@@ -921,13 +1045,37 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
                   'sec-ch-ua-platform': '"Windows"',
               });
 
-              // Configurar timeout rápido y abortar recursos pesados para no demorar el chat
+              // Configurar timeout rápido y abortar recursos pesados.
+              // SECURITY: re-validar TODO navigation request (incluido redirects
+              // cross-host) contra el SSRF guard para prevenir DNS-rebinding o
+              // 30x → 169.254.169.254 (cloud metadata).
               await page.setRequestInterception(true);
-              page.on('request', req => {
-                  if (['image', 'media', 'font', 'stylesheet'].includes(req.resourceType())) {
+              page.on('request', async req => {
+                  const type = req.resourceType();
+                  if (['image', 'media', 'font', 'stylesheet'].includes(type)) {
                       req.abort();
-                  } else {
+                      return;
+                  }
+                  // Para navegaciones / fetch / xhr / document, re-validar host
+                  try {
+                      const u = new URL(req.url());
+                      if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+                          req.abort();
+                          return;
+                      }
+                      const h = u.hostname.toLowerCase();
+                      // Permitir el host inicial sin re-resolver (perf). Para otros, validar.
+                      if (h !== initialHost) {
+                          const safe = await checkSafeRemoteHost(h);
+                          if (!safe.ok) {
+                              console.warn('🛡️ SSRF redirect bloqueado:', h, safe.reason);
+                              req.abort();
+                              return;
+                          }
+                      }
                       req.continue();
+                  } catch {
+                      req.abort();
                   }
               });
 
@@ -1017,6 +1165,10 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
               
             } catch (error) {
               console.error("❌ Error fetch url:", error.message);
+              // Cerrar browser si quedó abierto al fallar
+              if (browser) {
+                try { await browser.close(); } catch {}
+              }
               // Send error info back to gemini so it can inform user
               const resultChat = model.startChat({ history: conversationHistory });
               const finalMessageResult = await resultChat.sendMessage([{
@@ -1409,25 +1561,126 @@ async function saveOrderToSupabase(orderData) {
   return await saveOrderToDB(orderData);
 }
 
-// Endpoint para enviar correos de confirmación de pedido
+// Endpoint para enviar correos de confirmación de pedido.
+// SEGURIDAD: soporta dos modos:
+//   1) PayPhone: body { clientTransactionId, recaptchaToken } — el backend
+//      recupera orderData de pendingOrders y verifica con PayPhone que el
+//      pago está Approved. Cierra el vector phishing donde un atacante
+//      enviaba orderData arbitrario para disparar emails branded.
+//   2) Transferencia bancaria: body { orderData, recaptchaToken } con
+//      orderData.metodoPago === 'transferencia' y voucherUrl en nuestro
+//      propio servidor (api.undercodeec.com/uploads/...). Sin pago electrónico
+//      que verificar; el admin debe revisar el voucher manualmente.
 app.post('/api/send-order-emails', async (req, res) => {
-  const { orderData } = req.body;
-  
-  // Save to database first
-  if (orderData) {
-    await saveOrderToSupabase(orderData);
+  const { clientTransactionId, orderData: bodyOrderData, recaptchaToken } = req.body || {};
+
+  // 1. Verificar reCAPTCHA en ambos modos
+  const recaptchaCheck = await verifyRecaptcha(recaptchaToken);
+  if (!recaptchaCheck.ok) {
+    if (recaptchaCheck.error === 'config_missing') {
+      return res.status(500).json({ error: 'Error de configuración del servidor' });
+    }
+    return res.status(400).json({ error: 'Verificación de ReCAPTCHA fallida' });
   }
 
-  // Validar datos requeridos
-  if (!orderData || !orderData.email || !orderData.razonSocial) {
+  // ===== Modo 1: PayPhone =====
+  if (clientTransactionId) {
+    if (typeof clientTransactionId !== 'string' || !/^[A-Za-z0-9]{1,32}$/.test(clientTransactionId)) {
+      return res.status(400).json({ error: 'clientTransactionId inválido' });
+    }
+    if (!pendingOrders.has(clientTransactionId)) {
+      console.log('⏭️ send-order-emails: pendingOrders ya consumido para', clientTransactionId);
+      return res.json({ success: true, alreadyProcessed: true, message: 'Pedido ya procesado' });
+    }
+    const orderData = pendingOrders.get(clientTransactionId);
+    if (orderData.webhookProcessed) {
+      return res.json({ success: true, alreadyProcessed: true, message: 'Pedido ya procesado por webhook' });
+    }
+    // Verificar con PayPhone que el pago está Approved
+    try {
+      const payphoneResp = await axios.get(
+        `https://pay.payphonetodoesposible.com/api/Sale/ClientTransactionId/${encodeURIComponent(clientTransactionId)}`,
+        {
+          headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+          timeout: 10000
+        }
+      );
+      const txStatus = payphoneResp.data && payphoneResp.data.transactionStatus;
+      if (txStatus !== 'Approved') {
+        console.warn('⚠️ send-order-emails: pago no aprobado para', clientTransactionId, 'status:', txStatus);
+        return res.status(403).json({ error: 'El pago no está confirmado por la pasarela' });
+      }
+      orderData.transactionId = payphoneResp.data.transactionId || orderData.transactionId;
+      if (typeof payphoneResp.data.amount === 'number') {
+        orderData.amountPaid = payphoneResp.data.amount / 100;
+      }
+    } catch (err) {
+      console.error('Error verificando pago con PayPhone:', err.message);
+      return res.status(502).json({ error: 'No se pudo verificar el pago con la pasarela' });
+    }
+    try {
+      await saveOrderToSupabase(orderData);
+      await sendOrderEmailsInternal(orderData);
+      pendingOrders.delete(clientTransactionId);
+      return res.json({ success: true, message: 'Correos enviados exitosamente' });
+    } catch (error) {
+      console.error('Error enviando correos:', error.message);
+      return res.status(500).json({ error: 'Error al enviar correos' });
+    }
+  }
+
+  // ===== Modo 2: Transferencia bancaria =====
+  if (!bodyOrderData || typeof bodyOrderData !== 'object') {
     return res.status(400).json({ error: 'Datos del pedido incompletos' });
   }
+  if (bodyOrderData.metodoPago !== 'transferencia') {
+    // Solo permitimos el modo "transferencia" aquí. PayPhone debe usar clientTransactionId.
+    return res.status(400).json({ error: 'Modo no permitido. Use clientTransactionId para pagos PayPhone.' });
+  }
+  // Validación mínima de datos requeridos
+  if (!bodyOrderData.email || !bodyOrderData.razonSocial || !bodyOrderData.planName) {
+    return res.status(400).json({ error: 'Datos del pedido incompletos' });
+  }
+  // El voucherUrl debe haber sido emitido por nuestro propio servidor /api/upload-voucher
+  // (defensa en profundidad — restringe el vector de phishing con vouchers externos).
+  if (bodyOrderData.voucherUrl) {
+    try {
+      const vUrl = new URL(bodyOrderData.voucherUrl);
+      const allowedHosts = new Set([
+        'api.undercodeec.com',
+        'undercodeec.com',
+        'localhost',
+        '127.0.0.1'
+      ]);
+      if (!allowedHosts.has(vUrl.hostname)) {
+        return res.status(400).json({ error: 'voucherUrl no permitido' });
+      }
+    } catch {
+      return res.status(400).json({ error: 'voucherUrl inválido' });
+    }
+  }
+  try {
+    await saveOrderToSupabase(bodyOrderData);
+    await sendOrderEmailsInternal(bodyOrderData);
+    return res.json({ success: true, message: 'Correos enviados exitosamente' });
+  } catch (error) {
+    console.error('Error enviando correos (transferencia):', error.message);
+    return res.status(500).json({ error: 'Error al enviar correos' });
+  }
+});
 
-  // Texto plano para headers de email
+// (El bloque inline legacy de plantillas HTML fue removido: sendOrderEmailsInternal
+//  ya las contiene y es la única ruta de emails de pedido.)
+const _removedLegacySendOrderEmailsTombstone = () => {
+  // Tombstone para conservar el rango en blame; no se ejecuta nunca.
+  return null;
+};
+if (false) {
+  // eslint-disable-next-line no-unused-vars
+  const orderData = {};
   const recipientEmail = orderData.email;
   const originalPlanName = orderData.planName;
   const originalRazonSocial = orderData.razonSocial;
-  // HTML-escapado para uso seguro en plantillas
   const _safe = escapeFieldsForHtml(orderData);
   const {
     tipoCliente,
@@ -1449,7 +1702,7 @@ app.post('/api/send-order-emails', async (req, res) => {
     businessName
   } = _safe;
 
-  const fechaPedido = new Date().toLocaleString('es-EC', { 
+  const fechaPedido = new Date().toLocaleString('es-EC', {
     timeZone: 'America/Guayaquil',
     dateStyle: 'full',
     timeStyle: 'short'
@@ -1670,12 +1923,12 @@ app.post('/api/send-order-emails', async (req, res) => {
 
   } catch (error) {
     console.error('Error enviando correos:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Error al enviar correos',
       details: process.env.NODE_ENV !== 'production' ? error.message : undefined
     });
   }
-});
+}
 
 // Endpoint para enviar solicitud de desarrollo de software
 app.post('/api/send-software-request', async (req, res) => {

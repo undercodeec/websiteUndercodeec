@@ -380,7 +380,7 @@ const AffiliationSection = () => {
     ciudad: '',
     provincia: '',
     codigoPostal: '',
-    pais: 'Ecuador',
+    pais: '',
     // Método de pago
     metodoPago: '', // 'tarjeta' o 'transferencia'
     tipoPago: 'total', // 'anticipo' (50%) o 'total' (100%)
@@ -505,14 +505,14 @@ const AffiliationSection = () => {
       if (event.data && event.data.type) {
         if (event.data.type === 'PAYMENT_COMPLETED' && event.data.success) {
           setPaymentWindowOpen(false);
-          
+
           // SECURITY: Usar sessionStorage en lugar de localStorage para datos sensibles
           const savedOrderData = sessionStorage.getItem('pendingOrderData');
+          const savedTxId = sessionStorage.getItem('pendingClientTxId');
           if (savedOrderData) {
             const orderData = JSON.parse(savedOrderData);
-            handlePaymentCompleted(orderData);
+            handlePaymentCompleted(orderData, savedTxId);
           } else {
-            // If no pending data, just show confirmation
             setShowConfirmation(true);
           }
         } else if (event.data.type === 'PAYMENT_CANCELLED') {
@@ -533,11 +533,12 @@ const AffiliationSection = () => {
           if (data && data.type === 'PAYMENT_COMPLETED' && data.success) {
             setPaymentWindowOpen(false);
             localStorage.removeItem('paymentNotification');
-            
+
             const savedOrderData = sessionStorage.getItem('pendingOrderData');
+            const savedTxId = sessionStorage.getItem('pendingClientTxId');
             if (savedOrderData) {
               const orderData = JSON.parse(savedOrderData);
-              handlePaymentCompleted(orderData);
+              handlePaymentCompleted(orderData, savedTxId);
             } else {
               setShowConfirmation(true);
             }
@@ -867,6 +868,12 @@ const AffiliationSection = () => {
       if (data.paymentUrl) {
         // SECURITY: Usar sessionStorage para datos sensibles (se limpia al cerrar pestaña)
         sessionStorage.setItem('pendingOrderData', JSON.stringify(orderData));
+        if (data.clientTransactionId) {
+          sessionStorage.setItem('pendingClientTxId', data.clientTransactionId);
+        }
+        if (data.paymentSessionToken) {
+          sessionStorage.setItem('paymentSessionToken', data.paymentSessionToken);
+        }
         
         // Track payment initiation
         ReactGA.event({
@@ -916,11 +923,11 @@ const AffiliationSection = () => {
                 // Clean up flags
                 localStorage.removeItem('paymentNotification');
                 localStorage.removeItem('paymentCompleted');
-                
-                handlePaymentCompleted(orderData);
+
+                handlePaymentCompleted(orderData, clientTransactionId);
             }
         };
-        
+
         window.addEventListener('message', handlePaymentMessage);
 
         checkPaymentIntervalRef.current = setInterval(async () => {
@@ -930,7 +937,11 @@ const AffiliationSection = () => {
           // Consultamos al backend si PayPhone ya confirmó el pago, sin depender de la ventana
           if (clientTransactionId && pollingTick % 2 === 0) {
             try {
-              const res = await fetch(`${BACKEND_URL}/api/check-payment-status/${clientTransactionId}`);
+              const sessionToken = data.paymentSessionToken || sessionStorage.getItem('paymentSessionToken');
+              const res = await fetch(
+                `${BACKEND_URL}/api/check-payment-status/${clientTransactionId}`,
+                { headers: sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {} }
+              );
               if (res.ok) {
                 const statusData = await res.json();
                 // console.log('🔍 Frontend Polling Data:', statusData); // Debug log suppressed
@@ -949,8 +960,8 @@ const AffiliationSection = () => {
                   // Clean up flags
                   localStorage.removeItem('paymentNotification');
                   localStorage.removeItem('paymentCompleted');
-                  
-                  handlePaymentCompleted(orderData);
+
+                  handlePaymentCompleted(orderData, clientTransactionId);
                   return;
                 }
               }
@@ -978,8 +989,8 @@ const AffiliationSection = () => {
             if (!paymentWindow.closed) {
               paymentWindow.close();
             }
-            
-            handlePaymentCompleted(orderData);
+
+            handlePaymentCompleted(orderData, clientTransactionId);
             return;
           }
 
@@ -988,12 +999,12 @@ const AffiliationSection = () => {
             if (checkPaymentIntervalRef.current) clearInterval(checkPaymentIntervalRef.current);
             checkPaymentIntervalRef.current = null;
             setPaymentWindowOpen(false);
-            
+
             // Check one last time
             const pendingData = localStorage.getItem('paymentCompleted');
             if (pendingData) {
               localStorage.removeItem('paymentCompleted');
-              handlePaymentCompleted(orderData);
+              handlePaymentCompleted(orderData, clientTransactionId);
             }
           }
         }, 1000);
@@ -1009,38 +1020,33 @@ const AffiliationSection = () => {
     }
   };
   
-  // Handle payment completion after returning from PayPhone
-  // Note: Emails are already sent by the popup page via /api/confirm-payment
-  const handlePaymentCompleted = async (orderData) => {
+  // Handle payment completion after returning from PayPhone.
+  // SECURITY: para flujos PayPhone se pasa clientTransactionId — el backend
+  // verifica el pago server-side y recupera orderData de pendingOrders.
+  const handlePaymentCompleted = async (orderData, clientTransactionId = null) => {
     setCheckingPayment(true);
-    
-    try {
-      // Submit to Google Drive to create folder and send content link
-      // This is separate from the payment confirmation emails
-      await submitToGoogleDrive();
 
-      // Send confirmation emails (Critical fix: ensure emails are sent if popup didn't do it)
-      await sendOrderEmails(orderData);
-      
-      // Track successful payment
+    try {
+      await submitToGoogleDrive();
+      await sendOrderEmails(orderData, clientTransactionId);
+
       ReactGA.event({
         category: 'Landing Page',
         action: 'payment_completed',
         label: orderData?.planName || 'Unknown Plan',
         value: orderData?.amountPaid || 0
       });
-      
-      // Show confirmation in the same component
+
       setShowConfirmation(true);
-      
+
     } catch (error) {
       console.error('Error processing payment completion:', error);
-      // Still show confirmation even if Google Drive fails
       setShowConfirmation(true);
     } finally {
       setCheckingPayment(false);
-      // SECURITY: Limpiar datos sensibles de sessionStorage
       sessionStorage.removeItem('pendingOrderData');
+      sessionStorage.removeItem('pendingClientTxId');
+      sessionStorage.removeItem('paymentSessionToken');
     }
   };
   
@@ -1063,29 +1069,38 @@ const AffiliationSection = () => {
     }
     
     const orderData = JSON.parse(savedOrderData);
-    await handlePaymentCompleted(orderData);
+    const savedTxId = sessionStorage.getItem('pendingClientTxId');
+    await handlePaymentCompleted(orderData, savedTxId);
   };
 
-  // Function to send order confirmation emails
-  const sendOrderEmails = async (orderData) => {
+  // Function to send order confirmation emails.
+  // SECURITY: para pagos PayPhone se envía solo clientTransactionId — el backend
+  // recupera la orderData server-side y verifica con PayPhone que el pago está
+  // Approved antes de enviar emails. Para transferencia bancaria se envía
+  // orderData completa (con voucherUrl del propio servidor).
+  const sendOrderEmails = async (orderData, clientTransactionId = null) => {
     const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
-    
+
     try {
-      // SECURITY: Generar token reCAPTCHA para autorizar el envío de correos
       const recaptchaToken = await executeRecaptcha('ORDER_EMAILS');
       if (!recaptchaToken) {
           alert('Por favor, completa el ReCAPTCHA o recarga la página.');
           return;
       }
-      
+
+      // Para PayPhone, basta con clientTransactionId — el backend resuelve el resto.
+      const payload = clientTransactionId
+        ? { clientTransactionId, recaptchaToken }
+        : { orderData, recaptchaToken };
+
       const response = await fetch(`${BACKEND_URL}/api/send-order-emails`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ orderData, recaptchaToken })
+        body: JSON.stringify(payload)
       });
-      
+
       if (response.ok) {
         console.log('✅ Correos de confirmación enviados');
       } else {
@@ -1844,7 +1859,7 @@ const AffiliationSection = () => {
 
           {/* RUC o Cédula */}
           <div className="form-field">
-            <label>{wizardData.tipoCliente === 'empresa' ? 'RUC *' : 'Cédula *'}</label>
+            <label>{wizardData.tipoCliente === 'empresa' ? 'Identificación Fiscal *' : 'Documento de Identidad *'}</label>
             <input
               type="text"
               value={wizardData.rucCedula || ''}
@@ -1890,7 +1905,7 @@ const AffiliationSection = () => {
               type="tel"
               value={wizardData.telefono || ''}
               onChange={(e) => handleWizardChange('telefono', e.target.value)}
-              placeholder="+593 999 999 999"
+              placeholder="Tu número de teléfono"
             />
           </div>
         </div>
@@ -1929,7 +1944,7 @@ const AffiliationSection = () => {
               type="text"
               value={wizardData.ciudad || ''}
               onChange={(e) => handleWizardChange('ciudad', e.target.value)}
-              placeholder="Ej: Quito"
+              placeholder="Ej: tu ciudad"
             />
           </div>
 
@@ -1986,9 +2001,9 @@ const AffiliationSection = () => {
             <label>País *</label>
             <input
               type="text"
-              value={wizardData.pais || 'Ecuador'}
+              value={wizardData.pais || ''}
               onChange={(e) => handleWizardChange('pais', e.target.value)}
-              placeholder="Ecuador"
+              placeholder="Tu país"
             />
           </div>
         </div>
@@ -2412,7 +2427,7 @@ const AffiliationSection = () => {
 
           {/* RUC o Cédula */}
           <div className="form-field">
-            <label>{wizardData.tipoCliente === 'empresa' ? 'RUC *' : 'Cédula *'}</label>
+            <label>{wizardData.tipoCliente === 'empresa' ? 'Identificación Fiscal *' : 'Documento de Identidad *'}</label>
             <input
               type="text"
               value={wizardData.rucCedula || ''}
@@ -2451,7 +2466,7 @@ const AffiliationSection = () => {
               type="tel"
               value={wizardData.telefono || ''}
               onChange={(e) => handleWizardChange('telefono', e.target.value)}
-              placeholder="+593 999 999 999"
+              placeholder="Tu número de teléfono"
             />
           </div>
         </div>
@@ -2490,7 +2505,7 @@ const AffiliationSection = () => {
               type="text"
               value={wizardData.ciudad || ''}
               onChange={(e) => handleWizardChange('ciudad', e.target.value)}
-              placeholder="Ej: Quito"
+              placeholder="Ej: tu ciudad"
             />
           </div>
 
@@ -2547,9 +2562,9 @@ const AffiliationSection = () => {
             <label>País *</label>
             <input
               type="text"
-              value={wizardData.pais || 'Ecuador'}
+              value={wizardData.pais || ''}
               onChange={(e) => handleWizardChange('pais', e.target.value)}
-              placeholder="Ecuador"
+              placeholder="Tu país"
             />
           </div>
         </div>
@@ -2981,7 +2996,7 @@ const AffiliationSection = () => {
 
           {/* RUC o Cédula */}
           <div className="form-field">
-            <label>{wizardData.tipoCliente === 'empresa' ? 'RUC *' : 'Cédula *'}</label>
+            <label>{wizardData.tipoCliente === 'empresa' ? 'Identificación Fiscal *' : 'Documento de Identidad *'}</label>
             <input
               type="text"
               value={wizardData.rucCedula || ''}
@@ -3020,7 +3035,7 @@ const AffiliationSection = () => {
               type="tel"
               value={wizardData.telefono || ''}
               onChange={(e) => handleWizardChange('telefono', e.target.value)}
-              placeholder="+593 999 999 999"
+              placeholder="Tu número de teléfono"
             />
           </div>
         </div>
@@ -3059,7 +3074,7 @@ const AffiliationSection = () => {
               type="text"
               value={wizardData.ciudad || ''}
               onChange={(e) => handleWizardChange('ciudad', e.target.value)}
-              placeholder="Ej: Quito"
+              placeholder="Ej: tu ciudad"
             />
           </div>
 
@@ -3116,9 +3131,9 @@ const AffiliationSection = () => {
             <label>País *</label>
             <input
               type="text"
-              value={wizardData.pais || 'Ecuador'}
+              value={wizardData.pais || ''}
               onChange={(e) => handleWizardChange('pais', e.target.value)}
-              placeholder="Ecuador"
+              placeholder="Tu país"
             />
           </div>
         </div>
@@ -3914,7 +3929,7 @@ const AffiliationSection = () => {
 
       <div className="wizard-form-grid">
         <div className="wizard-input-group">
-          <label>RUC / Cédula</label>
+          <label>Identificación Fiscal / Documento</label>
           <input
             type="text"
             placeholder="Ingresa 10 o 13 dígitos"
@@ -3962,7 +3977,7 @@ const AffiliationSection = () => {
           <label>Teléfono (WhatsApp)</label>
           <input
             type="tel"
-            placeholder="+593 999 999 999"
+            placeholder="Tu número de teléfono"
             value={wizardData.telefono}
             onChange={(e) => handleWizardChange('telefono', e.target.value)}
             className="wizard-input"
@@ -4044,7 +4059,7 @@ const AffiliationSection = () => {
               <li><strong>Tipo:</strong> Cuenta de Ahorros</li>
               <li><strong>Número:</strong> 2209876543</li>
               <li><strong>Nombre:</strong> UNDERCODEEC</li>
-              <li><strong>RUC:</strong> 1712345678001</li>
+              <li><strong>Identificación Fiscal:</strong> 1712345678001</li>
             </ul>
           </div>
 
@@ -4268,7 +4283,7 @@ const AffiliationSection = () => {
           <label>Teléfono (WhatsApp)</label>
           <input
             type="tel"
-            placeholder="+593 999 999 999"
+            placeholder="Tu número de teléfono"
             value={wizardData.softwareTelefono}
             onChange={(e) => handleWizardChange('softwareTelefono', e.target.value)}
             className="wizard-input"
@@ -4511,7 +4526,7 @@ const AffiliationSection = () => {
                     <input 
                         type="tel" 
                         className="wizard-input" 
-                        placeholder="+593 ..."
+                        placeholder="Tu número de teléfono"
                         value={wizardData.softwareTelefono} 
                         onChange={e=>handleWizardChange('softwareTelefono',e.target.value)} 
                     />
@@ -4597,7 +4612,7 @@ const AffiliationSection = () => {
                   <label>1. ¿En qué dispositivos debe funcionar?</label>
                   <div className="radio-group-vertical">
                       {[
-                          { val: 'android', label: 'Solo Android (Más económico y popular en Ecuador)' },
+                          { val: 'android', label: 'Solo Android (Más económico y con mayor cuota de mercado)' },
                           { val: 'ios', label: 'Solo iPhone (iOS)' },
                           { val: 'ambos', label: 'En ambos (Android + iOS) (Requiere desarrollo Híbrido o doble esfuerzo)' }
                       ].map(opt => (
@@ -4707,7 +4722,7 @@ const AffiliationSection = () => {
                     <input 
                         type="tel" 
                         className="wizard-input" 
-                        placeholder="+593 ..."
+                        placeholder="Tu número de teléfono"
                         value={wizardData.softwareTelefono} 
                         onChange={e=>handleWizardChange('softwareTelefono',e.target.value)} 
                     />
@@ -5236,7 +5251,7 @@ const AffiliationSection = () => {
             <label>Teléfono (WhatsApp)</label>
             <input
               type="tel"
-              placeholder="+593 999 999 999"
+              placeholder="Tu número de teléfono"
               value={wizardData.telefono}
               onChange={(e) => handleWizardChange('telefono', e.target.value)}
               className="wizard-input"
