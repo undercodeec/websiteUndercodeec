@@ -7,16 +7,14 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const cheerio = require('cheerio'); // Fallback scraping
 const puppeteer = require('puppeteer'); // Advanced scraping for design context
 require('dotenv').config();
-const db = require('./db_pg');
+const db = require('./db');
 
 const app = express();
 const pendingOrders = new Map(); // Store pending orders from Chatbot
 
 // Configuración de CORS mejorada
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://undercodeec.com', 'https://api.undercodeec.com', process.env.FRONTEND_URL].filter(Boolean)
-    : ['http://localhost:8000', 'http://localhost:8001', 'http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean),
+  origin: ['https://undercodeec.com', 'https://api.undercodeec.com', process.env.FRONTEND_URL].filter(Boolean),
   methods: ['GET', 'POST'],
   optionsSuccessStatus: 200
 };
@@ -52,13 +50,127 @@ transporter.verify(function (error, success) {
   }
 });
 
-// Middleware de logging solo en desarrollo
-if (process.env.NODE_ENV !== 'production') {
-  app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-    next();
-  });
+// ============================================================================
+// SECURITY HELPERS
+// ============================================================================
+
+// HTML escape para prevenir HTML/JS injection en plantillas de email
+function escapeHtml(value) {
+  if (value === null || value === undefined) return '';
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' };
+  return String(value).replace(/[&<>"'`]/g, c => map[c]);
 }
+
+// Aplica escapeHtml recursivamente a strings dentro de un objeto plano.
+// Conserva números, booleans, null, arrays (escapando sus strings) y objetos anidados.
+function escapeFieldsForHtml(obj) {
+  if (obj === null || obj === undefined) return {};
+  if (typeof obj !== 'object') return obj;
+  const out = Array.isArray(obj) ? [] : {};
+  for (const k of Object.keys(obj)) {
+    const v = obj[k];
+    if (typeof v === 'string') out[k] = escapeHtml(v);
+    else if (Array.isArray(v)) out[k] = v.map(x => typeof x === 'string' ? escapeHtml(x) : (typeof x === 'object' && x !== null ? escapeFieldsForHtml(x) : x));
+    else if (v && typeof v === 'object') out[k] = escapeFieldsForHtml(v);
+    else out[k] = v;
+  }
+  return out;
+}
+
+// Verifica un token de reCAPTCHA enviando el secreto en el body (NO en query string)
+// Devuelve { ok: boolean, error?: string }
+async function verifyRecaptcha(recaptchaToken) {
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secretKey) {
+    console.error('RECAPTCHA_SECRET_KEY no configurado');
+    return { ok: false, error: 'config_missing' };
+  }
+  if (!recaptchaToken || typeof recaptchaToken !== 'string') {
+    return { ok: false, error: 'missing_token' };
+  }
+  try {
+    const params = new URLSearchParams({ secret: secretKey, response: recaptchaToken });
+    const resp = await axios.post(
+      'https://www.google.com/recaptcha/api/siteverify',
+      params.toString(),
+      {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        timeout: 10000
+      }
+    );
+    if (!resp.data || resp.data.success !== true) {
+      console.error('ReCAPTCHA failed:', resp.data && resp.data['error-codes']);
+      return { ok: false, error: 'verification_failed' };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error('Error verificando reCAPTCHA:', err.message);
+    return { ok: false, error: 'network_error' };
+  }
+}
+
+// Compara dos strings en tiempo constante para prevenir timing attacks
+function safeStringEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const bufA = Buffer.from(a, 'utf8');
+  const bufB = Buffer.from(b, 'utf8');
+  if (bufA.length !== bufB.length) {
+    // Aún así ejecutamos la comparación para no filtrar el tamaño por timing
+    crypto.timingSafeEqual(bufA, bufA);
+    return false;
+  }
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
+// ============================================================================
+// ADMIN AUTH: rate-limit + session store
+// ============================================================================
+
+// Sesiones de admin: token aleatorio → { expiresAt }
+const adminSessions = new Map();
+const ADMIN_SESSION_TTL_MS = 2 * 60 * 60 * 1000; // 2 horas
+
+// Intentos fallidos por email (login y verify)
+const adminLoginAttempts = new Map();   // email → { count, lockUntil }
+const adminVerifyAttempts = new Map();  // email → { count, lockUntil }
+
+const ADMIN_LOGIN_MAX_ATTEMPTS = 5;
+const ADMIN_LOGIN_LOCK_MS = 15 * 60 * 1000; // 15 min
+const ADMIN_VERIFY_MAX_ATTEMPTS = 5;
+const ADMIN_VERIFY_LOCK_MS = 15 * 60 * 1000;
+
+function isLocked(map, key) {
+  const rec = map.get(key);
+  if (!rec) return false;
+  if (rec.lockUntil && rec.lockUntil > Date.now()) return true;
+  // Lock expiró → limpiar
+  if (rec.lockUntil && rec.lockUntil <= Date.now()) {
+    map.delete(key);
+  }
+  return false;
+}
+
+function registerAttempt(map, key, maxAttempts, lockMs) {
+  const rec = map.get(key) || { count: 0, lockUntil: 0 };
+  rec.count += 1;
+  if (rec.count >= maxAttempts) {
+    rec.lockUntil = Date.now() + lockMs;
+    rec.count = 0;
+  }
+  map.set(key, rec);
+}
+
+function clearAttempts(map, key) {
+  map.delete(key);
+}
+
+// Limpieza periódica de sesiones expiradas (cada 10 min)
+setInterval(() => {
+  const now = Date.now();
+  for (const [token, rec] of adminSessions.entries()) {
+    if (rec.expiresAt <= now) adminSessions.delete(token);
+  }
+}, 10 * 60 * 1000).unref?.();
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -80,10 +192,7 @@ app.post('/api/create-payment', async (req, res) => {
   // ID único con máximo 15 caracteres
   const clientTransactionId = crypto.randomBytes(8).toString('hex').substring(0, 15);
 
-  // URL de respuesta - donde PayPhone redirigirá después del pago
-  // Usamos la IP de red local detectada para asegurar que PayPhone acepte la redirección
-  // IP detectada del log: 192.168.18.35
-    const baseUrl = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://undercodeec.com' : 'http://localhost:3000');
+    const baseUrl = process.env.FRONTEND_URL || 'https://undercodeec.com';
     const responseUrl = `${baseUrl}/payment-result.html`;
 
   console.log('📤 Creating PayPhone payment link...');
@@ -938,7 +1047,7 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
                     currency: 'USD',
                     storeId: STORE_ID,
                     reference: `Anticipo 50%: ${args.planName}`,
-                    responseUrl: process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/payment-result.html` : (process.env.NODE_ENV === 'production' ? 'https://undercodeec.com/payment-result.html' : 'http://localhost:3000/payment-result.html'),
+                    responseUrl: process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/payment-result.html` : 'https://undercodeec.com/payment-result.html',
                   },
                   { headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' } }
                 );
@@ -986,6 +1095,12 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
 
 // Internal function to send order emails (reused by both endpoints)
 async function sendOrderEmailsInternal(orderData) {
+  // Valores en texto plano para uso en headers de email (to/subject)
+  const recipientEmail = orderData && orderData.email;
+  const originalPlanName = orderData && orderData.planName;
+  const originalRazonSocial = orderData && orderData.razonSocial;
+  // Versión HTML-escapada para uso seguro en plantillas
+  const _safe = escapeFieldsForHtml(orderData || {});
   const {
     tipoCliente,
     rucCedula,
@@ -1010,7 +1125,7 @@ async function sendOrderEmailsInternal(orderData) {
     sectorOtro,
     domainStatus,
     domainName
-  } = orderData;
+  } = _safe;
 
   const fechaPedido = new Date().toLocaleString('es-EC', { 
     timeZone: 'America/Guayaquil',
@@ -1229,7 +1344,7 @@ async function sendOrderEmailsInternal(orderData) {
     const businessInfo = await transporter.sendMail({
       from: `"Undercodeec Pedidos" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_BUSINESS,
-      subject: `🛒 Nuevo Pedido: ${planName} - ${razonSocial}`,
+      subject: `🛒 Nuevo Pedido: ${originalPlanName} - ${originalRazonSocial}`,
       html: businessEmailHtml
     });
     console.log('✅ Business email sent:', businessInfo.messageId);
@@ -1242,8 +1357,8 @@ async function sendOrderEmailsInternal(orderData) {
     // Send email to client
     const clientInfo = await transporter.sendMail({
       from: `"Undercodeec" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: `✅ Confirmación de Pedido - ${planName}`,
+      to: recipientEmail,
+      subject: `✅ Confirmación de Pedido - ${originalPlanName}`,
       html: clientEmailHtml
     });
     console.log('✅ Client email sent:', clientInfo.messageId);
@@ -1308,6 +1423,12 @@ app.post('/api/send-order-emails', async (req, res) => {
     return res.status(400).json({ error: 'Datos del pedido incompletos' });
   }
 
+  // Texto plano para headers de email
+  const recipientEmail = orderData.email;
+  const originalPlanName = orderData.planName;
+  const originalRazonSocial = orderData.razonSocial;
+  // HTML-escapado para uso seguro en plantillas
+  const _safe = escapeFieldsForHtml(orderData);
   const {
     tipoCliente,
     rucCedula,
@@ -1326,7 +1447,7 @@ app.post('/api/send-order-emails', async (req, res) => {
     planPrice,
     amountPaid,
     businessName
-  } = orderData;
+  } = _safe;
 
   const fechaPedido = new Date().toLocaleString('es-EC', { 
     timeZone: 'America/Guayaquil',
@@ -1529,7 +1650,7 @@ app.post('/api/send-order-emails', async (req, res) => {
     await transporter.sendMail({
       from: `"Undercodeec Pedidos" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_BUSINESS,
-      subject: `Nuevo Pedido: ${planName} - ${razonSocial}`,
+      subject: `Nuevo Pedido: ${originalPlanName} - ${originalRazonSocial}`,
       html: businessEmailHtml
     });
 
@@ -1538,12 +1659,12 @@ app.post('/api/send-order-emails', async (req, res) => {
     // Enviar correo al cliente
     await transporter.sendMail({
       from: `"Undercodeec" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: `Confirmación de Pedido - ${planName}`,
+      to: recipientEmail,
+      subject: `Confirmación de Pedido - ${originalPlanName}`,
       html: clientEmailHtml
     });
 
-    console.log('✅ Email enviado al cliente:', email);
+    console.log('✅ Email enviado al cliente:', recipientEmail);
 
     res.json({ success: true, message: 'Correos enviados exitosamente' });
 
@@ -1575,26 +1696,20 @@ app.post('/api/send-software-request', async (req, res) => {
   }
 
   try {
-    // 1. Verificar ReCAPTCHA
-    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-    if (!secretKey) {
-        console.error('RECAPTCHA_SECRET_KEY no configurado');
+    // 1. Verificar ReCAPTCHA (secreto enviado en POST body, NO en URL)
+    const recaptchaCheck = await verifyRecaptcha(recaptchaToken);
+    if (!recaptchaCheck.ok) {
+      if (recaptchaCheck.error === 'config_missing') {
         return res.status(500).json({ error: 'Error de configuración del servidor' });
-    }
-
-    const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
-    
-    const recaptchaResponse = await axios.post(verificationUrl);
-    const { success } = recaptchaResponse.data;
-
-    // Note: strict check for success. Google response might have error-codes.
-    if (!success) {
-      console.error('ReCAPTCHA falló:', recaptchaResponse.data);
+      }
       return res.status(400).json({ error: 'Verificación de ReCAPTCHA fallida' });
     }
 
-    // 1. Guardar Lead en la Base de Datos
+    // 1. Guardar Lead en la Base de Datos (con datos originales)
     await saveLeadToDB('software', softwareNombre, softwareEmail, softwareTelefono, req.body);
+
+    // Versión HTML-escapada para uso seguro en plantillas
+    const safe = escapeFieldsForHtml(req.body);
 
     // 2. Enviar correo al administrador
     const adminEmailHtml = `
@@ -1614,37 +1729,37 @@ app.post('/api/send-software-request', async (req, res) => {
         <div class="container">
           <h2>🚀 Nueva Solicitud de Desarrollo de Software</h2>
           <p>Se ha recibido una nueva solicitud a través del formulario web.</p>
-          
+
           <div class="section">
             <span class="label">Cliente:</span>
-            <span class="value">${softwareNombre}</span>
-            
+            <span class="value">${safe.softwareNombre}</span>
+
             <span class="label">Email:</span>
-            <span class="value">${softwareEmail}</span>
-            
+            <span class="value">${safe.softwareEmail}</span>
+
             <span class="label">Teléfono:</span>
-            <span class="value">${softwareTelefono}</span>
+            <span class="value">${safe.softwareTelefono}</span>
           </div>
 
           <div class="section">
             <h3>Detalles del Proyecto</h3>
-            
+
             <span class="label">Escala del Proyecto:</span>
-            <span class="value">${softwareEscala}</span>
-            
+            <span class="value">${safe.softwareEscala}</span>
+
             <span class="label">Roles de Usuario:</span>
-            <span class="value">${Array.isArray(softwareRoles) ? softwareRoles.join(', ') : softwareRoles}</span>
-            
+            <span class="value">${Array.isArray(safe.softwareRoles) ? safe.softwareRoles.join(', ') : safe.softwareRoles}</span>
+
             <span class="label">Integraciones:</span>
-            <span class="value">${Array.isArray(softwareIntegraciones) ? softwareIntegraciones.join(', ') : softwareIntegraciones}</span>
-            
+            <span class="value">${Array.isArray(safe.softwareIntegraciones) ? safe.softwareIntegraciones.join(', ') : safe.softwareIntegraciones}</span>
+
             <span class="label">Presupuesto Estimado:</span>
-            <span class="value">${softwarePresupuesto}</span>
-            
+            <span class="value">${safe.softwarePresupuesto}</span>
+
             <span class="label">Tiempo de Entrega:</span>
-            <span class="value">${softwareTiempo}</span>
+            <span class="value">${safe.softwareTiempo}</span>
           </div>
-          
+
           <p style="font-size: 12px; color: #999; margin-top: 30px;">
             Este correo fue generado automáticamente por el sistema de Undercodeec.
           </p>
@@ -1688,20 +1803,24 @@ app.post('/api/send-webapp-request', async (req, res) => {
     contactEmail,
     contactPhone,
     
-    recaptchaToken 
+    recaptchaToken
   } = req.body;
 
-  // ReCAPTCHA verification (optional but recommended, currently disabled to simplify flow if token not passed)
-  // If you want to enable it, pass recaptchaToken from frontend
-  /*
-  if (!recaptchaToken) {
-    return res.status(400).json({ error: 'ReCAPTCHA token requerido' });
+  // ReCAPTCHA verification — secret enviado en POST body
+  const recaptchaCheck = await verifyRecaptcha(recaptchaToken);
+  if (!recaptchaCheck.ok) {
+    if (recaptchaCheck.error === 'config_missing') {
+      return res.status(500).json({ error: 'Error de configuración del servidor' });
+    }
+    return res.status(400).json({ error: 'Verificación de ReCAPTCHA fallida' });
   }
-  */
 
   try {
-     // 1. Guardar Lead en la Base de Datos
+     // 1. Guardar Lead en la Base de Datos (datos originales)
      await saveLeadToDB('webapp', contactName, contactEmail, contactPhone, req.body);
+
+     // Versión HTML-escapada para uso seguro en plantilla
+     const safe = escapeFieldsForHtml(req.body);
 
      // 2. Enviar correo al administrador
     const adminEmailHtml = `
@@ -1722,26 +1841,26 @@ app.post('/api/send-webapp-request', async (req, res) => {
         <div class="container">
           <h2>🌐 Nueva Solicitud de App Web</h2>
           <p>Se ha recibido una nueva solicitud a través del formulario web.</p>
-          
+
           <div class="section">
             <h3>👤 Datos de Contacto</h3>
             <span class="label">Nombre:</span>
-            <span class="value">${contactName}</span>
-            
+            <span class="value">${safe.contactName}</span>
+
             <span class="label">Email:</span>
-            <span class="value">${contactEmail}</span>
-            
+            <span class="value">${safe.contactEmail}</span>
+
             <span class="label">Teléfono:</span>
-            <span class="value">${contactPhone}</span>
+            <span class="value">${safe.contactPhone}</span>
           </div>
 
           <div class="section">
             <h3>🏢 Identidad del Proyecto</h3>
             <span class="label">Nombre App / Proyecto:</span>
-            <span class="value">${businessName}</span>
+            <span class="value">${safe.businessName}</span>
 
             <span class="label">Sector:</span>
-            <span class="value">${sector}</span>
+            <span class="value">${safe.sector}</span>
 
             <span class="label">Dominio:</span>
             <span class="value">${domainStatus === 'tengo' ? 'Tiene dominio' : 'Necesita dominio'}</span>
@@ -1751,28 +1870,28 @@ app.post('/api/send-webapp-request', async (req, res) => {
              <h3>⚙️ Detalles Técnicos</h3>
 
              <span class="label">Objetivo Principal:</span>
-             <span class="value">${appWebObjetivo} ${appWebObjetivo === 'otros' ? `(${appWebObjetivoDetalle})` : ''}</span>
+             <span class="value">${safe.appWebObjetivo} ${appWebObjetivo === 'otros' ? `(${safe.appWebObjetivoDetalle})` : ''}</span>
 
              <span class="label">Compatibilidad Móvil:</span>
-             <span class="value">${appWebMobile}</span>
+             <span class="value">${safe.appWebMobile}</span>
 
              <span class="label">Descripción:</span>
-             <span class="value">${appWebDescripcion}</span>
+             <span class="value">${safe.appWebDescripcion}</span>
           </div>
 
           <div class="section">
              <h3>👥 Usuarios y Roles</h3>
-             
+
              <span class="label">Cantidad Estimada:</span>
-             <span class="value">${appWebUsuarios}</span>
+             <span class="value">${safe.appWebUsuarios}</span>
 
              <span class="label">Roles Requeridos:</span>
-             <span class="value">${Array.isArray(appWebRoles) ? appWebRoles.join(', ') : appWebRoles} ${appWebRoles.includes('otros') ? `(${appWebRolesDetalle})` : ''}</span>
+             <span class="value">${Array.isArray(safe.appWebRoles) ? safe.appWebRoles.join(', ') : safe.appWebRoles} ${Array.isArray(appWebRoles) && appWebRoles.includes('otros') ? `(${safe.appWebRolesDetalle})` : ''}</span>
 
              <span class="label">Reportes:</span>
-             <span class="value">${appWebReportes}</span>
+             <span class="value">${safe.appWebReportes}</span>
           </div>
-          
+
           <p style="font-size: 12px; color: #999; margin-top: 30px;">
             Este correo fue generado automáticamente por el sistema de Undercodeec.
           </p>
@@ -1812,12 +1931,24 @@ app.post('/api/send-mobileapp-request', async (req, res) => {
     contactEmail,
     contactPhone,
     
-    recaptchaToken 
+    recaptchaToken
   } = req.body;
 
+  // ReCAPTCHA verification — secret enviado en POST body
+  const recaptchaCheck = await verifyRecaptcha(recaptchaToken);
+  if (!recaptchaCheck.ok) {
+    if (recaptchaCheck.error === 'config_missing') {
+      return res.status(500).json({ error: 'Error de configuración del servidor' });
+    }
+    return res.status(400).json({ error: 'Verificación de ReCAPTCHA fallida' });
+  }
+
   try {
-     // 1. Guardar Lead en la Base de Datos
+     // 1. Guardar Lead en la Base de Datos (datos originales)
      await saveLeadToDB('mobileapp', contactName, contactEmail, contactPhone, req.body);
+
+     // Versión HTML-escapada para uso seguro en plantilla
+     const safe = escapeFieldsForHtml(req.body);
 
      // 2. Enviar correo al administrador
     const adminEmailHtml = `
@@ -1838,26 +1969,26 @@ app.post('/api/send-mobileapp-request', async (req, res) => {
         <div class="container">
           <h2>📱 Nueva Solicitud de App Móvil</h2>
           <p>Se ha recibido una nueva solicitud a través del formulario web.</p>
-          
+
           <div class="section">
             <h3>👤 Datos de Contacto</h3>
             <span class="label">Nombre:</span>
-            <span class="value">${contactName}</span>
-            
+            <span class="value">${safe.contactName}</span>
+
             <span class="label">Email:</span>
-            <span class="value">${contactEmail}</span>
-            
+            <span class="value">${safe.contactEmail}</span>
+
             <span class="label">Teléfono:</span>
-            <span class="value">${contactPhone}</span>
+            <span class="value">${safe.contactPhone}</span>
           </div>
 
           <div class="section">
             <h3>🏢 Identidad de la App</h3>
             <span class="label">Nombre App:</span>
-            <span class="value">${businessName}</span>
+            <span class="value">${safe.businessName}</span>
 
             <span class="label">Categoría/Sector:</span>
-            <span class="value">${sector}</span>
+            <span class="value">${safe.sector}</span>
 
             <span class="label">Sitio Web Actual:</span>
             <span class="value">${domainStatus === 'tengo' ? 'Quieren convertir sitio existente' : 'Proyecto nuevo'}</span>
@@ -1870,15 +2001,15 @@ app.post('/api/send-mobileapp-request', async (req, res) => {
              <span class="value">${appMobilePlataforma === 'android' ? 'Solo Android' : appMobilePlataforma === 'ios' ? 'Solo iOS' : 'Ambos (Android + iOS)'}</span>
 
              <span class="label">Tipo de App:</span>
-             <span class="value">${appMobileTipo}</span>
+             <span class="value">${safe.appMobileTipo}</span>
 
              <span class="label">Funcionalidades Críticas:</span>
-             <span class="value">${Array.isArray(appMobileFuncionalidades) ? appMobileFuncionalidades.join(', ') : appMobileFuncionalidades}</span>
+             <span class="value">${Array.isArray(safe.appMobileFuncionalidades) ? safe.appMobileFuncionalidades.join(', ') : safe.appMobileFuncionalidades}</span>
 
              <span class="label">Publicación en Tiendas:</span>
              <span class="value">${appMobilePublicacion === 'ayuda' ? 'Necesita ayuda para publicar' : 'Ya tiene cuentas de desarrollador'}</span>
           </div>
-          
+
           <p style="font-size: 12px; color: #999; margin-top: 30px;">
             Este correo fue generado automáticamente por el sistema de Undercodeec.
           </p>
@@ -1919,12 +2050,24 @@ app.post('/api/send-moodle-request', async (req, res) => {
     contactEmail,
     contactPhone,
     
-    recaptchaToken 
+    recaptchaToken
   } = req.body;
 
+  // ReCAPTCHA verification — secret enviado en POST body
+  const recaptchaCheck = await verifyRecaptcha(recaptchaToken);
+  if (!recaptchaCheck.ok) {
+    if (recaptchaCheck.error === 'config_missing') {
+      return res.status(500).json({ error: 'Error de configuración del servidor' });
+    }
+    return res.status(400).json({ error: 'Verificación de ReCAPTCHA fallida' });
+  }
+
   try {
-     // 1. Guardar Lead en la Base de Datos
+     // 1. Guardar Lead en la Base de Datos (datos originales)
      await saveLeadToDB('moodle', contactName, contactEmail, contactPhone, req.body);
+
+     // Versión HTML-escapada para uso seguro en plantilla
+     const safe = escapeFieldsForHtml(req.body);
 
      // 2. Enviar correo al administrador
     const adminEmailHtml = `
@@ -1945,26 +2088,26 @@ app.post('/api/send-moodle-request', async (req, res) => {
         <div class="container">
           <h2>🎓 Nueva Solicitud Moodle (Institucional)</h2>
           <p>Se ha recibido una solicitud de cotización para plataforma LMS.</p>
-          
+
           <div class="section">
             <h3>👤 Datos de Contacto</h3>
             <span class="label">Nombre:</span>
-            <span class="value">${contactName}</span>
-            
+            <span class="value">${safe.contactName}</span>
+
             <span class="label">Email:</span>
-            <span class="value">${contactEmail}</span>
-            
+            <span class="value">${safe.contactEmail}</span>
+
             <span class="label">Teléfono:</span>
-            <span class="value">${contactPhone}</span>
+            <span class="value">${safe.contactPhone}</span>
           </div>
 
           <div class="section">
             <h3>🏢 Identidad Institucional</h3>
             <span class="label">Institución:</span>
-            <span class="value">${businessName}</span>
+            <span class="value">${safe.businessName}</span>
 
             <span class="label">Sector:</span>
-            <span class="value">${sector}</span>
+            <span class="value">${safe.sector}</span>
 
             <span class="label">Dominio:</span>
             <span class="value">${domainStatus === 'tengo' ? 'Ya tiene dominio' : 'Necesita dominio'}</span>
@@ -1974,7 +2117,7 @@ app.post('/api/send-moodle-request', async (req, res) => {
              <h3>⚙️ Detalles Técnicos</h3>
 
              <span class="label">Uso Principal:</span>
-             <span class="value">${moodleUso}</span>
+             <span class="value">${safe.moodleUso}</span>
 
              <span class="label">Usuarios Simultáneos:</span>
              <span class="value">${moodleUsuarios === 'bajo' ? '< 50' : moodleUsuarios === 'medio' ? '50 - 200' : '> 200 (Alto)'}</span>
@@ -1985,7 +2128,7 @@ app.post('/api/send-moodle-request', async (req, res) => {
              <span class="label">Diseño Visual:</span>
              <span class="value">${moodleDiseno === 'estandar' ? 'Tema Estándar' : 'Diseño a Medida'}</span>
           </div>
-          
+
           <p style="font-size: 12px; color: #999; margin-top: 30px;">
             Este correo fue generado automáticamente por el sistema de Undercodeec.
           </p>
@@ -2028,133 +2171,270 @@ async function saveLeadToDB(formType, name, email, phone, data) {
 }
 
 // Middleware for Admin Auth
+// El token de sesión es un valor aleatorio almacenado en `adminSessions`, NO la contraseña.
 const adminAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ success: false, error: 'Acceso no autorizado' });
   }
   const token = authHeader.split(' ')[1];
-  if (token !== process.env.ADMIN_PASSWORD) {
+  if (!token || typeof token !== 'string' || token.length < 32 || token.length > 256) {
     return res.status(401).json({ success: false, error: 'Token inválido' });
   }
+  const session = adminSessions.get(token);
+  if (!session) {
+    return res.status(401).json({ success: false, error: 'Sesión inválida o expirada' });
+  }
+  if (session.expiresAt <= Date.now()) {
+    adminSessions.delete(token);
+    return res.status(401).json({ success: false, error: 'Sesión expirada' });
+  }
+  // Rolling refresh: extender expiración en cada uso
+  session.expiresAt = Date.now() + ADMIN_SESSION_TTL_MS;
+  req.adminSession = session;
   next();
 };
 
 // Verification Codes Store
 let activeVerificationCodes = {};
 
-// Helper to update env file persistently
+// Helper to update env file persistently — sanitiza valor para prevenir env-injection
 const fs = require('fs');
 const path = require('path');
 const updateEnvFile = (key, value) => {
   try {
+    // Validar key (solo alfanumérico + underscore — defensa en profundidad)
+    if (!/^[A-Z_][A-Z0-9_]*$/i.test(key)) {
+      throw new Error('Invalid env key');
+    }
+    // Validar value: ningún caracter de control (newline, CR, NUL, etc.) que permita inyectar variables
+    if (typeof value !== 'string') {
+      throw new Error('Env value must be a string');
+    }
+    // eslint-disable-next-line no-control-regex
+    if (/[\x00-\x1F\x7F]/.test(value)) {
+      throw new Error('Env value contains control characters');
+    }
+    if (value.length > 256) {
+      throw new Error('Env value too long');
+    }
     const envPath = path.join(__dirname, '.env');
     if (!fs.existsSync(envPath)) return;
     let envContent = fs.readFileSync(envPath, 'utf8');
-    const regex = new RegExp(`^${key}=.*`, 'm');
+    // Escape regex special chars del key (defensa en profundidad)
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`^${escapedKey}=.*`, 'm');
     if (regex.test(envContent)) {
       envContent = envContent.replace(regex, `${key}=${value}`);
     } else {
-      envContent += `\n${key}=${value}`;
+      if (!envContent.endsWith('\n')) envContent += '\n';
+      envContent += `${key}=${value}\n`;
     }
     fs.writeFileSync(envPath, envContent, 'utf8');
     console.log(`✅ Persistently updated ${key} in .env file`);
+    return true;
   } catch (error) {
     console.error(`❌ Error updating .env file for ${key}:`, error.message);
+    return false;
   }
 };
 
+// Validación de contraseña fuerte: 12+ chars, sin caracteres de control, mezcla mínima
+function validateNewPassword(pwd) {
+  if (typeof pwd !== 'string') return { ok: false, error: 'La contraseña debe ser texto' };
+  if (pwd.length < 12) return { ok: false, error: 'La contraseña debe tener al menos 12 caracteres' };
+  if (pwd.length > 128) return { ok: false, error: 'La contraseña es demasiado larga' };
+  // eslint-disable-next-line no-control-regex
+  if (/[\x00-\x1F\x7F]/.test(pwd)) return { ok: false, error: 'La contraseña contiene caracteres no permitidos' };
+  if (!/[A-Z]/.test(pwd) || !/[a-z]/.test(pwd) || !/[0-9]/.test(pwd)) {
+    return { ok: false, error: 'La contraseña debe incluir mayúsculas, minúsculas y números' };
+  }
+  return { ok: true };
+}
+
 // Admin Login (Step 1: Credentials)
 app.post('/api/admin/login', async (req, res) => {
-  const { email, password, recaptchaToken } = req.body;
-  
-  // reCAPTCHA Verification
-  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-  if (!secretKey) {
-    console.error('RECAPTCHA_SECRET_KEY no configurado');
-    return res.status(500).json({ success: false, error: 'Error de configuración del servidor' });
+  const { email, password, recaptchaToken } = req.body || {};
+
+  // 1. Verificar ReCAPTCHA (helper envía el secreto en body, no en URL)
+  const recaptchaCheck = await verifyRecaptcha(recaptchaToken);
+  if (!recaptchaCheck.ok) {
+    if (recaptchaCheck.error === 'config_missing') {
+      return res.status(500).json({ success: false, error: 'Error de configuración del servidor' });
+    }
+    if (recaptchaCheck.error === 'missing_token') {
+      return res.status(400).json({ success: false, error: 'Verificación de ReCAPTCHA requerida' });
+    }
+    return res.status(400).json({ success: false, error: 'Verificación de ReCAPTCHA fallida' });
   }
 
-  if (!recaptchaToken) {
-    return res.status(400).json({ success: false, error: 'Verificación de ReCAPTCHA requerida' });
+  const adminEmail = (process.env.ADMIN_EMAIL || 'undercodeec@gmail.com').toLowerCase();
+  const normalizedEmail = typeof email === 'string' ? email.toLowerCase() : '';
+
+  // 2. Rate-limit por email (incluye intentos contra emails inválidos sobre la cuenta legítima)
+  const lockKey = normalizedEmail || 'unknown';
+  if (isLocked(adminLoginAttempts, lockKey)) {
+    return res.status(429).json({ success: false, error: 'Demasiados intentos. Intenta de nuevo en 15 minutos.' });
   }
+
+  // 3. Verificar credenciales en tiempo constante
+  const validEmail = safeStringEqual(normalizedEmail, adminEmail);
+  const validPassword = safeStringEqual(typeof password === 'string' ? password : '', process.env.ADMIN_PASSWORD || '');
+
+  if (!validEmail || !validPassword) {
+    registerAttempt(adminLoginAttempts, lockKey, ADMIN_LOGIN_MAX_ATTEMPTS, ADMIN_LOGIN_LOCK_MS);
+    return res.status(401).json({ success: false, error: 'Credenciales de administrador incorrectas' });
+  }
+
+  // 4. Generar código 2FA de 8 dígitos con randomInt (criptográficamente seguro)
+  const code = String(crypto.randomInt(0, 100000000)).padStart(8, '0');
+  activeVerificationCodes[adminEmail] = {
+    code,
+    expiresAt: Date.now() + 5 * 60 * 1000
+  };
+  // Resetear contador de intentos de verify al emitir un nuevo código
+  clearAttempts(adminVerifyAttempts, adminEmail);
 
   try {
-    const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
-    const recaptchaResponse = await axios.post(verificationUrl);
-    const { success } = recaptchaResponse.data;
-
-    if (!success) {
-      console.error('ReCAPTCHA de login falló:', recaptchaResponse.data);
-      return res.status(400).json({ success: false, error: 'Verificación de ReCAPTCHA fallida' });
-    }
-  } catch (error) {
-    console.error('Error al conectar con reCAPTCHA:', error);
-    return res.status(500).json({ success: false, error: 'Error al verificar reCAPTCHA' });
-  }
-
-  const adminEmail = process.env.ADMIN_EMAIL || 'undercodeec@gmail.com';
-  
-  if (email === adminEmail && password === process.env.ADMIN_PASSWORD) {
-    // Generate 6 digit code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    activeVerificationCodes[email.toLowerCase()] = {
-      code,
-      expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes validity
-    };
-
-    try {
-      await transporter.sendMail({
-        from: `"Undercodeec Admin Security" <${process.env.EMAIL_USER}>`,
-        to: adminEmail,
-        subject: 'Código de Verificación - Panel de Administración',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <h2 style="color: #600b56; text-align: center; margin-bottom: 20px;">🛡️ Control de Acceso Undercodeec</h2>
-            <p>Se ha detectado un intento de inicio de sesión en tu panel de administración.</p>
-            <p>Por favor, ingresa el siguiente código de verificación de 6 dígitos en la pantalla de inicio de sesión para completar el acceso:</p>
-            <div style="background: #fdf2f8; border: 1.5px dashed #efa238; border-radius: 8px; padding: 15px; text-align: center; margin: 25px 0;">
-              <span style="font-size: 36px; font-weight: bold; color: #600b56; letter-spacing: 6px;">${code}</span>
-            </div>
-            <p style="font-size: 12px; color: #777; text-align: center;">Este código es de uso único y expirará en 5 minutos.</p>
+    await transporter.sendMail({
+      from: `"Undercodeec Admin Security" <${process.env.EMAIL_USER}>`,
+      to: adminEmail,
+      subject: 'Código de Verificación - Panel de Administración',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+          <h2 style="color: #600b56; text-align: center; margin-bottom: 20px;">🛡️ Control de Acceso Undercodeec</h2>
+          <p>Se ha detectado un intento de inicio de sesión en tu panel de administración.</p>
+          <p>Por favor, ingresa el siguiente código de verificación de 8 dígitos en la pantalla de inicio de sesión para completar el acceso:</p>
+          <div style="background: #fdf2f8; border: 1.5px dashed #efa238; border-radius: 8px; padding: 15px; text-align: center; margin: 25px 0;">
+            <span style="font-size: 36px; font-weight: bold; color: #600b56; letter-spacing: 6px;">${escapeHtml(code)}</span>
           </div>
-        `
-      });
-      return res.json({ success: true, requireVerification: true });
-    } catch (error) {
-      console.error('Error al enviar el correo del código 2FA:', error);
-      return res.status(500).json({ success: false, error: 'Error al enviar el código de verificación por correo' });
-    }
+          <p style="font-size: 12px; color: #777; text-align: center;">Este código es de uso único y expirará en 5 minutos.</p>
+          <p style="font-size: 12px; color: #c0392b; text-align: center;">Si no fuiste tú quien intentó iniciar sesión, considera cambiar tu contraseña.</p>
+        </div>
+      `
+    });
+    // Éxito al emitir código → resetear contador de login fallidos
+    clearAttempts(adminLoginAttempts, lockKey);
+    return res.json({ success: true, requireVerification: true });
+  } catch (error) {
+    console.error('Error al enviar el correo del código 2FA:', error);
+    return res.status(500).json({ success: false, error: 'Error al enviar el código de verificación por correo' });
   }
-  
-  return res.status(401).json({ success: false, error: 'Credenciales de administrador incorrectas' });
 });
 
 // Admin Verify Code (Step 2: 2FA Verification)
 app.post('/api/admin/verify', (req, res) => {
-  const { email, password, code } = req.body;
-  const adminEmail = process.env.ADMIN_EMAIL || 'undercodeec@gmail.com';
-  
-  if (email === adminEmail && password === process.env.ADMIN_PASSWORD) {
-    const record = activeVerificationCodes[email.toLowerCase()];
-    if (record && record.code === code && record.expiresAt > Date.now()) {
-      delete activeVerificationCodes[email.toLowerCase()]; // single use
-      return res.json({ success: true, token: process.env.ADMIN_PASSWORD });
+  const { email, password, code } = req.body || {};
+  const adminEmail = (process.env.ADMIN_EMAIL || 'undercodeec@gmail.com').toLowerCase();
+  const normalizedEmail = typeof email === 'string' ? email.toLowerCase() : '';
+
+  // Rate-limit por email
+  const lockKey = normalizedEmail || 'unknown';
+  if (isLocked(adminVerifyAttempts, lockKey)) {
+    return res.status(429).json({ success: false, error: 'Demasiados intentos. Solicita un nuevo código en 15 minutos.' });
+  }
+
+  // Credenciales en tiempo constante
+  const validEmail = safeStringEqual(normalizedEmail, adminEmail);
+  const validPassword = safeStringEqual(typeof password === 'string' ? password : '', process.env.ADMIN_PASSWORD || '');
+
+  if (!validEmail || !validPassword) {
+    registerAttempt(adminVerifyAttempts, lockKey, ADMIN_VERIFY_MAX_ATTEMPTS, ADMIN_VERIFY_LOCK_MS);
+    return res.status(401).json({ success: false, error: 'Credenciales inválidas' });
+  }
+
+  const record = activeVerificationCodes[adminEmail];
+  if (!record || record.expiresAt <= Date.now()) {
+    if (record) delete activeVerificationCodes[adminEmail];
+    registerAttempt(adminVerifyAttempts, lockKey, ADMIN_VERIFY_MAX_ATTEMPTS, ADMIN_VERIFY_LOCK_MS);
+    return res.status(400).json({ success: false, error: 'Código inválido o expirado' });
+  }
+
+  // Comparación en tiempo constante del código
+  const submittedCode = typeof code === 'string' ? code : '';
+  if (!safeStringEqual(submittedCode, record.code)) {
+    registerAttempt(adminVerifyAttempts, lockKey, ADMIN_VERIFY_MAX_ATTEMPTS, ADMIN_VERIFY_LOCK_MS);
+    // Si los intentos llegaron al límite, invalidar también el código actual
+    if (isLocked(adminVerifyAttempts, lockKey)) {
+      delete activeVerificationCodes[adminEmail];
     }
     return res.status(400).json({ success: false, error: 'Código inválido o expirado' });
   }
-  return res.status(401).json({ success: false, error: 'Credenciales inválidas' });
+
+  // ✅ 2FA superado: emitir token de sesión aleatorio (NO la contraseña)
+  delete activeVerificationCodes[adminEmail];
+  clearAttempts(adminVerifyAttempts, lockKey);
+  clearAttempts(adminLoginAttempts, lockKey);
+
+  const sessionToken = crypto.randomBytes(32).toString('hex');
+  adminSessions.set(sessionToken, {
+    email: adminEmail,
+    expiresAt: Date.now() + ADMIN_SESSION_TTL_MS,
+    createdAt: Date.now()
+  });
+
+  return res.json({ success: true, token: sessionToken });
+});
+
+// Admin Logout — invalida la sesión activa
+app.post('/api/admin/logout', adminAuth, (req, res) => {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.split(' ')[1];
+  if (token) adminSessions.delete(token);
+  return res.json({ success: true });
 });
 
 // Admin Change Password (Settings Tab)
 app.post('/api/admin/change-password', adminAuth, (req, res) => {
-  const { currentPassword, newPassword } = req.body;
-  if (currentPassword === process.env.ADMIN_PASSWORD) {
-    process.env.ADMIN_PASSWORD = newPassword;
-    updateEnvFile('ADMIN_PASSWORD', newPassword);
-    return res.json({ success: true, message: 'Contraseña actualizada correctamente de forma persistente' });
+  const { currentPassword, newPassword } = req.body || {};
+
+  if (typeof currentPassword !== 'string' || typeof newPassword !== 'string') {
+    return res.status(400).json({ success: false, error: 'Datos inválidos' });
   }
-  return res.status(400).json({ success: false, error: 'La contraseña actual es incorrecta' });
+
+  if (!safeStringEqual(currentPassword, process.env.ADMIN_PASSWORD || '')) {
+    return res.status(400).json({ success: false, error: 'La contraseña actual es incorrecta' });
+  }
+
+  const validation = validateNewPassword(newPassword);
+  if (!validation.ok) {
+    return res.status(400).json({ success: false, error: validation.error });
+  }
+
+  if (safeStringEqual(newPassword, process.env.ADMIN_PASSWORD || '')) {
+    return res.status(400).json({ success: false, error: 'La nueva contraseña debe ser diferente a la actual' });
+  }
+
+  // Persistir cambio (updateEnvFile valida que no haya caracteres de control)
+  const updated = updateEnvFile('ADMIN_PASSWORD', newPassword);
+  if (!updated) {
+    return res.status(500).json({ success: false, error: 'No se pudo actualizar la contraseña' });
+  }
+  process.env.ADMIN_PASSWORD = newPassword;
+
+  // Por seguridad, invalidar TODAS las sesiones admin existentes excepto la actual
+  const authHeader = req.headers.authorization || '';
+  const currentToken = authHeader.split(' ')[1];
+  for (const t of adminSessions.keys()) {
+    if (t !== currentToken) adminSessions.delete(t);
+  }
+
+  // Notificar por email al admin (best-effort)
+  const adminEmail = (process.env.ADMIN_EMAIL || 'undercodeec@gmail.com');
+  transporter.sendMail({
+    from: `"Undercodeec Admin Security" <${process.env.EMAIL_USER}>`,
+    to: adminEmail,
+    subject: '🔐 Tu contraseña de administrador fue cambiada',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px;">
+        <h2 style="color: #600b56;">Cambio de contraseña detectado</h2>
+        <p>La contraseña del panel de administración acaba de ser cambiada el ${escapeHtml(new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' }))}.</p>
+        <p style="color: #c0392b;"><strong>Si no fuiste tú</strong>, contacta inmediatamente al equipo técnico.</p>
+      </div>
+    `
+  }).catch(err => console.error('Error notificando cambio de password:', err.message));
+
+  return res.json({ success: true, message: 'Contraseña actualizada correctamente de forma persistente' });
 });
 
 // Admin Dashboard - Transferencias
@@ -2179,14 +2459,26 @@ app.get('/api/admin/leads', adminAuth, async (req, res) => {
 
 // Restored Contact Route
 app.post('/api/send-contact', async (req, res) => {
-  const { name, email, phone, website, option, message, recaptchaToken } = req.body;
+  const { name, email, phone, website, option, message, recaptchaToken } = req.body || {};
+
+  // ReCAPTCHA verification — secret enviado en POST body
+  const recaptchaCheck = await verifyRecaptcha(recaptchaToken);
+  if (!recaptchaCheck.ok) {
+    if (recaptchaCheck.error === 'config_missing') {
+      return res.status(500).json({ status: 'error', message: 'Error de configuración del servidor' });
+    }
+    return res.status(400).json({ status: 'error', message: 'Verificación de ReCAPTCHA fallida' });
+  }
+
   try {
     await saveLeadToDB('contacto', name, email, phone, req.body);
-    const html = `<h2>Nuevo Contacto</h2><p><b>Nombre:</b> ${name}</p><p><b>Email:</b> ${email}</p><p><b>Teléfono:</b> ${phone}</p><p><b>Opción:</b> ${option}</p><p><b>Mensaje:</b> ${message}</p>`;
+    // Escape HTML para prevenir inyección en el email del negocio
+    const safe = escapeFieldsForHtml({ name, email, phone, option, message });
+    const html = `<h2>Nuevo Contacto</h2><p><b>Nombre:</b> ${safe.name}</p><p><b>Email:</b> ${safe.email}</p><p><b>Teléfono:</b> ${safe.phone}</p><p><b>Opción:</b> ${safe.option}</p><p><b>Mensaje:</b> ${safe.message}</p>`;
     await transporter.sendMail({
       from: `"Undercodeec Contacto" <${process.env.EMAIL_USER}>`,
       to: 'undercodeec@gmail.com',
-      subject: `Nuevo contacto web de ${name}`,
+      subject: `Nuevo contacto web de ${safe.name}`,
       html
     });
     res.json({ status: 'success', message: 'Mensaje enviado exitosamente' });
@@ -2197,14 +2489,26 @@ app.post('/api/send-contact', async (req, res) => {
 
 // Restored Marketing Route
 app.post('/api/send-marketing', async (req, res) => {
-  const { nombre, email, telefono, empresa, objetivo, plan, recaptchaToken } = req.body;
+  const { nombre, email, telefono, empresa, objetivo, plan, recaptchaToken } = req.body || {};
+
+  // ReCAPTCHA verification — secret enviado en POST body
+  const recaptchaCheck = await verifyRecaptcha(recaptchaToken);
+  if (!recaptchaCheck.ok) {
+    if (recaptchaCheck.error === 'config_missing') {
+      return res.status(500).json({ success: false, error: 'Error de configuración del servidor' });
+    }
+    return res.status(400).json({ success: false, error: 'Verificación de ReCAPTCHA fallida' });
+  }
+
   try {
     await saveLeadToDB('marketing', nombre, email, telefono, req.body);
-    const html = `<h2>Nuevo Lead de Marketing</h2><p><b>Nombre:</b> ${nombre}</p><p><b>Email:</b> ${email}</p><p><b>Teléfono:</b> ${telefono}</p><p><b>Empresa:</b> ${empresa}</p><p><b>Objetivo:</b> ${objetivo}</p><p><b>Plan de interés:</b> ${plan}</p>`;
+    // Escape HTML para prevenir inyección en el email del negocio
+    const safe = escapeFieldsForHtml({ nombre, email, telefono, empresa, objetivo, plan });
+    const html = `<h2>Nuevo Lead de Marketing</h2><p><b>Nombre:</b> ${safe.nombre}</p><p><b>Email:</b> ${safe.email}</p><p><b>Teléfono:</b> ${safe.telefono}</p><p><b>Empresa:</b> ${safe.empresa}</p><p><b>Objetivo:</b> ${safe.objetivo}</p><p><b>Plan de interés:</b> ${safe.plan}</p>`;
     await transporter.sendMail({
       from: `"Undercodeec Marketing" <${process.env.EMAIL_USER}>`,
       to: 'undercodeec@gmail.com',
-      subject: `Solicitud de Marketing: ${nombre}`,
+      subject: `Solicitud de Marketing: ${safe.nombre}`,
       html
     });
     res.json({ success: true, message: 'Solicitud enviada' });
@@ -2226,9 +2530,5 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
-  } else {
-    console.log(`Servidor iniciado en puerto ${PORT}`);
-  }
+  console.log(`Servidor iniciado en puerto ${PORT}`);
 });

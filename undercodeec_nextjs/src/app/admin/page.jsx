@@ -144,7 +144,7 @@ export default function AdminLogin() {
             ) : (
               <div>
                 <p className="tw-text-xs tw-text-purple-300 tw-mb-4 tw-text-center">
-                  Hemos enviado un código temporal de 6 dígitos a tu correo electrónico. Por favor, ingrésalo a continuación:
+                  Hemos enviado un código temporal de 8 dígitos a tu correo electrónico. Por favor, ingrésalo a continuación:
                 </p>
                 <div className="tw-relative">
                   <input
@@ -152,7 +152,9 @@ export default function AdminLogin() {
                     name="code"
                     type="text"
                     required
-                    maxLength={6}
+                    maxLength={8}
+                    inputMode="numeric"
+                    pattern="[0-9]{8}"
                     className="tw-w-full tw-text-center tw-font-mono tw-text-2xl tw-tracking-[0.25em] tw-px-5 tw-py-4 tw-bg-gray-800/50 tw-border tw-border-gray-600 tw-rounded-xl tw-text-white tw-placeholder-gray-500 tw-focus:outline-none tw-focus:ring-2 tw-focus:ring-purple-500/50 tw-focus:border-purple-500 tw-transition-all tw-duration-300"
                     placeholder="Código..."
                     value={code}
