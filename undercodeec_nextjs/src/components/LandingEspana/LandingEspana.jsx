@@ -81,7 +81,7 @@ const faqJsonLd = {
       "acceptedAnswer": {
         "@type": "Answer",
         "text":
-          "El presupuesto de una página web profesional en España suele ir desde 600€ para una web corporativa autogestionable, hasta 8.000€ o más para tiendas online avanzadas o portales con funcionalidades personalizadas. Trabajamos siempre con presupuestos cerrados, sin letra pequeña.",
+          "El presupuesto de una página web profesional en España suele ir desde 250€ para una web corporativa autogestionable, hasta 8.000€ o más para tiendas online avanzadas o portales con funcionalidades personalizadas. Trabajamos siempre con presupuestos cerrados, sin letra pequeña.",
       },
     },
     {
@@ -197,7 +197,7 @@ const pricingPlans = [
 const faqs = [
   {
     q: "¿Cuánto cuesta una página web profesional en España?",
-    a: "El presupuesto de una página web profesional en España suele ir desde 600€ para una web corporativa autogestionable, hasta 8.000€ o más para tiendas online avanzadas o portales con funcionalidades personalizadas. Trabajamos siempre con presupuestos cerrados, sin letra pequeña.",
+    a: "El presupuesto de una página web profesional en España suele ir desde 250€ para una web corporativa autogestionable, hasta 8.000€ o más para tiendas online avanzadas o portales con funcionalidades personalizadas. Trabajamos siempre con presupuestos cerrados, sin letra pequeña.",
   },
   {
     q: "¿Trabajáis con empresas de toda España?",
@@ -261,7 +261,7 @@ const LandingEspana = () => {
 
           <div className="container tw-relative" style={{ zIndex: 30 }}>
             <div className="row align-items-center">
-              <div className="col-lg-7">
+              <div className="col-lg-7 animate-fadeRight">
                 <span
                   className="badge mb-3 px-3 py-2"
                   style={{
@@ -314,7 +314,7 @@ const LandingEspana = () => {
                   <span><i className="bi bi-check-circle me-2" style={{ color: "#600b56" }}></i>Cumplimiento RGPD y AEAT</span>
                 </div>
               </div>
-              <div className="col-lg-5 d-none d-lg-block text-center">
+              <div className="col-lg-5 d-none d-lg-block text-center animate-fadeLeft" style={{ transitionDelay: '150ms' }}>
                 <img
                   src="/assets/img/header/Animation3DSoftware.webp"
                   alt="Agencia digital de desarrollo web y aplicaciones móviles para empresas en España"
@@ -328,7 +328,7 @@ const LandingEspana = () => {
         {/* TRUST BAR */}
         <section className="py-4 border-bottom" style={{ background: "#f8f9fa" }}>
           <div className="container">
-            <div className="row text-center g-3">
+            <div className="row text-center g-3 animate-fadeUp">
               <div className="col-6 col-md-3">
                 <div className="fw-bold" style={{ fontSize: "28px", color: "#600b56" }}>+100</div>
                 <div className="text-muted small">Proyectos entregados</div>
@@ -352,8 +352,8 @@ const LandingEspana = () => {
         {/* SERVICES */}
         <section id="servicios" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px" }}>
           <div className="container">
-            <div className="text-center mb-5">
-              <span className="text-uppercase fw-bold" style={{ color: "#ba27f4", letterSpacing: "2px", fontSize: "13px" }}>
+            <div className="text-center mb-5 animate-fadeUp">
+              <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
                 Qué hacemos
               </span>
               <h2 className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
@@ -365,7 +365,7 @@ const LandingEspana = () => {
             </div>
             <div className="row g-4">
               {services.map((s, i) => (
-                <div className="col-md-6 col-lg-4" key={i}>
+                <div className="col-md-6 col-lg-4 animate-scaleUp" key={i} style={{ transitionDelay: `${i * 80}ms` }}>
                   <div
                     className="h-100 p-4 rounded-3"
                     style={{
@@ -380,7 +380,7 @@ const LandingEspana = () => {
                       style={{
                         width: "56px",
                         height: "56px",
-                        background: "linear-gradient(135deg, #ba27f4, #600b56)",
+                        background: "linear-gradient(135deg, #150e23, #600B56)",
                         color: "#fff",
                         fontSize: "26px",
                       }}
@@ -404,8 +404,8 @@ const LandingEspana = () => {
         <section className="py-5" style={{ background: "#f8f9fa", paddingTop: "80px", paddingBottom: "80px" }}>
           <div className="container">
             <div className="row align-items-center">
-              <div className="col-lg-6 mb-4 mb-lg-0">
-                <span className="text-uppercase fw-bold" style={{ color: "#ba27f4", letterSpacing: "2px", fontSize: "13px" }}>
+              <div className="col-lg-6 mb-4 mb-lg-0 animate-fadeRight">
+                <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
                   Por qué Undercodeec
                 </span>
                 <h2 className="mt-2 mb-4" style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 700 }}>
@@ -423,13 +423,13 @@ const LandingEspana = () => {
                     "Soporte y mantenimiento sin permanencia",
                   ].map((p, i) => (
                     <li key={i} className="mb-2" style={{ fontSize: "16px" }}>
-                      <i className="bi bi-check-circle-fill me-2" style={{ color: "#ba27f4" }}></i>
+                      <i className="bi bi-check-circle-fill me-2" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}></i>
                       {p}
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="col-lg-6 text-center">
+              <div className="col-lg-6 text-center animate-fadeLeft" style={{ transitionDelay: '150ms' }}>
                 <img
                   src="/assets/img/about/3d_vector2.svg"
                   alt="Equipo técnico de desarrollo web y SEO en España"
@@ -443,8 +443,8 @@ const LandingEspana = () => {
         {/* PRICING */}
         <section id="presupuesto" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px" }}>
           <div className="container">
-            <div className="text-center mb-5">
-              <span className="text-uppercase fw-bold" style={{ color: "#ba27f4", letterSpacing: "2px", fontSize: "13px" }}>
+            <div className="text-center mb-5 animate-fadeUp">
+              <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
                 Tarifas en euros
               </span>
               <h2 className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
@@ -456,7 +456,7 @@ const LandingEspana = () => {
             </div>
             <div className="row g-4 justify-content-center">
               {pricingPlans.map((plan, i) => (
-                <div className="col-md-6 col-lg-4" key={i}>
+                <div className="col-md-6 col-lg-4 animate-scaleUp" key={i} style={{ transitionDelay: `${i * 100}ms` }}>
                   <div
                     className="h-100 p-4 rounded-3 text-center position-relative"
                     style={{
@@ -477,7 +477,7 @@ const LandingEspana = () => {
                         MÁS POPULAR
                       </span>
                     )}
-                    <h3 className="mb-2" style={{ fontSize: "22px", fontWeight: 700 }}>
+                    <h3 className={`mb-2 ${plan.featured ? "mt-3" : ""}`} style={{ fontSize: "22px", fontWeight: 700 }}>
                       {plan.name}
                     </h3>
                     <div className="my-3">
@@ -493,19 +493,24 @@ const LandingEspana = () => {
                         <li key={j} className="mb-2" style={{ fontSize: "14px" }}>
                           <i
                             className="bi bi-check-lg me-2"
-                            style={{ color: plan.featured ? "#fff" : "#ba27f4" }}
+                            style={plan.featured ? { color: "#fff" } : { background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
                           ></i>
                           {f}
                         </li>
                       ))}
                     </ul>
                     <a
-                      href="#contacto"
+                      href={`https://wa.me/593979046329?text=${encodeURIComponent(`Hola, quisiera solicitar un presupuesto del plan *${plan.name}*.\n\nDescripción del plan: ${plan.description}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className={`btn ${plan.featured ? "btn-light" : "btn-outline-primary"} fw-bold w-100 py-2`}
                       style={{
                         borderRadius: "50px",
-                        color: plan.featured ? "#600b56" : "#ba27f4",
-                        borderColor: "#ba27f4",
+                        color: plan.featured ? "#fff" : "transparent",
+                        background: plan.featured ? "none" : "linear-gradient(135deg, #150e23, #600B56)",
+                        WebkitBackgroundClip: plan.featured ? "unset" : "text",
+                        WebkitTextFillColor: plan.featured ? "unset" : "transparent",
+                        borderColor: plan.featured ? "#fff" : "#600B56",
                       }}
                     >
                       Solicitar presupuesto
@@ -514,15 +519,14 @@ const LandingEspana = () => {
                 </div>
               ))}
             </div>
-           
           </div>
         </section>
 
         {/* FAQ */}
         <section className="py-5" style={{ background: "#f8f9fa", paddingTop: "80px", paddingBottom: "80px" }}>
           <div className="container">
-            <div className="text-center mb-5">
-              <span className="text-uppercase fw-bold" style={{ color: "#ba27f4", letterSpacing: "2px", fontSize: "13px" }}>
+            <div className="text-center mb-5 animate-fadeUp">
+              <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
                 Resolvemos dudas
               </span>
               <h2 className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
@@ -530,7 +534,7 @@ const LandingEspana = () => {
               </h2>
             </div>
             <div className="row justify-content-center">
-              <div className="col-lg-9">
+              <div className="col-lg-9 animate-fadeUp" style={{ transitionDelay: '200ms' }}>
                 {faqs.map((item, i) => (
                   <div
                     key={i}
@@ -541,11 +545,13 @@ const LandingEspana = () => {
                       type="button"
                       className="w-100 text-start p-4 d-flex justify-content-between align-items-center"
                       style={{
-                        background: "none",
+                        background: openFaq === i ? "linear-gradient(135deg, #150e23, #600B56)" : "none",
+                        WebkitBackgroundClip: openFaq === i ? "text" : "unset",
+                        WebkitTextFillColor: openFaq === i ? "transparent" : "inherit",
                         border: "none",
                         fontWeight: 600,
                         fontSize: "17px",
-                        color: openFaq === i ? "#ba27f4" : "inherit",
+                        color: openFaq === i ? "transparent" : "inherit",
                       }}
                       onClick={() => setOpenFaq(openFaq === i ? -1 : i)}
                     >
@@ -575,13 +581,13 @@ const LandingEspana = () => {
           }}
         >
           <div className="container">
-            <h2 className="mb-3" style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 700 }}>
+            <h2 className="mb-3 animate-fadeUp" style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 700 }}>
               ¿Hablamos de tu proyecto?
             </h2>
-            <p className="mb-4 mx-auto" style={{ fontSize: "18px", opacity: 0.95, maxWidth: "650px" }}>
+            <p className="mb-4 mx-auto animate-fadeUp" style={{ fontSize: "18px", opacity: 0.95, maxWidth: "650px", transitionDelay: '100ms' }}>
               Cuéntanos qué necesitas y en 24-48 h tienes un presupuesto cerrado en euros, sin compromiso. Si encaja, empezamos. Si no, te damos consejo gratis igualmente.
             </p>
-            <div className="d-flex flex-wrap gap-3 justify-content-center">
+            <div className="d-flex flex-wrap gap-3 justify-content-center animate-scaleUp" style={{ transitionDelay: '250ms' }}>
               <a
                 href="mailto:ventas@undercodeec.com"
                 className="btn btn-light btn-lg fw-bold px-4 py-3"

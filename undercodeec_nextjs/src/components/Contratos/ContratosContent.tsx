@@ -4,6 +4,7 @@ import React, { useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import ContratoPDF, { ContratoData, INITIAL_DATA } from "./ContratoPDF";
 import "@/styles/contratos.css";
+import wizardData from "@/data/Preview/wizard-config.json";
 
 /* ── Icons ─────────────────────────────────────── */
 const ScaleIcon = () => (
@@ -103,12 +104,35 @@ function StepSelector({ data, onChange }: { data: ContratoData; onChange: (t: Co
   );
 }
 
+/* ── Categorías de planes ──────────────────────── */
+const CATEGORIAS_PLAN = [
+  { id: "sitioWeb",     label: "Sitio Web",     plans: wizardData.sitioWeb.budgetRanges },
+  { id: "landingPage",  label: "Landing Page",  plans: wizardData.landingPage.budgetRanges },
+  { id: "tiendaOnline", label: "Tienda Online", plans: wizardData.tiendaOnline.budgetRanges },
+];
+
 /* ── Step 2: Form ──────────────────────────────── */
 function StepForm({ data, setData, errors }: {
   data: ContratoData;
   setData: React.Dispatch<React.SetStateAction<ContratoData>>;
   errors: Record<string, string>;
 }) {
+  const [categoriaServicio, setCategoriaServicio] = useState("sitioWeb");
+
+  const planesActivos = CATEGORIAS_PLAN.find(c => c.id === categoriaServicio)?.plans ?? [];
+
+  const handleCategoriaChange = (cat: string) => {
+    setCategoriaServicio(cat);
+    setData(p => ({
+      ...p,
+      planSeleccionado: "",
+      proyectoDescripcion: "",
+      proyectoFuncionalidades: "",
+      proyectoExclusiones: "",
+      montoTotal: "",
+    }));
+  };
+
   const set = useCallback(
     (key: keyof ContratoData, val: string) => setData((prev) => ({ ...prev, [key]: val })),
     [setData]
@@ -148,69 +172,141 @@ function StepForm({ data, setData, errors }: {
         <h3 className="contratos-form__group-title">Datos del Cliente</h3>
         <div className="contratos-form__row">
           {inp("clienteNombre", "Nombre / Razón Social", "Ej: Empresa ABC S.A.")}
-          {inp("clienteRuc", "NIF / RUC", "Ej: 1712345678001")}
+          {inp("clienteCedulaRuc", "Documento / Identificación Fiscal", "Tu número de identificación")}
         </div>
         <div className="contratos-form__row">
           {inp("clienteRepresentante", "Representante Legal", "Nombre completo")}
           {inp("clienteEmail", "Correo Electrónico", "correo@empresa.com", "email")}
         </div>
-      </div>
-
-      {/* Project */}
-      <div className="contratos-form__group">
-        <h3 className="contratos-form__group-title">Datos del Proyecto</h3>
         <div className="contratos-form__row contratos-form__row--single">
-          {ta("proyectoDescripcion", "Descripción del Proyecto", "Describa brevemente el proyecto a desarrollar...")}
-        </div>
-        <div className="contratos-form__row contratos-form__row--single">
-          {ta("proyectoFuncionalidades", "Funcionalidades Incluidas", "Liste las funcionalidades que se incluirán...")}
-        </div>
-        <div className="contratos-form__row contratos-form__row--single">
-          {ta("proyectoExclusiones", "Exclusiones", "Funcionalidades excluidas del alcance (Ej: Hosting, SEO, etc.)")}
+          {inp("clienteDireccion", "Dirección Domiciliaria", "Ej: tu dirección completa")}
         </div>
       </div>
 
-      {/* Billing — only for simplificado */}
-      {data.tipo === "simplificado" && (
-        <div className="contratos-form__group">
-          <h3 className="contratos-form__group-title">Facturación y Pagos</h3>
-          <div className="contratos-form__row">
-            {inp("montoTotal", "Monto Total (USD)", "Ej: $2,500.00")}
-            {inp("diasUAT", "Días para Aceptación (UAT)", "Ej: 15", "number")}
-          </div>
-          <label className="contratos-form__label" style={{ marginBottom: 8, marginTop: 4 }}>Porcentajes por Hito</label>
-          <div className="contratos-form__hitos">
-            <span className="contratos-form__hito-label">Firma del contrato e inicio</span>
-            <input className="contratos-form__input contratos-form__hito-input" placeholder="%" value={data.hitoPorcentaje1} onChange={(e) => set("hitoPorcentaje1", e.target.value)} />
-            <span className="contratos-form__hito-label">Entrega de versión Beta</span>
-            <input className="contratos-form__input contratos-form__hito-input" placeholder="%" value={data.hitoPorcentaje2} onChange={(e) => set("hitoPorcentaje2", e.target.value)} />
-            <span className="contratos-form__hito-label">Aceptación Técnica y Lanzamiento</span>
-            <input className="contratos-form__input contratos-form__hito-input" placeholder="%" value={data.hitoPorcentaje3} onChange={(e) => set("hitoPorcentaje3", e.target.value)} />
-          </div>
-        </div>
-      )}
+      {/* DINÁMICO POR TIPO DE CONTRATO */}
+      {data.tipo === "simplificado" ? (
+        <>
+          {/* Selección de Plan (Simplificado) */}
+          <div className="contratos-form__group">
+            <h3 className="contratos-form__group-title">Selección de Plan</h3>
 
-      {/* IP Modality — only for simplificado */}
-      {data.tipo === "simplificado" && (
-        <div className="contratos-form__group">
-          <h3 className="contratos-form__group-title">Propiedad Intelectual</h3>
-          <div className="contratos-form__radios">
-            <div
-              className={`contratos-form__radio${data.modalidadIP === "estandar" ? " contratos-form__radio--selected" : ""}`}
-              onClick={() => set("modalidadIP", "estandar")}
-            >
-              <div className="contratos-form__radio-title">Licencia de Uso</div>
-              <div className="contratos-form__radio-desc">El Prestador retiene la propiedad del código. Se otorga licencia no exclusiva.</div>
+            {/* Tabs de categoría */}
+            <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+              {CATEGORIAS_PLAN.map(cat => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => handleCategoriaChange(cat.id)}
+                  style={{
+                    flex: 1, padding: "10px 8px", borderRadius: "8px",
+                    border: `2px solid ${categoriaServicio === cat.id ? "var(--legal-gold)" : "var(--legal-border)"}`,
+                    background: categoriaServicio === cat.id ? "var(--legal-surface-alt)" : "var(--legal-surface)",
+                    cursor: "pointer",
+                    fontFamily: "var(--legal-sans)", fontSize: "13px",
+                    fontWeight: categoriaServicio === cat.id ? 600 : 400,
+                    color: categoriaServicio === cat.id ? "var(--legal-heading)" : "var(--legal-text-muted)",
+                    transition: "all .2s",
+                  }}
+                >
+                  {cat.label}
+                </button>
+              ))}
             </div>
-            <div
-              className={`contratos-form__radio${data.modalidadIP === "propiedad" ? " contratos-form__radio--selected" : ""}`}
-              onClick={() => set("modalidadIP", "propiedad")}
-            >
-              <div className="contratos-form__radio-title">Transferencia Total</div>
-              <div className="contratos-form__radio-desc">Se transfiere la propiedad completa del código fuente al Cliente.</div>
+
+            {/* Tarjetas de plan */}
+            <div className="contratos-selector" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
+              {planesActivos.map((plan, idx) => (
+                <div
+                  key={idx}
+                  className={`contratos-card${data.planSeleccionado === plan.label ? " contratos-card--selected" : ""}`}
+                  onClick={() => {
+                    setData((p) => ({
+                      ...p,
+                      planSeleccionado: plan.label,
+                      proyectoDescripcion: `${plan.label} - ${plan.description}`,
+                      proyectoFuncionalidades: (plan.features ?? []).join(", "),
+                      proyectoExclusiones: "Cualquier funcionalidad no listada en la descripción del plan. Excluye: Generación de contenidos, fotografía corporativa, pagos a terceros y publicidad pagada.",
+                      montoTotal: `${plan.min}`,
+                      diasUAT: "15",
+                    }));
+                  }}
+                  style={{ padding: "16px" }}
+                >
+                  <div className="contratos-card__icon"><GridIcon /></div>
+                  <h4 className="contratos-card__title" style={{ fontSize: "16px" }}>{plan.label}</h4>
+                  <div style={{ fontSize: "20px", fontWeight: "bold", color: "var(--legal-primary)", margin: "8px 0" }}>${plan.min}</div>
+                  <p className="contratos-card__desc" style={{ fontSize: "12px" }}>{plan.description}</p>
+                  {plan.features && (
+                    <ul style={{ margin: "8px 0 0", padding: "0 0 0 16px", listStyle: "disc" }}>
+                      {plan.features.map((f, fi) => (
+                        <li key={fi} style={{ fontFamily: "var(--legal-sans)", fontSize: "11px", color: "var(--legal-text-muted)", lineHeight: 1.6 }}>{f}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+            {errors.planSeleccionado && <span className="contratos-form__error" style={{ marginTop: "8px", display: "block" }}>{errors.planSeleccionado}</span>}
+          </div>
+
+          {/* Modalidad de Pago (Simplificado) */}
+          <div className="contratos-form__group">
+            <h3 className="contratos-form__group-title">Modalidad de Pago</h3>
+            <div className="contratos-form__radios">
+              <div
+                className={`contratos-form__radio${data.modalidadPago === "contado" ? " contratos-form__radio--selected" : ""}`}
+                onClick={() => set("modalidadPago", "contado")}
+              >
+                <div className="contratos-form__radio-title">Pago de Contado (100%)</div>
+                <div className="contratos-form__radio-desc">Un único pago al inicio del proyecto.</div>
+              </div>
+              <div
+                className={`contratos-form__radio${data.modalidadPago === "mitad" ? " contratos-form__radio--selected" : ""}`}
+                onClick={() => set("modalidadPago", "mitad")}
+              >
+                <div className="contratos-form__radio-title">Pago del 50% y 50%</div>
+                <div className="contratos-form__radio-desc">Mitad al iniciar y mitad al entregar el proyecto.</div>
+              </div>
             </div>
           </div>
-        </div>
+
+          {/* Propiedad Intelectual — solo para simplificado */}
+          <div className="contratos-form__group">
+            <h3 className="contratos-form__group-title">Propiedad Intelectual</h3>
+            <div className="contratos-form__radios">
+              <div
+                className={`contratos-form__radio${data.modalidadIP === "estandar" ? " contratos-form__radio--selected" : ""}`}
+                onClick={() => set("modalidadIP", "estandar")}
+              >
+                <div className="contratos-form__radio-title">Licencia de Uso</div>
+                <div className="contratos-form__radio-desc">El Prestador retiene la propiedad del código. Se otorga licencia no exclusiva.</div>
+              </div>
+              <div
+                className={`contratos-form__radio${data.modalidadIP === "propiedad" ? " contratos-form__radio--selected" : ""}`}
+                onClick={() => set("modalidadIP", "propiedad")}
+              >
+                <div className="contratos-form__radio-title">Transferencia Total</div>
+                <div className="contratos-form__radio-desc">Se transfiere la propiedad completa del código fuente al Cliente.</div>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Project (Manual para Modular) */}
+          <div className="contratos-form__group">
+            <h3 className="contratos-form__group-title">Datos del Proyecto</h3>
+            <div className="contratos-form__row contratos-form__row--single">
+              {ta("proyectoDescripcion", "Descripción del Proyecto", "Describa brevemente el proyecto a desarrollar...")}
+            </div>
+            <div className="contratos-form__row contratos-form__row--single">
+              {ta("proyectoFuncionalidades", "Funcionalidades Incluidas", "Liste las funcionalidades que se incluirán...")}
+            </div>
+            <div className="contratos-form__row contratos-form__row--single">
+              {ta("proyectoExclusiones", "Exclusiones", "Funcionalidades excluidas del alcance (Ej: Hosting, SEO, etc.)")}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
@@ -251,11 +347,18 @@ export default function ContratosContent() {
   const validate = (): boolean => {
     const e: Record<string, string> = {};
     if (!data.clienteNombre.trim()) e.clienteNombre = "Campo requerido";
-    if (!data.clienteRuc.trim()) e.clienteRuc = "Campo requerido";
+    if (!data.clienteCedulaRuc.trim()) e.clienteCedulaRuc = "Campo requerido";
     if (!data.clienteRepresentante.trim()) e.clienteRepresentante = "Campo requerido";
     if (!data.clienteEmail.trim()) e.clienteEmail = "Campo requerido";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.clienteEmail)) e.clienteEmail = "Email inválido";
+    if (!data.clienteDireccion.trim()) e.clienteDireccion = "Campo requerido";
+    
+    if (data.tipo === "simplificado" && !data.planSeleccionado) {
+      e.planSeleccionado = "Debe seleccionar un plan";
+    }
+    
     if (!data.proyectoDescripcion.trim()) e.proyectoDescripcion = "Campo requerido";
+    
     setErrors(e);
     return Object.keys(e).length === 0;
   };

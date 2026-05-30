@@ -134,12 +134,8 @@ const ContactSection = ({ style }) => {
             <p>Lunes a viernes de 08H00 AM a 06H00 PM</p>
           </div>
           <div className="info-block">
-            <h4>Ubicación</h4>
-            <p>Quito, Ecuador<br />Sangolqui - Valle de los chillos</p>
-          </div>
-          <div className="info-block">
-            <h4>Contáctanos</h4>
-            <p>+593 97 904 6329</p>
+            <h4>Cobertura</h4>
+            <p>Atención remota · Cobertura internacional</p>
           </div>
           <div className="info-block">
             <h4>Correo</h4>

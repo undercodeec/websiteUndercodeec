@@ -16,7 +16,7 @@ const FAQ = ({}) => {
             <div className="accordion" id="accordionSt4">
               <div className="row gx-5">
                 {/* Columna izquierda con 6 preguntas */}
-                <div className="col-lg-6">
+                <div className="col-lg-6 animate-fadeRight">
                   {
                     data.map((item, index) => (
                       index <= 5 && (
@@ -40,7 +40,7 @@ const FAQ = ({}) => {
                 </div>
 
                 {/* Columna derecha con las siguientes 6 preguntas */}
-                <div className="col-lg-6">
+                <div className="col-lg-6 animate-fadeLeft" style={{ transitionDelay: '100ms' }}>
                   {
                     data.map((item, index) => (
                       index > 5 && (

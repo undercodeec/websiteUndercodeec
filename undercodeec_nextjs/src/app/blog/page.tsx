@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import navbarScrollEffect from "@/common/navbarScrollEffect";
+import initScrollAnimations from "@/common/initScrollAnimations";
 import MainLayout from "@/layouts/Main";
 import TopNav from "@/components/Navbars/TopNav";
 import Navbar from "@/components/Navbars/SaasNav";
@@ -15,6 +16,7 @@ export default function BlogPage() {
     if (navbarRef.current) {
       navbarScrollEffect(navbarRef.current, true);
     }
+    initScrollAnimations();
   }, []);
 
   return (

@@ -111,6 +111,54 @@ const serviceJsonLd = {
   },
 };
 
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": `${SITE_URL}/marketing-para-tu-negocio/#faq`,
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "¿Cuánto cuesta una campaña de marketing digital con Undercodeec?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Una campaña de marketing digital con Undercodeec cuesta desde 300 USD mensuales para pymes en planes básicos de SEO y redes sociales, hasta 10.000 USD para estrategias integrales con SEO técnico, Google Ads, Meta Ads y gestión avanzada de contenidos. El presupuesto se ajusta a tus objetivos, sector y mercado.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "¿En cuánto tiempo se ven resultados del posicionamiento SEO?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Los resultados del posicionamiento SEO se ven entre 3 y 6 meses para keywords de baja-media competencia, y entre 6 y 12 meses para términos competitivos. SEO es una estrategia de mediano-largo plazo: trabajamos optimización técnica, contenidos y enlaces para asegurar tráfico orgánico sostenible.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "¿Qué diferencia hay entre SEO y Google Ads?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "SEO genera tráfico orgánico (gratuito) a mediano-largo plazo optimizando tu web para Google. Google Ads genera tráfico de pago inmediato pagando por clics. Lo ideal es combinarlos: Google Ads para resultados rápidos mientras el SEO madura.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "¿Gestionan campañas de Facebook e Instagram (Meta Ads)?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Sí. Gestionamos campañas completas de Meta Ads (Facebook e Instagram): segmentación avanzada de audiencias, creación de creatividades, A/B testing, retargeting con píxel de Meta y reportes mensuales de ROI.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "¿Optimizan mi web para que sea citada por IA como ChatGPT y Perplexity?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Sí. Aplicamos Generative Engine Optimization (GEO): estructuramos tu contenido con datos JSON-LD, FAQs, schema speakable y formato pregunta-respuesta para que motores de IA como ChatGPT, Perplexity, Gemini y Claude indexen y citen tu web como fuente confiable.",
+      },
+    },
+  ],
+};
+
 export default function MarketingLayout({
   children,
 }: {
@@ -125,6 +173,10 @@ export default function MarketingLayout({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       {children}
     </>

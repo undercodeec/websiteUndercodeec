@@ -4,16 +4,18 @@ import React from "react";
 export interface ContratoData {
   tipo: "simplificado" | "modular";
   clienteNombre: string;
-  clienteRuc: string;
+  clienteCedulaRuc: string;
   clienteRepresentante: string;
   clienteEmail: string;
+  clienteDireccion: string;
+  planSeleccionado: string;
+  modalidadPago: "contado" | "mitad";
   proyectoDescripcion: string;
   proyectoFuncionalidades: string;
   proyectoExclusiones: string;
   montoTotal: string;
   hitoPorcentaje1: string;
   hitoPorcentaje2: string;
-  hitoPorcentaje3: string;
   diasUAT: string;
   modalidadIP: "estandar" | "propiedad";
 }
@@ -21,17 +23,19 @@ export interface ContratoData {
 export const INITIAL_DATA: ContratoData = {
   tipo: "simplificado",
   clienteNombre: "",
-  clienteRuc: "",
+  clienteCedulaRuc: "",
   clienteRepresentante: "",
   clienteEmail: "",
+  clienteDireccion: "",
+  planSeleccionado: "",
+  modalidadPago: "mitad",
   proyectoDescripcion: "",
   proyectoFuncionalidades: "",
   proyectoExclusiones: "",
   montoTotal: "",
   hitoPorcentaje1: "",
   hitoPorcentaje2: "",
-  hitoPorcentaje3: "",
-  diasUAT: "",
+  diasUAT: "15",
   modalidadIP: "estandar",
 };
 
@@ -39,12 +43,12 @@ const PRESTADOR = {
   nombre: "Undercodeec",
   ruc: "---",
   email: "undercodeec@gmail.com",
-  direccion: "Quito, Ecuador",
+  direccion: "---",
 };
 
 const today = () => {
   const d = new Date();
-  return d.toLocaleDateString("es-EC", { year: "numeric", month: "long", day: "numeric" });
+  return d.toLocaleDateString("es", { year: "numeric", month: "long", day: "numeric" });
 };
 
 interface Props { data: ContratoData; }
@@ -81,15 +85,15 @@ export default function ContratoPDF({ data }: Props) {
             <div className="contratos-pdf__highlight">
               <div className="contratos-pdf__highlight-label">El Prestador</div>
               <p className="contratos-pdf__text">
-                <strong>{PRESTADOR.nombre}</strong>, con RUC {PRESTADOR.ruc},
+                <strong>{PRESTADOR.nombre}</strong>, con identificación fiscal {PRESTADOR.ruc},
                 correo electrónico {PRESTADOR.email} y domicilio en {PRESTADOR.direccion}.
               </p>
             </div>
             <div className="contratos-pdf__highlight">
               <div className="contratos-pdf__highlight-label">El Cliente</div>
               <p className="contratos-pdf__text">
-                <strong><V v={data.clienteNombre} /></strong>, con NIF/RUC <V v={data.clienteRuc} />,
-                representado por <V v={data.clienteRepresentante} />, correo electrónico <V v={data.clienteEmail} />.
+                <strong><V v={data.clienteNombre} /></strong>, con identificación fiscal <V v={data.clienteCedulaRuc} />,
+                representado por <V v={data.clienteRepresentante} />, correo electrónico <V v={data.clienteEmail} /> y domicilio en <V v={data.clienteDireccion} />.
               </p>
             </div>
           </div>
@@ -127,9 +131,14 @@ export default function ContratoPDF({ data }: Props) {
             <table className="contratos-pdf__table">
               <thead><tr><th>Hito / Entregable</th><th>Porcentaje</th></tr></thead>
               <tbody>
-                <tr><td>Firma del contrato e inicio</td><td><V v={data.hitoPorcentaje1} />%</td></tr>
-                <tr><td>Entrega de versión Beta para pruebas</td><td><V v={data.hitoPorcentaje2} />%</td></tr>
-                <tr><td>Aceptación Técnica y Lanzamiento</td><td><V v={data.hitoPorcentaje3} />%</td></tr>
+                {data.modalidadPago === "contado" ? (
+                  <tr><td>Firma del contrato e inicio</td><td>100%</td></tr>
+                ) : (
+                  <>
+                    <tr><td>Firma del contrato e inicio</td><td>50%</td></tr>
+                    <tr><td>Entrega de versión final y aceptación</td><td>50%</td></tr>
+                  </>
+                )}
               </tbody>
             </table>
           </div>
@@ -197,14 +206,14 @@ export default function ContratoPDF({ data }: Props) {
             <div className="contratos-pdf__highlight">
               <div className="contratos-pdf__highlight-label">El Prestador</div>
               <p className="contratos-pdf__text">
-                <strong>{PRESTADOR.nombre}</strong>, RUC {PRESTADOR.ruc}, {PRESTADOR.email}, {PRESTADOR.direccion}.
+                <strong>{PRESTADOR.nombre}</strong>, identificación fiscal {PRESTADOR.ruc}, {PRESTADOR.email}, {PRESTADOR.direccion}.
               </p>
             </div>
             <div className="contratos-pdf__highlight">
               <div className="contratos-pdf__highlight-label">El Cliente</div>
               <p className="contratos-pdf__text">
-                <strong><V v={data.clienteNombre} /></strong>, NIF/RUC <V v={data.clienteRuc} />,
-                representado por <V v={data.clienteRepresentante} />, email <V v={data.clienteEmail} />.
+                <strong><V v={data.clienteNombre} /></strong>, identificación fiscal <V v={data.clienteCedulaRuc} />,
+                representado por <V v={data.clienteRepresentante} />, email <V v={data.clienteEmail} />, domicilio en <V v={data.clienteDireccion} />.
               </p>
             </div>
           </div>

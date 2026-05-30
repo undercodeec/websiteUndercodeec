@@ -1,8 +1,24 @@
+"use client";
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { playSoundWithFade } from '@/utils/audio';
 
 const PreviewNavbar = ({ navbarRef }) => {
+  const pathname = usePathname();
+
+  const handleLogoClick = (e) => {
+    e.preventDefault();
+    if (typeof window === 'undefined') return;
+    sessionStorage.removeItem('preloaderShown_home');
+    if (pathname === '/') {
+      // Ya en inicio: scroll al tope y mostrar preloader
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      window.dispatchEvent(new Event('resetPreloader'));
+    }
+    // Si está en otra página: PageTransition lo maneja vía data-force-preloader
+  };
+
   const playSoftSound = (e) => {
     if (typeof window !== 'undefined') {
       if (window.location.pathname === '/' || window.location.pathname === '') {
@@ -10,7 +26,7 @@ const PreviewNavbar = ({ navbarRef }) => {
         window.scrollTo({ top: 0, behavior: 'instant' });
         window.dispatchEvent(new Event('resetPreloader'));
       }
-      
+
       playSoundWithFade();
     }
   };
@@ -18,7 +34,12 @@ const PreviewNavbar = ({ navbarRef }) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light style-1 nav-preview py-0" ref={navbarRef} style={{ backgroundColor: '#f7bcc2' }}>
       <div className="container-xxl">
-        <a className="navbar-brand" href="#">
+        <a
+          className="navbar-brand"
+          href="/"
+          data-force-preloader="true"
+          onClick={handleLogoClick}
+        >
           <img src="/assets/img/undercode-logo.png" alt="" className="preview-logo" />
         </a>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -39,30 +60,22 @@ const PreviewNavbar = ({ navbarRef }) => {
                 Nuestra trayectoria
               </Link>
             </li>
-            <li className="nav-item">
+            <li className="nav-item dropDown megaMenu col3">
               <Link className="nav-links dropLink" href='/servicios'>
                 Servicios
-              </Link>
-            </li>
-            <li className="nav-item dropDown megaMenu col3">
-              <a className="nav-links dropLink" href="#">
-                Todo en Uno
                 <small className="icon ms-1"><i className="bi bi-chevron-down me-1"></i></small>
-              </a>
+              </Link>
               <ul className="dropDownMenu">
                 <li className="dropdown-items">
                   <a href="#" className="menuLink">multi-Paginas</a>
                   <ul className="subDropDown">
-
-          
-                  
                     <li>
                       <Link href="/aplicaciones-moviles" className="subLink">
-                        Aplicaciones Móviles 
+                        Aplicaciones Móviles
                       </Link>
                       <span className="new">Nuevo</span>
                     </li>
-                
+
                     <li>
                       <Link href="/marketing-para-tu-negocio" className="subLink">
                       Marketing para tu negocio.
@@ -75,17 +88,8 @@ const PreviewNavbar = ({ navbarRef }) => {
                         Software para tu negocio
                       </Link>
                     </li>
-                    
-                   {/*  ----------- Enlase para la tienda-------------------
-                    <li>
-                      <Link href="/page-shop-5" className="subLink">
-                        shop
-                      </Link>
-                    </li>
-                    */} 
                   </ul>
                 </li>
-                {/* one-page and RTL sections removed */}
               </ul>
             </li>
             <li className="nav-item">
@@ -104,7 +108,7 @@ const PreviewNavbar = ({ navbarRef }) => {
           </ul>
           <div className="nav-side flex-shrink-0">
             <div className="qoute-nav">
-              <a href="#reserva_agenda" className="btn sm-butn butn-gard border-0 text-white">
+              <a href="/#reserva_agenda" className="btn sm-butn butn-gard border-0 text-white">
                 <span>Agendar Reunión</span>
               </a>
             </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaCreditCard, FaExchangeAlt, FaUpload, FaCheck, FaArrowLeft, FaArrowRight, FaStore, FaChartLine, FaRocket, FaUniversity } from 'react-icons/fa';
 import ReactGA from 'react-ga4';
+import { AnimatePresence, motion } from 'framer-motion';
 import wizardConfig from '@/data/Preview/wizard-config.json';
 // import { supabase } from '@/lib/supabaseClient'; // Supabase is paused, moving to local backend
 
@@ -136,151 +137,143 @@ const moodleSteps = [
 
 // Config for Landing Page - Price Cards
 const landingPriceCards = [
-  { 
+  {
     id: 'lanzamiento',
-    price: 250, 
-    label: 'Plan de Lanzamiento', 
-    description: 'Lanza tu campaña en tiempo récord. Obtén una presencia digital funcional, rápida y atractiva.',
+    price: 250,
+    label: '🎯 Landing Express',
+    description: 'Lanza tu campaña en tiempo récord. Una sola página diseñada exclusivamente para que el cliente realice una acción: llamar o escribir por WhatsApp.',
     icon: 'circle',
     features: [
-        "Dominio.com y Hosting por 1 año",
-        "Diseño unico optimizado",
-        "Diseño 100% adaptable (Mobile-first)",
-        "Formulario de contacto",
-        "Botones flotantes de WhatsApp y Llamadas",
-        "SEO orgánico integrado",
-        "Soporte durante 1 mes y garantía de 1 año."
+      { title: "Diseño de Impacto Único", description: "Estructurada en una sola sección continua, optimizada para celulares." },
+      { title: "Listo para Google (SEO Integrado)", description: "Configuración técnica base para que los buscadores reconozcan y registren tu página de campaña de forma correcta." },
+      { title: "Llamado a la Acción Inmediato", description: "Botones flotantes e irresistibles de WhatsApp y llamadas directas." },
+      { title: "Infraestructura", description: "Dominio .com y hosting básico por 1 año." },
+      { title: "Soporte", description: "1 mes de acompañamiento y 1 año de garantía." }
     ]
   },
-  { 
+  {
     id: 'crecimiento',
-    price: 600, 
-    label: 'Plan de Crecimiento', 
-    description: 'Diseño estratégico orientado a la conversión (CRO). Convertimos a tus visitantes en prospectos reales.',
+    price: 600,
+    label: '🔥 Landing Estratégica',
+    description: 'Convertimos tus clics en dinero. Diseño persuasivo con herramientas de rastreo para medir cada dólar invertido en publicidad.',
     icon: 'triangle',
     features: [
-        "Todo lo del Plan Lanzamiento",
-        "Diseño semi-personalizado y UX",
-        "Copywriting persuasivo",
-        "Lead Magnet (descargables, cupones)",
-        "Google Analytics 4 y Píxel de Meta",
-        "Integración con Email Marketing/CRM"
+      { title: "Todo lo de la Landing Express", description: null },
+      { title: "Textos que Venden (Copywriting)", description: "Redacción enfocada en los dolores y soluciones del cliente." },
+      { title: "Estrategia de Regalo (Lead Magnet)", description: "Sistema para regalar cupones o descargables a cambio de los datos del cliente." },
+      { title: "Rastreo de Anuncios", description: "Integración del Píxel de Meta (Facebook/Instagram) y Google Analytics 4 para saber exactamente de dónde vienen tus ventas." },
+      { title: "Automatización", description: "Conexión con tu plataforma de email marketing." }
     ]
   },
-  { 
+  {
     id: 'autoridad',
-    price: 1500, 
-    label: 'Plan de Autoridad', 
-    description: 'El ecosistema definitivo de ventas. Creada desde cero, con datos y automatizaciones 24/7.',
+    price: 1500,
+    label: '⚡ Landing Premium',
+    description: 'El ecosistema de ventas definitivo. Un embudo automatizado que trabaja y califica prospectos por ti las 24 horas.',
     icon: 'star',
     features: [
-        "Todo lo del Plan Crecimiento",
-        "Diseño 100% a medida con animaciones",
-        "Pruebas A/B y mapas de calor",
-        "Integraciones complejas (Reservas, pasarelas)",
-        "Chatbots inteligentes con IA",
-        "SEO Avanzado y arquitectura de contenido"
+      { title: "Todo lo de la Landing Estratégica", description: null },
+      { title: "SEO Avanzado y Arquitectura de Contenido", description: "Estructuramos la página para que, además de servir para anuncios pagados, se posicione en Google a largo plazo y capture tráfico orgánico (gratis)." },
+      { title: "Pruebas y Optimización (A/B Testing)", description: "Creamos variantes de la página para medir cuál vende más basándonos en mapas de calor reales." },
+      { title: "Asistente Virtual con IA", description: "Chatbot avanzado que interactúa con el usuario, resuelve dudas del producto y agenda citas automáticamente en tu calendario." },
+      { title: "Animaciones y Experiencia Premium", description: "Interfaz visual interactiva que eleva el valor percibido de tu producto o servicio." }
     ]
   }
 ];
 
 // Config for Website (Sitio Web) - Price Cards
 const sitioWebPriceCards = [
-  { 
+  {
     id: 'lanzamiento',
-    price: 360, 
-    label: 'Plan de Lanzamiento', 
-    description: 'Tu negocio abierto al mundo 24/7. Una web profesional, rápida y optimizada para móviles que genera confianza en tus clientes.',
+    price: 360,
+    label: '🚀 Plan Lanzamiento',
+    description: 'Tu negocio abierto al mundo 24/7. Una web profesional, rápida y lista para generar confianza desde el primer clic.',
     icon: 'circle',
     features: [
-      "Diseño basado, optimizadas y adaptadas a la identidad de la marca",
-      "Estructura de 5 a 10 páginas (Inicio, Servicios, Nosotros, etc.)",
-      "Diseño 100% Mobile-first (obligatorio en 2026)",
-      "Configuración SEO orgánico integrado",
-      "Formularios de contacto e integración con WhatsApp",
-      "Dominio.com y Hosting por 1 año",
-      "Soporte durante 1 mes y garantía de 1 año."
+      { title: "Estructura Ideal", description: "De 5 a 10 secciones principales (Inicio, Servicios, Nosotros, Contacto, etc.)." },
+      { title: "Diseño Inteligente", description: "Adaptado perfectamente a teléfonos celulares (pantallas móviles), que es donde está el 90% de tus clientes hoy." },
+      { title: "Conexión Directa", description: "Formularios de contacto y botón flotante de WhatsApp para que te escriban con un solo clic." },
+      { title: "Listo para Google", description: "Configuración inicial para que los buscadores encuentren tu negocio." },
+      { title: "Todo Incluido", description: "Dominio (.com) y alojamiento web (hosting) de alta velocidad gratis por un año." },
+      { title: "Tranquilidad Total", description: "1 mes de soporte técnico para cambios y 1 año de garantía ante cualquier fallo." }
     ]
   },
-  { 
+  {
     id: 'crecimiento',
-    price: 800, 
-    label: 'Plan de Crecimiento', 
-    description: 'Transformamos tus visitas en clientes. Un sitio web estratégico centrado en la UX, SEO y captura de prospectos.',
+    price: 800,
+    label: '📈 Plan Crecimiento',
+    description: 'Transformamos visitas en clientes reales. Estrategia web diseñada específicamente para captar prospectos y vender más.',
     icon: 'triangle',
     features: [
-      "Todo lo del Plan Lanzamiento",
-      "Diseño semi-personalizado orientado a la conversión (CRO)",
-      "SEO Avanzado y SEO Local",
-      "Cumplimiento de Core Web Vitals (carga rápida)",
-      "Integración con CRM, email marketing o Google Analytics",
-      "Redacción persuasiva (Copywriting)"
+      { title: "Todo lo del Plan Lanzamiento", description: null },
+      { title: "Diseño Persuasivo (Copywriting)", description: "Redactamos los textos de tu web con técnicas de venta para convencer a tus visitantes." },
+      { title: "Estrategia de Conversión", description: "Estructura visualmente guiada para que el usuario deje sus datos o compre sin distracciones." },
+      { title: "Velocidad Extrema", description: "Optimización interna para que la página cargue al instante (evitando que el cliente se vaya por esperar)." },
+      { title: "Posicionamiento Local y Avanzado", description: "Configuración para aparecer en Google Maps y búsquedas clave en tu ciudad." },
+      { title: "Conexión con tus Herramientas", description: "Integración con sistemas de correo masivo (Email Marketing), bases de datos (CRM) o Google Analytics para medir tus resultados." }
     ]
   },
-  { 
+  {
     id: 'autoridad',
-    price: 2000, 
-    label: 'Plan de Autoridad', 
-    description: 'El ecosistema digital definitivo. Diseño 100% a medida, integraciones complejas y rendimiento extremo.',
+    price: 2000,
+    label: '🏆 Plan Autoridad',
+    description: 'El ecosistema digital definitivo. Plataformas exclusivas hechas a medida con automatización total para empresas líderes.',
     icon: 'star',
     features: [
-      "Todo lo del Plan Crecimiento",
-      "Diseño visual UX/UI 100% personalizado",
-      "Integraciones complejas (reservas, ERP, pasarelas)",
-      "Automatización de ventas y Chatbots con IA",
-      "Auditoría de seguridad avanzada y arquitectura escalable"
+      { title: "Todo lo del Plan Crecimiento", description: null },
+      { title: "Diseño 100% Exclusivo", description: "Sin plantillas. Interfaz única diseñada desde cero para tu marca." },
+      { title: "Automatización con Inteligencia Artificial", description: "Chatbots inteligentes capaces de calificar clientes o responder preguntas frecuentes las 24 horas." },
+      { title: "Sistemas Complejos", description: "Integración de sistemas de reservas de citas, conexión con el inventario/sistema de tu empresa (ERP) o pasarelas de pago integradas." },
+      { title: "Blindaje de Seguridad", description: "Auditoría y protección avanzada contra hackeos o caídas del sistema." }
     ]
   }
 ];
 
 // Config for Ecommerce (Tienda Online) - Price Cards
 const ecommercePriceCards = [
-  { 
+  {
     id: 'lanzamiento',
-    price: 550, 
-    label: 'Tienda de Lanzamiento', 
-    description: 'Lanza tu primera tienda online con todo lo necesario para vender de forma segura, rápida y sin complicaciones técnicas.',
+    price: 550,
+    label: '🛒 Tienda de Lanzamiento',
+    description: 'Lanza tu primera tienda online. Todo lo necesario para vender de forma segura, rápida y sin complicaciones técnicas.',
     icon: 'circle',
     features: [
-      "4 conceptos de diseño",
-      "Tienda administrable para subir productos",
-      "Carga inicial de 50 a 100 productos con opcion a mas",
-      "Integración de pasarelas de pago (Stripe, Paypal, etc.)",
-      "Dominio.com y Hosting por 1 año",
-      "Compra de productos por WhatsApp, Telegram y redes sociales",
-      "Métodos de envíos avanzados y SEO orgánico integrado",
-      "Soporte durante 1 mes y garantía de 1 año."
+      { title: "Catálogo Autoadministrable", description: "Sube, edita o elimina tus productos tú mismo de forma ultra sencilla." },
+      { title: "Carga Inicial", description: "Nosotros subimos tus primeros 50 a 100 productos para que arranques facturando." },
+      { title: "Caja Registradora Virtual", description: "Integración de pasarelas de pago seguras (tarjetas de crédito, PayPal, Payphone o Stripe) y compras directas por WhatsApp." },
+      { title: "Visibilidad en Buscadores (SEO Orgánico)", description: "Configuración inicial para que tus categorías y productos principales comiencen a aparecer de forma natural cuando la gente busque lo que vendes en Google." },
+      { title: "Envíos Inteligentes", description: "Configuración de métodos de entrega según la zona del cliente." },
+      { title: "Todo Incluido", description: "Dominio .com y hosting optimizado para comercio electrónico por 1 año." },
+      { title: "Garantía", description: "1 mes de soporte guiado y 1 año de respaldo técnico." }
     ]
   },
-  { 
+  {
     id: 'crecimiento',
-    price: 850, 
-    label: 'Tienda de Crecimiento', 
-    description: 'Escala tus ventas con una tienda optimizada. Mejoramos la experiencia de compra e integramos automatizaciones.',
+    price: 850,
+    label: '🚀 Tienda de Crecimiento',
+    description: 'Escala tus ventas y automatiza procesos. Mejoramos la experiencia de compra y recuperamos clientes indecisos.',
     icon: 'triangle',
     features: [
-      "Todo lo del Plan Lanzamiento",
-      "Diseño semi a medida enfocado en UX y CRO",
-      "Búsqueda y filtrado avanzado de productos",
-      "Sincronización de inventario y recuperación de carritos (CRM)",
-      "Copys persuasivos y SEO técnico avanzado",
-      "Reglas de envío dinámicas e impuestos"
+      { title: "Todo lo de la Tienda de Lanzamiento", description: null },
+      { title: "Filtros Avanzados", description: "Buscador inteligente para que tus clientes encuentren tallas, colores o categorías en segundos." },
+      { title: "SEO Técnico Avanzado", description: "Optimizamos la estructura interna de la tienda y la velocidad de indexación para que Google posicione tus productos por encima de tu competencia." },
+      { title: "Recuperación de Carritos Abandonados", description: "Sistema automático que envía correos a los clientes que dejaron productos olvidados para convencerlos de comprar." },
+      { title: "Sincronización de Inventario", description: "Control automático de stock para que nunca vendas algo que no tienes disponible." },
+      { title: "Estrategia de Envíos Dinámicos", description: "Configuración de envío gratis por compras mínimas o cálculo automático de impuestos." }
     ]
   },
-  { 
+  {
     id: 'elite',
-    price: 3490, 
-    label: 'Tienda Élite', 
-    description: 'Arquitectura de alto rendimiento para líderes del mercado. Velocidad extrema, IA e integraciones a medida.',
+    price: 3490,
+    label: '💎 Tienda Élite',
+    description: 'Infraestructura tecnológica de alto rendimiento para líderes del mercado. Velocidad extrema e integraciones corporativas.',
     icon: 'star',
     features: [
-      "Todo lo del Plan Crecimiento",
-      "Desarrollo 100% a medida o arquitectura Headless",
-      "Integración API con ERPs empresariales (SAP, Oracle)",
-      "Motores de recomendación con Inteligencia Artificial",
-      "Arquitectura multi-idioma, multi-moneda o multi-almacén (sistema de inventario)",
-      "Checkout y lógica de negocio a medida",
-      
+      { title: "Todo lo de la Tienda de Crecimiento", description: null },
+      { title: "Tecnología Ultra Rápida", description: "Desarrollo con arquitectura moderna e independiente (Headless) que hace que la tienda cargue en milisegundos, lo que Google premia dándote un mejor posicionamiento web de forma natural." },
+      { title: "Conexión Empresarial", description: "Sincronización directa vía API con sistemas contables o de inventario grandes (como SAP, Oracle o sistemas locales)." },
+      { title: "Recomendador con IA", description: "Motor de Inteligencia Artificial que sugiere productos personalizados a los clientes según su comportamiento de compra." },
+      { title: "Internacional", description: "Configuración multi-idioma, multi-moneda o para manejar múltiples bodegas y almacenes físicos." }
     ]
   }
 ];
@@ -291,8 +284,27 @@ const configLandingPage = {
     mensajeCierre: "Gracias por completar los pasos. Un asesor revisará tu estrategia."
 };
 
+const stepVariants = {
+  enter: (dir) => ({
+    x: dir === 'forward' ? 50 : -50,
+    opacity: 0,
+    filter: 'blur(6px)',
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    filter: 'blur(0px)',
+  },
+  exit: (dir) => ({
+    x: dir === 'forward' ? -50 : 50,
+    opacity: 0,
+    filter: 'blur(6px)',
+  }),
+};
+
 const AffiliationSection = () => {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [direction, setDirection] = useState('forward');
   const [showBankDetails, setShowBankDetails] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('');
   const [loading, setLoading] = useState(false);
@@ -311,7 +323,10 @@ const AffiliationSection = () => {
   // Tienda Online pricing states
   const [showEcommercePrices, setShowEcommercePrices] = useState(false);
   const [selectedEcommercePlan, setSelectedEcommercePlan] = useState('');
-  
+  const [openFeatures, setOpenFeatures] = useState({});
+
+  const toggleFeature = (key) => setOpenFeatures(prev => ({ ...prev, [key]: !prev[key] }));
+
   // Google Drive integration states
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [driveFolderUrl, setDriveFolderUrl] = useState('');
@@ -617,6 +632,7 @@ const AffiliationSection = () => {
 
   // Handle project selection
   const handleProjectSelect = (projectId) => {
+    setDirection('forward');
     setSelectedPlan(projectId);
     handleWizardChange('projectType', projectId);
 
@@ -1225,6 +1241,7 @@ const AffiliationSection = () => {
   // Navigate to next step
   // Handle next step
   const handleNextStep = () => {
+    setDirection('forward');
     let maxSteps = 2; // Default for contact form
     
     if (selectedPlan === 'Sitio Web' || selectedPlan === 'Desarrollo de Software') {
@@ -1255,7 +1272,19 @@ const AffiliationSection = () => {
   // Navigate to previous step
   const handlePrevStep = () => {
     if (currentStep > 1) {
+      setDirection('backward');
       setCurrentStep(prev => prev - 1);
+
+      // For plans that show pricing on step 2, scroll to the project title
+      // after exit animation (320ms) so the heading is in view when step 1 enters
+      if (currentStep === 2 && ['Sitio Web', 'Landing Page', 'Tienda Online'].includes(selectedPlan)) {
+        setTimeout(() => {
+          const title = document.getElementById('wizard-project-title');
+          if (title) {
+            title.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 340);
+      }
     }
   };
 
@@ -1751,7 +1780,7 @@ const AffiliationSection = () => {
   // Render Step 1 - Project Selection
   const renderStep1 = () => (
     <div className="wizard-step-content">
-      <h2>¿Qué tipo de proyecto planificas?</h2>
+      <h2 id="wizard-project-title">¿Qué tipo de proyecto planificas?</h2>
       <p className="wizard-subtitle">
         Selecciona el tipo principal de proyecto que deseas construir.
       </p>
@@ -1776,9 +1805,9 @@ const AffiliationSection = () => {
   // === RENDER LANDING PAGE PRICE CARDS ===
   const renderLandingPriceCards = () => (
     <div className={`landing-price-section ${showLandingPrices ? 'visible' : ''}`}>
-      <h2>Elige tu plan de Landing Page</h2>
+      <h2>Páginas de Venta · Campañas de Alto Impacto</h2>
       <p className="wizard-subtitle">
-        Selecciona el plan que mejor se adapte a tus necesidades.
+        Selecciona la landing page ideal para tu campaña o producto.
       </p>
 
       <div className="landing-price-cards three-columns">
@@ -1788,19 +1817,6 @@ const AffiliationSection = () => {
             className={`price-card ${selectedLandingPlan === card.id ? 'selected' : ''}`}
             onClick={() => handleLandingPlanSelect(card.id)}
           >
-            {/* Icon */}
-            <div className="price-card-icon">
-              {card.icon === 'circle' ? (
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2"/>
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L22 20H2L12 2Z" fill="#efa238" stroke="#efa238" strokeWidth="2"/>
-                </svg>
-              )}
-            </div>
-
             {/* Plan Name */}
             <h3 className="price-card-name">{card.label}</h3>
             
@@ -1814,9 +1830,28 @@ const AffiliationSection = () => {
 
             {/* Features */}
             <ul className="price-card-features">
-              {card.features.map((feature, idx) => (
-                <li key={idx}>{feature}</li>
-              ))}
+              {card.features.map((feature, idx) => {
+                const key = `landing-${card.id}-${idx}`;
+                const isOpen = !!openFeatures[key];
+                const hasDesc = feature.description !== null;
+                return (
+                  <li key={idx} className={`feature-accordion-item${hasDesc ? ' has-desc' : ''}`}>
+                    <button
+                      type="button"
+                      className="feature-accordion-trigger"
+                      onClick={(e) => { e.stopPropagation(); if (hasDesc) toggleFeature(key); }}
+                      style={{ cursor: hasDesc ? 'pointer' : 'default' }}
+                    >
+                      <span className="feature-check">✓</span>
+                      <span className="feature-title">{feature.title}</span>
+                      {hasDesc && <span className="feature-arrow">{isOpen ? '▲' : '▼'}</span>}
+                    </button>
+                    {hasDesc && isOpen && (
+                      <p className="feature-accordion-body">{feature.description}</p>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}
@@ -2352,23 +2387,6 @@ const AffiliationSection = () => {
             className={`price-card ${selectedSitioWebPlan === card.id ? 'selected' : ''}`}
             onClick={() => handleSitioWebPlanSelect(card.id)}
           >
-            {/* Icon */}
-            <div className="price-card-icon">
-              {card.icon === 'circle' ? (
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2"/>
-                </svg>
-              ) : card.icon === 'triangle' ? (
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L22 20H2L12 2Z" fill="#efa238" stroke="#efa238" strokeWidth="2"/>
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                   <polygon points="12,2 15,9 22,9 17,14 19,22 12,17 5,22 7,14 2,9 9,9" fill="#efa238" stroke="#efa238" strokeWidth="1"/>
-                </svg>
-              )}
-            </div>
-
             {/* Plan Name */}
             <h3 className="price-card-name">{card.label}</h3>
             
@@ -2382,9 +2400,28 @@ const AffiliationSection = () => {
 
             {/* Features */}
             <ul className="price-card-features">
-              {card.features.map((feature, idx) => (
-                <li key={idx}>{feature}</li>
-              ))}
+              {card.features.map((feature, idx) => {
+                const key = `web-${card.id}-${idx}`;
+                const isOpen = !!openFeatures[key];
+                const hasDesc = feature.description !== null;
+                return (
+                  <li key={idx} className={`feature-accordion-item${hasDesc ? ' has-desc' : ''}`}>
+                    <button
+                      type="button"
+                      className="feature-accordion-trigger"
+                      onClick={(e) => { e.stopPropagation(); if (hasDesc) toggleFeature(key); }}
+                      style={{ cursor: hasDesc ? 'pointer' : 'default' }}
+                    >
+                      <span className="feature-check">✓</span>
+                      <span className="feature-title">{feature.title}</span>
+                      {hasDesc && <span className="feature-arrow">{isOpen ? '▲' : '▼'}</span>}
+                    </button>
+                    {hasDesc && isOpen && (
+                      <p className="feature-accordion-body">{feature.description}</p>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}
@@ -2925,13 +2962,6 @@ const AffiliationSection = () => {
                 handleWizardChange('budget', card.price);
             }}
           >
-            <div className="price-card-icon">
-                {/* Reusing icons based on config */}
-                {card.icon === 'circle' && <FaStore />}
-                {card.icon === 'triangle' && <FaChartLine />}
-                {card.icon === 'star' && <FaRocket />}
-            </div>
-            
             {/* Plan Name */}
             <h3 className="price-card-name">{card.label}</h3>
             
@@ -2944,17 +2974,29 @@ const AffiliationSection = () => {
             </div>
             
             <ul className="price-card-features">
-              {card.features.map((feature, idx) => (
-                  <li key={idx}>
-                    {feature}
+              {card.features.map((feature, idx) => {
+                const key = `store-${card.id}-${idx}`;
+                const isOpen = !!openFeatures[key];
+                const hasDesc = feature.description !== null;
+                return (
+                  <li key={idx} className={`feature-accordion-item${hasDesc ? ' has-desc' : ''}`}>
+                    <button
+                      type="button"
+                      className="feature-accordion-trigger"
+                      onClick={(e) => { e.stopPropagation(); if (hasDesc) toggleFeature(key); }}
+                      style={{ cursor: hasDesc ? 'pointer' : 'default' }}
+                    >
+                      <span className="feature-check">✓</span>
+                      <span className="feature-title">{feature.title}</span>
+                      {hasDesc && <span className="feature-arrow">{isOpen ? '▲' : '▼'}</span>}
+                    </button>
+                    {hasDesc && isOpen && (
+                      <p className="feature-accordion-body">{feature.description}</p>
+                    )}
                   </li>
-              ))}
+                );
+              })}
             </ul>
-             
-             {/* Button (Optional, but kept for clarity if needed, though Sitio Web doesn't have it explicitly in the code snippet shown, the card is clickable) */}
-             {/* <button className="btn-select-plan">
-              {selectedEcommercePlan === card.id ? 'Seleccionado' : 'Elegir Plan'}
-            </button> */}
           </div>
         ))}
       </div>
@@ -5275,7 +5317,7 @@ const AffiliationSection = () => {
   return (
     <section id="planes" className="wizard-section">
       <div className="container">
-        <div className="section-head text-center mb-60">
+        <div className="section-head text-center mb-60 animate-fadeUp">
           <h6 className="sub-head">
             <span className="fz-12">PLAN DE PRECIOS</span>
           </h6>
@@ -5283,8 +5325,8 @@ const AffiliationSection = () => {
         </div>
         <div className={`plans-two-columns ${showLandingPrices || showSitioWebPrices || showEcommercePrices ? 'expanded-wizard' : ''}`}>
           {/* COLUMNA IZQUIERDA - Agendar Reunión */}
-          <div className="schedule-column">
-            <div className="schedule-card">
+          <div className="schedule-column animate-fadeRight" style={{ transitionDelay: '150ms' }}>
+            <div className="schedule-card hover-lift">
               <h2>Únase a Undercodeec</h2>
               <p>Programa una visita guiada rápida de 15 minutos y uno de nuestros asesores te atenderá.</p>
               <img src="/landing-preview/img/img-call.png" alt="Visita Guiada" className="schedule-img" />
@@ -5311,7 +5353,7 @@ const AffiliationSection = () => {
           </div>
 
           {/* COLUMNA DERECHA - Wizard de Formulario */}
-          <div className="wizard-column">
+          <div className="wizard-column animate-fadeLeft" style={{ transitionDelay: '300ms' }}>
             <div className="wizard-content">
               {showSuccessAlert ? (
                 <div className="wizard-success">
@@ -5323,7 +5365,20 @@ const AffiliationSection = () => {
                 </div>
               ) : (
                 <>
-                  {renderStepContent()}
+                  <AnimatePresence mode="wait" custom={direction}>
+                    <motion.div
+                      key={`${selectedPlan}-${currentStep}`}
+                      custom={direction}
+                      variants={stepVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                      style={{ width: '100%', overflow: 'hidden' }}
+                    >
+                      {renderStepContent()}
+                    </motion.div>
+                  </AnimatePresence>
 
                   {/* Navigation Buttons */}
                   <div className="wizard-nav">

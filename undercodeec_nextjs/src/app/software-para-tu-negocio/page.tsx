@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import initScrollAnimations from "@/common/initScrollAnimations";
 import MainLayout from "@/layouts/Main";
 import Header from "@/components/DataAnalysis/Header";
 import Services from "@/components/DataAnalysis/Services";
@@ -17,29 +18,12 @@ export default function SoftwareParaTuNegocioPage() {
     return () => document.body.classList.remove("home-style-8");
   }, []);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "Software Empresarial a Medida",
-    "description": "Desarrollo de software personalizado para empresas: CRM, sistema de inventarios, facturación electrónica, e-commerce y automatización de procesos. Soporte técnico especializado.",
-    "provider": {
-      "@type": "Organization",
-      "name": "Undercodeec",
-      "url": "https://undercodeec.com",
-      "logo": "https://undercodeec.com/assets/img/undercode-logo.png"
-    },
-    "serviceType": [
-      "Software CRM",
-      "Sistema de Inventarios",
-      "Facturación Electrónica",
-      "E-commerce y Tienda Online",
-      "Automatización de Procesos",
-      "Software ERP",
-      "Desarrollo de Software a Medida",
-      "Transformación Digital Empresarial"
-    ]
-  };
+  useEffect(() => {
+    initScrollAnimations();
+  }, []);
 
+  // Nota: el Service JSON-LD vive en layout.tsx (evita duplicación).
+  // Aquí solo emitimos el FAQPage que es contenido específico de la página.
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -73,10 +57,6 @@ export default function SoftwareParaTuNegocioPage() {
 
   return (
     <MainLayout>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}

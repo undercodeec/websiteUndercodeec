@@ -8,8 +8,13 @@ const Blog = () => {
       <div className="container">
         <div className="row align-items-center animate-fadeUp">
           <div className="col-lg-7">
-            <div className="info">
-              <h3>Creando Soluciones Digitales:
+            <div className="info" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <img
+                src="/assets/img/undercode-logo.png"
+                alt="UnderCodeec"
+                style={{ filter: 'brightness(0) invert(1)', width: '50px', height: 'auto', flexShrink: 0 }}
+              />
+              <h3 style={{ margin: 0 }}>Creando Soluciones Digitales:
                 <span>Páginas Web y Apps de Alto Impacto</span></h3>
             </div>
           </div>
@@ -44,7 +49,7 @@ const Blog = () => {
                 <div className="title">
                   Nosotros                        </div>
                 <small className="text">
-                  Somos expertos en diseño y desarrollo de páginas web en Ecuador, creando soluciones innovadoras para negocios que buscan destacar en Google y el mundo digital.                        </small>
+                  Somos expertos en diseño y desarrollo de páginas web, creando soluciones innovadoras para negocios que buscan destacar en Google y el mundo digital.                        </small>
                 <div className="socail-icons">
 
                   <a href="https://www.facebook.com/undercodeec" className="icon-35 rounded-circle bg-gray overflow-hidden d-inline-flex align-items-center justify-content-center text-gray me-2">
@@ -63,15 +68,11 @@ const Blog = () => {
                 </div>
                 <ul>
                   <li>
-                    Quito, Ecuador <br />
-                    Sangolqui - Valle de los chillos
+                    Atención remota · Cobertura internacional
                   </li>
 
                   <li>
                     ventas@undercodeec.com
-                  </li>
-                  <li>
-                    +593 979 046 329
                   </li>
                 </ul>
               </div>

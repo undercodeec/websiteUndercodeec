@@ -57,6 +57,37 @@ async function initDatabase() {
 }
 
 module.exports = {
-  query: (text, params) => pool.query(text, params),
+  query: async (text, params) => {
+    let mysqlText = text;
+    let mysqlParams = params;
+
+    // Convert $1, $2, etc. placeholders to ?
+    mysqlText = mysqlText.replace(/\$\d+/g, "?");
+
+    // Remove RETURNING id if present in INSERT queries
+    const hasReturning = /RETURNING\s+id/i.test(mysqlText);
+    if (hasReturning) {
+      mysqlText = mysqlText.replace(/RETURNING\s+id/i, "");
+    }
+
+    // Execute query in MySQL
+    const [result] = await pool.query(mysqlText, mysqlParams);
+
+    // Formulate response to match pg (PostgreSQL) return structure and array destructuring
+    let rowsArray = [];
+    if (hasReturning && result && result.insertId) {
+      rowsArray = [{ id: result.insertId }];
+    } else if (Array.isArray(result)) {
+      rowsArray = result;
+    }
+
+    return {
+      rows: rowsArray,
+      [Symbol.iterator]: function* () {
+        yield this.rows;
+        yield undefined;
+      }
+    };
+  },
   pool
 };

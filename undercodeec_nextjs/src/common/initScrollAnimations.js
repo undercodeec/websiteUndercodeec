@@ -1,11 +1,14 @@
-/**
- * Script para inicializar las animaciones de scroll
- * Detecta todos los elementos con clases de animación y los observa
- */
+const PRELOADER_PATHS = ['/', '/ec', '/es'];
+
+function getPreloaderKey(path) {
+  if (path === '/ec') return 'preloaderShown_ec';
+  if (path === '/es') return 'preloaderShown_es';
+  return 'preloaderShown_home';
+}
+
 const initScrollAnimations = () => {
   if (typeof window === 'undefined') return;
 
-  // Esperar un poco para que el DOM esté listo
   const startAnimations = () => {
     const animatedElements = document.querySelectorAll(
       '.animate-fadeUp:not(.animate-visible), ' +
@@ -20,12 +23,8 @@ const initScrollAnimations = () => {
 
     if (animatedElements.length === 0) return;
 
-    // Comprobar si el navegador soporta Intersection Observer
     if (!('IntersectionObserver' in window)) {
-      // Fallback: mostrar todos los elementos inmediatamente
-      animatedElements.forEach((el) => {
-        el.classList.add('animate-visible');
-      });
+      animatedElements.forEach((el) => el.classList.add('animate-visible'));
       return;
     }
 
@@ -33,49 +32,44 @@ const initScrollAnimations = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Agregar la clase visible
             entry.target.classList.add('animate-visible');
-            // Dejar de observar
             observer.unobserve(entry.target);
           }
         });
       },
-      {
-        threshold: 0.1,
-        rootMargin: '0px 0px -30px 0px'
-      }
+      { threshold: 0.1, rootMargin: '0px 0px -30px 0px' }
     );
 
-    animatedElements.forEach((el) => {
-      observer.observe(el);
-    });
+    animatedElements.forEach((el) => observer.observe(el));
 
-    // Activar inmediatamente los elementos que ya están visibles en el viewport
+    // Activate elements already in viewport
     animatedElements.forEach((el) => {
       const rect = el.getBoundingClientRect();
-      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-      
-      if (rect.top < windowHeight && rect.bottom > 0) {
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      if (rect.top < vh && rect.bottom > 0) {
         el.classList.add('animate-visible');
         observer.unobserve(el);
       }
     });
   };
 
-  // Ejecutar cuando el DOM esté listo
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', startAnimations);
-  } else {
-    // DOM ya cargado, ejecutar con un pequeño delay
-    setTimeout(startAnimations, 100);
+  const path = window.location.pathname;
+  const hasPreloader = PRELOADER_PATHS.includes(path);
+
+  // Pages without preloader, or preloader already dismissed: start after short delay
+  if (!hasPreloader || sessionStorage.getItem(getPreloaderKey(path))) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setTimeout(startAnimations, 200));
+    } else {
+      setTimeout(startAnimations, 200);
+    }
+    return;
   }
 
-  // También ejecutar después del preloader
-  if (window.Pace) {
-    window.Pace.on('done', () => {
-      setTimeout(startAnimations, 50);
-    });
-  }
+  // Pages with active preloader: wait for the "preloaderDone" event, then start
+  window.addEventListener('preloaderDone', () => {
+    setTimeout(startAnimations, 100);
+  }, { once: true });
 };
 
 export default initScrollAnimations;

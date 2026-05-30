@@ -8,8 +8,13 @@ const Blog = () => {
       <div className="container">
         <div className="row align-items-center">
           <div className="col-lg-7">
-            <div className="info">
-              <h3>Creando Soluciones Digitales:
+            <div className="info" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <img
+                src="/assets/img/undercode-logo.png"
+                alt="UnderCodeec"
+                style={{ filter: 'brightness(0) invert(1)', width: '50px', height: 'auto', flexShrink: 0 }}
+              />
+              <h3 style={{ margin: 0 }}>Creando Soluciones Digitales:
                 <span>Webs y Apps de Alto Impacto</span></h3>
             </div>
           </div>
@@ -63,15 +68,11 @@ const Blog = () => {
                 </div>
                 <ul>
                   <li>
-                    Quito, Ecuador <br />
-                    Sangolqui - Valle de los chillos
+                    Atención remota · Cobertura internacional
                   </li>
 
                   <li>
                     ventas@undercodeec.com
-                  </li>
-                  <li>
-                    +593 979 046 329
                   </li>
                 </ul>
               </div>

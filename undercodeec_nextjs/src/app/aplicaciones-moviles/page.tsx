@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import navbarScrollEffect from "@/common/navbarScrollEffect";
+import initScrollAnimations from "@/common/initScrollAnimations";
 import MainLayout from "@/layouts/Main";
 import TopNav from "@/components/Navbars/TopNav";
 import Navbar from "@/components/Navbars/AppNav";
@@ -24,33 +25,16 @@ export default function AplicacionesMovilesPage() {
   }, []);
 
   useEffect(() => {
+    initScrollAnimations();
+  }, []);
+
+  useEffect(() => {
     document.body.classList.add("home-style-4");
     return () => document.body.classList.remove("home-style-4");
   }, []);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "Desarrollo de Aplicaciones Móviles",
-    "description": "Empresa de desarrollo de aplicaciones móviles nativas y multiplataforma para Android e iOS. Diseño UI/UX profesional, apps de e-commerce, delivery y gestión empresarial.",
-    "provider": {
-      "@type": "Organization",
-      "name": "Undercodeec",
-      "url": "https://undercodeec.com",
-      "logo": "https://undercodeec.com/assets/img/undercode-logo.png"
-    },
-    "serviceType": [
-      "Desarrollo de Apps Android",
-      "Desarrollo de Apps iOS",
-      "Desarrollo Multiplataforma Flutter",
-      "Diseño UI/UX Móvil",
-      "Apps de E-commerce",
-      "Apps de Delivery y Logística",
-      "Apps de Gestión Empresarial",
-      "Publicación en Play Store y App Store"
-    ]
-  };
-
+  // Nota: el Service JSON-LD vive en layout.tsx (evita duplicación).
+  // Aquí solo emitimos el FAQPage que es contenido específico de la página.
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -84,10 +68,6 @@ export default function AplicacionesMovilesPage() {
 
   return (
     <MainLayout>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}

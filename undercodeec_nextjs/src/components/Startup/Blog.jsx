@@ -4,13 +4,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 const contentSets = [
   {
     h2: '¡Bienvenido!',
-    h4: 'El marketing digital en Ecuador ya es esencial',
-    p: 'En los últimos años, las personas en Quito y todo Ecuador buscan productos y servicios en internet. Tu negocio necesita presencia digital para crecer.',
+    h4: 'El marketing digital ya es esencial',
+    p: 'Hoy las personas buscan productos y servicios en internet. Tu negocio necesita presencia digital para crecer.',
   },
   {
     h2: '¿Qué es Inbound Marketing?',
     h4: 'Estrategias de posicionamiento web para atraer clientes',
-    p: 'Conecta con personas interesadas en lo que ofreces mediante SEO, contenido de valor y redes sociales. El inbound marketing convierte visitas en ventas reales para tu empresa en Ecuador.',
+    p: 'Conecta con personas interesadas en lo que ofreces mediante SEO, contenido de valor y redes sociales. El inbound marketing convierte visitas en ventas reales para tu empresa.',
   },
 ];
 

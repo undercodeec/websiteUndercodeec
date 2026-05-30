@@ -1,9 +1,9 @@
 [
   {
     "stars": 5,
-    "comment": "¡Totalmente recomendado! <br> Undercodeec transformó mi idea en una página web profesional y funcional. Ahora mi negocio tiene presencia online y ha crecido increíblemente.",
+    "comment": "¡Totalmente recomendado! <br> Undercodeec transformó mi idea en una página web profesional y funcional. Ahora contamos con alta presencia online y crecimiento increíblemente.",
     "author": "Marily Tintuaña",
-    "reason": "Lic. comunicación",
+    "reason": "Jefa de area comunicaciónal - Xkale",
     "image": "/landing-preview/img/marily.webp"
   },
   {
@@ -22,9 +22,9 @@
   },
   {
     "stars": 5,
-    "comment": "Undercodeec es un equipo que ofrece soluciones de manera agil y responsable, ofrece un servicio profesional enfocado en las necesidades de la empresa y en la experiencia del usuario",
-    "author": "Sebastian Narvaez",
-    "reason": "Empresario",
-    "image": "/landing-preview/img/sebastian.webp"
+    "comment": "Excelente trabajo del equipo de Undercodeec. <br> Optimizaron nuestro sitio web que era extremadamente lento y aplicaron una estrategia de SEO orgánico que nos posicionó en los primeros resultados de Google. Resultados visibles desde las primeras semanas.",
+    "author": "Omar Bolaños",
+    "reason": "Gerente Administrativo - Emprosal",
+    "image": "/landing-preview/img/omar.webp"
   }
 ]

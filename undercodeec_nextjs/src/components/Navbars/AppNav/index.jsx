@@ -43,26 +43,18 @@ const Navbar = ({ navbarRef }) => {
                 Nuestra trayectoria
               </Link>
             </li>
-            <li className="nav-item">
+            <li className="nav-item dropDown megaMenu col3">
               <Link className="nav-links dropLink" href='/servicios'>
                 Servicios
-              </Link>
-            </li>
-            <li className="nav-item dropDown megaMenu col3">
-              <a className="nav-links dropLink" href="#">
-                Todo en Uno
                 <small className="icon ms-1"><i className="bi bi-chevron-down me-1"></i></small>
-              </a>
+              </Link>
               <ul className="dropDownMenu">
                 <li className="dropdown-items">
                   <a href="#" className="menuLink">multi-Paginas</a>
                   <ul className="subDropDown">
-
-
-
                     <li>
                       <Link href="/aplicaciones-moviles" className="subLink">
-                        Aplicaciones Móviles 
+                        Aplicaciones Móviles
                       </Link>
                       <span className="new">Nuevo</span>
                     </li>
@@ -79,14 +71,6 @@ const Navbar = ({ navbarRef }) => {
                         Software para tu negocio
                       </Link>
                     </li>
-
-                    {/*  ----------- Enlase para la tienda-------------------
-                        <li>
-                          <Link href="/page-shop-5" className="subLink">
-                            shop
-                          </Link>
-                        </li>
-                        */}
                   </ul>
                 </li>
                 </ul>

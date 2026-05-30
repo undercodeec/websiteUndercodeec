@@ -98,21 +98,13 @@ const TradingCard = ({ demo, index }) => {
               </div>
             </div>
 
-            {/* Glare and hologram mapped dynamically via Framer Motion transforms */}
-            <motion.div 
-              className="trading-card-glare" 
+            {/* Glare effect on hover */}
+            <motion.div
+              className="trading-card-glare"
               style={{
                 opacity: smoothOpacity,
                 '--pointer-x': useTransform(pointerX, v => `${v}%`),
                 '--pointer-y': useTransform(pointerY, v => `${v}%`),
-              }}
-            />
-            <motion.div 
-              className="trading-card-hologram" 
-              style={{
-                opacity: smoothOpacity,
-                '--bg-x': useTransform(pointerX, v => `${100 - v}%`),
-                '--bg-y': useTransform(pointerY, v => `${100 - v}%`),
               }}
             />
           </div>

@@ -96,6 +96,54 @@ const itemListJsonLd = {
   ],
 };
 
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": `${SITE_URL}/servicios/#faq`,
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "¿Qué servicios digitales ofrece Undercodeec?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Undercodeec ofrece cuatro servicios digitales principales: (1) Diseño y desarrollo de páginas web profesionales, (2) Desarrollo de aplicaciones móviles Android e iOS, (3) Software empresarial a medida — CRM, ERP, facturación electrónica, control de inventarios y e-commerce —, y (4) Marketing digital y posicionamiento SEO con campañas de Google Ads y Meta Ads.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "¿Trabajan con empresas fuera de Ecuador?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Sí. Tenemos clientes en Ecuador, España y Latinoamérica. Trabajamos de forma 100% remota con reuniones por videollamada, gestión ágil con Jira/Trello y entregas quincenales. La facturación se hace en USD o EUR según el país del cliente.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "¿Cuál es el rango de precios de los servicios de Undercodeec?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Los precios de Undercodeec son: páginas web profesionales desde 500 USD, aplicaciones móviles desde 2.000 USD, software empresarial a medida desde 1.500 USD y planes de marketing digital y SEO desde 300 USD mensuales. Todos los presupuestos son personalizados según los requisitos del proyecto.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "¿Ofrecen soporte técnico después del lanzamiento?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Sí. Todos nuestros servicios incluyen soporte técnico post-lanzamiento: correcciones de errores, actualizaciones de seguridad, mejoras de rendimiento y nuevas funcionalidades. Ofrecemos planes de mantenimiento mensuales y soporte por email, WhatsApp y videollamada.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "¿Cómo solicito un presupuesto?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Para solicitar un presupuesto puedes (1) escribir a ventas@undercodeec.com, (2) llamar al +593-979-046-329 o (3) llenar el formulario en /contacto. Respondemos en menos de 24 horas con una propuesta personalizada y una videollamada de descubrimiento sin costo.",
+      },
+    },
+  ],
+};
+
 export default function ServiciosLayout({
   children,
 }: {
@@ -110,6 +158,10 @@ export default function ServiciosLayout({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       {children}
     </>

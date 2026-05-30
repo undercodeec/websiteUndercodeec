@@ -1,9 +1,9 @@
 {
   "features": [
-    { "icon": "bi bi-hand-index-thumb", "title": "Interactividad y experiencia de usuario móvil", "desc": "Diseñamos flujos intuitivos para aplicaciones móviles en Ecuador con gestos naturales, transiciones suaves y una navegación sin fricciones que fideliza usuarios desde el primer uso en Android e iOS." },
+    { "icon": "bi bi-hand-index-thumb", "title": "Interactividad y experiencia de usuario móvil", "desc": "Diseñamos flujos intuitivos para aplicaciones móviles con gestos naturales, transiciones suaves y una navegación sin fricciones que fideliza usuarios desde el primer uso en Android e iOS." },
     { "icon": "bi bi-palette2", "title": "Diseño UI/UX coherente para tu marca", "desc": "Aplicamos sistemas de diseño profesional con paletas de colores, tipografías y componentes alineados a la identidad de tu marca en cada pantalla de tu aplicación móvil." },
     { "icon": "bi bi-phone", "title": "Apps optimizadas para todos los dispositivos", "desc": "Tu aplicación móvil se adapta perfectamente a cualquier tamaño de pantalla, desde smartphones compactos hasta tablets, garantizando una experiencia visual impecable en dispositivos Android e iOS." },
-    { "icon": "bi bi-universal-access", "title": "Accesibilidad en aplicaciones móviles", "desc": "Implementamos estándares de accesibilidad (WCAG) para que tu app sea inclusiva, permitiendo que todas las personas en Ecuador y el mundo puedan utilizarla sin barreras." }
+    { "icon": "bi bi-universal-access", "title": "Accesibilidad en aplicaciones móviles", "desc": "Implementamos estándares de accesibilidad (WCAG) para que tu app sea inclusiva, permitiendo que todas las personas puedan utilizarla sin barreras." }
   ],
   "accordions": [
     {
@@ -22,12 +22,12 @@
       "id": 3,
       "icon": "bi bi-file-earmark-check",
       "title": "Cumplimiento de regulaciones de datos",
-      "content": "Todas las aplicaciones móviles desarrolladas por Undercodeec en Ecuador cumplen con los estándares internacionales de seguridad, garantizando que se adhieren a las normativas como GDPR y regulaciones locales de protección de datos."
+      "content": "Todas las aplicaciones móviles desarrolladas por Undercodeec cumplen con los estándares internacionales de seguridad, garantizando que se adhieren a las normativas como GDPR y regulaciones locales de protección de datos."
     }
   ],
   "thirdFeatures": [
     { "icon": "bi bi-bag-heart", "title": "Apps de e-commerce: productos y servicios atractivos", "desc": "Diseñamos catálogos visuales y galerías interactivas en tu aplicación móvil de e-commerce que destacan lo mejor de tu oferta, capturando la atención de tus clientes al instante." },
-    { "icon": "bi bi-cart-check", "title": "Integración de pedidos, reservas y ventas online", "desc": "Conectamos tu app móvil con pasarelas de pago, gestión de pedidos y sistemas de reservas para que tus clientes en Ecuador compren o agenden directamente desde cualquier dispositivo." },
+    { "icon": "bi bi-cart-check", "title": "Integración de pedidos, reservas y ventas online", "desc": "Conectamos tu app móvil con pasarelas de pago, gestión de pedidos y sistemas de reservas para que tus clientes compren o agenden directamente desde cualquier dispositivo." },
     { "icon": "bi bi-moon-stars", "title": "Modo oscuro y branding personalizado", "desc": "Ofrecemos temas personalizables incluyendo modo oscuro elegante, adaptando cada elemento visual de tu aplicación a la identidad de tu marca para una experiencia premium." },
     { "icon": "bi bi-phone-vibrate", "title": "Experiencia móvil excepcional en cualquier dispositivo", "desc": "Optimizamos cada interacción para que tu aplicación funcione de manera fluida y consistente en smartphones y tablets Android e iOS, garantizando alto rendimiento y satisfacción del usuario." }
   ],

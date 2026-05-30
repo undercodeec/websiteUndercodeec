@@ -49,7 +49,6 @@ const UnderCodeec = () => {
                     <a
                         href="https://www.undercodeec.com"
                         className="undercodeec-link"
-                        target="_blank"
                         onClick={() => {
                             // Evento para Google Analytics
                             ReactGA.event({

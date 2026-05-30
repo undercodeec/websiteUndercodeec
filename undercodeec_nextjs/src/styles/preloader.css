@@ -1,4 +1,17 @@
 
+/* SSR backdrop to prevent flash before React preloader hydrates */
+html.preloader-pending {
+  background: linear-gradient(135deg, #600b56 0%, #150E23 100%);
+}
+html.preloader-pending::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #600b56 0%, #150E23 100%);
+  z-index: 9999998;
+  pointer-events: none;
+}
+
 /* --------------- Start Preloader --------------- */
 .pace {
   display: none !important;

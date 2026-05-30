@@ -3,7 +3,7 @@
     "id": 1,
     "question": "¿Cuánto cuesta crear un sitio web profesional?",
     "answer": {
-      "part1": "El costo de diseño de páginas web en Quito varía según los requerimientos. Ofrecemos paquetes desde sitios informativos hasta plataformas complejas. Contáctanos para una cotización personalizada."
+      "part1": "El costo de diseño de páginas web varía según los requerimientos. Ofrecemos paquetes desde sitios informativos hasta plataformas complejas. Contáctanos para una cotización personalizada."
     }
   },
   {
@@ -15,9 +15,9 @@
   },
   {
     "id": 3,
-    "question": "¿Ofrecen servicios de diseño web fuera de Quito?",
+    "question": "¿Trabajan con clientes de forma remota?",
     "answer": {
-      "part1": "¡Sí! Aunque estamos ubicados en Quito, Ecuador, trabajamos con clientes de todo el país y el mundo gracias a nuestras herramientas de gestión remota."
+      "part1": "Sí. Trabajamos con clientes de todo el mundo gracias a nuestras herramientas de gestión remota. Ofrecemos comunicación fluida y entregas puntuales sin importar tu ubicación."
     }
   },
   {
@@ -64,9 +64,9 @@
   },
   {
     "id": 10,
-    "question": "¿Trabajan con emprendedores y PYMES en Ecuador?",
+    "question": "¿Trabajan con emprendedores y pymes?",
     "answer": {
-      "part1": "¡Sí! Nos especializamos en apoyar a emprendedores y PYMES con soluciones de diseño web accesibles y escalables para impulsar su crecimiento digital."
+      "part1": "Sí. Nos especializamos en apoyar a emprendedores y pequeñas y medianas empresas con soluciones de diseño web accesibles y escalables para impulsar su crecimiento digital."
     }
   },
   {

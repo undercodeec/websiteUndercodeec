@@ -79,7 +79,7 @@ export default function MarketingHero() {
       {/* Rating Stars — bottom left */}
       <motion.img
         src="/assets/img/header/head6_rating.png"
-        alt="Calificación de clientes satisfechos con estrategias de marketing digital en Quito"
+        alt="Calificación de clientes satisfechos con estrategias de marketing digital"
         className="tw-absolute tw-drop-shadow-2xl tw-z-[5] tw-hidden md:tw-block"
         style={{ width: '13%', bottom: '15%', left: '8%' }}
         animate={{ scale: [1, 1.05, 1] }}
@@ -89,7 +89,7 @@ export default function MarketingHero() {
       {/* Rocket — bottom right */}
       <motion.img
         src="/assets/img/header/rocket.png"
-        alt="Cohete simbolizando el crecimiento digital de tu negocio en Ecuador"
+        alt="Cohete simbolizando el crecimiento digital de tu negocio"
         className="tw-absolute tw-drop-shadow-2xl tw-z-[5] tw-hidden md:tw-block"
         style={{ width: '12%', bottom: '8%', right: '5%' }}
         animate={{ y: [0, -20, 0] }}
@@ -99,7 +99,7 @@ export default function MarketingHero() {
       {/* Target — bottom center */}
       <motion.img
         src="/assets/img/header/target_3d.png"
-        alt="Objetivo de campañas publicitarias y posicionamiento web en Ecuador"
+        alt="Objetivo de campañas publicitarias y posicionamiento web"
         className="tw-absolute tw-drop-shadow-2xl tw-z-[5] tw-hidden md:tw-block"
         style={{ width: '10%', bottom: '5%', left: '42%' }}
         animate={{ rotate: [0, 360] }}
@@ -124,7 +124,7 @@ export default function MarketingHero() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="gradient-title tw-text-[32px] sm:tw-text-[40px] md:tw-text-[64px] tw-font-bold tw-leading-tight"
               >
-                Agencia de Marketing Digital y SEO en Ecuador para tu Negocio
+                Agencia de Marketing Digital y SEO para tu Negocio
               </motion.h1>
 
              
@@ -143,12 +143,12 @@ export default function MarketingHero() {
               <div className="banner-right" style={{ position: 'relative', width: '100%', maxWidth: '350px' }}>
                 <img
                   src="/assets/img/choose_us/banerimg_1.webp"
-                  alt="Servicios de marketing digital y posicionamiento SEO en Ecuador - Undercodeec"
+                  alt="Servicios de marketing digital y posicionamiento SEO - Undercodeec"
                   className="body-img"
                 />
                 <img
                   src="/assets/img/choose_us/banercabeza.webp"
-                  alt="Equipo de marketing digital profesional en Quito, Ecuador"
+                  alt="Equipo de marketing digital profesional"
                   className="head-img"
                   style={{ top: '2.5%', left: '28%', width: '16%' }}
                 />

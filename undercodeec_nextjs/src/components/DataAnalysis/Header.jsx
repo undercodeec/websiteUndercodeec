@@ -48,10 +48,10 @@ const Header = () => {
                   transition={{ duration: 0.6, delay: 0.2 }}
                   className="gradient-title tw-text-[32px] sm:tw-text-[40px] md:tw-text-[60px] tw-font-bold tw-leading-tight"
                 >
-                  Desarrollo de Software Empresarial <br />a Medida para PYMES en Ecuador
+                  Desarrollo de Software Empresarial <br />a Medida para tu Negocio
                   <span className="ms-2 tw-inline-block tw-relative">
                     <img src="/assets/img/header/subrrayado.png" alt="Subrayado decorativo software empresarial" className="tw-absolute tw--bottom-4 tw-left-0 tw-w-full tw-opacity-70" style={{ zIndex: -1 }} />
-                    <img src="/assets/img/header/head5_pen.png" alt="Desarrollo de software personalizado Ecuador" className="tw-absolute tw--top-6 tw--right-8 tw-w-12" />
+                    <img src="/assets/img/header/head5_pen.png" alt="Desarrollo de software personalizado a medida" className="tw-absolute tw--top-6 tw--right-8 tw-w-12" />
                   </span>
                 </motion.h1>
 
@@ -61,7 +61,7 @@ const Header = () => {
                   transition={{ duration: 0.6, delay: 0.4 }}
                   className="tw-text-lg md:tw-text-xl tw-leading-relaxed tw-max-w-2xl tw-text-gray-900"
                 >
-                  En Undercodeec, nos especializamos en desarrollo de software a medida en Quito y Ecuador. Ofrecemos soluciones integrales y personalizadas — CRM, sistemas de inventarios, facturación electrónica certificada SRI, e-commerce y automatización de procesos — diseñadas para optimizar la eficiencia, productividad y crecimiento de tu PYME o negocio.
+                  En Undercodeec nos especializamos en desarrollo de software a medida. Ofrecemos soluciones integrales y personalizadas — CRM, sistemas de inventarios, facturación electrónica, e-commerce y automatización de procesos — diseñadas para optimizar la eficiencia, productividad y crecimiento de tu negocio.
                 </motion.p>
               </motion.div>
 
@@ -90,7 +90,7 @@ const Header = () => {
                    <div className="tw-relative tw-w-full tw-h-full tw-z-20 tw-flex tw-justify-center tw-items-center">
                       <motion.img 
                         src="/assets/img/header/Animation3DSoftware.webp" 
-                        alt="Soluciones de software empresarial a medida en Ecuador - CRM, inventarios, facturación electrónica" 
+                        alt="Soluciones de software empresarial a medida - CRM, inventarios, facturación electrónica"
                         className="tw-w-[80%] lg:tw-w-full tw-max-w-[500px] tw-object-contain tw-drop-shadow-2xl"
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}

@@ -1,6 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import loadingPace from '@/common/loadingPace';
+import { playSoundWithFade } from '@/utils/audio';
+
+const getPreloaderKey = (path) => {
+  const norm = path.replace(/\/$/, '') || '/';
+  if (norm === '/ec') return 'preloaderShown_ec';
+  if (norm === '/es') return 'preloaderShown_es';
+  return 'preloaderShown_home';
+};
 
 const PreLoader = () => {
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -9,6 +17,7 @@ const PreLoader = () => {
   const [isHidden, setIsHidden] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [shouldShow, setShouldShow] = useState(false);
   const pathname = usePathname();
   const hideTimeoutRef = useRef(null);
   const resetTimeoutRef = useRef(null);
@@ -16,71 +25,99 @@ const PreLoader = () => {
   const timer2Ref = useRef(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isMuted = localStorage.getItem('isGlobalMuted') === 'true';
-      if (isMuted) setSoundEnabled(false);
-      
-      const handleStorageChange = () => {
-        setSoundEnabled(localStorage.getItem('isGlobalMuted') !== 'true');
-      };
-      window.addEventListener('storage', handleStorageChange);
-      
-      // Cleanup event listener later in return
-    }
-    
+    if (typeof window === 'undefined') return;
+
+    const isMuted = localStorage.getItem('isGlobalMuted') === 'true';
+    if (isMuted) setSoundEnabled(false);
+
+    const handleStorageChange = () => {
+      setSoundEnabled(localStorage.getItem('isGlobalMuted') !== 'true');
+    };
+    window.addEventListener('storage', handleStorageChange);
+
     const startPreloaderSequence = () => {
       setTimeout(() => loadingPace(), 0);
       timer1Ref.current = setTimeout(() => {
         setHasLoaded(true);
       }, 100);
-      
+
       timer2Ref.current = setTimeout(() => {
         setButtonRevealed(true);
       }, 1200);
     };
 
-    const handleReset = () => {
-      if (pathname === '/') {
-        setHasLoaded(false);
-        setButtonRevealed(false);
-        setIsEntered(false);
-        setIsHidden(false);
-        
-        if (timer1Ref.current) clearTimeout(timer1Ref.current);
-        if (timer2Ref.current) clearTimeout(timer2Ref.current);
-        if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-        if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
-        
-        // Wait for the DOM to fully paint the reset state before animating
-        resetTimeoutRef.current = setTimeout(() => {
-          startPreloaderSequence();
-        }, 300);
-      }
+    const preloaderPaths = ['/', '/ec', '/es'];
+
+    const clearAllTimers = () => {
+      if (timer1Ref.current) clearTimeout(timer1Ref.current);
+      if (timer2Ref.current) clearTimeout(timer2Ref.current);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
     };
 
-    if (pathname === '/') {
-      handleReset();
-    }
+    const handleReset = () => {
+      const normPathname = pathname.replace(/\/$/, '') || '/';
+      if (!preloaderPaths.includes(normPathname)) {
+        setShouldShow(false);
+        clearAllTimers();
+        document.documentElement.classList.remove('preloader-pending');
+        return;
+      }
+
+      const alreadySeen = sessionStorage.getItem(getPreloaderKey(normPathname));
+      if (alreadySeen) {
+        setShouldShow(false);
+        clearAllTimers();
+        document.documentElement.classList.remove('preloader-pending');
+        return;
+      }
+
+      clearAllTimers();
+
+      setShouldShow(true);
+      setHasLoaded(false);
+      setButtonRevealed(false);
+      setIsEntered(false);
+      setIsHidden(false);
+
+      resetTimeoutRef.current = setTimeout(() => {
+        startPreloaderSequence();
+      }, 100);
+    };
+
+    handleReset();
 
     window.addEventListener('resetPreloader', handleReset);
 
     return () => {
       window.removeEventListener('resetPreloader', handleReset);
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('storage', () => {
-          setSoundEnabled(localStorage.getItem('isGlobalMuted') !== 'true');
-        });
-      }
-      if (timer1Ref.current) clearTimeout(timer1Ref.current);
-      if (timer2Ref.current) clearTimeout(timer2Ref.current);
-      if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
+      window.removeEventListener('storage', handleStorageChange);
+      clearAllTimers();
     };
   }, [pathname]);
 
+  // Bloquear scroll del body mientras el preloader está activo
+  useEffect(() => {
+    if (shouldShow && !isHidden) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [shouldShow, isHidden]);
+
   const handleStart = () => {
     if (isEntered) return; // Evitar clics múltiples cuando el botón es gigante
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(getPreloaderKey(pathname), 'true');
+    }
+    // Remove immediately so the ::before backdrop doesn't show through the expanding hole
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.remove('preloader-pending');
+    }
     const isMuted = typeof window !== 'undefined' && localStorage.getItem('isGlobalMuted') === 'true';
     if (!isMuted) {
+      playSoundWithFade();
       if (typeof window !== 'undefined') {
         if (window.preloaderAudio) window.preloaderAudio.pause();
         window.preloaderAudio = new Audio('/assets/sonic/ComputInterfa GFX045201.wav');
@@ -89,14 +126,20 @@ const PreLoader = () => {
     }
 
     setIsEntered(true);
-    // After 2.5 seconds, unmount the preloader completely
+    // Fire preloaderDone early so the hero animations begin while the preloader fades out
     if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('preloaderDone'));
+    }, 450);
     hideTimeoutRef.current = setTimeout(() => {
       setIsHidden(true);
-    }, 2500);
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.remove('preloader-pending');
+      }
+    }, 1300);
   };
 
-  if (pathname !== '/' || isHidden) return null;
+  if (!shouldShow || isHidden) return null;
 
   return (
     <>
@@ -126,7 +169,7 @@ const PreLoader = () => {
                 style={{ 
                   transformOrigin: '50% 50%',
                   transform: isEntered ? 'scale(80) translateZ(0)' : 'scale(0) translateZ(0)', 
-                  transition: 'transform 2s cubic-bezier(0.5, 0, 0.2, 1)' 
+                  transition: 'transform 1.2s cubic-bezier(0.5, 0, 0.2, 1)' 
                 }} 
               />
             </mask>
@@ -199,7 +242,7 @@ const PreLoader = () => {
                   style={{
                     // Zoom effect aligns exactly with the hole puncher behind it!
                     transform: isEntered ? 'scale(80) translateZ(0)' : 'scale(1) translateZ(0)',
-                    transition: 'transform 2s cubic-bezier(0.5, 0, 0.2, 1)'
+                    transition: 'transform 1.2s cubic-bezier(0.5, 0, 0.2, 1)'
                   }}
                 >
                   <span 
@@ -298,10 +341,21 @@ const PreLoader = () => {
                 setSoundEnabled(newState);
                 localStorage.setItem('isGlobalMuted', newState ? 'false' : 'true');
                 window.dispatchEvent(new Event('storage'));
-                
-                if (!newState && typeof window !== 'undefined') {
-                  if (window.currentAudio) window.currentAudio.pause();
-                  if (window.preloaderAudio) window.preloaderAudio.pause();
+
+                if (typeof window !== 'undefined') {
+                  if (!newState) {
+                    // Mute: pausar audios
+                    if (window.currentAudio) window.currentAudio.pause();
+                    if (window.preloaderAudio) window.preloaderAudio.pause();
+                  } else {
+                    // Unmute: reanudar audios desde donde quedaron
+                    if (window.currentAudio && window.currentAudio.paused && !window.currentAudio.ended) {
+                      window.currentAudio.play().catch(() => {});
+                    }
+                    if (window.preloaderAudio && window.preloaderAudio.paused && !window.preloaderAudio.ended) {
+                      window.preloaderAudio.play().catch(() => {});
+                    }
+                  }
                 }
               }}
               className="tw-flex tw-items-center tw-bg-black/20 tw-backdrop-blur-md tw-rounded-full tw-py-2 tw-px-5 tw-border tw-border-white/5 hover:tw-bg-white/10 tw-transition-colors"

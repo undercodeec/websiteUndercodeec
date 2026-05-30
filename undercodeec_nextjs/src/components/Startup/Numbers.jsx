@@ -193,7 +193,7 @@ const Numbers = () => {
                 name="ruc"
                 value={formData.ruc}
                 onChange={handleChange}
-                placeholder="Escribe aquí el RUC"
+                placeholder="Escribe tu identificación fiscal"
                 required
               />
               <input

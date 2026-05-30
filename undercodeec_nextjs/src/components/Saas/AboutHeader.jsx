@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import { motion } from 'framer-motion';
+import { usePageReady } from '@/common/usePageReady';
 import '../Slider/slider.css';
 
 const backgroundPattern = '/assets/slider/6fa818bb935c0e2a1081f259d84df226b237a184.png';
@@ -20,6 +21,8 @@ const rocketPosition = {
 };
 
 const AboutHeader = ({}) => {
+  const isReady = usePageReady();
+
   return (
     <div className="tw-relative tw-w-full tw-h-[100dvh] tw-min-h-[700px] tw-overflow-hidden">
       {/* Animated Gradient Background */}
@@ -56,14 +59,14 @@ const AboutHeader = ({}) => {
             {/* Content Left */}
             <motion.div
               initial={{ opacity: 0, x: -100 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              animate={isReady ? { opacity: 1, x: 0 } : { opacity: 0, x: -100 }}
+              transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
               className="tw-z-[60] tw-relative tw-space-y-6 lg:tw-space-y-8"
             >
               <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
+                initial={{ opacity: 0, y: 40 }}
+                animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+                transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
                 className="gradient-title tw-text-[32px] sm:tw-text-[40px] md:tw-text-[60px] tw-font-bold tw-leading-tight"
               >
                 <>Transformamos tus ideas en soluciones digitales <br/> innovadoras</>
@@ -74,9 +77,9 @@ const AboutHeader = ({}) => {
               </motion.h1>
 
               <motion.p
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
+                initial={{ opacity: 0, y: 40 }}
+                animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+                transition={{ duration: 0.9, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 className="tw-text-lg md:tw-text-xl tw-leading-relaxed tw-max-w-2xl tw-text-gray-900"
               >
                 { 'Nos especializamos en diseño web innovador y en el desarrollo de aplicaciones móviles a medida que no solo cumplen, sino que superan las expectativas de nuestros clientes. ' }
@@ -86,8 +89,8 @@ const AboutHeader = ({}) => {
             {/* Content Right (3D Model) */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+              animate={isReady ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+              transition={{ duration: 1.1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="tw-relative tw-flex tw-items-center tw-justify-center tw-h-[400px] lg:tw-h-[500px]"
             >
               

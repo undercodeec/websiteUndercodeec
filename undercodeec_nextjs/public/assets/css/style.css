@@ -635,7 +635,7 @@ small.text {
 }
 
 .section-padding {
-  padding: 50px 0;
+  padding: 0px 0;
 }
 
 .swiper-pagination {
@@ -4062,8 +4062,8 @@ img.softunder {
 }
 
 .video-frame {
-  width: 500px;
-  height: 500px;
+  width: 100%;
+  max-width: 560px;
   overflow: hidden;
   border-radius: 1rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -4071,7 +4071,8 @@ img.softunder {
 
 .video-iframe {
   width: 100%;
-  height: 100%;
+  height: auto;
+  display: block;
   border: none;
 }
 
@@ -22438,4 +22439,107 @@ butn.blue5-3Dbutn, .btn.blue5-3Dbutn {
     padding: 10px 20px;
     border-radius: 5px;
     display: inline-block;
+}
+
+/* ============================================================
+   Aplicaciones Móviles — Mejoras Visuales Globales (style-4)
+   ============================================================ */
+
+/* Header: fondo gradiente azul-morado suave */
+header.style-4 {
+  background: linear-gradient(135deg, #f4f2fb 0%, #eef6ff 60%, #f0eff5 100%);
+}
+
+header.style-4 .content .info .title_small {
+  background: linear-gradient(90deg, rgba(88,66,188,0.07), rgba(96,11,86,0.07));
+  border: 1px solid rgba(88,66,188,0.2);
+  color: #5842bc;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+
+/* Features: tarjetas elevadas sobre el fondo lila */
+.features.style-4 .content .features-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 16px 20px;
+  -webkit-box-shadow: 0 4px 28px rgba(88, 66, 188, 0.08);
+  box-shadow: 0 4px 28px rgba(88, 66, 188, 0.08);
+  -webkit-transition: -webkit-transform 0.3s ease, -webkit-box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.features.style-4 .content .features-card:hover {
+  -webkit-transform: translateY(-8px);
+  -ms-transform: translateY(-8px);
+  transform: translateY(-8px);
+  -webkit-box-shadow: 0 18px 45px rgba(88, 66, 188, 0.15);
+  box-shadow: 0 18px 45px rgba(88, 66, 188, 0.15);
+}
+
+/* About: fondos alternados por sección */
+.about.style-4 .content.frs-content,
+.about.style-4 .content.trd-content {
+  background: linear-gradient(180deg, #f9f7ff 0%, #fff 100%);
+}
+
+.about.style-4 .content.sec-content {
+  background: linear-gradient(180deg, #fff 0%, #f4f2fb 100%);
+}
+
+/* About: hover en links coloreado */
+.about.style-4 .animated-link:hover {
+  color: #5842bc !important;
+}
+
+/* About integration: fondo suave */
+.about.style-4 .integration {
+  background: linear-gradient(180deg, #fff 0%, #f4f2fb 100%);
+}
+
+/* Portafolio Figma: iframes con sombra */
+.iframe-container {
+  -webkit-box-shadow: 0 12px 50px rgba(88, 66, 188, 0.12);
+  box-shadow: 0 12px 50px rgba(88, 66, 188, 0.12);
+  border-radius: 24px;
+  overflow: hidden;
+  -webkit-transition: -webkit-transform 0.35s ease, -webkit-box-shadow 0.35s ease;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.iframe-container:hover {
+  -webkit-transform: translateY(-6px);
+  -ms-transform: translateY(-6px);
+  transform: translateY(-6px);
+  -webkit-box-shadow: 0 24px 64px rgba(88, 66, 188, 0.2);
+  box-shadow: 0 24px 64px rgba(88, 66, 188, 0.2);
+}
+
+/* Testimonials: fondo gradiente suave */
+.testimonials.style-4 {
+  background: linear-gradient(180deg, #f4f2fb 0%, #fff 55%);
+}
+
+/* Testimonials num-cards: aspecto de tarjeta */
+.testimonials.style-4 .content .numbs .num-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px 18px;
+  -webkit-box-shadow: 0 4px 22px rgba(88, 66, 188, 0.08);
+  box-shadow: 0 4px 22px rgba(88, 66, 188, 0.08);
+}
+
+/* FAQ: fondo diferenciado */
+.faq.style-4 {
+  background: linear-gradient(180deg, #f9f7ff 0%, #fff 100%);
+}
+
+/* Clients: padding superior mejorado */
+.clients.style-4 {
+  padding-top: 40px;
+}
+
+/* Screenshots: borde superior sutil */
+.screenshots.style-4 {
+  border-top: 1px solid rgba(88, 66, 188, 0.08);
 }

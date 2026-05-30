@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://undercodeec.com";
 
   // Rutas estáticas principales de la aplicación
+  // /noticias excluida: actualmente es placeholder noindex
   const staticRoutes = [
     "",
     "/aplicaciones-moviles",
@@ -15,7 +16,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/ec",
     "/es",
     "/marketing-para-tu-negocio",
-    "/noticias",
     "/nuestra-trayectoria",
     "/politicas-playconsole",
     "/servicios",

@@ -8,7 +8,7 @@ const BestFeatures = () => {
         <div className="row">
           {
             features.map((item, i) => (
-              <div className="col-lg-4 mb-50" key={i}>
+              <div className="col-lg-4 mb-50 animate-fadeUp" key={i} style={{ transitionDelay: `${i * 120}ms` }}>
                 <div className="item">
                   <span className="icon">
                     <i className={item.icon}></i>

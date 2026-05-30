@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Slider from 'react-slick';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Palette } from 'lucide-react';
+import { usePageReady } from '@/common/usePageReady';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './slider.css';
@@ -15,11 +16,11 @@ import HeroModel from '@/components/3D/HeroModel';
 
 const slides = [
   {
-    title: 'Diseño de Páginas Web en Quito y Ecuador',
+    title: 'Diseño de Páginas Web Profesional a Medida',
     subtitle: '',
     description: 'Creación, Programación y Desarrollo de Aplicaciones Web',
     icon: Palette,
-    color: '#ba27f4',
+    color: '#600b56',
     type: 'character' // Tipo de slide para renderizar la imagen del personaje
   }
 ];
@@ -44,6 +45,7 @@ export default function HeroSlider() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const isReady = usePageReady();
 
   useEffect(() => {
     setMounted(true);
@@ -102,16 +104,16 @@ export default function HeroSlider() {
                 <div className="tw-grid lg:tw-grid-cols-2 tw-gap-8 lg:tw-gap-16 tw-items-center">
                   {/* Content */}
                   <motion.div
-                    initial={{ opacity: 0, x: slide.type === 'video' ? 100 : -100 }}
-                    animate={currentSlide === index ? { opacity: 1, x: 0 } : { opacity: 0, x: slide.type === 'video' ? 100 : -100 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
+                    initial={{ opacity: 0, x: slide.type === 'video' ? 60 : -60 }}
+                    animate={isReady && currentSlide === index ? { opacity: 1, x: 0 } : { opacity: 0, x: slide.type === 'video' ? 60 : -60 }}
+                    transition={{ duration: 0.5, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
                     className={`tw-z-50 tw-relative tw-space-y-6 lg:tw-space-y-8 ${slide.type === 'video' ? 'lg:tw-order-2' : ''}`}
                   >
                     {/* Title */}
                     <motion.h1
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                      transition={{ duration: 0.6, delay: 0.4 }}
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={isReady && currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+                      transition={{ duration: 0.45, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                       className="gradient-title tw-text-[42px] sm:tw-text-[40px] md:tw-text-[64px] tw-font-bold tw-leading-tight"
                     >
                       {slide.title}
@@ -119,9 +121,9 @@ export default function HeroSlider() {
 
                     {/* Description */}
                     <motion.p
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                      transition={{ duration: 0.6, delay: 0.6 }}
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={isReady && currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+                      transition={{ duration: 0.45, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                       className="tw-text-lg md:tw-text-xl lg:tw-text-2xl tw-leading-relaxed tw-max-w-2xl tw-text-gray-800"
                     >
                       {slide.description}
@@ -129,9 +131,9 @@ export default function HeroSlider() {
 
                     {/* CTA Buttons */}
                     <motion.div
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                      transition={{ duration: 0.6, delay: 0.7 }}
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={isReady && currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+                      transition={{ duration: 0.45, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                       className="tw-flex tw-flex-wrap tw-gap-4 tw-pt-4 tw-border-0"
                     >
                       
@@ -154,9 +156,9 @@ export default function HeroSlider() {
                   {slide.type === 'character' ? (
                     /* Character Image */
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
-                      animate={currentSlide === index ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.8, rotate: -10 }}
-                      transition={{ duration: 0.8, delay: 0.3 }}
+                      initial={{ opacity: 0, scale: 0.9, rotate: -6 }}
+                      animate={isReady && currentSlide === index ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.9, rotate: -6 }}
+                      transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                       className="tw-relative tw-flex tw-items-center tw-justify-center"
                     >
                       
@@ -233,7 +235,7 @@ export default function HeroSlider() {
           background-clip: text;
           -webkit-background-clip: text;
           color: transparent;
-          background-image: linear-gradient(to right, #ba27f4, #8b5cf6);
+          background-image: linear-gradient(135deg, #150e23, #600B56);
         }
         @keyframes rotate {
           from { transform: rotate(0deg); }

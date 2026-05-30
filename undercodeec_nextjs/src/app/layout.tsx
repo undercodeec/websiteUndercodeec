@@ -32,8 +32,8 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://undercodeec.com/",
     languages: {
-      "es-EC": "https://undercodeec.com/ec",
-      "es-ES": "https://undercodeec.com/es",
+      "es-EC": "https://undercodeec.com/ec/",
+      "es-ES": "https://undercodeec.com/es/",
       "x-default": "https://undercodeec.com/",
     },
   },
@@ -64,6 +64,26 @@ export const metadata: Metadata = {
       },
     ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Undercodeec - Diseño Web Profesional y Desarrollo a Medida",
+    description:
+      "Servicios expertos en diseño web, apps móviles y SEO orientados a resultados.",
+    images: ["https://undercodeec.com/assets/img/undercode-logo.png"],
+    creator: "@undercodeec",
+    site: "@undercodeec",
+  },
+  authors: [{ name: "Undercodeec", url: "https://undercodeec.com" }],
+  creator: "Undercodeec",
+  publisher: "Undercodeec",
+  category: "Technology",
+  applicationName: "Undercodeec",
+  referrer: "origin-when-cross-origin",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   verification: {
     google: "TjIVgYGV2-AduD8UBXsIX_Yf0Q7TwAmOp55hVkZI9ss",
   },
@@ -73,10 +93,10 @@ const SITE_URL = "https://undercodeec.com";
 
 const organizationJsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": ["Organization", "ProfessionalService"],
   "@id": `${SITE_URL}/#organization`,
   name: "UNDER CODEEC",
-  alternateName: "Undercodeec",
+  alternateName: ["Undercodeec", "Under Codeec"],
   url: SITE_URL,
   logo: {
     "@type": "ImageObject",
@@ -84,14 +104,32 @@ const organizationJsonLd = {
     width: 512,
     height: 512,
   },
+  image: `${SITE_URL}/assets/img/undercode-logo.png`,
   description:
-    "Agencia digital especializada en diseño y desarrollo de páginas web profesionales, aplicaciones móviles, posicionamiento SEO y software empresarial a medida.",
+    "Agencia digital especializada en diseño y desarrollo de páginas web profesionales, aplicaciones móviles Android e iOS, posicionamiento SEO, marketing digital y software empresarial a medida (CRM, ERP, facturación electrónica) para empresas en Ecuador, España y Latinoamérica.",
+  slogan: "Transformación digital para tu negocio",
   email: "ventas@undercodeec.com",
   telephone: "+593-979-046-329",
   foundingDate: "2018",
+  priceRange: "$$",
+  currenciesAccepted: "USD",
+  knowsAbout: [
+    "Diseño y desarrollo de páginas web profesionales",
+    "Desarrollo de aplicaciones móviles Android e iOS",
+    "Software empresarial a medida (CRM, ERP)",
+    "Facturación electrónica Ecuador",
+    "Posicionamiento SEO técnico y de contenidos",
+    "Marketing digital y campañas de Google Ads y Meta Ads",
+    "Inteligencia artificial aplicada a negocios",
+    "E-commerce y tiendas online",
+    "Transformación digital empresarial",
+    "Generative Engine Optimization (GEO)",
+  ],
+  knowsLanguage: ["es", "es-EC", "es-ES"],
   areaServed: [
     { "@type": "Country", name: "Ecuador" },
     { "@type": "Country", name: "España" },
+    { "@type": "Place", name: "Latinoamérica" },
   ],
   sameAs: [
     "https://www.facebook.com/undercodeec",
@@ -106,6 +144,12 @@ const organizationJsonLd = {
       availableLanguage: ["es"],
       areaServed: ["EC", "ES"],
     },
+    {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: "ventas@undercodeec.com",
+      availableLanguage: ["es"],
+    },
   ],
 };
 
@@ -117,7 +161,7 @@ const webSiteJsonLd = {
   name: "Undercodeec",
   description:
     "Diseño y desarrollo de páginas web profesionales, aplicaciones móviles y posicionamiento SEO.",
-  inLanguage: "es",
+  inLanguage: ["es", "es-EC", "es-ES"],
   publisher: { "@id": `${SITE_URL}/#organization` },
   potentialAction: {
     "@type": "SearchAction",
@@ -129,6 +173,27 @@ const webSiteJsonLd = {
   },
 };
 
+// SpeakableSpecification: ayuda a asistentes de IA y voz a identificar
+// los fragmentos clave de la página para citar como "respuesta directa".
+const speakableJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": `${SITE_URL}/#speakable`,
+  url: SITE_URL,
+  speakable: {
+    "@type": "SpeakableSpecification",
+    cssSelector: [
+      "h1",
+      "h2",
+      ".geo-answer",
+      "[data-speakable]",
+      ".blog-section-heading",
+    ],
+  },
+  isPartOf: { "@id": `${SITE_URL}/#website` },
+  about: { "@id": `${SITE_URL}/#organization` },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -137,6 +202,13 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning={true}>
       <head>
+        {/* Pre-hydration backdrop: prevents page flash before the preloader mounts */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var p=location.pathname.replace(/\\/$/,'');if(!p)p='/';var ps=['/','/ec','/es'];if(ps.indexOf(p)===-1)return;var k=p==='/ec'?'preloaderShown_ec':p==='/es'?'preloaderShown_es':'preloaderShown_home';if(sessionStorage.getItem(k))return;document.documentElement.classList.add('preloader-pending');}catch(e){}})();`,
+          }}
+        />
+
         {/* Google Tag Manager */}
         <Script id="gtm-init" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -174,6 +246,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableJsonLd) }}
         />
       </head>
       <body suppressHydrationWarning={true}>

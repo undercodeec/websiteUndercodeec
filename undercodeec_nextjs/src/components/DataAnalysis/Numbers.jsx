@@ -1,22 +1,18 @@
-import React, { useState, useRef } from 'react';
-import CountTo from '../CountTo';
-import numbers from '@/data/DataAnalysis/numbers.json';
-
+"use client";
+import React from 'react';
 import { motion } from 'framer-motion';
 
 const Numbers = () => {
-  const numbersSectionRef = useRef(null);
-  const [position] = useState({ from: 2500, to: 2750 });
-
   return (
     <section className="numbers style-8 pt-100">
       <div className="container">
-        <div className="section-head style-8 text-center mb-80 wow fadeInUp">
-          <h3> Plataformas de integración </h3>
+        <div className="section-head style-8 text-center mb-80 animate-fadeUp">
+          <h3>Plataformas de integración</h3>
         </div>
         <div className="content">
-          <div className="logo-icon tw-relative tw-flex tw-items-center tw-justify-center tw-h-[500px] lg:tw-h-[850px] wow zoomIn">
-            {/* Círculo 1 (Extremo) y su Icono */}
+          <div className="logo-icon tw-relative tw-flex tw-items-center tw-justify-center tw-h-[500px] lg:tw-h-[850px] animate-zoomIn" style={{ transitionDelay: '150ms' }}>
+
+            {/* Círculo 1 */}
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
@@ -31,7 +27,7 @@ const Numbers = () => {
               </div>
             </motion.div>
 
-            {/* Círculo 2 y su Icono */}
+            {/* Círculo 2 */}
             <motion.div
               animate={{ rotate: -360 }}
               transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
@@ -46,7 +42,7 @@ const Numbers = () => {
               </div>
             </motion.div>
 
-            {/* Círculo 3 y su Icono */}
+            {/* Círculo 3 */}
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
@@ -61,7 +57,7 @@ const Numbers = () => {
               </div>
             </motion.div>
 
-            {/* Círculo 4 y su Icono */}
+            {/* Círculo 4 */}
             <motion.div
               animate={{ rotate: -360 }}
               transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
@@ -76,14 +72,13 @@ const Numbers = () => {
               </div>
             </motion.div>
 
-            {/* Círculo 5 (Interno), su Icono y Logo */}
+            {/* Círculo 5 central */}
             <div className="tw-absolute tw-w-[180px] tw-h-[180px] lg:tw-w-[250px] lg:tw-h-[250px] tw-flex tw-items-center tw-justify-center tw-pointer-events-none">
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
                 className="tw-absolute tw-inset-0 tw-border-2 tw-border-dashed tw-border-purple-500/30 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-pointer-events-none"
               >
-                {/* Ícono Orbital Interno */}
                 <div className="tw-absolute tw-top-0 tw-left-1/2 -tw-translate-x-1/2 -tw-translate-y-1/2 tw-pointer-events-auto">
                   <motion.div animate={{ rotate: -360 }} transition={{ duration: 15, repeat: Infinity, ease: "linear" }}>
                     <a href="https://www.docker.com/" className="icon icon-shadow slide_up_down tw-bg-white tw-rounded-full tw-shadow-lg tw-flex tw-items-center tw-justify-center tw-p-3 tw-w-16 tw-h-16 lg:tw-w-20 lg:tw-h-20">
@@ -93,21 +88,20 @@ const Numbers = () => {
                 </div>
               </motion.div>
 
-              {/* Logo Central (Estable) */}
-              <img 
-                src="/assets/img/undercode-logo.png" 
-                alt="" 
-                className='softunder tw-relative tw-z-50 tw-pointer-events-auto' 
-                style={{ width: '130px', filter: 'drop-shadow(0 0 40px rgba(124, 58, 237, 0.6))' }} 
+              <img
+                src="/assets/img/undercode-logo.png"
+                alt=""
+                className="softunder tw-relative tw-z-50 tw-pointer-events-auto"
+                style={{ width: '130px', filter: 'drop-shadow(0 0 40px rgba(124, 58, 237, 0.6))' }}
               />
             </div>
+
           </div>
         </div>
       </div>
-     
       <img src="/assets/img/icons/numbers/7.webp" alt="" className="r_shape rotate-center" />
     </section>
-  )
+  );
 }
 
-export default Numbers
+export default Numbers;

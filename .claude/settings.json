@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Rename-Item -Path \"d:\\\\Documentos\\\\bakup mi portafolio\\\\mi portafolio\\\\undercodeec_nextjs\\\\src\\\\app\\\\espana\" -NewName \"es\")",
+      "Bash(mv \"d:/Documentos/bakup mi portafolio/mi portafolio/undercodeec_nextjs/src/app/espana\" \"d:/Documentos/bakup mi portafolio/mi portafolio/undercodeec_nextjs/src/app/es\")",
+      "Bash(curl -sI https://api.undercodeec.com/api/chat -H \"Origin: https://undercodeec.com\" --max-time 10)",
+      "Bash(curl -sI https://api.undercodeec.com/ --max-time 10)",
+      "Bash(awk 'NR<=1903 && /^\\(function|async function|app\\\\.\\(get|post|put|delete|use\\)\\)/ {line=NR; text=$0} END {print line\": \"text}' backend/server.js)",
+      "Bash(awk 'NR<=1903 && /^\\(function|async function\\)/ {line=NR; text=$0} END {print line\": \"text}' backend/server.js)",
+      "Bash(node --check backend/server.js)"
+    ],
+    "additionalDirectories": [
+      "d:\\Documentos\\bakup mi portafolio\\mi portafolio\\undercodeec_nextjs\\src\\app\\espana"
+    ]
+  }
+}

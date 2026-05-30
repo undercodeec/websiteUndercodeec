@@ -93,7 +93,7 @@ const ChooseUs = ({}) => {
 
           </div>
           <h2>¡Bienvenido!</h2>
-          <h4>Ecuador ya es digital</h4>
+          <h4>El mundo ya es digital</h4>
           <p>En los últimos años, las personas buscan todo en internet.</p>
         </div>
 

@@ -3,7 +3,7 @@ import features from '@/data/Preview/all-features.json';
 
 const AllFeatures = () => {
   return (
-    <section className="all-feat" data-overlay-dark="0">
+    <section className="all-feat animate-fadeIn" data-overlay-dark="0">
       <div className="container-fluid">
         <div className="row">
           <div className="col-12">

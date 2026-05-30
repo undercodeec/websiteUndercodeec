@@ -30,11 +30,21 @@ const AudioMuteButton = () => {
     localStorage.setItem('isGlobalMuted', newState ? 'false' : 'true');
     // Dispatch storage event manually for same-tab updates
     window.dispatchEvent(new Event('storage'));
-    
-    // Stop currently playing audio instantly
-    if (!newState && typeof window !== 'undefined') {
+
+    if (typeof window === 'undefined') return;
+
+    if (!newState) {
+      // Mute: pausar audios conservando currentTime para reanudar luego
       if (window.currentAudio) window.currentAudio.pause();
       if (window.preloaderAudio) window.preloaderAudio.pause();
+    } else {
+      // Unmute: reanudar audios desde donde quedaron
+      if (window.currentAudio && window.currentAudio.paused && !window.currentAudio.ended) {
+        window.currentAudio.play().catch(() => {});
+      }
+      if (window.preloaderAudio && window.preloaderAudio.paused && !window.preloaderAudio.ended) {
+        window.preloaderAudio.play().catch(() => {});
+      }
     }
   };
 

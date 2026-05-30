@@ -31,7 +31,7 @@ const Testimonials = () => {
       <div className="container-fluid">
         <div className="row">
           <div className="col-12">
-            <div className="testim-grida">
+            <div className="testim-grida animate-fadeIn" style={{ transitionDelay: '200ms' }}>
               <div className="swiper-container">
                 {load && (
                   <Swiper
@@ -42,7 +42,8 @@ const Testimonials = () => {
                     loop={true}
                     autoplay={{
                       delay: 3000, // tiempo entre slides (en ms)
-                      disableOnInteraction: false,
+                      disableOnInteraction: true,
+                      pauseOnMouseEnter: true,
                     }}
                     breakpoints={{
                       1024: { slidesPerView: 3 },
@@ -62,6 +63,9 @@ const Testimonials = () => {
 
                             <div className="info mb-15">
                               <h6 className="mb-10">{testimonial.author}</h6>
+                              {testimonial.reason && (
+                                <span className="fz-12 opacity-7 d-block">{testimonial.reason}</span>
+                              )}
                             </div>
 
                             <div className="rate-star fz-10 mb-20">

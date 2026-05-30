@@ -179,7 +179,7 @@
         "integraciones": [
             {
                 "id": "sri",
-                "label": "Facturación Electrónica (SRI)"
+                "label": "Facturación Electrónica"
             },
             {
                 "id": "pagos",
@@ -240,6 +240,53 @@
             }
         ],
         "mensajeCierre": "Gracias por la información. Al ser un desarrollo a medida, necesitamos analizar tus requerimientos técnicos para darte una propuesta exacta."
+    },
+    "landingPage": {
+        "name": "Landing Page",
+        "budgetRanges": [
+            {
+                "min": 150,
+                "max": 250,
+                "label": "Landing Básica",
+                "description": "Página de aterrizaje efectiva para captar leads",
+                "features": [
+                    "Diseño personalizado a tu marca",
+                    "1 página de alta conversión",
+                    "Formulario de contacto / captura de leads",
+                    "Diseño 100% Mobile-first",
+                    "Integración WhatsApp",
+                    "Certificado SSL"
+                ]
+            },
+            {
+                "min": 280,
+                "max": 450,
+                "label": "Landing Pro",
+                "description": "Landing page con integración de herramientas de marketing",
+                "features": [
+                    "Todo lo de Landing Básica",
+                    "Pixel de Facebook / Google Ads",
+                    "Google Analytics 4",
+                    "Copywriting persuasivo",
+                    "Optimización de velocidad (Core Web Vitals)",
+                    "Mapa de calor (Hotjar)"
+                ]
+            },
+            {
+                "min": 500,
+                "max": 900,
+                "label": "Landing Premium",
+                "description": "Embudo de ventas completo con automatización",
+                "features": [
+                    "Todo lo de Landing Pro",
+                    "Secuencia de emails automatizada",
+                    "CRM integrado",
+                    "Página de gracias + upsell",
+                    "Reportes de conversión",
+                    "Soporte 30 días post-entrega"
+                ]
+            }
+        ]
     },
     "tiendaOnline": {
         "name": "Tienda Online",
@@ -368,19 +415,43 @@
                 "min": 850,
                 "max": 2000,
                 "label": "Tienda de Lanzamiento",
-                "description": "Ideal para iniciar tu negocio online"
+                "description": "Ideal para iniciar tu negocio online",
+                "features": [
+                    "Catálogo hasta 30 productos",
+                    "Carrito de compras integrado",
+                    "Pasarela de pagos (transferencia y tarjeta)",
+                    "Gestión de inventario básica",
+                    "Diseño 100% Mobile-first",
+                    "SSL + Hosting incluido"
+                ]
             },
             {
                 "min": 2500,
                 "max": 10000,
                 "label": "Tienda de Crecimiento",
-                "description": "Escala tus ventas con una tienda optimizada"
+                "description": "Escala tus ventas con una tienda optimizada",
+                "features": [
+                    "Todo lo de Tienda Lanzamiento",
+                    "Catálogo hasta 200 productos",
+                    "Integración con couriers (Servientrega / LaarCourier)",
+                    "Panel de administración avanzado",
+                    "Email marketing y recuperación de carritos",
+                    "SEO para e-commerce"
+                ]
             },
             {
                 "min": 20000,
                 "max": 50000,
                 "label": "Tienda Élite",
-                "description": "Arquitectura de alto rendimiento para líderes del mercado"
+                "description": "Arquitectura de alto rendimiento para líderes del mercado",
+                "features": [
+                    "Todo lo de Tienda Crecimiento",
+                    "Productos ilimitados + carga masiva CSV",
+                    "Arquitectura headless / alto rendimiento",
+                    "Integraciones API a medida",
+                    "Analytics y reportes avanzados",
+                    "SLA + Soporte dedicado"
+                ]
             }
         ],
         "mensajeCierre": "Tu proyecto tiene requerimientos avanzados de logística. Agendemos una asesoría para darte el precio exacto."

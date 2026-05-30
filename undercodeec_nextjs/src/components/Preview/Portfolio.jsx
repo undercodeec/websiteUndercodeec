@@ -9,7 +9,7 @@ const Portfolio = () => {
           <div className="col-lg-6 col-md-10">
             <div className="sec-head text-center mb-80 animate-fadeUp">
               <h3 className="num"><span className="gr">100<span className="thin">+</span></span></h3>
-              <h2>Diseños web y aplicaciones móviles perfectas para tu proyecto. Desde sitios web corporativos hasta tiendas en línea en Ecuador.</h2>
+              <h2>Diseños web y aplicaciones móviles perfectas para tu proyecto. Desde sitios web corporativos hasta tiendas en línea.</h2>
             </div>
           </div>
           <div className="col-12">

@@ -6,47 +6,68 @@ const BlogPost = ({ post }) => {
   if (!post) return null;
 
   return (
-    <article className="blog-post-detail">
+    <article
+      className="blog-post-detail"
+      itemScope
+      itemType="https://schema.org/BlogPosting"
+    >
+      <meta itemProp="mainEntityOfPage" content={typeof window !== 'undefined' ? window.location.href : ''} />
+      {post.datePublished && (
+        <meta itemProp="datePublished" content={post.datePublished} />
+      )}
+      {(post.dateModified || post.datePublished) && (
+        <meta itemProp="dateModified" content={post.dateModified || post.datePublished} />
+      )}
+
       {/* Hero Image */}
-      <div className="blog-hero">
-        <img src={post.heroImage || post.image} alt={post.title} />
+      <figure className="blog-hero" itemProp="image" itemScope itemType="https://schema.org/ImageObject">
+        <img src={post.heroImage || post.image} alt={post.title} itemProp="url" />
         <div className="blog-hero-overlay" />
-      </div>
+      </figure>
 
       <div className="container">
         <div className="blog-post-content">
           {/* Breadcrumb */}
-          <div className="blog-breadcrumb">
+          <nav className="blog-breadcrumb" aria-label="Breadcrumb">
             <Link href="/">Inicio</Link>
             <span>/</span>
             <Link href="/blog">Blog</Link>
             <span>/</span>
             <span className="current">{post.category}</span>
-          </div>
+          </nav>
 
           {/* Title */}
-          <h1 className="blog-post-title">{post.title}</h1>
+          <header>
+            <h1 className="blog-post-title" itemProp="headline">{post.title}</h1>
 
-          {/* Meta */}
-          <div className="blog-post-meta">
-            <div className="blog-author">
-              <img src={post.author?.avatar || '/assets/img/undercode-logo.png'} alt={post.author?.name} />
-              <div>
-                <span className="author-name">{post.author?.name || 'Equipo Undercodeec'}</span>
-                <span className="post-date">{post.date}</span>
+            {/* Meta */}
+            <div className="blog-post-meta">
+              <div
+                className="blog-author"
+                itemProp="author"
+                itemScope
+                itemType="https://schema.org/Person"
+              >
+                <img src={post.author?.avatar || '/assets/img/undercode-logo.png'} alt={post.author?.name} />
+                <div>
+                  <span className="author-name" itemProp="name">{post.author?.name || 'Equipo Undercodeec'}</span>
+                  <time className="post-date" dateTime={post.datePublished || undefined}>
+                    {post.date}
+                  </time>
+                </div>
+              </div>
+              <div className="blog-categories">
+                {post.category.split(', ').map((cat, i) => (
+                  <span key={i} className="blog-category-tag" itemProp="articleSection">{cat}</span>
+                ))}
               </div>
             </div>
-            <div className="blog-categories">
-              {post.category.split(', ').map((cat, i) => (
-                <span key={i} className="blog-category-tag">{cat}</span>
-              ))}
-            </div>
-          </div>
+          </header>
 
           <hr className="blog-divider" />
 
           {/* Article Body */}
-          <div className="blog-body">
+          <section className="blog-body" itemProp="articleBody">
             {post.content?.map((block, index) => {
               switch (block.type) {
                 case 'heading':
@@ -72,7 +93,7 @@ const BlogPost = ({ post }) => {
                   return null;
               }
             })}
-          </div>
+          </section>
 
           {/* Share & Back */}
           <div className="blog-footer-actions">

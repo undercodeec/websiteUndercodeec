@@ -6,13 +6,15 @@
     "heroImage": "/assets/img/blog/blog_future_software_hero.png",
     "category": "Desarrollo",
     "date": "10 Nov",
+    "datePublished": "2025-11-10",
+    "dateModified": "2025-11-10",
     "author": {
       "name": "Equipo Undercodeec",
       "avatar": "/assets/img/undercode-logo.png"
     },
     "title": "El Futuro del Desarrollo de Software y las Aplicaciones Móviles",
     "excerpt": "La digitalización se ha convertido en un requisito básico de supervivencia empresarial...",
-    "keywords": ["desarrollo de software ecuador", "desarrollo de software trabajo", "carrera desarrollo de software", "desarrollo de software", "seguridad en aplicaciones moviles"],
+    "keywords": ["desarrollo de software ecuador", "desarrollo de software trabajo", "carrera desarrollo de software", "desarrollo de software", "seguridad en aplicaciones moviles", "aplicaciones moviles a medida", "desarrollo apps android ios"],
     "content": [
       {
         "type": "paragraph",
@@ -94,27 +96,27 @@
       {
         "type": "image",
         "src": "/assets/img/blog/blog_dev_team_ecuador.png",
-        "alt": "Empresa de Desarrollo de Software Ecuador - Talentos y programadores altamente capacitados"
+        "alt": "Empresa de Desarrollo de Software - Talentos y programadores altamente capacitados"
       },
       {
         "type": "heading",
-        "text": "Guía 2026: Desarrollo de Software y Aplicaciones Móviles en Ecuador"
+        "text": "Guía 2026: Desarrollo de Software y Aplicaciones Móviles a Medida"
       },
       {
         "type": "paragraph",
-        "text": "TL;DR (Resumen): El costo de crear una app en Ecuador en 2026 oscila entre $2,000 y $6,000+, dependiendo de su complejidad y funciones. Al elegir una agencia en Quito, es fundamental exigir la propiedad del código, un portafolio verificable y transparencia en los precios. Las mejores tecnologías empresariales actuales combinan sistemas Cloud ERP, frameworks de desarrollo híbrido (como Flutter o React Native) y arquitecturas Zero Trust para garantizar la protección de datos."
+        "text": "TL;DR (Resumen): El costo de crear una app en 2026 oscila entre $2,000 y $6,000+, dependiendo de su complejidad y funciones. Al elegir una agencia de desarrollo, es fundamental exigir la propiedad del código, un portafolio verificable y transparencia en los precios. Las mejores tecnologías empresariales actuales combinan sistemas Cloud ERP, frameworks de desarrollo híbrido (como Flutter o React Native) y arquitecturas Zero Trust para garantizar la protección de datos."
       },
       {
         "type": "paragraph",
-        "text": "--------------------------------------------------------------------------------\nLa digitalización ha dejado de ser una opción para convertirse en un pilar de supervivencia comercial. El desarrollo de software a medida es la clave para que las organizaciones optimicen sus procesos y escalen sus ventas. Hoy en día, quienes estudian la carrera desarrollo de software encuentran un mercado laboral dinámico, lo que ha posicionado a Ecuador como un destino muy atractivo por la alta calidad técnica de sus especialistas. En el desarrollo de software trabajo bajo metodologías ágiles, la comunicación constante y la colaboración son fundamentales para el éxito de cualquier plataforma.\nA continuación, resolvemos las dudas más frecuentes al momento de planificar un proyecto tecnológico:"
+        "text": "--------------------------------------------------------------------------------\nLa digitalización ha dejado de ser una opción para convertirse en un pilar de supervivencia comercial. El desarrollo de software a medida es la clave para que las organizaciones optimicen sus procesos y escalen sus ventas. Hoy en día, quienes estudian la carrera de desarrollo de software encuentran un mercado laboral dinámico y global, con alta demanda de especialistas técnicos. En el desarrollo de software se trabaja bajo metodologías ágiles, donde la comunicación constante y la colaboración son fundamentales para el éxito de cualquier plataforma.\nA continuación, resolvemos las dudas más frecuentes al momento de planificar un proyecto tecnológico:"
       },
       {
         "type": "heading",
-        "text": "¿Cuánto cuesta desarrollar un software a medida en Ecuador?"
+        "text": "¿Cuánto cuesta desarrollar un software a medida?"
       },
       {
         "type": "paragraph",
-        "text": "El presupuesto para una aplicación o software varía drásticamente según la plataforma, el diseño UX/UI, las integraciones externas y el mantenimiento. Según las estimaciones del mercado en Ecuador para 2026, los costos y tiempos de desarrollo se dividen en las siguientes categorías:"
+        "text": "El presupuesto para una aplicación o software varía drásticamente según la plataforma, el diseño UX/UI, las integraciones externas y el mantenimiento. Según las estimaciones del mercado para 2026, los costos y tiempos de desarrollo se dividen en las siguientes categorías:"
       },
       {
         "type": "list",
@@ -130,11 +132,11 @@
       },
       {
         "type": "heading",
-        "text": "Cómo elegir una empresa de desarrollo de software en Quito."
+        "text": "Cómo elegir una empresa de desarrollo de software."
       },
       {
         "type": "paragraph",
-        "text": "Al buscar proveedores de desarrollo de software ecuador, especialmente en ciudades clave como Quito, debes evaluar a tu futuro partner tecnológico con base en criterios estrictos que garanticen el retorno de tu inversión:"
+        "text": "Al buscar proveedores de desarrollo de software, debes evaluar a tu futuro partner tecnológico con base en criterios estrictos que garanticen el retorno de tu inversión:"
       },
       {
         "type": "list",
@@ -147,7 +149,7 @@
       },
       {
         "type": "heading",
-        "text": "Mejores tecnologías para software empresarial en Ecuador."
+        "text": "Mejores tecnologías para software empresarial."
       },
       {
         "type": "paragraph",
@@ -170,13 +172,15 @@
     "heroImage": "/assets/img/blog/blog_ia_marketing_hero.png",
     "category": "Marketing",
     "date": "20 Nov",
+    "datePublished": "2025-11-20",
+    "dateModified": "2025-11-20",
     "author": {
       "name": "Equipo Undercodeec",
       "avatar": "/assets/img/undercode-logo.png"
     },
     "title": "Guía 2026: El Impacto de la Inteligencia Artificial en el Marketing Digital",
     "excerpt": "La inteligencia artificial (IA) ha dejado de ser una simple novedad para consolidarse como el motor y cerebro operativo de las empresas...",
-    "keywords": ["marketing digital y ventas", "impacto de la ia", "impacto de la inteligencia artificial en la educación"],
+    "keywords": ["marketing digital y ventas", "impacto de la ia", "impacto de la inteligencia artificial en la educación", "inteligencia artificial marketing 2026", "tendencias marketing digital 2026", "revenue operations RevOps", "lead nurturing con IA", "microcomunidades marketing"],
     "content": [
       {
         "type": "heading",
@@ -310,12 +314,15 @@
     "heroImage": "/assets/img/blog/blog_ia_software_hero.png",
     "category": "Desarrollo",
     "date": "29 Nov",
+    "datePublished": "2025-11-29",
+    "dateModified": "2025-11-29",
     "author": {
       "name": "Equipo Undercodeec",
       "avatar": "/assets/img/undercode-logo.png"
     },
     "title": "El Impacto de la Inteligencia Artificial en el Desarrollo de Software: Ventajas, Problemáticas y el Futuro",
     "excerpt": "La Inteligencia Artificial y los Modelos de Lenguaje Grande (LLMs) han dejado de ser una simple promesa para integrarse en todo el ciclo de vida del desarrollo de software...",
+    "keywords": ["inteligencia artificial desarrollo de software", "IA en programacion", "GitHub Copilot", "alucinaciones IA codigo", "MLOps LLMOps", "human in the loop desarrollo", "DevSecOps con IA", "futuro del desarrollo de software", "GEO optimizacion motores generativos"],
     "content": [
       {
         "type": "heading",
@@ -454,7 +461,7 @@
       },
       {
         "type": "heading",
-        "text": "¿Cuánto cuesta desarrollar una aplicación móvil a medida en Ecuador?"
+        "text": "¿Cuánto cuesta desarrollar una aplicación móvil a medida?"
       },
       {
         "type": "paragraph",
@@ -517,13 +524,15 @@
     "heroImage": "/assets/img/blog/whatsapp_marketing_ia.png",
     "category": "Marketing",
     "date": "15 Dic",
+    "datePublished": "2025-12-15",
+    "dateModified": "2025-12-15",
     "author": {
       "name": "Equipo Undercodeec",
       "avatar": "/assets/img/undercode-logo.png"
     },
     "title": "WhatsApp Marketing y Ventas B2B / E-commerce: La Revolución de los Asistentes con IA",
     "excerpt": "En 2026, WhatsApp ha dejado de ser solo una aplicación de mensajería para convertirse en un ecosistema completo de comercio conversacional...",
-    "keywords": ["WhatsApp Marketing", "Ventas B2B", "E-commerce", "Asistentes IA", "Bot WhatsApp"],
+    "keywords": ["WhatsApp Marketing", "Ventas B2B", "E-commerce", "Asistentes IA", "Bot WhatsApp", "WhatsApp Business API", "chatbot whatsapp ventas", "comercio conversacional", "recuperacion carritos abandonados", "integracion whatsapp CRM ERP"],
     "content": [
       {
         "type": "heading",

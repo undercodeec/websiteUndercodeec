@@ -16,7 +16,9 @@ export default function PageTransition({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   
-  const [transitionState, setTransitionState] = useState(pathname === '/' ? "hidden" : "initial_reveal");
+  const preloaderRoutes = ['/', '/ec', '/es'];
+  const normInit = pathname.replace(/\/$/, '') || '/';
+  const [transitionState, setTransitionState] = useState(preloaderRoutes.includes(normInit) ? "hidden" : "initial_reveal");
   const [targetPathname, setTargetPathname] = useState(pathname);
   
   const title = getPageTitle(transitionState === "rising" ? targetPathname : pathname);
@@ -32,30 +34,38 @@ export default function PageTransition({ children }) {
            
            if (url.hostname === window.location.hostname && normCurrent !== normTarget) {
              if (link.target === '_blank' || url.hash) return;
-             
+
              e.preventDefault();
              e.stopPropagation();
 
-             if (normTarget === '/') {
-               // Play soft sound when navigating to "Inicio"
-               playSoundWithFade();
+             // Logo con preloader: limpiar sesión home y navegar sin cortina
+             if (link.dataset.forcePreloader) {
+               sessionStorage.removeItem('preloaderShown_home');
                router.push(url.href);
                return;
              }
-             
+
+             // Rutas con preloader de bienvenida: navegar sin cortina
+             if (['/ec', '/es'].includes(normTarget)) {
+               router.push(url.href);
+               return;
+             }
+
+             if (normTarget === '/') playSoundWithFade();
+
              setTargetPathname(url.pathname);
              // 1. Forzamos el telón a la parte inferior (hidden) de forma instantánea
-             setTransitionState("hidden"); 
-             
+             setTransitionState("hidden");
+
              // 2. En el siguiente ciclo de renderizado, ordenamos que suba
              setTimeout(() => {
-               setTransitionState("rising"); 
-               
+               setTransitionState("rising");
+
                // 3. Esperamos a que el telón suba y cubra la pantalla para recién enrutar
                setTimeout(() => {
                  router.push(url.href);
-               }, 800); 
-             }, 50); 
+               }, 800);
+             }, 50);
            }
         } catch(err) {}
       }
@@ -129,17 +139,23 @@ export default function PageTransition({ children }) {
     }
   };
 
+  // En rutas con preloader de bienvenida, no renderizar el telón si está oculto
+  // (evita que SSR/hidratación muestre brevemente el nombre de la página)
+  const normPathname = pathname.replace(/\/$/, '') || '/';
+  const hideCurtain = preloaderRoutes.includes(normPathname) && transitionState === "hidden";
+
   return (
     <>
       {/* EL ÚNICO TELÓN GLOBAL ABSOLUTAMENTE INMUNE A LOS ERRORES DE NEXTJS Y TAILWIND CACHE */}
+      {!hideCurtain && (
       <motion.div
-         style={{ 
-           position: "fixed", 
-           top: 0, left: 0, right: 0, bottom: 0, 
-           width: "100%", height: "100vh", 
-           zIndex: 999999, pointerEvents: "none" 
+         style={{
+           position: "fixed",
+           top: 0, left: 0, right: 0, bottom: 0,
+           width: "100%", height: "100vh",
+           zIndex: 999999, pointerEvents: "none"
          }}
-         initial={{ y: pathname === '/' ? "100%" : "0%" }} // Evita tapar si es inicio
+         initial={{ y: preloaderRoutes.includes(pathname) ? "100%" : "0%" }}
          animate={transitionState}
          variants={curtainVariants}
       >
@@ -175,6 +191,7 @@ export default function PageTransition({ children }) {
           </motion.div>
         </div>
       </motion.div>
+      )}
 
       {/* RENDERIZADO INCONDICIONAL DE LAS PÁGINAS PROTEGIDO DE ANIMATEPRESENCE */}
       {children}

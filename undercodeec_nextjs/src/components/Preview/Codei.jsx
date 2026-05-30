@@ -17,15 +17,15 @@ const Codei = () => {
       <img
         src="/assets/img/header/header_4_bubble.png"
         alt="Agendar cita para diseño web"
-        className="bubble rotate-center"
+        className="bubble rotate-center animate-fadeIn"
       />
-        <h2 className="title-gradient">Agenda tu Reunión para tu Página Web en Quito</h2>
-        <p className="mb-10">Elige el día y la hora que mejor te convenga para potenciar tu negocio</p>
+        <h2 className="title-gradient animate-fadeUp">Agenda tu Reunión para tu Página Web</h2>
+        <p className="mb-10 animate-fadeUp" style={{ transitionDelay: '150ms' }}>Elige el día y la hora que mejor te convenga para potenciar tu negocio</p>
 
         <div
-          className="calendly-inline-widget mx-auto"
+          className="calendly-inline-widget mx-auto animate-scaleUp"
           data-url="https://calendly.com/carpathian199964/15-min-meeting?hide_gdpr_banner=1"
-          style={{ minWidth: '320px', height: '700px' }}
+          style={{ minWidth: '320px', height: '700px', transitionDelay: '300ms' }}
         ></div>
       </div>
     </section>

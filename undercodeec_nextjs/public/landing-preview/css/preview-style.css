@@ -1987,7 +1987,7 @@ header #js-scene2 {
 .wizard-content {
   background: transparent;
   border-radius: 0;
-  padding: 45px;
+  padding: 20px;
   color: #fff;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -3605,7 +3605,7 @@ header #js-scene2 {
   border: none;
   border-left: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0;
-  padding: 0 30px;
+  padding: 0 0px;
   position: relative;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -3702,6 +3702,58 @@ header #js-scene2 {
 
 .price-card-features li::before {
   display: none;
+}
+
+/* Feature accordion inside price cards */
+.feature-accordion-item {
+  margin-bottom: 6px !important;
+}
+
+.feature-accordion-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 6px 0;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.feature-accordion-trigger .feature-check {
+  flex-shrink: 0;
+  color: #efa238;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.feature-accordion-trigger .feature-title {
+  flex: 1;
+  font-weight: 600;
+}
+
+.feature-accordion-trigger .feature-arrow {
+  flex-shrink: 0;
+  font-size: 10px;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.feature-accordion-item.has-desc .feature-accordion-trigger:hover .feature-title {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.feature-accordion-body {
+  margin: 0 0 6px 22px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.65);
+  border-left: 2px solid rgba(239, 162, 56, 0.4);
+  padding-left: 10px;
 }
 
 /* Responsive for Landing Price Cards */
@@ -3814,7 +3866,7 @@ header #js-scene2 {
 }
 
 .three-columns .price-card {
-  padding: 25px 20px;
+  padding: 0px 15px;
 }
 
 .three-columns .price-card-price {
@@ -3867,7 +3919,7 @@ header #js-scene2 {
 
 /* Adjust grid gap for 3 columns when in expanded mode */
 .plans-two-columns.expanded-wizard .landing-price-cards.three-columns {
-  gap: 15px;
+  gap: 0px;
 }
 
 /* Adjust responsive behavior for expanded mode */
