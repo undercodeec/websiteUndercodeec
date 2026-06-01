@@ -99,22 +99,22 @@ export default function HeroSlider() {
       <Slider ref={sliderRef} {...settings} className="tw-h-full tw-relative tw-z-30">
         {slides.map((slide, index) => (
           <div key={index} className="tw-h-[100dvh]">
-            <div className="tw-relative tw-h-full tw-flex tw-items-center tw-justify-center tw-px-4 md:tw-px-8 lg:tw-px-16">
+            <div className="tw-relative tw-h-full tw-flex tw-items-start lg:tw-items-center tw-justify-center tw-px-4 md:tw-px-8 lg:tw-px-16 tw-pt-[76px] md:tw-pt-[84px] lg:tw-pt-0 tw-pb-4 lg:tw-pb-0">
               <div className="tw-container tw-mx-auto tw-max-w-7xl">
-                <div className="tw-grid lg:tw-grid-cols-2 tw-gap-8 lg:tw-gap-16 tw-items-center">
+                <div className="tw-grid lg:tw-grid-cols-2 tw-gap-3 sm:tw-gap-5 lg:tw-gap-16 tw-items-center">
                   {/* Content */}
                   <motion.div
                     initial={{ opacity: 0, x: slide.type === 'video' ? 60 : -60 }}
                     animate={isReady && currentSlide === index ? { opacity: 1, x: 0 } : { opacity: 0, x: slide.type === 'video' ? 60 : -60 }}
                     transition={{ duration: 0.5, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
-                    className={`tw-z-50 tw-relative tw-space-y-6 lg:tw-space-y-8 ${slide.type === 'video' ? 'lg:tw-order-2' : ''}`}
+                    className={`tw-z-50 tw-relative tw-space-y-3 sm:tw-space-y-4 lg:tw-space-y-8 ${slide.type === 'video' ? 'lg:tw-order-2' : ''}`}
                   >
                     {/* Title */}
                     <motion.h1
                       initial={{ opacity: 0, y: 24 }}
                       animate={isReady && currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
                       transition={{ duration: 0.45, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                      className="gradient-title tw-text-[42px] sm:tw-text-[40px] md:tw-text-[64px] tw-font-bold tw-leading-tight"
+                      className="gradient-title tw-text-[26px] sm:tw-text-[34px] md:tw-text-[52px] lg:tw-text-[64px] tw-font-bold tw-leading-tight"
                     >
                       {slide.title}
                     </motion.h1>
@@ -124,7 +124,7 @@ export default function HeroSlider() {
                       initial={{ opacity: 0, y: 24 }}
                       animate={isReady && currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
                       transition={{ duration: 0.45, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                      className="tw-text-lg md:tw-text-xl lg:tw-text-2xl tw-leading-relaxed tw-max-w-2xl tw-text-gray-800"
+                      className="tw-text-sm sm:tw-text-base md:tw-text-xl lg:tw-text-2xl tw-leading-relaxed tw-max-w-2xl tw-text-gray-800"
                     >
                       {slide.description}
                     </motion.p>
@@ -134,9 +134,8 @@ export default function HeroSlider() {
                       initial={{ opacity: 0, y: 24 }}
                       animate={isReady && currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
                       transition={{ duration: 0.45, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      className="tw-flex tw-flex-wrap tw-gap-4 tw-pt-4 tw-border-0"
+                      className="tw-flex tw-flex-wrap tw-gap-3 tw-pt-1 lg:tw-pt-4 tw-border-0"
                     >
-                      
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -144,7 +143,7 @@ export default function HeroSlider() {
                           const section = document.getElementById('demos');
                           if (section) section.scrollIntoView({ behavior: 'smooth' });
                         }}
-                        className="tw-px-8 tw-py-4 tw-rounded-full tw-font-bold tw-text-white tw-text-lg tw-transition-all tw-duration-300 tw-border-0"
+                        className="tw-px-6 tw-py-3 lg:tw-px-8 lg:tw-py-4 tw-rounded-full tw-font-bold tw-text-white tw-text-base lg:tw-text-lg tw-transition-all tw-duration-300 tw-border-0"
                         style={{ backgroundColor: '#600b56', border: 'none', outline: 'none' }}
                       >
                         Ver Portafolio
@@ -159,31 +158,30 @@ export default function HeroSlider() {
                       initial={{ opacity: 0, scale: 0.9, rotate: -6 }}
                       animate={isReady && currentSlide === index ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.9, rotate: -6 }}
                       transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                      className="tw-relative tw-flex tw-items-center tw-justify-center"
+                      className="tw-relative tw-flex tw-items-center tw-justify-center tw-mx-auto"
                     >
-                      
                       {/* Rotating Ring */}
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
                         className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center"
                       >
-                        <div 
+                        <div
                           className="tw-w-[90%] tw-h-[90%] tw-rounded-full tw-border-4 tw-border-dashed"
                           style={{ borderColor: `${slide.color}40` }}
                         />
                       </motion.div>
 
                       {/* Character */}
-                      <div className="tw-relative tw-flex tw-items-center tw-justify-center tw-w-[280px] tw-h-[280px] md:tw-w-[400px] md:tw-h-[400px] lg:tw-w-[500px] lg:tw-h-[500px]">
+                      <div className="tw-relative tw-flex tw-items-center tw-justify-center tw-w-[280px] tw-h-[280px] sm:tw-w-[320px] sm:tw-h-[320px] md:tw-w-[380px] md:tw-h-[380px] lg:tw-w-[500px] lg:tw-h-[500px]">
                         {/* Hero Model (3D Canvas) */}
                         <motion.div
                             className="tw-absolute tw-inset-0 tw-drop-shadow-2xl"
-                            style={{ 
+                            style={{
                               pointerEvents: 'auto',
                               zIndex: 10
                             }}
-                            animate={{ 
+                            animate={{
                               y: [0, -20, 0],
                             }}
                             transition={{
@@ -196,15 +194,15 @@ export default function HeroSlider() {
                               <HeroModel isActive={true} />
                             )}
                         </motion.div>
-                        
+
                         {/* Floating Phone */}
                         <motion.img
                           src={phoneImageFloating}
                           alt="Mobile Phone"
                           className="tw-absolute tw-drop-shadow-2xl"
-                          style={{ 
-                            width: '200px', 
-                            height: '200px', 
+                          style={{
+                            width: isMobile ? '65px' : '200px',
+                            height: isMobile ? '65px' : '200px',
                             objectFit: 'contain',
                             top: '50%',
                             right: '10%',

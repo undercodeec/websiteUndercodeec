@@ -51,7 +51,16 @@ export default function PageTransition({ children }) {
                return;
              }
 
-             if (normTarget === '/') playSoundWithFade();
+             // Raíz /: si el preloader aún no se ha visto, navegar directo sin telón
+             // para que solo se muestre el preloader de bienvenida (no ambas animaciones)
+             if (normTarget === '/') {
+               const preloaderSeen = sessionStorage.getItem('preloaderShown_home');
+               if (!preloaderSeen) {
+                 router.push(url.href);
+                 return;
+               }
+               playSoundWithFade();
+             }
 
              setTargetPathname(url.pathname);
              // 1. Forzamos el telón a la parte inferior (hidden) de forma instantánea
