@@ -67,7 +67,6 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200
 };
-app.options('*', cors(corsOptions)); // preflight para todas las rutas
 app.use(cors(corsOptions));
 
 // Middleware para parsear JSON con límite de tamaño
