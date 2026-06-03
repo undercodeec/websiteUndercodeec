@@ -61,10 +61,13 @@ function runWithPuppeteer(task) {
 
 // Configuración de CORS mejorada
 const corsOptions = {
-  origin: ['https://undercodeec.com', 'https://api.undercodeec.com', process.env.FRONTEND_URL].filter(Boolean),
-  methods: ['GET', 'POST'],
+  origin: ['https://undercodeec.com', 'https://www.undercodeec.com', 'https://api.undercodeec.com', process.env.FRONTEND_URL].filter(Boolean),
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
   optionsSuccessStatus: 200
 };
+app.options('*', cors(corsOptions)); // preflight para todas las rutas
 app.use(cors(corsOptions));
 
 // Middleware para parsear JSON con límite de tamaño
