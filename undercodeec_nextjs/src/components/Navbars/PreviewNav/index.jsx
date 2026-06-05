@@ -41,7 +41,7 @@ const PreviewNavbar = ({ navbarRef }) => {
           data-force-preloader="true"
           onClick={handleLogoClick}
         >
-          <Image src="/assets/img/undercode-logo.png" alt="Undercodeec" width={55} height={55} priority className="preview-logo" style={{ width: '55px', height: '55px' }} />
+          <Image src="/assets/img/undercode-logo.png" alt="Undercodeec" width={55} height={55} priority className="preview-logo" style={{ width: 'auto', height: '55px' }} />
         </a>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
           data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
