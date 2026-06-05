@@ -3453,6 +3453,14 @@ img.softunder {
   width: 85px !important;
 }
 
+.navbar-brand img,
+.nav-preview .navbar-brand img {
+  width: 55px !important;
+  height: 55px !important;
+  object-fit: contain !important;
+  display: block;
+}
+
 .navbar.style-1 .navbar-nav .nav-item .nav-link {
   font-size: 12px;
   color: #000;

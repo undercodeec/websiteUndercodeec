@@ -24,7 +24,7 @@ const Navbar = ({ navbarRef, bgTransparent }) => {
     <nav className="navbar navbar-expand-lg navbar-light style-1 nav-preview py-0" ref={navbarRef}>
       <div className="container-xxl">
         <Link className="navbar-brand" href="/">
-          <Image src="/assets/img/undercode-logo.png" alt="Undercodeec" width={55} height={55} priority style={{ width: 'auto', height: '55px' }} />
+          <Image src="/assets/img/undercode-logo.png" alt="Undercodeec" width={55} height={55} priority style={{ width: '55px', height: '55px' }} />
         </Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
           data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
