@@ -3446,7 +3446,11 @@ img.softunder {
 
 .navbar.style-1 .navbar-brand {
   margin-right: 40px;
-  width: 120px;
+  width: 85px;
+}
+
+.nav-preview.style-1 .navbar-brand {
+  width: 85px !important;
 }
 
 .navbar.style-1 .navbar-nav .nav-item .nav-link {
@@ -3755,7 +3759,7 @@ img.softunder {
 }
 
 .nav-preview {
-  background: linear-gradient(to right, #0f0c1c, #181028) !important;
+  background: linear-gradient(to right, #000000 0%, #600b56 100%, #150E23 100%) !important;
   width: 100%;
 }
 
@@ -3766,7 +3770,7 @@ img.softunder {
 }
 
 .nav-preview.nav-scroll {
-  background: linear-gradient(to right, #0f0c1c, #181028) !important;
+  background: linear-gradient(to right, #000000 0%, #600b56 100%, #150E23 100%) !important;
 }
 
 .nav-preview .navbar-nav {
