@@ -1,0 +1,13 @@
+﻿allowBuilds:
+  core-js: true
+  sharp: true
+  swiper: true
+  unrs-resolver: true
+onlyBuiltDependencies:
+  - next
+  - sharp
+  - "@swc/core"
+  - esbuild
+  - core-js
+  - swiper
+  - unrs-resolver

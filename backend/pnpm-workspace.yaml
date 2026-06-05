@@ -1,0 +1,7 @@
+﻿allowBuilds:
+  protobufjs: true
+  puppeteer: true
+onlyBuiltDependencies:
+  - puppeteer
+  - protobufjs
+  - "@google-cloud/recaptcha-enterprise"
