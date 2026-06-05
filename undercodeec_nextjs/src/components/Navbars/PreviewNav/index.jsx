@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { playSoundWithFade } from '@/utils/audio';
 
@@ -40,7 +41,7 @@ const PreviewNavbar = ({ navbarRef }) => {
           data-force-preloader="true"
           onClick={handleLogoClick}
         >
-          <img src="/assets/img/undercode-logo.png" alt="" className="preview-logo" />
+          <Image src="/assets/img/undercode-logo.png" alt="Undercodeec" width={40} height={40} priority className="preview-logo" />
         </a>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
           data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"

@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Videos grandes — manejar directamente en VPS, no en git
+public/assets/img/video/

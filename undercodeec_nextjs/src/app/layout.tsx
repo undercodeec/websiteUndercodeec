@@ -219,12 +219,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </Script>
         {/* End Google Tag Manager */}
 
-        <link rel="stylesheet" href="/assets/css/lib/all.min.css" />
-        <link rel="stylesheet" href="/assets/css/lib/bootstrap-icons.css" />
+        {/* Critical CSS — blocks render intentionally */}
         <link rel="stylesheet" href="/assets/css/lib/bootstrap.min.css" />
         <link rel="stylesheet" href="/assets/css/style.css" />
-        <link rel="stylesheet" href="/landing-preview/css/preview-style.css" />
-        <link rel="stylesheet" href="/assets/css/animations.css" />
+
+        {/* Non-critical CSS — loaded async after main thread is free */}
+        <Script id="deferred-css" strategy="afterInteractive">
+          {`(function(){var s=['/assets/css/lib/all.min.css','/assets/css/lib/bootstrap-icons.css','/landing-preview/css/preview-style.css','/assets/css/animations.css'];s.forEach(function(h){var l=document.createElement('link');l.rel='stylesheet';l.href=h;document.head.appendChild(l);});})();`}
+        </Script>
 
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-99Z5CCZ3RK"
@@ -271,7 +273,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           {children}
         </PageTransition>
 
-        <Script src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`} strategy="beforeInteractive" />
+        <Script src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`} strategy="lazyOnload" />
         <Script src="/assets/js/lib/pace.js" strategy="afterInteractive" />
         <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />
         <Script src="/landing-preview/js/parallax.min.js" strategy="afterInteractive" />

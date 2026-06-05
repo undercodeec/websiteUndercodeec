@@ -21,7 +21,7 @@ const Responsive = () => {
           <div className="video-frame">
             <video
               className="video-iframe"
-              src="/assets/img/video/video UNDERCODE EC_1.mp4"
+              src="/assets/img/video/video-undercode-ec-1.mp4"
               autoPlay
               muted
               loop

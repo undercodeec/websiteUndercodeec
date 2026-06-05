@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { RiRobot2Line, RiCloseLine, RiSendPlaneFill, RiMicFill, RiMicOffFill, RiVolumeUpFill, RiVolumeMuteFill } from 'react-icons/ri';
+import VimeoFacade from '@/components/Vimeo/VimeoFacade';
 
 const TypewriterMessage = ({ content, renderContent }) => {
     const [visibleChars, setVisibleChars] = useState(0);
@@ -459,25 +460,20 @@ const AIAssistant = () => {
                         justifyContent: 'space-between'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div style={{
-                                width: '35px',
-                                height: '35px',
-                                backgroundColor: 'rgba(255,255,255,0.2)',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                overflow: 'hidden',
-                                position: 'relative'
-                            }}>
-                                <iframe 
-                                    src="https://player.vimeo.com/video/1174861620?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&background=1" 
-                                    frameBorder="0" 
-                                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
-                                    style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '250%', height: '250%', pointerEvents: 'none' }} 
-                                    title="Asistente IA">
-                                </iframe>
-                            </div>
+                            <VimeoFacade
+                                src="https://player.vimeo.com/video/1174861620?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&background=1"
+                                title="Asistente IA"
+                                style={{
+                                    width: '35px',
+                                    height: '35px',
+                                    backgroundColor: 'rgba(255,255,255,0.2)',
+                                    borderRadius: '50%',
+                                    overflow: 'hidden',
+                                    position: 'relative',
+                                    flexShrink: 0,
+                                }}
+                                iframeStyle={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '250%', height: '250%', pointerEvents: 'none' }}
+                            />
                             <div>
                                 <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>Karen Asistente IA</h4>
                                 <span style={{ fontSize: '11px', opacity: 0.8, display: 'block' }}>En línea</span>
@@ -803,15 +799,12 @@ const AIAssistant = () => {
                         }}
                         aria-label="Abrir asistente"
                     >
-                        <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden', borderRadius: '50%', pointerEvents: 'none' }}>
-                            <iframe 
-                                src="https://player.vimeo.com/video/1174861620?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&background=1" 
-                                frameBorder="0" 
-                                allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
-                                style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '250%', height: '250%', pointerEvents: 'none' }} 
-                                title="Asistente IA">
-                            </iframe>
-                        </div>
+                        <VimeoFacade
+                            src="https://player.vimeo.com/video/1174861620?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&background=1"
+                            title="Asistente IA"
+                            style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden', borderRadius: '50%', pointerEvents: 'none' }}
+                            iframeStyle={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '250%', height: '250%', pointerEvents: 'none' }}
+                        />
                     </button>
                     {/* Notification Dot */}
                     <span style={{

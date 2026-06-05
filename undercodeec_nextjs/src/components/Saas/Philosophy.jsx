@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
-import Script from 'next/script';
 import { motion } from 'framer-motion';
+import VimeoFacade from '@/components/Vimeo/VimeoFacade';
 
 const linkItems = ['Innovación constante', 'Precios Competitivos', 'Enfoque en el usuario'];
 
@@ -93,17 +93,13 @@ const Philosophy = ({}) => {
               transition={{ duration: 1.25, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             >
               <div className="img">
-                <div style={{ padding: '56.25% 0 0 0', position: 'relative' }}>
-                  <iframe
-                    src="https://player.vimeo.com/video/1176609262?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;muted=1&amp;loop=1&amp;controls=0&amp;title=0&amp;byline=0&amp;portrait=0"
-                    frameBorder="0"
-                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                    title="Creación_de_Video_D_con_Imagen"
-                  ></iframe>
-                </div>
-                <Script src="https://player.vimeo.com/api/player.js" strategy="lazyOnload" />
+                <VimeoFacade
+                  src="https://player.vimeo.com/video/1176609262?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&controls=0&title=0&byline=0&portrait=0"
+                  title="Creación_de_Video_D_con_Imagen"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  style={{ padding: '56.25% 0 0 0', position: 'relative' }}
+                  iframeStyle={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                />
               </div>
             </motion.div>
 

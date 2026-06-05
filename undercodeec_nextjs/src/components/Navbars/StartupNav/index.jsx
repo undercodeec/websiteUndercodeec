@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import navbarScrollEffect from "@/common/navbarScrollEffect";
 
 const Navbar = () => {
@@ -30,7 +31,7 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-lg navbar-light style-1 nav-preview py-0" ref={navbarRef}>
       <div className="container-xxl">
         <Link className="navbar-brand" href="/">
-          <img src="/assets/img/undercode-logo.png" alt="" className="preview-logo" />
+          <Image src="/assets/img/undercode-logo.png" alt="Undercodeec" width={40} height={40} priority className="preview-logo" />
         </Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
           data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"

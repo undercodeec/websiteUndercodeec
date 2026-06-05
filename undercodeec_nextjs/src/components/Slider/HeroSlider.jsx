@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Slider from 'react-slick';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Palette } from 'lucide-react';
+import Image from 'next/image';
 import { usePageReady } from '@/common/usePageReady';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -83,10 +84,13 @@ export default function HeroSlider() {
       
       {/* Rotating Background Pattern */}
       <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-pointer-events-none tw-z-[1]">
-        <img 
-          src={backgroundPattern} 
-          alt="Background Pattern" 
-          className="rotating-pattern tw-w-full tw-h-full tw-object-cover tw-opacity-30 tw-pointer-events-none"
+        <Image
+          src={backgroundPattern}
+          alt=""
+          fill
+          aria-hidden
+          priority
+          className="rotating-pattern tw-object-cover tw-opacity-30 tw-pointer-events-none"
         />
       </div>
       
@@ -189,23 +193,21 @@ export default function HeroSlider() {
                             }}
                         >
                             {isMobile || !mounted ? (
-                              <img src={mobileImage} alt="Mobile Character" className="tw-w-full tw-h-full tw-object-contain tw-drop-shadow-2xl" />
+                              <Image src={mobileImage} alt="Mobile Character" fill priority style={{ objectFit: 'contain' }} className="tw-drop-shadow-2xl" />
                             ) : (
                               <HeroModel isActive={true} />
                             )}
                         </motion.div>
 
                         {/* Floating Phone */}
-                        <motion.img
-                          src={phoneImageFloating}
-                          alt="Mobile Phone"
+                        <motion.div
                           className="tw-absolute tw-drop-shadow-2xl"
                           style={{
                             width: isMobile ? '65px' : '200px',
                             height: isMobile ? '65px' : '200px',
-                            objectFit: 'contain',
                             top: '50%',
                             right: '10%',
+                            transform: 'translateY(-50%)',
                           }}
                           animate={{
                             rotateY: [-15, 15, -15],
@@ -216,7 +218,14 @@ export default function HeroSlider() {
                             repeat: Infinity,
                             ease: 'easeInOut',
                           }}
-                        />
+                        >
+                          <Image
+                            src={phoneImageFloating}
+                            alt="Mobile Phone"
+                            fill
+                            style={{ objectFit: 'contain' }}
+                          />
+                        </motion.div>
                       </div>
                     </motion.div>
                   ) : null}

@@ -18,7 +18,7 @@ const Model = ({ url }) => {
 };
 
 // Preload the model to prevent late rendering
-useGLTF.preload("/modelo 3D/Model3D-1.glb");
+useGLTF.preload("/modelo-3D/Model3D-1.glb");
 
 const HeroModel = ({ isActive = true }) => {
   // Determine if component is intersecting the viewport to stop WebGL rendering
@@ -64,7 +64,7 @@ const HeroModel = ({ isActive = true }) => {
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 10]} intensity={1} />
         <Suspense fallback={null}>
-            <Model url="/modelo 3D/Model3D-1.glb" />
+            <Model url="/modelo-3D/Model3D-1.glb" />
             <Environment preset="city" resolution={64} />
         </Suspense>
         {/* Disable pan to avoid interfering with page interactions */}

@@ -1,0 +1,132 @@
+# =============================================================
+# Nginx config para undercodeec.com en CyberPanel/VPS
+# Ruta en el servidor: /etc/nginx/conf.d/undercodeec.com.conf
+# (CyberPanel Nginx) o /etc/nginx/sites-available/undercodeec.com
+#
+# IMPORTANTE: ajusta APP_ROOT al path real en tu VPS, ej:
+#   /home/undercodeec.com/public_html  (CyberPanel default)
+# =============================================================
+
+upstream nextjs_upstream {
+    server 127.0.0.1:3000;
+    keepalive 64;
+}
+
+server {
+    listen 80;
+    server_name undercodeec.com www.undercodeec.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name undercodeec.com www.undercodeec.com;
+
+    # --- SSL (Let's Encrypt via CyberPanel) ---
+    ssl_certificate     /etc/letsencrypt/live/undercodeec.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/undercodeec.com/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+
+    # --- Raíz pública del proyecto Next.js ---
+    set $APP_ROOT /home/undercodeec.com/public_html/undercodeec_nextjs;
+
+    # =========================================================
+    # SOLUCIÓN A: archivos estáticos servidos por Nginx directo
+    # (evita pasar por Node.js → elimina ERR_CONNECTION_FAILED
+    # en archivos grandes como .mp4 y .glb)
+    # =========================================================
+
+    # Chunks e imágenes optimizadas de Next.js
+    location /_next/static/ {
+        alias $APP_ROOT/.next/static/;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    # Archivos públicos (imágenes, video, modelos 3D, CSS, JS, fonts)
+    location /assets/ {
+        root $APP_ROOT/public;
+        expires 30d;
+        add_header Cache-Control "public";
+
+        # Transferencia eficiente de archivos grandes (video .mp4)
+        sendfile           on;
+        sendfile_max_chunk 2m;
+        tcp_nopush         on;
+        tcp_nodelay        off;
+
+        # Timeout largo para videos pesados (ajustar según tamaño)
+        proxy_read_timeout 300s;
+    }
+
+    # Modelo 3D .glb — MIME type correcto (no está en el default de Nginx)
+    location /modelo-3D/ {
+        root $APP_ROOT/public;
+        expires 30d;
+        add_header Cache-Control "public";
+        default_type model/gltf-binary;
+        add_header Access-Control-Allow-Origin "*";
+    }
+
+    # Otros archivos en /public (favicon, robots.txt, etc.)
+    location ~* ^/(favicon|robots|sitemap|logo|landing-preview) {
+        root $APP_ROOT/public;
+        expires 7d;
+        add_header Cache-Control "public";
+        try_files $uri =404;
+    }
+
+    # =========================================================
+    # SOLUCIÓN B: archivos .map devuelven 404 real (no HTML)
+    # Evita el SyntaxError "Unexpected token '<'" en consola
+    # =========================================================
+    location ~* \.map$ {
+        root $APP_ROOT/public;
+        try_files $uri =404;
+        access_log off;
+    }
+
+    # =========================================================
+    # MIME types adicionales que Nginx no incluye por defecto
+    # =========================================================
+    types {
+        # 3D models
+        model/gltf-binary         glb;
+        model/gltf+json           gltf;
+        # Fonts
+        font/woff                 woff;
+        font/woff2                woff2;
+        # Video
+        video/mp4                 mp4;
+        video/webm                webm;
+    }
+
+    # =========================================================
+    # Proxy a Next.js (todo lo demás)
+    # =========================================================
+    location / {
+        proxy_pass         http://nextjs_upstream;
+        proxy_http_version 1.1;
+
+        proxy_set_header Upgrade           $http_upgrade;
+        proxy_set_header Connection        "upgrade";
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_cache_bypass  $http_upgrade;
+        proxy_read_timeout  60s;
+        proxy_connect_timeout 10s;
+        proxy_send_timeout  60s;
+
+        # Tamaño máximo de archivo para uploads (no afecta GET/static)
+        client_max_body_size 50m;
+    }
+
+    # Logs
+    access_log  /var/log/nginx/undercodeec.access.log;
+    error_log   /var/log/nginx/undercodeec.error.log warn;
+}
