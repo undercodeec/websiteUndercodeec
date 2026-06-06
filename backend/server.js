@@ -79,11 +79,13 @@ const STORE_ID = process.env.PAYPHONE_STORE_ID;
 // Configuración de Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Configuración de Nodemailer con Gmail
+// Configuración de Nodemailer (Hostinger SMTP)
+const SMTP_PORT = Number(process.env.EMAIL_PORT) || 465;
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // Use TLS
+  host: process.env.EMAIL_HOST || 'smtp.hostinger.com',
+  port: SMTP_PORT,
+  secure: SMTP_PORT === 465, // true para 465, false para 587 (STARTTLS)
+  requireTLS: SMTP_PORT === 587,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD
@@ -1509,7 +1511,7 @@ async function sendOrderEmailsInternal(orderData) {
 
           <div class="contact-section">
             <div class="contact-title">¿Tienes preguntas?</div>
-            <div class="contact-item">📧 <a href="mailto:undercodeec@gmail.com">undercodeec@gmail.com</a></div>
+            <div class="contact-item">📧 <a href="mailto:${process.env.EMAIL_USER}">${process.env.EMAIL_USER}</a></div>
             <div class="contact-item">📱 <a href="tel:+593979046329">+593 979 046 329</a></div>
             <a href="https://wa.me/593979046329?text=Hola,%20acabo%20de%20realizar%20un%20pedido%20y%20tengo%20una%20consulta" class="whatsapp-btn">💬 Escríbenos por WhatsApp</a>
           </div>
@@ -2306,7 +2308,7 @@ app.post('/api/admin/login', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Verificación de ReCAPTCHA fallida' });
   }
 
-  const adminEmail = (process.env.ADMIN_EMAIL || 'undercodeec@gmail.com').toLowerCase();
+  const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
   const normalizedEmail = typeof email === 'string' ? email.toLowerCase() : '';
 
   // 2. Rate-limit por email (incluye intentos contra emails inválidos sobre la cuenta legítima)
@@ -2363,7 +2365,7 @@ app.post('/api/admin/login', async (req, res) => {
 // Admin Verify Code (Step 2: 2FA Verification)
 app.post('/api/admin/verify', (req, res) => {
   const { email, password, code } = req.body || {};
-  const adminEmail = (process.env.ADMIN_EMAIL || 'undercodeec@gmail.com').toLowerCase();
+  const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
   const normalizedEmail = typeof email === 'string' ? email.toLowerCase() : '';
 
   // Rate-limit por email
@@ -2458,7 +2460,7 @@ app.post('/api/admin/change-password', adminAuth, (req, res) => {
   }
 
   // Notificar por email al admin (best-effort)
-  const adminEmail = (process.env.ADMIN_EMAIL || 'undercodeec@gmail.com');
+  const adminEmail = process.env.ADMIN_EMAIL;
   transporter.sendMail({
     from: `"Undercodeec Admin Security" <${process.env.EMAIL_USER}>`,
     to: adminEmail,
@@ -2515,7 +2517,7 @@ app.post('/api/send-contact', async (req, res) => {
     const html = `<h2>Nuevo Contacto</h2><p><b>Nombre:</b> ${safe.name}</p><p><b>Email:</b> ${safe.email}</p><p><b>Teléfono:</b> ${safe.phone}</p><p><b>Opción:</b> ${safe.option}</p><p><b>Mensaje:</b> ${safe.message}</p>`;
     await transporter.sendMail({
       from: `"Undercodeec Contacto" <${process.env.EMAIL_USER}>`,
-      to: 'undercodeec@gmail.com',
+      to: process.env.EMAIL_BUSINESS || process.env.EMAIL_USER,
       subject: `Nuevo contacto web de ${safe.name}`,
       html
     });
@@ -2545,7 +2547,7 @@ app.post('/api/send-marketing', async (req, res) => {
     const html = `<h2>Nuevo Lead de Marketing</h2><p><b>Nombre:</b> ${safe.nombre}</p><p><b>Email:</b> ${safe.email}</p><p><b>Teléfono:</b> ${safe.telefono}</p><p><b>Empresa:</b> ${safe.empresa}</p><p><b>Objetivo:</b> ${safe.objetivo}</p><p><b>Plan de interés:</b> ${safe.plan}</p>`;
     await transporter.sendMail({
       from: `"Undercodeec Marketing" <${process.env.EMAIL_USER}>`,
-      to: 'undercodeec@gmail.com',
+      to: process.env.EMAIL_BUSINESS || process.env.EMAIL_USER,
       subject: `Solicitud de Marketing: ${safe.nombre}`,
       html
     });
