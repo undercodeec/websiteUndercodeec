@@ -946,6 +946,8 @@ const AffiliationSection = () => {
 
         window.addEventListener('message', handlePaymentMessage);
 
+        console.log('[PayPhone Poll] iniciado para clientTxId:', clientTransactionId, ' tokenPresente:', !!data.paymentSessionToken);
+
         checkPaymentIntervalRef.current = setInterval(async () => {
           pollingTick++;
 
@@ -958,10 +960,11 @@ const AffiliationSection = () => {
                 `${BACKEND_URL}/api/check-payment-status/${clientTransactionId}`,
                 { headers: sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {} }
               );
+              console.log('[PayPhone Poll] tick=', pollingTick, ' status=', res.status);
               if (res.ok) {
                 const statusData = await res.json();
-                // console.log('🔍 Frontend Polling Data:', statusData); // Debug log suppressed
-                
+                console.log('[PayPhone Poll] data=', statusData);
+
                 if (statusData.success && statusData.status === 'Approved') {
                   console.log('✅ Payment confirmed via Backend Polling!');
                   if (checkPaymentIntervalRef.current) clearInterval(checkPaymentIntervalRef.current);
