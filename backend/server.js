@@ -112,6 +112,61 @@ transporter.verify(function (error, success) {
   }
 });
 
+// Envia correo de confirmacion al usuario (best-effort, no rompe el flujo si falla).
+// formLabel: texto corto que se inyecta en el saludo (ej. "tu consulta", "tu cotizacion de Software").
+async function sendUserConfirmationEmail({ to, name, formLabel }) {
+  if (!to || typeof to !== 'string') return;
+  const safeName = escapeHtml(name || '');
+  const safeLabel = escapeHtml(formLabel || 'tu solicitud');
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><style>
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#f5f5f5;margin:0;padding:20px;}
+  .container{max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1);}
+  .header{background:linear-gradient(135deg,#600b56,#efa238);color:#fff;padding:40px 30px;text-align:center;}
+  .header h1{margin:0;font-size:24px;}
+  .header p{margin:10px 0 0 0;opacity:0.9;}
+  .content{padding:35px 30px;color:#333;line-height:1.6;}
+  .sla-badge{background:linear-gradient(135deg,rgba(96,11,86,0.1),rgba(239,162,56,0.1));border-left:4px solid #600b56;padding:18px;border-radius:8px;margin:25px 0;font-weight:600;color:#600b56;}
+  .contact-section{background:#f0f4f8;padding:22px;border-radius:12px;margin:25px 0;text-align:center;}
+  .contact-item{margin:8px 0;}
+  .contact-item a{color:#600b56;text-decoration:none;font-weight:500;}
+  .whatsapp-btn{display:inline-block;background:#25D366;color:#fff;padding:12px 25px;border-radius:25px;text-decoration:none;font-weight:600;margin-top:10px;}
+  .footer{background:#f9f9f9;padding:22px;text-align:center;color:#999;font-size:13px;}
+</style></head>
+<body><div class="container">
+  <div class="header">
+    <h1>¡Recibimos ${safeLabel}!</h1>
+    <p>Gracias por contactar a Undercodeec</p>
+  </div>
+  <div class="content">
+    <p>Hola <strong>${safeName || 'estimado/a'}</strong>,</p>
+    <p>Hemos recibido ${safeLabel} correctamente. Nuestro equipo la está revisando.</p>
+    <div class="sla-badge">📅 Nos pondremos en contacto contigo en un plazo máximo de <strong>24 horas</strong>.</div>
+    <p>Si tu consulta es urgente o necesitas ampliar detalles, puedes escribirnos directamente:</p>
+    <div class="contact-section">
+      <div class="contact-item">📧 <a href="mailto:${process.env.EMAIL_USER}">${process.env.EMAIL_USER}</a></div>
+      <div class="contact-item">📱 <a href="tel:+593979046329">+593 979 046 329</a></div>
+      <a href="https://wa.me/593979046329" class="whatsapp-btn">💬 Escríbenos por WhatsApp</a>
+    </div>
+    <p style="text-align:center;color:#666;">¡Gracias por confiar en nosotros!</p>
+  </div>
+  <div class="footer">
+    <p><strong>Undercodeec</strong> - Desarrollo Web &amp; Software</p>
+    <p>© ${new Date().getFullYear()} Todos los derechos reservados</p>
+  </div>
+</div></body></html>`;
+  try {
+    await transporter.sendMail({
+      from: `"Undercodeec" <${process.env.EMAIL_USER}>`,
+      to,
+      subject: '✅ Recibimos tu solicitud - Undercodeec',
+      html
+    });
+  } catch (err) {
+    console.error('❌ Error sending user confirmation email:', err.message);
+  }
+}
+
 // ============================================================================
 // SECURITY HELPERS
 // ============================================================================
@@ -1833,6 +1888,12 @@ app.post('/api/send-software-request', async (req, res) => {
       html: adminEmailHtml
     });
 
+    await sendUserConfirmationEmail({
+      to: softwareEmail,
+      name: softwareNombre,
+      formLabel: 'tu cotización de software'
+    });
+
     res.json({ success: true, message: 'Solicitud enviada correctamente' });
 
   } catch (error) {
@@ -1965,6 +2026,12 @@ app.post('/api/send-webapp-request', async (req, res) => {
       html: adminEmailHtml
     });
 
+    await sendUserConfirmationEmail({
+      to: contactEmail,
+      name: contactName,
+      formLabel: 'tu cotización de aplicación web'
+    });
+
     res.json({ success: true, message: 'Solicitud enviada correctamente' });
 
   } catch (error) {
@@ -2081,6 +2148,12 @@ app.post('/api/send-mobileapp-request', async (req, res) => {
       to: process.env.EMAIL_BUSINESS || process.env.EMAIL_USER,
       subject: `📱 Nueva App Móvil: ${businessName} - ${contactName}`,
       html: adminEmailHtml
+    });
+
+    await sendUserConfirmationEmail({
+      to: contactEmail,
+      name: contactName,
+      formLabel: 'tu cotización de aplicación móvil'
     });
 
     res.json({ success: true, message: 'Solicitud enviada correctamente' });
@@ -2200,6 +2273,12 @@ app.post('/api/send-moodle-request', async (req, res) => {
       to: process.env.EMAIL_BUSINESS || process.env.EMAIL_USER,
       subject: `🎓 Cotización Moodle: ${businessName} - ${contactName}`,
       html: adminEmailHtml
+    });
+
+    await sendUserConfirmationEmail({
+      to: contactEmail,
+      name: contactName,
+      formLabel: 'tu cotización de Moodle'
     });
 
     res.json({ success: true, message: 'Solicitud enviada correctamente' });
@@ -2539,6 +2618,11 @@ app.post('/api/send-contact', async (req, res) => {
       subject: `Nuevo contacto web de ${safe.name}`,
       html
     });
+    await sendUserConfirmationEmail({
+      to: email,
+      name,
+      formLabel: 'tu mensaje'
+    });
     res.json({ status: 'success', message: 'Mensaje enviado exitosamente' });
   } catch (error) {
     res.status(500).json({ status: 'error', message: 'Error interno' });
@@ -2568,6 +2652,11 @@ app.post('/api/send-marketing', async (req, res) => {
       to: process.env.EMAIL_BUSINESS || process.env.EMAIL_USER,
       subject: `Solicitud de Marketing: ${safe.nombre}`,
       html
+    });
+    await sendUserConfirmationEmail({
+      to: email,
+      name: nombre,
+      formLabel: 'tu solicitud de marketing'
     });
     res.json({ success: true, message: 'Solicitud enviada' });
   } catch (error) {
