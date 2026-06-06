@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(xargs grep -l \"FontAwesome\\\\|bootstrap\\\\|all.min.css\\\\|style.css\")",
+      "Bash(npx tsc *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\Documentos\\\\bakup mi portafolio\\\\mi portafolio\\\\undercodeec_nextjs\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(pnpm --version)",
+      "PowerShell(pnpm *)",
+      "PowerShell(npm install *)",
+      "PowerShell(New-Item *)"
+    ]
+  }
+}
