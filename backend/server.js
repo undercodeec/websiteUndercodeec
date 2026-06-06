@@ -72,6 +72,17 @@ app.use(cors(corsOptions));
 // Middleware para parsear JSON con límite de tamaño
 app.use(express.json({ limit: '10kb' }));
 
+// Normaliza el token de reCAPTCHA: acepta el campo estandar `g-recaptcha-response`
+// del widget de Google y lo mapea a `recaptchaToken` que esperan los endpoints.
+app.use((req, _res, next) => {
+  if (req.body && typeof req.body === 'object') {
+    if (!req.body.recaptchaToken && req.body['g-recaptcha-response']) {
+      req.body.recaptchaToken = req.body['g-recaptcha-response'];
+    }
+  }
+  next();
+});
+
 // Variables de entorno
 const TOKEN = process.env.PAYPHONE_TOKEN;
 const STORE_ID = process.env.PAYPHONE_STORE_ID;
