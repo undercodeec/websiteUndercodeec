@@ -139,7 +139,7 @@ const ContactSection = ({ style }) => {
           </div>
           <div className="info-block">
             <h4>Correo</h4>
-            <p>ventas@undercodeec.com</p>
+            <p>gerencia@undercodeec.com</p>
           </div>
           <img src="/assets/img/icons/iconcontactemail.webp" alt="" className="iconemail" />
         </div>

@@ -22527,11 +22527,11 @@ header.style-4 .content .info .title_small {
   box-shadow: 0 24px 64px rgba(88, 66, 188, 0.2);
 }
 
-/* Testimonials: fondo gradiente suave */
+/* Testimonials: fondo gradiente suave 
 .testimonials.style-4 {
   background: linear-gradient(180deg, #f4f2fb 0%, #fff 55%);
 }
-
+*/
 /* Testimonials num-cards: aspecto de tarjeta */
 .testimonials.style-4 .content .numbs .num-card {
   background: #fff;

@@ -36,7 +36,7 @@ const footerColumns = [
     content: (
       <ul>
         <li>Atención remota · Cobertura internacional</li>
-        <li>ventas@undercodeec.com</li>
+        <li>gerencia@undercodeec.com</li>
       </ul>
     ),
     colClass: 'col-lg-3 col-sm-6',

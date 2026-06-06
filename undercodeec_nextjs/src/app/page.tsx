@@ -55,7 +55,7 @@ export default function HomePage() {
           marketing digital y posicionamiento SEO con campañas de Google Ads y
           Meta Ads. Atendemos clientes en Ecuador, España y Latinoamérica con
           presupuestos desde 300 USD para SEO y desde 500 USD para páginas web.
-          Contacto: ventas@undercodeec.com · +593-979-046-329.
+          Contacto: gerencia@undercodeec.com · +593-979-046-329.
         </p>
       </div>
       <HeroSlider />

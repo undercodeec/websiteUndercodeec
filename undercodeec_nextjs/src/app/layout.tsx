@@ -108,7 +108,7 @@ const organizationJsonLd = {
   description:
     "Agencia digital especializada en diseño y desarrollo de páginas web profesionales, aplicaciones móviles Android e iOS, posicionamiento SEO, marketing digital y software empresarial a medida (CRM, ERP, facturación electrónica) para empresas en Ecuador, España y Latinoamérica.",
   slogan: "Transformación digital para tu negocio",
-  email: "ventas@undercodeec.com",
+  email: "gerencia@undercodeec.com",
   telephone: "+593-979-046-329",
   foundingDate: "2018",
   priceRange: "$$",
@@ -139,7 +139,7 @@ const organizationJsonLd = {
     {
       "@type": "ContactPoint",
       contactType: "sales",
-      email: "ventas@undercodeec.com",
+      email: "gerencia@undercodeec.com",
       telephone: "+593-979-046-329",
       availableLanguage: ["es"],
       areaServed: ["EC", "ES"],
@@ -147,7 +147,7 @@ const organizationJsonLd = {
     {
       "@type": "ContactPoint",
       contactType: "customer support",
-      email: "ventas@undercodeec.com",
+      email: "gerencia@undercodeec.com",
       availableLanguage: ["es"],
     },
   ],

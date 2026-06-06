@@ -72,7 +72,7 @@ const Blog = () => {
                   </li>
 
                   <li>
-                    ventas@undercodeec.com
+                    gerencia@undercodeec.com
                   </li>
                 </ul>
               </div>

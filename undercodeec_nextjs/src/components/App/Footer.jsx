@@ -70,7 +70,7 @@ const Blog = () => {
                 <div className="title">Contacto</div>
                 <ul>
                   <li>Atención remota · Cobertura internacional</li>
-                  <li>ventas@undercodeec.com</li>
+                  <li>gerencia@undercodeec.com</li>
                 </ul>
               </div>
             </div>

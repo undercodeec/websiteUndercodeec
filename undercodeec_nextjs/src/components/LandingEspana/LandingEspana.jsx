@@ -25,7 +25,7 @@ const organizationJsonLd = {
   "contactPoint": {
     "@type": "ContactPoint",
     "contactType": "sales",
-    "email": "ventas@undercodeec.com",
+    "email": "gerencia@undercodeec.com",
     "availableLanguage": ["es"],
     "areaServed": "ES",
   },
@@ -589,12 +589,12 @@ const LandingEspana = () => {
             </p>
             <div className="d-flex flex-wrap gap-3 justify-content-center animate-scaleUp" style={{ transitionDelay: '250ms' }}>
               <a
-                href="mailto:ventas@undercodeec.com"
+                href="mailto:gerencia@undercodeec.com"
                 className="btn btn-light btn-lg fw-bold px-4 py-3"
                 style={{ borderRadius: "50px", color: "#600b56" }}
               >
                 <i className="bi bi-envelope-fill me-2"></i>
-                ventas@undercodeec.com
+                gerencia@undercodeec.com
               </a>
               <Link
                 href="/contacto"

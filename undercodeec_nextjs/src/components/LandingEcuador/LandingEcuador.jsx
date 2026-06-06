@@ -27,7 +27,7 @@ const organizationJsonLd = {
   "contactPoint": {
     "@type": "ContactPoint",
     "contactType": "sales",
-    "email": "ventas@undercodeec.com",
+    "email": "gerencia@undercodeec.com",
     "telephone": "+593-979-046-329",
     "availableLanguage": ["es"],
     "areaServed": "EC",
@@ -41,7 +41,7 @@ const localBusinessJsonLd = {
   "image": "https://undercodeec.com/assets/img/undercode-logo.png",
   "url": "https://undercodeec.com/ec",
   "telephone": "+593-979-046-329",
-  "email": "ventas@undercodeec.com",
+  "email": "gerencia@undercodeec.com",
   "priceRange": "$$",
   "currenciesAccepted": "USD",
   "paymentAccepted": "Cash, Credit Card, Bank Transfer, PayPal",
