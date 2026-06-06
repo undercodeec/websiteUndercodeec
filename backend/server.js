@@ -462,6 +462,18 @@ app.post('/api/create-payment', async (req, res) => {
   console.log('  - ClientTxId:', clientTransactionId);
   console.log('  - ResponseUrl:', responseUrl);
 
+  // Sanitiza la reference: PayPhone rechaza no-ASCII (emoji, acentos) y limita longitud.
+  // Normaliza acentos, elimina caracteres fuera del rango ASCII printable y trunca a 50 chars.
+  const rawReference = `Pago de plan: ${planName}`;
+  const reference = rawReference
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^\x20-\x7E]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 50);
+  console.log('  - Reference (sanitized):', reference);
+
   try {
     const response = await axios.post(
       'https://pay.payphonetodoesposible.com/api/Links',
@@ -471,7 +483,7 @@ app.post('/api/create-payment', async (req, res) => {
         clientTransactionId,
         currency: 'USD',
         storeId: STORE_ID,
-        reference: `Pago de plan: ${planName}`,
+        reference,
         responseUrl: responseUrl,
       },
       {
