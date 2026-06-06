@@ -128,34 +128,41 @@ function escapeFieldsForHtml(obj) {
   return out;
 }
 
-// Verifica un token de reCAPTCHA enviando el secreto en el body (NO en query string)
-// Devuelve { ok: boolean, error?: string }
+// Verifica un token de reCAPTCHA Enterprise via REST API (PROJECT_ID + API_KEY + SITE_KEY)
+// Devuelve { ok: boolean, error?: string, score?: number }
 async function verifyRecaptcha(recaptchaToken) {
-  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-  if (!secretKey) {
-    console.error('RECAPTCHA_SECRET_KEY no configurado');
+  const projectId = process.env.RECAPTCHA_PROJECT_ID;
+  const apiKey = process.env.RECAPTCHA_API_KEY;
+  const siteKey = process.env.RECAPTCHA_SITE_KEY;
+  if (!projectId || !apiKey || !siteKey) {
+    console.error('RECAPTCHA Enterprise no configurado (PROJECT_ID/API_KEY/SITE_KEY)');
     return { ok: false, error: 'config_missing' };
   }
   if (!recaptchaToken || typeof recaptchaToken !== 'string') {
     return { ok: false, error: 'missing_token' };
   }
   try {
-    const params = new URLSearchParams({ secret: secretKey, response: recaptchaToken });
-    const resp = await axios.post(
-      'https://www.google.com/recaptcha/api/siteverify',
-      params.toString(),
-      {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        timeout: 10000
-      }
-    );
-    if (!resp.data || resp.data.success !== true) {
-      console.error('ReCAPTCHA failed:', resp.data && resp.data['error-codes']);
+    const url = `https://recaptchaenterprise.googleapis.com/v1/projects/${projectId}/assessments?key=${apiKey}`;
+    const body = { event: { token: recaptchaToken, siteKey } };
+    const resp = await axios.post(url, body, {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 10000
+    });
+    const data = resp.data || {};
+    const tokenProps = data.tokenProperties || {};
+    if (tokenProps.valid !== true) {
+      console.error('ReCAPTCHA Enterprise invalid token:', tokenProps.invalidReason);
       return { ok: false, error: 'verification_failed' };
     }
-    return { ok: true };
+    const score = (data.riskAnalysis && typeof data.riskAnalysis.score === 'number') ? data.riskAnalysis.score : 0;
+    const threshold = Number(process.env.RECAPTCHA_MIN_SCORE) || 0.5;
+    if (score < threshold) {
+      console.error('ReCAPTCHA Enterprise score too low:', score);
+      return { ok: false, error: 'low_score' };
+    }
+    return { ok: true, score };
   } catch (err) {
-    console.error('Error verificando reCAPTCHA:', err.message);
+    console.error('Error verificando reCAPTCHA Enterprise:', (err.response && err.response.data) || err.message);
     return { ok: false, error: 'network_error' };
   }
 }
