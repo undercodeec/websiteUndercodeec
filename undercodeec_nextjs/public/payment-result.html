@@ -161,7 +161,7 @@
                 const data = await response.json();
                 log(`📦 Respuesta: ${JSON.stringify(data).substring(0, 100)}...`);
 
-                if (data.success && data.transactionStatus === 3) {
+                if (data.success && (data.transactionStatus === 3 || data.alreadyProcessed)) {
                     log('✅ PAGO APROBADO');
                     setStatus('success', '¡Pago Exitoso!', 'Tu pago ha sido procesado correctamente.');
 

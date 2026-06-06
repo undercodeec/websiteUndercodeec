@@ -749,13 +749,21 @@ app.post('/api/confirm-payment', async (req, res) => {
     orderData = pendingOrders.get(clientTransactionId);
     console.log('✅ RECUPERADO orderData de la memoria para confirmación:', clientTransactionId);
 
-    // Webhook Deduplication: If webhook already processed this, don't send emails again
+    // Webhook Deduplication: If webhook already processed this, don't send emails again.
+    // Devolvemos el mismo shape que el path Approved (transactionStatus: 3 + details)
+    // para que payment-result.html pueda cerrar la ventana automaticamente.
     if (orderData.webhookProcessed) {
-      console.log('⏭️ Webhook ya procesó este pedido. Evitando duplicidad de emails.');
+      console.log('⏭️ Webhook ya procesó este pedido. Devolviendo confirmación al cliente.');
       return res.json({
         success: true,
-        message: 'Pago ya procesado por Webhook',
-        alreadyProcessed: true
+        transactionStatus: 3,
+        message: 'Pago confirmado (procesado por Webhook)',
+        alreadyProcessed: true,
+        details: {
+          transactionId: orderData.transactionId || null,
+          amount: orderData.amountPaid || null,
+          clientTransactionId
+        }
       });
     }
 
