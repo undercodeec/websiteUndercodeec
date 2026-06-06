@@ -598,34 +598,66 @@ app.post('/api/payphone-webhook', async (req, res) => {
   console.log('🔔 WEBHOOK RECIBIDO DE PAYPHONE 🔔');
   console.log('Body:', JSON.stringify(req.body, null, 2));
 
-  // Payphone sends the transaction ID or clientTxId in the body
-  // The actual structure depends on Payphone docs, usually they send the id to query back
-  const { id, clientTransactionId } = req.body;
+  // PayPhone envia los campos en PascalCase (TransactionId, ClientTransactionId).
+  // Aceptamos ambas convenciones por compatibilidad.
+  const b = req.body || {};
+  const id = b.TransactionId || b.transactionId || b.id;
+  const clientTransactionId = b.ClientTransactionId || b.clientTransactionId;
 
-    if (!id && !clientTransactionId) {
-      console.error('❌ Webhook payload missing ID or ClientTransactionId');
-      return res.status(400).json({ Response: false, ErrorCode: "444" });
-    }
+  if (!id && !clientTransactionId) {
+    console.error('❌ Webhook payload missing ID or ClientTransactionId');
+    return res.status(400).json({ Response: false, ErrorCode: "444" });
+  }
 
   try {
-    // 1. We must verify the transaction status by calling GET /api/Sale/...
-    const txIdToQuery = clientTransactionId || id;
-    let apiUrl = id 
+    // 1. Consultar estado actual de la transaccion en PayPhone
+    let apiUrl = id
       ? `https://pay.payphonetodoesposible.com/api/Sale/${id}`
       : `https://pay.payphonetodoesposible.com/api/Sale/ClientTransactionId/${clientTransactionId}`;
-      
+
     console.log(`🔍 Verifying webhook transaction: ${apiUrl}`);
-    
+
     const verificationResponse = await axios.get(apiUrl, {
       headers: {
         Authorization: `Bearer ${TOKEN}`,
         'Content-Type': 'application/json',
       },
-      timeout: 10000 
+      timeout: 10000
     });
 
     const data = verificationResponse.data;
     console.log(`✅ Estado de transacción verificado: ${data.transactionStatus}`);
+
+    // 2. Si esta Authorized (caso tipico con tarjeta), capturar via V2/Confirm
+    //    para que pase a Approved. PayPhone documenta que Boton/Cajita requieren
+    //    este paso explicito.
+    if (data.transactionStatus === 'Authorized') {
+      console.log('💳 Transacción Authorized — invocando V2/Confirm para capturar...');
+      try {
+        const confirmResp = await axios.post(
+          'https://pay.payphonetodoesposible.com/api/button/V2/Confirm',
+          {
+            id: parseInt(data.transactionId, 10),
+            clientTxId: data.clientTransactionId
+          },
+          {
+            headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+            timeout: 15000
+          }
+        );
+        console.log('📨 V2/Confirm response:', JSON.stringify(confirmResp.data));
+        // transactionStatus numerico: 3 = Approved, 2 = Cancelled
+        if (confirmResp.data && confirmResp.data.transactionStatus === 3) {
+          data.transactionStatus = 'Approved';
+          data.transactionId = confirmResp.data.transactionId || data.transactionId;
+          if (typeof confirmResp.data.amount === 'number') data.amount = confirmResp.data.amount;
+        } else {
+          console.warn('⚠️ V2/Confirm no devolvió Approved. Status numerico:', confirmResp.data && confirmResp.data.transactionStatus);
+        }
+      } catch (cErr) {
+        console.error('❌ V2/Confirm fallo:', (cErr.response && cErr.response.data) || cErr.message);
+      }
+    }
 
     if (data.transactionStatus === 'Approved') {
       console.log(`🎉 Pago APROBADO confirmado por Webhook! TxId: ${data.transactionId}`);
