@@ -949,7 +949,7 @@ const LandingEcuador = () => {
         </section>
 
         {/* WHY US */}
-        <section className="py-5" style={{ background: "#f8f9fa", paddingTop: "80px", paddingBottom: "80px" }}>
+        <section className="py-5" style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px" }}>
           <div className="container">
             <div className="row align-items-center">
               <div className="col-lg-6 mb-4 mb-lg-0 animate-fadeRight">
@@ -1035,7 +1035,7 @@ const LandingEcuador = () => {
         </section>
 
         {/* FAQ */}
-        <section className="py-5" style={{ background: "#f8f9fa", paddingTop: "80px", paddingBottom: "80px" }}>
+        <section className="py-5" style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px" }}>
           <div className="container">
             <div className="text-center mb-5 animate-fadeUp">
               <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>

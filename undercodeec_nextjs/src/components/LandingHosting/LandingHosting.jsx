@@ -680,7 +680,7 @@ const LandingHosting = () => {
         {/* CARACTERÍSTICAS */}
         <section
           className="py-5"
-          style={{ background: "#f8f9fa", paddingTop: "80px", paddingBottom: "80px" }}
+          style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px" }}
         >
           <div className="container">
             <div className="text-center mb-5 animate-fadeUp">
@@ -825,7 +825,7 @@ const LandingHosting = () => {
         {/* FAQ */}
         <section
           className="py-5"
-          style={{ background: "#f8f9fa", paddingTop: "80px", paddingBottom: "80px" }}
+          style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px" }}
         >
           <div className="container">
             <div className="text-center mb-5 animate-fadeUp">
