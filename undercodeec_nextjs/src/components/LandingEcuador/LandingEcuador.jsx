@@ -900,7 +900,7 @@ const LandingEcuador = () => {
         {/* SERVICES */}
         <section id="servicios" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern" style={{ width: "130%", height: "130%", objectFit: "cover", opacity: 0.045, pointerEvents: "none" }} />
+            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern" style={{ width: "130%", height: "130%", objectFit: "cover", opacity: 0.09, filter: "brightness(0)", pointerEvents: "none" }} />
           </div>
           <div className="container" style={{ position: "relative", zIndex: 2 }}>
             <div className="text-center mb-5 animate-fadeUp">
@@ -994,7 +994,7 @@ const LandingEcuador = () => {
         {/* PRICING */}
         <section id="presupuesto" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern-reverse" style={{ width: "140%", height: "140%", objectFit: "cover", opacity: 0.04, pointerEvents: "none" }} />
+            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern-reverse" style={{ width: "140%", height: "140%", objectFit: "cover", opacity: 0.08, filter: "brightness(0)", pointerEvents: "none" }} />
           </div>
           <div className="container" style={{ position: "relative", zIndex: 2 }}>
             <div className="text-center mb-4 animate-fadeUp">
@@ -1043,7 +1043,7 @@ const LandingEcuador = () => {
         {/* FAQ */}
         <section className="py-5" style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern-slow" style={{ width: "130%", height: "130%", objectFit: "cover", opacity: 0.04, pointerEvents: "none" }} />
+            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern-slow" style={{ width: "130%", height: "130%", objectFit: "cover", opacity: 0.08, filter: "brightness(0)", pointerEvents: "none" }} />
           </div>
           <div className="container" style={{ position: "relative", zIndex: 2 }}>
             <div className="text-center mb-5 animate-fadeUp">
