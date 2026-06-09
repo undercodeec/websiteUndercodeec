@@ -160,33 +160,69 @@ const faqJsonLd = {
 const services = [
   {
     icon: "bi bi-laptop",
-    title: "Diseño de Páginas Web en Quito",
+    title: "Diseño Web en Quito",
     text: "Diseñamos y desarrollamos páginas web profesionales, corporativas y tiendas online a medida en Quito y todo el Ecuador. Webs optimizadas para móvil, ordenador y tablet, con velocidad de carga y SEO desde el primer pixel.",
+    features: [
+      "Diseño 100 % personalizado a tu identidad de marca",
+      "Mobile-first · Core Web Vitals optimizados",
+      "SEO técnico integrado desde el primer pixel",
+      "Entrega en 2–4 semanas con garantía de 1 año",
+    ],
   },
   {
     icon: "bi bi-phone",
-    title: "Desarrollo de Apps Móviles Android e iOS",
+    title: "Apps Móviles Android & iOS",
     text: "Desarrollo de aplicaciones móviles nativas y multiplataforma (Flutter, React Native) para Android e iOS. Publicamos tu app en Play Store y App Store para empresas en Ecuador.",
+    features: [
+      "Flutter o React Native según tu proyecto",
+      "Publicación en Play Store y App Store incluida",
+      "Diseño UX/UI nativo y fluido",
+      "Mantenimiento y actualizaciones continuas",
+    ],
   },
   {
     icon: "bi bi-graph-up-arrow",
-    title: "Posicionamiento SEO en Ecuador",
+    title: "SEO en Ecuador",
     text: "Posicionamiento web local y nacional en Google Ecuador. Auditoría SEO técnica, contenidos, link building y SEO local para que aparezcas cuando tus clientes buscan en Quito, Guayaquil y todo el país.",
+    features: [
+      "Auditoría técnica + palabras clave locales",
+      "Contenido optimizado para Ecuador",
+      "Link building y autoridad de dominio",
+      "Reportes mensuales con métricas reales",
+    ],
   },
   {
     icon: "bi bi-megaphone",
     title: "Google Ads y Meta Ads",
     text: "Campañas SEM rentables en Google Ads y Meta Ads (Facebook e Instagram) orientadas al mercado ecuatoriano. Seguimiento de conversiones y ROI medible cada mes.",
+    features: [
+      "Campañas Search, Display y Shopping",
+      "Segmentación precisa al mercado ecuatoriano",
+      "Seguimiento de conversiones y ROAS",
+      "Optimización semanal para maximizar ROI",
+    ],
   },
   {
     icon: "bi bi-gear-wide-connected",
-    title: "Software Empresarial a Medida",
+    title: "Software a Medida",
     text: "CRM, ERP, sistemas de inventarios, automatización de procesos y software a medida para tu pyme en Ecuador. Soluciones que se adaptan a tu forma de trabajar.",
+    features: [
+      "CRM, ERP e inventarios personalizados",
+      "Automatización de procesos operativos",
+      "Integración con tus sistemas actuales",
+      "Escalable y con soporte técnico dedicado",
+    ],
   },
   {
     icon: "bi bi-receipt",
     title: "Facturación Electrónica SRI",
     text: "Sistemas de facturación electrónica preparados para el SRI Ecuador: comprobantes XML, firma electrónica y autorización en línea. Cumple con la normativa tributaria ecuatoriana sin complicaciones.",
+    features: [
+      "Comprobantes XML autorizados por el SRI",
+      "Firma electrónica y emisión en línea",
+      "Integración con tu sistema contable",
+      "Actualizaciones automáticas ante cambios normativos",
+    ],
   },
 ];
 
@@ -522,9 +558,13 @@ const PlanCard = ({ plan, index }) => {
 const LandingEcuador = () => {
   const [openFaq, setOpenFaq] = useState(0);
   const [activePricingTab, setActivePricingTab] = useState("web");
+  const [hoveredService, setHoveredService] = useState(null);
   const heroRef = useRef(null);
   const heroImgRef = useRef(null);
   const trustBarRef = useRef(null);
+  const galaxyCanvasRef = useRef(null);
+  const galaxyAnimRef = useRef(null);
+  const galaxyMouseRef = useRef({ x: 0, y: 0 });
 
   // Entrada en stagger del hero
   useEffect(() => {
@@ -723,6 +763,78 @@ const LandingEcuador = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Galaxy particle canvas
+  useEffect(() => {
+    const canvas = galaxyCanvasRef.current;
+    if (!canvas) return;
+    const section = canvas.parentElement;
+    canvas.width = section.offsetWidth;
+    canvas.height = section.offsetHeight;
+    const ctx = canvas.getContext("2d");
+
+    if (hoveredService === null) {
+      cancelAnimationFrame(galaxyAnimRef.current);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+
+    cancelAnimationFrame(galaxyAnimRef.current);
+    const particles = [];
+
+    const spawnBatch = () => {
+      const { x, y } = galaxyMouseRef.current;
+      for (let i = 0; i < 4; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 2.8 + 0.4;
+        particles.push({
+          x: x + (Math.random() - 0.5) * 24,
+          y: y + (Math.random() - 0.5) * 24,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 0.6,
+          life: 1,
+          size: Math.random() * 2.8 + 0.7,
+          rgb: Math.random() > 0.45 ? "180,40,160" : "255,255,255",
+        });
+      }
+      while (particles.length > 160) particles.shift();
+    };
+
+    // Initial burst
+    const bx = canvas.width / 2;
+    const by = canvas.height * 0.35;
+    for (let i = 0; i < 28; i++) {
+      const angle = (i / 28) * Math.PI * 2;
+      const speed = Math.random() * 5 + 2;
+      particles.push({
+        x: bx, y: by,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1, size: Math.random() * 3 + 1,
+        rgb: Math.random() > 0.5 ? "180,40,160" : "255,255,255",
+      });
+    }
+
+    let lastSpawn = 0;
+    const frame = (ts) => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (ts - lastSpawn > 38) { spawnBatch(); lastSpawn = ts; }
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy;
+        p.vy += 0.06; p.vx *= 0.985;
+        p.life -= 0.017;
+        if (p.life <= 0) { particles.splice(i, 1); continue; }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${p.rgb},${p.life * 0.82})`;
+        ctx.fill();
+      }
+      galaxyAnimRef.current = requestAnimationFrame(frame);
+    };
+    galaxyAnimRef.current = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(galaxyAnimRef.current);
+  }, [hoveredService]);
+
   return (
     <>
       {/* JSON-LD: Organization, LocalBusiness/ProfessionalService, Service, FAQPage */}
@@ -897,53 +1009,101 @@ const LandingEcuador = () => {
           </div>
         </section>
 
-        {/* SERVICES */}
-        <section id="servicios" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern" style={{ width: "130%", height: "130%", objectFit: "cover", opacity: 0.09, filter: "brightness(0)", pointerEvents: "none" }} />
-          </div>
+        {/* SERVICES — Galaxy Timeline */}
+        <section
+          id="servicios"
+          style={{ background: "#080612", paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden", color: "#fff" }}
+          onMouseMove={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            galaxyMouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
+          }}
+        >
+          {/* Backgrounds */}
+          <div className="galaxy-starfield" />
+          <div className="galaxy-nebula-a" />
+          <div className="galaxy-nebula-b" />
+          <div className="galaxy-nebula-c" />
+          {/* Particle canvas */}
+          <canvas ref={galaxyCanvasRef} style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }} />
+
           <div className="container" style={{ position: "relative", zIndex: 2 }}>
+            {/* Header */}
             <div className="text-center mb-5 animate-fadeUp">
-              <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
+              <span style={{ textTransform: "uppercase", fontWeight: 700, background: "linear-gradient(135deg, #c084fc, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
                 Qué hacemos
               </span>
-              <h2 className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
-                Servicios digitales para empresas en Quito y Ecuador
+              <h2 style={{ color: "#fff", fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700, marginTop: "8px", marginBottom: "12px" }}>
+                Servicios digitales para empresas en Ecuador
               </h2>
-              <p className="text-muted mx-auto" style={{ maxWidth: "700px", fontSize: "17px" }}>
-                Todo lo que tu empresa necesita para crecer online, con un único equipo y sin intermediarios. Hablamos claro y trabajamos con plazos reales.
+              <p style={{ color: "rgba(255,255,255,.6)", maxWidth: "680px", fontSize: "17px", margin: "0 auto" }}>
+                Todo lo que tu empresa necesita para crecer online, con un único equipo y sin intermediarios.
               </p>
             </div>
-            <div className="row g-4">
+
+            {/* Horizontal timeline */}
+            <div className="galaxy-timeline">
               {services.map((s, i) => (
-                <div className="col-md-6 col-lg-4 animate-scaleUp" key={i} style={{ transitionDelay: `${i * 80}ms` }}>
-                  <div
-                    className="h-100 p-4 rounded-3"
-                    style={{
-                      background: "#fff",
-                      border: "1px solid #eee",
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                    }}
-                  >
-                    <div
-                      className="mb-3 d-inline-flex align-items-center justify-content-center rounded-3"
-                      style={{
-                        width: "56px",
-                        height: "56px",
-                        background: "linear-gradient(135deg, #150e23, #600B56)",
-                        color: "#fff",
-                        fontSize: "26px",
-                      }}
-                    >
-                      <i className={s.icon}></i>
+                <div
+                  key={i}
+                  className={`galaxy-node${hoveredService === i ? " galaxy-node--active" : ""}`}
+                  onMouseEnter={() => setHoveredService(i)}
+                  onMouseLeave={() => setHoveredService(null)}
+                >
+                  <div className="galaxy-node__ring" />
+                  <div className="galaxy-node__dot">
+                    <i className={s.icon} />
+                  </div>
+                  <p className="galaxy-node__label">{s.title}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Expanded detail panel */}
+            <div className="galaxy-detail">
+              {services.map((s, i) => (
+                <div
+                  key={i}
+                  className={`galaxy-detail__card${hoveredService === i ? " galaxy-detail__card--visible" : ""}`}
+                >
+                  {/* Left column */}
+                  <div className="galaxy-detail__left">
+                    <div className="galaxy-icon-wrap">
+                      <i className={s.icon} />
                     </div>
-                    <h3 className="mb-3" style={{ fontSize: "20px", fontWeight: 700 }}>
+                    <h3 style={{ color: "#fff", fontSize: "22px", fontWeight: 700, marginBottom: "12px", lineHeight: 1.3 }}>
                       {s.title}
                     </h3>
-                    <p className="text-muted mb-0" style={{ fontSize: "15px", lineHeight: 1.7 }}>
+                    <p style={{ color: "rgba(255,255,255,.68)", fontSize: "15px", lineHeight: 1.75, margin: 0 }}>
                       {s.text}
                     </p>
+                  </div>
+                  {/* Vertical divider */}
+                  <div className="galaxy-vdivider" />
+                  {/* Right column */}
+                  <div className="galaxy-detail__right">
+                    <ul className="galaxy-features">
+                      {s.features.map((f, j) => (
+                        <li key={j}>{f}</li>
+                      ))}
+                    </ul>
+                    <Link
+                      href="/contacto"
+                      style={{
+                        display: "inline-block",
+                        marginTop: "24px",
+                        background: "linear-gradient(135deg, #150e23, #600B56)",
+                        color: "#fff",
+                        borderRadius: "50px",
+                        padding: "11px 28px",
+                        fontWeight: 600,
+                        fontSize: "15px",
+                        textDecoration: "none",
+                        boxShadow: "0 4px 20px rgba(96,11,86,.45)",
+                        transition: "opacity .2s",
+                      }}
+                    >
+                      Solicitar presupuesto
+                    </Link>
                   </div>
                 </div>
               ))}
