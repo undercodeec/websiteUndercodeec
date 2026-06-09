@@ -557,14 +557,12 @@ const PlanCard = ({ plan, index }) => {
 
 const FeaturesParticles = ({ active }) => {
   const canvasRef = useRef(null);
-  const animRef   = useRef(null);
-  const stateRef  = useRef({ particles: [], mouse: { x: -9999, y: -9999 } });
+  const animRef  = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx    = canvas.getContext("2d");
-    const state  = stateRef.current;
+    const ctx = canvas.getContext("2d");
 
     const resize = () => {
       canvas.width  = canvas.offsetWidth;
@@ -575,97 +573,51 @@ const FeaturesParticles = ({ active }) => {
     if (!active) {
       cancelAnimationFrame(animRef.current);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      state.particles = [];
       return;
     }
 
-    const mkParticle = (x, y) => ({
-      x: x ?? Math.random() * canvas.width,
-      y: y ?? Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 1.4,
-      vy: (Math.random() - 0.5) * 1.4,
-      r:  Math.random() * 1.8 + 1.2,
-      op: Math.random() * 0.35 + 0.25,
-    });
-
-    state.particles = Array.from({ length: 65 }, () => mkParticle());
-
-    const LINK  = 130;
-    const REP   = 95;
-    const SPEED = 2.2;
-
-    const onMove = (e) => {
-      const r = canvas.getBoundingClientRect();
-      state.mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
-    };
-    const onLeave = () => { state.mouse = { x: -9999, y: -9999 }; };
-    const onClick = (e) => {
-      const r = canvas.getBoundingClientRect();
-      const mx = e.clientX - r.left, my = e.clientY - r.top;
-      for (let i = 0; i < 4; i++) state.particles.push(mkParticle(mx + (Math.random()-0.5)*24, my + (Math.random()-0.5)*24));
-    };
-
-    const container = canvas.parentElement;
-    container.addEventListener("mousemove", onMove);
-    container.addEventListener("mouseleave", onLeave);
-    container.addEventListener("click", onClick);
-
     cancelAnimationFrame(animRef.current);
+
+    const particles = Array.from({ length: 35 }, () => ({
+      x:       Math.random() * canvas.width,
+      y:       Math.random() * canvas.height,
+      vy:      -(Math.random() * 0.65 + 0.22),
+      phase:   Math.random() * Math.PI * 2,
+      amp:     Math.random() * 14 + 4,
+      size:    Math.random() * 2.6 + 1.1,
+      opacity: Math.random() * 0.7 + 0.1,
+      dOp:     (Math.random() * 0.007 + 0.003) * (Math.random() > 0.5 ? 1 : -1),
+      purple:  Math.random() > 0.45,
+    }));
+
+    let t = 0;
     const frame = () => {
-      const { particles, mouse } = state;
-      const w = canvas.width, h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      t += 0.018;
 
       particles.forEach((p) => {
-        const dx = p.x - mouse.x, dy = p.y - mouse.y;
-        const d  = Math.sqrt(dx * dx + dy * dy);
-        if (d < REP && d > 0) {
-          const f = ((REP - d) / REP) * 0.09;
-          p.vx += (dx / d) * f;
-          p.vy += (dy / d) * f;
+        p.y += p.vy;
+        p.x += Math.sin(t * 1.1 + p.phase) * 0.38;
+        p.opacity += p.dOp;
+        if (p.opacity > 0.82) p.dOp = -Math.abs(p.dOp);
+        if (p.opacity < 0.07) p.dOp =  Math.abs(p.dOp);
+        if (p.y < -8) {
+          p.y = canvas.height + 8;
+          p.x = Math.random() * canvas.width;
         }
-        const spd = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-        if (spd > SPEED) { p.vx = (p.vx / spd) * SPEED; p.vy = (p.vy / spd) * SPEED; }
 
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0)  { p.x = 0;  p.vx =  Math.abs(p.vx); }
-        if (p.x > w)  { p.x = w;  p.vx = -Math.abs(p.vx); }
-        if (p.y < 0)  { p.y = 0;  p.vy =  Math.abs(p.vy); }
-        if (p.y > h)  { p.y = h;  p.vy = -Math.abs(p.vy); }
-
+        const color = p.purple ? `150,28,128` : `185,110,215`;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${p.op})`;
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${color},${p.opacity})`;
         ctx.fill();
       });
-
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const d  = Math.sqrt(dx * dx + dy * dy);
-          if (d < LINK) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(255,255,255,${(1 - d / LINK) * 0.28})`;
-            ctx.lineWidth   = 0.7;
-            ctx.stroke();
-          }
-        }
-      }
 
       animRef.current = requestAnimationFrame(frame);
     };
 
     animRef.current = requestAnimationFrame(frame);
-
-    return () => {
-      cancelAnimationFrame(animRef.current);
-      container.removeEventListener("mousemove", onMove);
-      container.removeEventListener("mouseleave", onLeave);
-      container.removeEventListener("click", onClick);
-    };
+    return () => cancelAnimationFrame(animRef.current);
   }, [active]);
 
   return (
@@ -1176,7 +1128,7 @@ const LandingEcuador = () => {
               </div>
 
               {/* Expanded detail panel */}
-              <div className="galaxy-detail">
+              <div className={`galaxy-detail${hoveredService !== null ? " galaxy-detail--open" : ""}`}>
                 {services.map((s, i) => (
                   <div
                     key={i}
