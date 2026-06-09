@@ -1030,12 +1030,43 @@ const AffiliationSection = () => {
             checkPaymentIntervalRef.current = null;
             setPaymentWindowOpen(false);
 
-            // Check one last time
+            // Si el usuario alcanzo a pagar, localStorage tendra el flag.
             const pendingData = localStorage.getItem('paymentCompleted');
             if (pendingData) {
               localStorage.removeItem('paymentCompleted');
               handlePaymentCompleted(orderData, clientTransactionId);
+              return;
             }
+
+            // Ultima oportunidad: consultar al backend por si el webhook ya
+            // confirmo el pago justo antes de que el usuario cerrara la ventana.
+            try {
+              const sessionToken = data.paymentSessionToken || sessionStorage.getItem('paymentSessionToken');
+              const finalCheck = await fetch(
+                `${BACKEND_URL}/api/check-payment-status/${clientTransactionId}`,
+                { headers: sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {} }
+              );
+              if (finalCheck.ok) {
+                const finalData = await finalCheck.json();
+                if (finalData.success && finalData.status === 'Approved') {
+                  console.log('✅ Pago confirmado en ultima verificacion tras cerrar popup');
+                  handlePaymentCompleted(orderData, clientTransactionId);
+                  return;
+                }
+              }
+            } catch (e) {
+              console.error('Error en verificacion final post-cierre:', e);
+            }
+
+            // Pago cancelado: limpiar todo y avisar al usuario. NO se dispara
+            // ningun email ni se crea carpeta en Drive — eso solo ocurre cuando
+            // el backend confirma el pago via webhook de PayPhone.
+            sessionStorage.removeItem('pendingOrderData');
+            sessionStorage.removeItem('pendingClientTxId');
+            sessionStorage.removeItem('paymentSessionToken');
+            localStorage.removeItem('paymentNotification');
+            localStorage.removeItem('paymentCompleted');
+            alert('El pago fue cancelado. No se envio confirmacion ni se creo carpeta. Puedes intentarlo de nuevo cuando quieras.');
           }
         }, 1000);
         
@@ -1053,11 +1084,15 @@ const AffiliationSection = () => {
   // Handle payment completion after returning from PayPhone.
   // SECURITY: para flujos PayPhone se pasa clientTransactionId — el backend
   // verifica el pago server-side y recupera orderData de pendingOrders.
+  // NOTA: el envio de emails y la creacion del folder en Drive los dispara
+  // el webhook backend cuando PayPhone confirma Approved. Aqui NO llamamos
+  // a submitToGoogleDrive() para evitar duplicar el folder. sendOrderEmails
+  // se mantiene como red de seguridad: el backend devuelve alreadyProcessed
+  // si el webhook ya cumplio (ver /api/send-order-emails).
   const handlePaymentCompleted = async (orderData, clientTransactionId = null) => {
     setCheckingPayment(true);
 
     try {
-      await submitToGoogleDrive();
       await sendOrderEmails(orderData, clientTransactionId);
 
       ReactGA.event({

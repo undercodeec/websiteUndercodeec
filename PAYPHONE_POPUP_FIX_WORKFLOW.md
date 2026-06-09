@@ -230,7 +230,43 @@ PayPhone solo devuelve la sale por su ID numerico (`87046180`), no por el `clien
 
 ---
 
-## 11. Referencia del soporte Payphone
+## 11. Avances 2026-06-09 — tercer ciclo: email + Drive solo tras pago verificado
+
+### 11.1 Problemas detectados
+1. **Drive duplicado en pagos PayPhone.** El webhook backend creaba el folder en Drive Y el frontend tambien lo hacia desde `handlePaymentCompleted` → cada pago aprobado generaba 2 ejecuciones del Apps Script (potencialmente 2 carpetas).
+2. **`pendingOrders` sin TTL.** Si el cliente cerraba el tab de PayPhone sin pagar, la entrada quedaba en memoria del backend hasta el reinicio.
+3. **`/api/confirm-payment` inconsistente.** Solo disparaba Drive si `fromChatbot`, no para `fromPricingPage` (el webhook si cubria ambos).
+4. **No habia mensaje claro al usuario** cuando cerraba el popup sin completar el pago.
+
+### 11.2 Cambios aplicados
+**Backend (`backend/server.js`):**
+- TTL en `pendingOrders` (30 min) + cleanup periodico cada 5 min. Las entradas guardan `__createdAt` y se purgan al vencer.
+- `/api/confirm-payment` ahora dispara Google Drive Script tambien para `fromPricingPage`, no solo `fromChatbot`.
+- Mensajes de log mejorados en el bloque Drive del confirm-payment para que se vea de donde viene la llamada.
+
+**Frontend (`InnerPages.jsx`):**
+- `handlePaymentCompleted` **ya no llama `submitToGoogleDrive()`** — la creacion del folder queda 100% delegada al webhook backend, que es la fuente de verdad del pago verificado.
+- `sendOrderEmails` se mantiene como red de seguridad: el backend devuelve `alreadyProcessed` si el webhook ya cumplio (dedup ya implementada en `/api/send-order-emails:1806`).
+- Cuando el polling detecta `paymentWindow.closed`:
+  - Primero busca `paymentCompleted` en localStorage.
+  - Si no hay, hace una **ultima verificacion via `/api/check-payment-status`** (por si el webhook llego justo antes del cierre).
+  - Si nada confirma el pago: limpia `sessionStorage` + `localStorage` y muestra alerta "El pago fue cancelado. No se envio confirmacion ni se creo carpeta."
+
+### 11.3 Garantia del nuevo flujo
+- Email + Drive folder **solo se ejecutan via webhook backend** cuando PayPhone confirma `Approved`.
+- Si el usuario cierra el tab de PayPhone sin pagar → webhook nunca dispara → **ningun email, ningun Drive folder**.
+- Si el usuario cierra el tab justo despues de pagar (race condition) → la ultima verificacion via `check-payment-status` lo recoge gracias al fast-path `webhookApprovedPayments`.
+- Transferencia bancaria sigue usando `submitToGoogleDrive` directo desde frontend (no aplica webhook PayPhone).
+
+### 11.4 Pendientes
+- [ ] Probar en produccion: pagar y dejar que el popup cierre solo → verificar que solo se cree UN folder en Drive y se envien los emails una sola vez.
+- [ ] Probar en produccion: abrir popup → cerrar sin pagar → confirmar que aparece la alerta "El pago fue cancelado" y que no llega ningun email.
+- [ ] Probar TTL de `pendingOrders`: crear pedido y dejarlo sin pagar 30+ min → verificar en pm2 logs el mensaje `🧹 pendingOrders cleanup`.
+- [ ] Replicar la misma logica de fast-path/cancelacion en `AIAssistant/index.jsx` (chatbot) cuando se valide el flujo de InnerPages.
+
+---
+
+## 12. Referencia del soporte Payphone
 
 > Estimado cliente, Tu requerimiento ingresado con el asunto: Activacion de la funcionalidad: Notificacion Externa - DOC-531 ha sido resuelto exitosamente. Se procedio con la habilitacion del permiso de Notificacion Externa de transacciones para el comercio indicado. RUC 1727155671001 (Undercodeec), URL: `https://api.undercodeec.com/api/payphone-webhook`, Estado: Habilitado. **Nota:** En implementaciones que utilizan Boton de Pago o Cajita de Pago, el comercio debe continuar realizando la validacion de la transaccion mediante el proceso de confirmacion de pago correspondiente (consulta a la API).
 

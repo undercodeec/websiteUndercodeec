@@ -12,6 +12,23 @@ const db = require('./db');
 const app = express();
 const pendingOrders = new Map(); // Store pending orders from Chatbot
 
+// TTL para pendingOrders: si el cliente abandona el popup de PayPhone sin
+// pagar, la entrada se purga a los 30 min para no acumular memoria. Las
+// entradas confirmadas se borran explicitamente en el webhook.
+const PENDING_ORDER_TTL_MS = 30 * 60 * 1000;
+const PENDING_ORDER_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+setInterval(() => {
+  const cutoff = Date.now() - PENDING_ORDER_TTL_MS;
+  let removed = 0;
+  for (const [k, v] of pendingOrders) {
+    if (v && typeof v.__createdAt === 'number' && v.__createdAt < cutoff) {
+      pendingOrders.delete(k);
+      removed++;
+    }
+  }
+  if (removed > 0) console.log(`🧹 pendingOrders cleanup: ${removed} entrada(s) expirada(s)`);
+}, PENDING_ORDER_CLEANUP_INTERVAL_MS);
+
 // ============================================================================
 // PUPPETEER QUEUE: limita instancias simultáneas de Chromium en la VPS
 // ============================================================================
@@ -534,6 +551,7 @@ app.post('/api/create-payment', async (req, res) => {
         ...orderData,
         fromPricingPage: true,
         transactionId: null, // Se llenará al confirmar
+        __createdAt: Date.now(), // Para TTL cleanup
       });
     }
 
@@ -877,10 +895,10 @@ app.post('/api/confirm-payment', async (req, res) => {
           await sendOrderEmailsInternal(orderData);
           console.log('✅ Correos de confirmación enviados');
 
-          if (orderData.fromChatbot) {
-             console.log('📁 Ejecutando Google Drive Script para pedido del Chatbot...');
+          if (orderData.fromChatbot || orderData.fromPricingPage) {
+             console.log('📁 Ejecutando Google Drive Script desde confirm-payment...');
              axios.post('https://script.google.com/macros/s/AKfycbwJJ91bFrS7VwdksBOfZluJZ6pLmwhdVw4TTOBsSWPtX2B91YqEa8OUXUPEHBFnCLmrvg/exec', {
-                 businessName: orderData.razonSocial,
+                 businessName: orderData.razonSocial || orderData.businessName,
                  email: orderData.email,
                  phone: orderData.telefono,
                  ruc: orderData.rucCedula,
@@ -1434,7 +1452,8 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
                   ciudad: 'Ecuador',
                   provincia: 'No especificada',
                   pais: 'Ecuador',
-                  tipoCliente: 'No especificado'
+                  tipoCliente: 'No especificado',
+                  __createdAt: Date.now(), // Para TTL cleanup
                 });
                 
                 // Retornar mensaje de éxito al frontend (sin enviar correos todavía)
