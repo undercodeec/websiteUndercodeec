@@ -45,3 +45,86 @@ html, body {
 .swiper-pagination-horizontal.swiper-pagination-bullets .swiper-pagination-bullet, .swiper-pagination-bullet {
   margin: 0 20px!important;
 }
+
+/* ============================================================
+   LAVA LAMP CTA — blobs + bubbles
+   ============================================================ */
+.lava-blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+  z-index: 0;
+}
+.lava-blob-1 {
+  width: 520px; height: 520px;
+  background: radial-gradient(circle, rgba(96,11,86,.85) 0%, transparent 70%);
+  top: -130px; left: -130px;
+  filter: blur(52px);
+  animation: lavaMov1 14s ease-in-out infinite;
+}
+.lava-blob-2 {
+  width: 440px; height: 440px;
+  background: radial-gradient(circle, rgba(130,22,112,.75) 0%, transparent 70%);
+  bottom: -110px; right: -90px;
+  filter: blur(58px);
+  animation: lavaMov2 17s ease-in-out infinite;
+}
+.lava-blob-3 {
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(60,8,56,.9) 0%, transparent 70%);
+  top: 42%; left: 42%;
+  filter: blur(64px);
+  animation: lavaMov3 11s ease-in-out infinite;
+}
+.lava-blob-4 {
+  width: 290px; height: 290px;
+  background: radial-gradient(circle, rgba(96,11,86,.6) 0%, transparent 70%);
+  top: 8%; right: 18%;
+  filter: blur(46px);
+  animation: lavaMov4 20s ease-in-out infinite;
+}
+
+@keyframes lavaMov1 {
+  0%,100% { transform: translate(0,0)       scale(1);    }
+  25%      { transform: translate(160px,80px)  scale(1.15); }
+  50%      { transform: translate(90px,180px)  scale(.9);   }
+  75%      { transform: translate(-55px,65px)  scale(1.06); }
+}
+@keyframes lavaMov2 {
+  0%,100% { transform: translate(0,0)          scale(1);   }
+  33%      { transform: translate(-135px,-90px) scale(1.2); }
+  66%      { transform: translate(-55px,105px)  scale(.85); }
+}
+@keyframes lavaMov3 {
+  0%,100% { transform: translate(0,0)           scale(1);    }
+  50%      { transform: translate(-125px,-85px)  scale(1.35); }
+}
+@keyframes lavaMov4 {
+  0%,100% { transform: translate(0,0)        scale(1);   }
+  30%      { transform: translate(-95px,75px)  scale(1.1); }
+  60%      { transform: translate(72px,-52px)  scale(.75); }
+}
+
+/* Bubbles */
+.lava-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.2);
+  bottom: -60px;
+  animation: bubbleRise linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes bubbleRise {
+  0%   { transform: translateY(0)     translateX(0)    scale(1);    opacity: .7; }
+  25%  { transform: translateY(-150px) translateX(10px)  scale(.95);  opacity: .55; }
+  50%  { transform: translateY(-310px) translateX(-12px) scale(.85);  opacity: .38; }
+  75%  { transform: translateY(-480px) translateX(8px)   scale(.7);   opacity: .2; }
+  100% { transform: translateY(-660px) translateX(0)     scale(.5);   opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lava-blob, .lava-bubble { animation: none !important; }
+}

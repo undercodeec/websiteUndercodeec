@@ -907,12 +907,28 @@ const LandingHosting = () => {
           id="contacto"
           className="py-5 text-center text-white"
           style={{
-            background: "linear-gradient(135deg, #150e23, #600B56)",
+            background: "#150e23",
             paddingTop: "100px",
             paddingBottom: "100px",
+            position: "relative",
+            overflow: "hidden",
           }}
         >
-          <div className="container">
+          <div className="lava-blob lava-blob-1" />
+          <div className="lava-blob lava-blob-2" />
+          <div className="lava-blob lava-blob-3" />
+          <div className="lava-blob lava-blob-4" />
+          <div className="lava-bubble" style={{ width: 20, height: 20, left: "8%",  animationDuration: "8s",   animationDelay: "0s"   }} />
+          <div className="lava-bubble" style={{ width: 14, height: 14, left: "20%", animationDuration: "11s",  animationDelay: "1.5s" }} />
+          <div className="lava-bubble" style={{ width: 26, height: 26, left: "33%", animationDuration: "9s",   animationDelay: "3s"   }} />
+          <div className="lava-bubble" style={{ width: 10, height: 10, left: "48%", animationDuration: "12s",  animationDelay: "0.5s" }} />
+          <div className="lava-bubble" style={{ width: 18, height: 18, left: "60%", animationDuration: "7s",   animationDelay: "4s"   }} />
+          <div className="lava-bubble" style={{ width: 16, height: 16, left: "73%", animationDuration: "10s",  animationDelay: "2s"   }} />
+          <div className="lava-bubble" style={{ width: 22, height: 22, left: "84%", animationDuration: "8.5s", animationDelay: "1s"   }} />
+          <div className="lava-bubble" style={{ width: 12, height: 12, left: "91%", animationDuration: "13s",  animationDelay: "3.5s" }} />
+          <div className="lava-bubble" style={{ width:  8, height:  8, left: "43%", animationDuration: "6s",   animationDelay: "5s"   }} />
+          <div className="lava-bubble" style={{ width: 30, height: 30, left: "15%", animationDuration: "14s",  animationDelay: "2.5s" }} />
+          <div className="container" style={{ position: "relative", zIndex: 2 }}>
             <h2
               className="mb-3 animate-fadeUp"
               style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 700 }}
