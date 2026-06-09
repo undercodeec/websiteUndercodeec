@@ -555,6 +555,79 @@ const PlanCard = ({ plan, index }) => {
   );
 };
 
+const FeaturesParticles = ({ active }) => {
+  const canvasRef = useRef(null);
+  const animRef  = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const resize = () => {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+
+    if (!active) {
+      cancelAnimationFrame(animRef.current);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+
+    cancelAnimationFrame(animRef.current);
+
+    const particles = Array.from({ length: 35 }, () => ({
+      x:       Math.random() * canvas.width,
+      y:       Math.random() * canvas.height,
+      vy:      -(Math.random() * 0.65 + 0.22),
+      phase:   Math.random() * Math.PI * 2,
+      amp:     Math.random() * 14 + 4,
+      size:    Math.random() * 2.6 + 1.1,
+      opacity: Math.random() * 0.7 + 0.1,
+      dOp:     (Math.random() * 0.007 + 0.003) * (Math.random() > 0.5 ? 1 : -1),
+      purple:  Math.random() > 0.45,
+    }));
+
+    let t = 0;
+    const frame = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      t += 0.018;
+
+      particles.forEach((p) => {
+        p.y += p.vy;
+        p.x += Math.sin(t * 1.1 + p.phase) * 0.38;
+        p.opacity += p.dOp;
+        if (p.opacity > 0.82) p.dOp = -Math.abs(p.dOp);
+        if (p.opacity < 0.07) p.dOp =  Math.abs(p.dOp);
+        if (p.y < -8) {
+          p.y = canvas.height + 8;
+          p.x = Math.random() * canvas.width;
+        }
+
+        const color = p.purple ? `150,28,128` : `185,110,215`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${color},${p.opacity})`;
+        ctx.fill();
+      });
+
+      animRef.current = requestAnimationFrame(frame);
+    };
+
+    animRef.current = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(animRef.current);
+  }, [active]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}
+    />
+  );
+};
+
 const LandingEcuador = () => {
   const [openFaq, setOpenFaq] = useState(0);
   const [activePricingTab, setActivePricingTab] = useState("web");
@@ -1077,6 +1150,7 @@ const LandingEcuador = () => {
                     <div className="galaxy-vdivider" />
                     {/* Right column */}
                     <div className="galaxy-detail__right">
+                      <FeaturesParticles active={hoveredService === i} />
                       <ul className="galaxy-features">
                         {s.features.map((f, j) => (
                           <li key={j}>{f}</li>
