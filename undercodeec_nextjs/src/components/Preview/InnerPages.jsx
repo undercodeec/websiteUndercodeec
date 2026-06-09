@@ -948,8 +948,19 @@ const AffiliationSection = () => {
 
         console.log('[PayPhone Poll] iniciado para clientTxId:', clientTransactionId, ' tokenPresente:', !!data.paymentSessionToken);
 
+        const MAX_POLLING_TICKS = 600; // ~10 min @ 1s/tick
         checkPaymentIntervalRef.current = setInterval(async () => {
           pollingTick++;
+
+          // Tope de seguridad: si el polling lleva ~10 min sin confirmacion,
+          // lo detenemos para no golpear el backend para siempre.
+          if (pollingTick > MAX_POLLING_TICKS) {
+            console.warn('[PayPhone Poll] timeout alcanzado — deteniendo polling');
+            if (checkPaymentIntervalRef.current) clearInterval(checkPaymentIntervalRef.current);
+            checkPaymentIntervalRef.current = null;
+            setPaymentWindowOpen(false);
+            return;
+          }
 
           // 1. ACTIVE BACKEND POLLING (Every ~2 seconds)
           // Consultamos al backend si PayPhone ya confirmó el pago, sin depender de la ventana

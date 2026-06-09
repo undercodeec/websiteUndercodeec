@@ -173,7 +173,64 @@ Dejados intactos a proposito:
 
 ---
 
-## 10. Referencia del soporte Payphone
+## 10. Avances 2026-06-09 — segundo ciclo (causa raiz encontrada)
+
+### 10.1 Lo que revelaron los logs reales del backend
+
+```
+"TransactionId": 87046180
+🔍 Verifying webhook transaction: https://pay.payphonetodoesposible.com/api/Sale/87046180
+✅ Estado de transacción verificado: Approved
+🎉 Pago APROBADO confirmado por Webhook! TxId: 87046180
+✅ RECUPERADO orderData de la memoria para webhook: 65aaa6a23b8cef7
+✅ Correos de confirmación enviados desde Webhook
+📁 Ejecutando Google Drive Script desde Webhook...
+```
+
+**Conclusion:** todo funciona en el backend. El webhook si entra, confirma con PayPhone, marca el pago como Approved, manda los emails y ejecuta el script de Drive.
+
+### 10.2 Y sin embargo, el polling del navegador nunca recibe Approved
+
+```
+[PayPhone Poll] tick=2..122  data={success:false, status:'NotFound', message:'Transacción no encontrada'}
+```
+
+**Causa raiz exacta:**
+- Polling consulta `GET /api/Sale/ClientTransactionId/{clientTxId}` de PayPhone → siempre 404, incluso para transacciones aprobadas.
+- Webhook consulta `GET /api/Sale/{TransactionId-numerico}` → siempre devuelve la transaccion correctamente.
+
+PayPhone solo devuelve la sale por su ID numerico (`87046180`), no por el `clientTransactionId` que pusimos al crear el Link. La hipotesis "Payphone test mode no completa" era falsa — el pago si se completa, pero el endpoint que el polling usa esta roto.
+
+### 10.3 Fix aplicado (commit + push tras este ciclo)
+
+**Backend (`backend/server.js`):**
+- Nuevo `Map` `webhookApprovedPayments` con TTL 10 min (`rememberWebhookApproval`).
+- El webhook, cuando confirma Approved, escribe en ese map ANTES de borrar `pendingOrders`.
+- `/api/check-payment-status` agrega un fast-path: si el `clientTxId` ya esta en `webhookApprovedPayments` → devuelve `{success:true, status:'Approved', transactionId}` sin consultar a PayPhone.
+- Con esto, el siguiente tick del polling del frontend tras el webhook recibe Approved → `paymentWindow.close()` se ejecuta → popup cierra.
+
+**Frontend (`undercodeec_nextjs/src/components/Preview/InnerPages.jsx`):**
+- Tope de seguridad al `setInterval` del polling: `MAX_POLLING_TICKS = 600` (~10 min). Antes podia correr indefinidamente.
+
+**Deduplicacion de emails verificada:** `/api/send-order-emails` (L1806) ya devuelve `alreadyProcessed: true` cuando `pendingOrders` no tiene el clientTxId. Como el webhook hace `pendingOrders.delete()` al final, cuando el polling-triggered `handlePaymentCompleted` llama a `sendOrderEmails`, no se duplican. Sin cambios necesarios ahi.
+
+### 10.4 Resultados esperados en la proxima prueba
+
+1. Usuario paga → PayPhone dispara webhook → backend confirma Approved → `webhookApprovedPayments.set(clientTxId, ...)`.
+2. En el siguiente tick del polling (max 2s despues), `check-payment-status` devuelve `Approved` por fast-path.
+3. Frontend: `paymentWindow.close()` → popup cierra automaticamente.
+4. `handlePaymentCompleted` corre → `sendOrderEmails` recibe `alreadyProcessed` → no duplica emails → muestra pantalla de confirmacion.
+
+### 10.5 Tareas restantes despues de validar
+
+- [ ] Replicar el polling fallback en `AIAssistant/index.jsx` (hoy solo depende de `postMessage` y de `payment-result.html`, que tampoco se carga en este flujo).
+- [ ] Reducir los logs `console.log('[PayPhone Poll]...')` a debug-only una vez confirmado el fix.
+- [ ] Eliminar `checkPaymentStatus` y el state `checkingPayment` que quedaron sin uso tras quitar el boton manual.
+- [ ] (Opcional) Limpiar CSS `.btn-confirm-payment` en `preview-style.css:4664`.
+
+---
+
+## 11. Referencia del soporte Payphone
 
 > Estimado cliente, Tu requerimiento ingresado con el asunto: Activacion de la funcionalidad: Notificacion Externa - DOC-531 ha sido resuelto exitosamente. Se procedio con la habilitacion del permiso de Notificacion Externa de transacciones para el comercio indicado. RUC 1727155671001 (Undercodeec), URL: `https://api.undercodeec.com/api/payphone-webhook`, Estado: Habilitado. **Nota:** En implementaciones que utilizan Boton de Pago o Cajita de Pago, el comercio debe continuar realizando la validacion de la transaccion mediante el proceso de confirmacion de pago correspondiente (consulta a la API).
 

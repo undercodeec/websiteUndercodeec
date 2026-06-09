@@ -433,6 +433,29 @@ function validatePaymentSessionToken(clientTransactionId, providedToken) {
   return safeStringEqual(rec.token, providedToken);
 }
 
+// ============================================================================
+// WEBHOOK-APPROVED PAYMENTS CACHE
+// ============================================================================
+// PayPhone GET /api/Sale/ClientTransactionId/{id} returns 404 incluso para
+// transacciones aprobadas (solo responde por TransactionId numerico). El
+// webhook si recibe el TransactionId numerico y confirma Approved — guardamos
+// el resultado aqui para que el polling del frontend (check-payment-status)
+// cierre el popup sin depender del endpoint roto de PayPhone.
+const webhookApprovedPayments = new Map();
+const WEBHOOK_APPROVAL_TTL_MS = 10 * 60 * 1000; // 10 min
+
+function rememberWebhookApproval(clientTransactionId, payload) {
+  if (!clientTransactionId) return;
+  webhookApprovedPayments.set(clientTransactionId, {
+    ...payload,
+    approvedAt: Date.now()
+  });
+  const cutoff = Date.now() - WEBHOOK_APPROVAL_TTL_MS;
+  for (const [k, v] of webhookApprovedPayments) {
+    if (v.approvedAt < cutoff) webhookApprovedPayments.delete(k);
+  }
+}
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -559,6 +582,19 @@ app.get('/api/check-payment-status/:clientTxId', async (req, res) => {
     return res.status(401).json({ error: 'Token de sesión de pago inválido o expirado' });
   }
 
+  // FAST PATH: si el webhook ya confirmo Approved para este clientTxId, devolvemos
+  // inmediatamente sin consultar a PayPhone (su endpoint Sale/ClientTransactionId
+  // devuelve 404 incluso para transacciones aprobadas).
+  if (webhookApprovedPayments.has(clientTxId)) {
+    const approved = webhookApprovedPayments.get(clientTxId);
+    console.log(`✅ check-payment-status: fast-path webhook-approved para ${clientTxId}`);
+    return res.json({
+      success: true,
+      status: 'Approved',
+      transactionId: approved.transactionId || null
+    });
+  }
+
   try {
     const response = await axios.get(
       `https://pay.payphonetodoesposible.com/api/Sale/ClientTransactionId/${encodeURIComponent(clientTxId)}`,
@@ -673,7 +709,14 @@ app.post('/api/payphone-webhook', async (req, res) => {
 
     if (data.transactionStatus === 'Approved') {
       console.log(`🎉 Pago APROBADO confirmado por Webhook! TxId: ${data.transactionId}`);
-      
+
+      // Cache para que el polling del frontend (check-payment-status) lo recoja
+      // y cierre el popup. Antes del pendingOrders.delete() para no perder el dato.
+      rememberWebhookApproval(data.clientTransactionId, {
+        transactionId: data.transactionId,
+        amount: data.amount
+      });
+
       // Store success in memory for frontend polling to pick up
       // Optionally save to DB if you have Supabase configured later
       // We will rely on frontend polling `/api/check-payment-status` which also queries PayPhone natively.
