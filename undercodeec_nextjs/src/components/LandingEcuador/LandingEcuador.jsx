@@ -898,8 +898,11 @@ const LandingEcuador = () => {
         </section>
 
         {/* SERVICES */}
-        <section id="servicios" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px" }}>
-          <div className="container">
+        <section id="servicios" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern" style={{ width: "130%", height: "130%", objectFit: "cover", opacity: 0.045, pointerEvents: "none" }} />
+          </div>
+          <div className="container" style={{ position: "relative", zIndex: 2 }}>
             <div className="text-center mb-5 animate-fadeUp">
               <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
                 Qué hacemos
@@ -989,8 +992,11 @@ const LandingEcuador = () => {
         </section>
 
         {/* PRICING */}
-        <section id="presupuesto" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px" }}>
-          <div className="container">
+        <section id="presupuesto" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern-reverse" style={{ width: "140%", height: "140%", objectFit: "cover", opacity: 0.04, pointerEvents: "none" }} />
+          </div>
+          <div className="container" style={{ position: "relative", zIndex: 2 }}>
             <div className="text-center mb-4 animate-fadeUp">
               <h2 className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
                 Planes y Precios
@@ -1035,8 +1041,11 @@ const LandingEcuador = () => {
         </section>
 
         {/* FAQ */}
-        <section className="py-5" style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px" }}>
-          <div className="container">
+        <section className="py-5" style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern-slow" style={{ width: "130%", height: "130%", objectFit: "cover", opacity: 0.04, pointerEvents: "none" }} />
+          </div>
+          <div className="container" style={{ position: "relative", zIndex: 2 }}>
             <div className="text-center mb-5 animate-fadeUp">
               <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
                 Resolvemos dudas

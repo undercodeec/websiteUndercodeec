@@ -128,3 +128,21 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   .lava-blob, .lava-bubble { animation: none !important; }
 }
+
+/* ============================================================
+   ROTATING PATTERN VARIANTS (section backgrounds)
+   ============================================================ */
+.rotating-pattern-slow {
+  animation: rotate-center 90s linear infinite;
+}
+.rotating-pattern-reverse {
+  animation: rotate-center-rev 80s linear infinite;
+}
+@keyframes rotate-center-rev {
+  0%   { transform: rotate(0); }
+  100% { transform: rotate(-360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rotating-pattern-slow,
+  .rotating-pattern-reverse { animation: none !important; }
+}
