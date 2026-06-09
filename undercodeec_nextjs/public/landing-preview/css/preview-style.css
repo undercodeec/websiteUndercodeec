@@ -630,7 +630,7 @@ header #js-scene2 {
   width: 110%;
   height: 110%;
   background-position: center top;
-  background-image: url("../img/pattern.png");
+  background-image: url("../img/pattern.webp");
   background-size: cover;
   animation: wavePatternAnimation 5s ease-in-out infinite;
 }

@@ -17,9 +17,6 @@ const Model = ({ url }) => {
   return <primitive object={scene} scale={2.5} ref={meshRef} />;
 };
 
-// Preload the model to prevent late rendering
-useGLTF.preload("/modelo-3D/Model3D-1.glb");
-
 const HeroModel = ({ isActive = true }) => {
   // Determine if component is intersecting the viewport to stop WebGL rendering
   const [inView, setInView] = useState(true);
@@ -29,10 +26,15 @@ const HeroModel = ({ isActive = true }) => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Preload the 25MB GLB on mount instead of at module parse time.
+    // This frees the critical-path window for first paint; the model still
+    // shows up promptly because Suspense fallback covers the load.
+    useGLTF.preload("/modelo-3D/Model3D-1.glb");
+
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     // Initial check
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -42,7 +44,7 @@ const HeroModel = ({ isActive = true }) => {
     }, { threshold: 0.1 });
 
     if (containerRef.current) observer.observe(containerRef.current);
-    
+
     return () => {
       observer.disconnect();
       window.removeEventListener('resize', handleResize);

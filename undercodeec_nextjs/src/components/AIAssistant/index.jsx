@@ -802,6 +802,7 @@ const AIAssistant = () => {
                         <VimeoFacade
                             src="https://player.vimeo.com/video/1174861620?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&background=1"
                             title="Asistente IA"
+                            strategy="idle"
                             style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden', borderRadius: '50%', pointerEvents: 'none' }}
                             iframeStyle={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '250%', height: '250%', pointerEvents: 'none' }}
                         />

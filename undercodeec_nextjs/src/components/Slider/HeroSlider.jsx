@@ -82,17 +82,17 @@ export default function HeroSlider() {
       {/* Animated Gradient Background */}
       <div className="tw-absolute tw-inset-0 gradient-bg tw-z-0 tw-pointer-events-none" />
       
-      {/* Rotating Background Pattern */}
-      <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-pointer-events-none tw-z-[1]">
-        <Image
-          src={backgroundPattern}
-          alt=""
-          fill
-          aria-hidden
-          priority
-          className="rotating-pattern tw-object-cover tw-opacity-30 tw-pointer-events-none"
-        />
-      </div>
+      {/* Rotating Background Pattern — div con background-image para no competir por LCP */}
+      <div
+        className="rotating-pattern tw-absolute tw-inset-0 tw-opacity-30 tw-pointer-events-none tw-z-[1]"
+        style={{
+          backgroundImage: `url(${backgroundPattern})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+        aria-hidden
+      />
       
       {/* Additional gradient blobs */}
       <div className="gradient-blob-1 tw-pointer-events-none" />

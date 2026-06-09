@@ -1,6 +1,24 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const Responsive = () => {
+  const frameRef = useRef(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+
+  useEffect(() => {
+    if (!frameRef.current) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true);
+          obs.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    obs.observe(frameRef.current);
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <section className="responsive-section">
       <div className="responsive-container">
@@ -15,21 +33,27 @@ const Responsive = () => {
         </div>
 
         <div className="responsive-video-container animate-fadeLeft" style={{ transitionDelay: '150ms' }}>
-         
-         
-          {/* Video principal */}
-          <div className="video-frame">
-            <video
-              className="video-iframe"
-              src="/assets/img/video/video-undercode-ec-1.mp4"
-              autoPlay
-              muted
-              loop
-              controls
-              playsInline
-            />
+          {/* Video principal — lazy-loaded vía IntersectionObserver para evitar 19MB en el primer paint */}
+          <div className="video-frame" ref={frameRef}>
+            {shouldLoad ? (
+              <video
+                className="video-iframe"
+                src="/assets/img/video/video-undercode-ec-1.mp4"
+                autoPlay
+                muted
+                loop
+                controls
+                playsInline
+                preload="metadata"
+              />
+            ) : (
+              <div
+                className="video-iframe"
+                style={{ aspectRatio: '16 / 9', backgroundColor: '#000' }}
+                aria-hidden="true"
+              />
+            )}
           </div>
-
         </div>
       </div>
     </section>
