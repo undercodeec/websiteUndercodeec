@@ -1622,7 +1622,7 @@ async function sendOrderEmailsInternal(orderData) {
         .success-icon { font-size: 48px; margin-bottom: 15px; }
         .content { padding: 30px; }
         .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }
-        .order-box { background: #f8f9fa; border-radius: 12px; padding: 25px; margin: 20px 0; }
+        .order-box { background: #ffffff; border-radius: 12px; padding: 25px; margin: 20px 0; }
         .order-title { font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
         .order-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
         .order-item:last-child { border-bottom: none; }
