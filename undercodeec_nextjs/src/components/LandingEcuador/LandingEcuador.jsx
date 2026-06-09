@@ -692,11 +692,16 @@ const LandingEcuador = () => {
       el.textContent = `${el.getAttribute("data-counter-prefix") || ""}0${el.getAttribute("data-counter-suffix") || ""}`;
     });
 
+    const started = new Set();
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           const el = entry.target;
+          if (started.has(el)) return;
+          started.add(el);
+          observer.unobserve(el);
           const target = parseFloat(el.getAttribute("data-counter-value"));
           const prefix = el.getAttribute("data-counter-prefix") || "";
           const suffix = el.getAttribute("data-counter-suffix") || "";
@@ -705,13 +710,11 @@ const LandingEcuador = () => {
             val: target,
             duration: 1400,
             ease: "outExpo",
-            round: 1,
             onUpdate: () => {
-              el.textContent = `${prefix}${state.val}${suffix}`;
+              el.textContent = `${prefix}${Math.round(state.val)}${suffix}`;
             },
             onComplete: () => writeFinal(el),
           });
-          observer.unobserve(el);
         });
       },
       { threshold: 0.35 }
@@ -852,23 +855,25 @@ const LandingEcuador = () => {
             <div className="row text-center g-3 animate-fadeUp">
               <div className="col-6 col-md-3">
                 <div
+                  suppressHydrationWarning
                   className="fw-bold"
                   style={{ fontSize: "28px", color: "#600b56" }}
                   data-counter-value="100"
                   data-counter-prefix="+"
                 >
-                  +100
+                  +0
                 </div>
                 <div className="text-muted small">Proyectos entregados</div>
               </div>
               <div className="col-6 col-md-3">
                 <div
+                  suppressHydrationWarning
                   className="fw-bold"
                   style={{ fontSize: "28px", color: "#600b56" }}
                   data-counter-value="24"
                   data-counter-suffix=" h"
                 >
-                  24 h
+                  0 h
                 </div>
                 <div className="text-muted small">Tiempo medio de presupuesto</div>
               </div>
@@ -878,12 +883,13 @@ const LandingEcuador = () => {
               </div>
               <div className="col-6 col-md-3">
                 <div
+                  suppressHydrationWarning
                   className="fw-bold"
                   style={{ fontSize: "28px", color: "#600b56" }}
                   data-counter-value="10"
                   data-counter-suffix="+ años"
                 >
-                  10+ años
+                  0+ años
                 </div>
                 <div className="text-muted small">Experiencia</div>
               </div>

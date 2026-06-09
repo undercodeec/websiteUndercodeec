@@ -598,12 +598,13 @@ const LandingHosting = () => {
             <div className="row text-center g-3">
               <div className="col-6 col-md-3">
                 <div
+                  suppressHydrationWarning
                   className="fw-bold"
                   style={{ fontSize: "28px", color: "#600b56" }}
                   data-counter-value="100"
                   data-counter-prefix="+"
                 >
-                  +100
+                  +0
                 </div>
                 <div className="text-muted small">Sitios hospedados</div>
               </div>
@@ -625,8 +626,9 @@ const LandingHosting = () => {
                   style={{ fontSize: "28px", color: "#600b56" }}
                   data-counter-value="24"
                   data-counter-suffix=" h"
+                  suppressHydrationWarning
                 >
-                  24 h
+                  0 h
                 </div>
                 <div className="text-muted small">Activación del servicio</div>
               </div>
