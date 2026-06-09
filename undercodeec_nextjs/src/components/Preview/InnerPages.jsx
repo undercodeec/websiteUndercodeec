@@ -2247,21 +2247,6 @@ const AffiliationSection = () => {
                 })()}
               </button>
             )}
-            
-            {/* Button to manually confirm payment after closing window */}
-            {paymentWindowOpen && (
-              <button 
-                type="button"
-                className="btn-confirm-payment"
-                onClick={checkPaymentStatus}
-                disabled={checkingPayment}
-                style={{ marginTop: '15px', width: '100%', backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >
-                <FaCheck style={{ marginRight: '10px' }} />
-                Ya completé mi pago
-              </button>
-            )}
-            
 
           </div>
         )}
@@ -2269,8 +2254,8 @@ const AffiliationSection = () => {
         {wizardData.metodoPago === 'transferencia' && (
           <div className="payment-content transfer-payment">
             <div className="transfer-amount-notice">
-              <p>Monto a transferir: <strong>${wizardData.tipoPago === 'anticipo' 
-                ? Math.round((landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80) / 2) 
+              <p>Monto a transferir: <strong>${wizardData.tipoPago === 'anticipo'
+                ? Math.round((landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80) / 2)
                 : (landingPriceCards.find(c => c.id === selectedLandingPlan)?.price || 80)} USD</strong></p>
             </div>
             <div className="bank-details-card">
@@ -2810,21 +2795,6 @@ const AffiliationSection = () => {
                 })()}
               </button>
             )}
-            
-            {/* Button to manually confirm payment after closing window */}
-            {paymentWindowOpen && (
-              <button 
-                type="button"
-                className="btn-confirm-payment"
-                onClick={checkPaymentStatus}
-                disabled={checkingPayment}
-                style={{ marginTop: '15px', width: '100%', backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >
-                <FaCheck style={{ marginRight: '10px' }} />
-                Ya completé mi pago
-              </button>
-            )}
-            
 
           </div>
         )}
@@ -2832,8 +2802,8 @@ const AffiliationSection = () => {
         {wizardData.metodoPago === 'transferencia' && (
           <div className="payment-content transfer-payment">
             <div className="transfer-amount-notice">
-              <p>Monto a transferir: <strong>${wizardData.tipoPago === 'anticipo' 
-                ? Math.round((sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 120) / 2) 
+              <p>Monto a transferir: <strong>${wizardData.tipoPago === 'anticipo'
+                ? Math.round((sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 120) / 2)
                 : (sitioWebPriceCards.find(c => c.id === selectedSitioWebPlan)?.price || 120)} USD</strong></p>
             </div>
             <div className="bank-details-card">
@@ -3384,21 +3354,6 @@ const AffiliationSection = () => {
                 })()}
               </button>
             )}
-            
-            {/* Button to manually confirm payment after closing window */}
-            {paymentWindowOpen && (
-              <button 
-                type="button"
-                className="btn-confirm-payment"
-                onClick={checkPaymentStatus}
-                disabled={checkingPayment}
-                style={{ marginTop: '15px', width: '100%', backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >
-                <FaCheck style={{ marginRight: '10px' }} />
-                Ya completé mi pago
-              </button>
-            )}
-            
 
           </div>
         )}
@@ -3406,8 +3361,8 @@ const AffiliationSection = () => {
         {wizardData.metodoPago === 'transferencia' && (
           <div className="payment-content transfer-payment">
             <div className="transfer-amount-notice">
-              <p>Monto a transferir: <strong>${wizardData.tipoPago === 'anticipo' 
-                ? Math.round((ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 0) / 2) 
+              <p>Monto a transferir: <strong>${wizardData.tipoPago === 'anticipo'
+                ? Math.round((ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 0) / 2)
                 : (ecommercePriceCards.find(c => c.id === selectedEcommercePlan)?.price || 0)} USD</strong></p>
             </div>
             <div className="bank-details-card">
