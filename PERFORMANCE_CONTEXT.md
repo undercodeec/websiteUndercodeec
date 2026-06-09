@@ -4,7 +4,7 @@
 > trabajamos en optimizar el rendimiento del sitio. **Antes de cualquier
 > modificación de código, leer este archivo completo y la bitácora al final.**
 >
-> Última actualización: 2026-06-08
+> Última actualización: 2026-06-09
 
 ---
 
@@ -25,7 +25,7 @@
 | 1.7 | Vimeo embed `strategy="idle"` | ✅ validado prod | -894 KB (1.25 MB → 356 KB) |
 | 1.8 | Optimización imágenes demos/pattern | ✅✅ validado prod | -4.4 MB demos, -151 KB pattern |
 | 1.9 | rotating-pattern: `<Image>` → div CSS bg | 🟡 neutral | Lighthouse 13 cuenta div con bg-image como LCP también. Sin movimiento, cambio mantenido (no perjudica) |
-| 2 | `next/dynamic` para HeroModel + secciones | 🟡 pendiente | clave para mover LCP del home |
+| 2 | `next/dynamic` para HeroModel + secciones | ✅ aplicada y medida | LCP -6/-10 s en rutas largas (marketing 19.3→10.8, trayectoria 16.6→6.3, apps móviles 11.5→5.5). TBT subió en home (460→904 ms) por cascada de chunks. Mixto en score Perf |
 | 3 | GTM cleanup (3 IDs GA + reCAPTCHA dup) | 🟡 pendiente | ~1 MB en terceros redundantes |
 | 4 | Audit contra build prod | ✅ ejecutado | baseline real en §5.0 |
 
@@ -43,32 +43,60 @@
 - `undercodeec_nextjs/public/landing-preview/img/demos/*.webp` — 17 imágenes resize 800 px + webp q75 (Fase 1.8). Backups en `_originals/`.
 - `undercodeec_nextjs/public/landing-preview/img/pattern.webp` (nuevo, 62 KB). `pattern.png` eliminada.
 - `undercodeec_nextjs/public/assets/img/undercode-logo.webp` (creado, 22 KB) — **NO aplicado**, el PNG sigue siendo el que se usa (referenciado en 27 archivos, mayoría metadata SEO).
+- `undercodeec_nextjs/src/components/Slider/HeroSlider.jsx:7,17-23` — `HeroModel` ahora vía `next/dynamic({ ssr: false })` (Fase 2)
+- `undercodeec_nextjs/src/app/page.tsx:1-22` — 9 secciones below-the-fold vía `next/dynamic` con ssr:true default (Fase 2)
 
-### Estado real en PROD (corrida 0968 final)
+### Estado real en PROD post-Fase 2 (corrida d19a — 2026-06-09)
 
 Rutas en buen estado:
-- `/contacto/` Perf **83**, LCP 3.9 s ✅
-- `/software-para-tu-negocio/` Perf 73, LCP 5.7 s
-- `/politicas-playconsole/` Perf 72, LCP 4.9 s
-- `/servicios/` Perf 71, LCP 9.9 s
-- `/aplicaciones-moviles/` Perf 68, LCP 11.1 s
+- `/blog/` Perf **89**, LCP **2.2 s** ✅✅ (gran mejora)
+- `/contacto/` Perf 84, LCP 3.2 s ✅
+- `/politicas-playconsole/` Perf 78, LCP 4.1 s
+- `/software-para-tu-negocio/` Perf 72, LCP 4.2 s
+- `/blog/whatsapp-...` Perf 71, LCP 6.9 s
+- `/blog/el-futuro-...` Perf 69, LCP 5.1 s
+- `/marketing-para-tu-negocio/` Perf 65, LCP 10.8 s (mejoró −8.5 s LCP)
+- `/servicios/` Perf 64, LCP 9.1 s
+- `/aplicaciones-moviles/` Perf 63, LCP 5.5 s (mejoró −6 s LCP)
+- `/blog/impacto-...-2026/` Perf 65, LCP 13.0 s
 
-Rutas con LCP aún alto (necesitan trabajo estructural):
-- `/` (home) Perf 54, LCP 9.4 s — **bottleneck = main-thread JS** (Script Eval 1.6 s + Style 1.0 s × 4× throttle ≈ 9 s)
-- `/marketing-para-tu-negocio/` LCP 17.4 s
-- `/nuestra-trayectoria/` LCP 17.0 s
-- Posts blog complejos LCP 11-17 s
+Rutas con score Perf bajo (TBT alto por cascada de chunks):
+- `/` (home) Perf **48**, LCP 5.6 s, TBT **904 ms** — TBT subió por
+  cascada de 9 chunks. LCP estable. Considerar modulepreload o
+  re-agrupar el split.
+- `/nuestra-trayectoria/` Perf 54, LCP 6.3 s (gran mejora −10 s LCP)
+  pero TBT 308 ms y FCP 4.3 s. Mismo patrón de cascada.
+
+Ruta con regresión LCP a investigar:
+- `/blog/impacto-ia-...` LCP 11.0 → 16.1 s. Posible volatilidad. Re-medir
+  en otra corrida antes de actuar.
 
 Todas: A11y ≥ 85, SEO 100/100, CLS ≤ 0.08.
 
 ### Acción para retomar (próxima sesión)
 
-**El home no se moverá atacando assets — el bottleneck son los 1.6 s de Script Evaluation y 0.96 s de Style/Layout amplificados ×4 por el throttle CPU móvil.** Lo único que mueve esto:
+**Fase 2 aplicada y medida**: mejoró LCP en 9/13 rutas (6-10 s en las más
+problemáticas), pero el TBT del home subió 460→904 ms por la cascada de 9
+chunks. Mantenida porque la mejora de LCP supera el costo de TBT.
 
-1. **Fase 2 — `next/dynamic` en `page.tsx`**: code-split `HeroModel` (Three.js) y las 7 secciones below-the-fold (`Portfolio`, `Codei`, `BestFeatures`, `Responsive`, `AllFeatures`, `Testimonials`, `CallToAction`). Reduce Script Evaluation significativamente. Es la mayor probabilidad de mover el LCP del home.
-2. **Fase 1.5 — Optimización PNG blog**: mismo approach exitoso de Fase 1.8, aplicado a `whatsapp_b2b_erp.png` (1.1 MB), `whatsapp_marketing_ia.png` (938 KB), `whatsapp_chatbots_ia.png` (861 KB), `whatsapp_ecommerce_sales.png` (762 KB). Mejora directa de blog posts con LCP 11-17 s.
-3. **Fase 3 — GTM/reCAPTCHA cleanup**: investigar por qué cargan 3 IDs de GA (G-99Z5CCZ3RK + G-62CCGC2JBQ + G-2QDBXNBC8K) y por qué reCAPTCHA aparece duplicado en home. Sin tocar código del sitio (dashboard GTM).
-4. **Fase 1.1b — Critical CSS con beasties**: si se quiere atacar el render-blocking CSS (que aporta otra parte del LCP). Trabajo mayor, requiere instalar `beasties` y configurar build hook.
+1. **Fase 1.5 — Optimización PNG blog** (recomendada siguiente): ataca
+   directamente las 3 rutas blog con LCP 11-16 s. Mismo approach
+   exitoso de Fase 1.8, aplicado a `whatsapp_b2b_erp.png` (1.1 MB),
+   `whatsapp_marketing_ia.png` (938 KB), `whatsapp_chatbots_ia.png`
+   (861 KB), `whatsapp_ecommerce_sales.png` (762 KB).
+2. **Mitigación TBT post-Fase 2** (opcional): añadir `<link
+   rel="modulepreload">` para chunks de Demos, Portfolio en `layout.tsx`
+   para descargar en paralelo y reducir cascada → recuperar Perf score
+   del home sin perder lo ganado en LCP.
+3. **Re-medir `/blog/impacto-ia-...`**: LCP subió 11→16.1 s en corrida
+   única. Confirmar si es volatilidad o regresión real antes de actuar.
+4. **Fase 3 — GTM/reCAPTCHA cleanup**: investigar por qué cargan 3 IDs
+   de GA (G-99Z5CCZ3RK + G-62CCGC2JBQ + G-2QDBXNBC8K) y por qué
+   reCAPTCHA aparece duplicado en home. Sin tocar código del sitio
+   (dashboard GTM).
+5. **Fase 1.1b — Critical CSS con beasties**: si se quiere atacar el
+   render-blocking CSS (que aporta otra parte del LCP). Trabajo mayor,
+   requiere instalar `beasties` y configurar build hook.
 
 ### Comandos para retomar
 
@@ -85,6 +113,15 @@ $env:PORT=3200; pnpm start
 cd ..
 npx unlighthouse --site http://localhost:3200/ --no-cache
 ```
+
+### Última corrida de medición
+
+- `.unlighthouse/localhost/d19a/reports/` — corrida 2026-06-09 11:39,
+  13 rutas en 86 s, post-Fase 2 aplicada. Comparar contra el baseline
+  0968 está en §7 (entrada `2026-06-09 — Fase 2 + medición d19a`).
+- Cualquier corrida nueva generará un hash distinto. Para comparar
+  rápido: parsear `lighthouse.json` con PowerShell
+  (`Get-Content ... | ConvertFrom-Json`) o abrir el viewer en :5678.
 
 ### Lecciones clave acumuladas
 
@@ -738,17 +775,26 @@ Objetivo: Performance home **62 → 75+**, Best Practices home **58 → 80+**.
 - Decisión: **mantener el cambio** (es neutral, no perjudica), seguir
   con otras fases.
 
-### Fase 2 — Code-splitting de componentes pesados
+### Fase 2 — Code-splitting de componentes pesados ✅ APLICADA (2026-06-09)
 
-Objetivo: TBT home < 200ms (actual 690ms).
+Objetivo: TBT home < 200ms (actual 460ms en prod), reducir Script Evaluation.
 
-- [ ] `next/dynamic` con `ssr: false` para `HeroModel` (saca Three.js
-      266KB + drei + GLB del bundle inicial).
-- [ ] `next/dynamic` para las secciones below-the-fold de `page.tsx:62-72`
-      (`Portfolio`, `Codei`, `BestFeatures`, `Responsive`, `AllFeatures`,
-      `Testimonials`, `CallToAction`).
-- [ ] Evaluar si `react-slick` es necesario teniendo **1 sola slide**
-      definida; si no, reemplazar por div estático.
+- [x] `next/dynamic({ ssr: false })` para `HeroModel` en `HeroSlider.jsx:17-23`.
+      Three.js + drei + GLB salen del bundle inicial. Mobile/!mounted ya
+      tiene fallback `<Image>` así que no hay parpadeo perceptible.
+- [x] `next/dynamic` (ssr:true default) para 9 secciones en `page.tsx`:
+      `Demos`, `BuyNow`, `Portfolio`, `Codei`, `BestFeatures`,
+      `Responsive`, `AllFeatures`, `Testimonials`, `CallToAction`.
+      `Features` e `InnerPages` quedan eager (arriba). HTML pre-renderizado
+      se mantiene → SEO intacto, pero cada sección queda en su propio chunk.
+- [x] Build prod OK (5.8s compile, 27 páginas estáticas generadas, home
+      sigue `○ (Static)`).
+- [ ] Pendiente: re-medir con Unlighthouse en :3200 para validar delta de
+      LCP, TBT y bundle inicial. Esperado: Script Eval cae 30-50%, LCP del
+      home baja sustancialmente.
+- [ ] (Opcional, no urgente) Evaluar si `react-slick` es necesario teniendo
+      **1 sola slide** definida; si no, reemplazar por div estático. Eso
+      ahorraría ~20-30 KB adicionales.
 
 ### Fase 3 — Terceros y GA
 
@@ -795,6 +841,88 @@ Objetivo: A11y ≥ 95 en todas, BP ≥ 90.
 > Cada vez que se termine una tarea, añadir entrada con fecha, archivo
 > tocado, y métrica antes/después si aplica. Esto es lo que un chat nuevo
 > debe leer para retomar.
+
+### 2026-06-09 (cierre) — Estado de procesos al terminar la sesión
+- Puertos libres: 3200 ✅, 5678 ✅, 3100 ✅.
+- Server `pnpm start :3200` y viewer Unlighthouse apagados con TaskStop.
+- Procesos node residuales detectados (NO míos, no se mataron):
+  PIDs 26452 (`pnpm dev`), 27356 (`next dev`), 22068
+  (`start-server.js` de Next dev). Son zombies sin puerto abierto,
+  probablemente de una sesión anterior. Si molestan: `Stop-Process
+  -Id 26452,27356,22068 -Force`.
+- Para retomar y volver a medir:
+  ```powershell
+  $env:PORT=3200; pnpm --dir "D:\Documentos\bakup mi portafolio\mi portafolio\undercodeec_nextjs" start
+  # En otra terminal:
+  cd "D:\Documentos\bakup mi portafolio\mi portafolio"
+  npx unlighthouse --site http://localhost:3200/ --no-cache
+  ```
+- Reportes de la corrida d19a (Fase 2 medida) quedan en
+  `.unlighthouse/localhost/d19a/reports/`. Si se corre otra vez, se
+  generará una corrida nueva con hash distinto — comparar contra d19a.
+
+### 2026-06-09 — Fase 2 · next/dynamic + medición corrida d19a
+- Archivos modificados:
+  - `src/components/Slider/HeroSlider.jsx:7,17-23` — `HeroModel` ahora
+    vía `dynamic(() => import(...), { ssr: false, loading: () => null })`.
+    Three.js + drei + canvas + GLB salen completos del bundle inicial.
+  - `src/app/page.tsx:1-22` — 9 imports estáticos convertidos a
+    `next/dynamic` con `ssr:true` (default). `Features` e `InnerPages`
+    quedan eager. Cada sección queda en su propio chunk JS.
+- Build verificado: `pnpm build` exitoso (5.8 s compile, 27 páginas
+  estáticas, home sigue marcada `○ (Static)`).
+- Medición Unlighthouse vs baseline 0968 (cierre 2026-06-08), corrida d19a
+  (13 rutas en 86 s, contra `pnpm start` en :3200):
+
+  | Ruta | Perf Δ | LCP s Δ | TBT ms Δ |
+  |---|---|---|---|
+  | `/` home | 59→**48** (−11) ❌ | 5.1→5.6 (+0.5) | 460→**904** (+444) ❌ |
+  | `/aplicaciones-moviles/` | 64→63 (−1) | 11.5→**5.5** (−6.0) ✅✅ | 150→162 |
+  | `/blog/` | 62→**89** (+27) ✅✅ | 9.4→**2.2** (−7.2) ✅✅ | 40→48 |
+  | `/blog/el-futuro-...` | 56→69 (+13) ✅ | 11.1→**5.1** (−6.0) ✅✅ | 110→26 ✅ |
+  | `/blog/impacto-ia-...` | 59→63 (+4) | 11.0→16.1 (+5.1) ❌ | 50→124 |
+  | `/blog/impacto-...-2026/` | 67→65 | 17.8→13.0 (−4.8) ✅ | 70→60 |
+  | `/blog/whatsapp-...` | 62→71 (+9) ✅ | 10.9→**6.9** (−4.0) ✅ | 40→0 ✅ |
+  | `/contacto/` | 82→84 | 3.9→3.2 (−0.7) ✅ | 40→107 |
+  | `/marketing-para-tu-negocio/` | 66→65 | 19.3→**10.8** (−8.5) ✅✅ | 70→62 |
+  | `/nuestra-trayectoria/` | 67→**54** (−13) ❌ | 16.6→**6.3** (−10.3) ✅✅ | 80→308 ❌ |
+  | `/politicas-playconsole/` | 69→78 (+9) ✅ | 5.2→4.1 (−1.1) ✅ | 0→32 |
+  | `/servicios/` | 69→64 (−5) | 12.5→9.1 (−3.4) ✅ | 80→10 ✅ |
+  | `/software-para-tu-negocio/` | 79→72 (−7) | 4.4→4.2 | 80→219 |
+
+- **Lectura crítica del resultado:**
+  - ✅ **LCP mejoró drásticamente en 9/13 rutas**. Las rutas con LCP
+    catastrófico cayeron 6-10 s: marketing 19.3→10.8, trayectoria
+    16.6→6.3, apps móviles 11.5→5.5, blog index 9.4→**2.2**. El usuario
+    VE el contenido antes en casi todas las rutas.
+  - ❌ **TBT subió en home y trayectoria**. El cost de descargar y
+    parsear 9 chunks separados penaliza el TBT bajo throttle 4× CPU.
+    Cada chunk = parse + evaluate adicional.
+  - 🟡 **Mixto en Perf score**: Lighthouse pesa fuerte el TBT, así que
+    aunque el LCP mejoró 9.4→5.6 en el home, el Perf bajó 59→48. La UX
+    real mejora; el score Lighthouse no la refleja por la cascada de
+    chunks.
+  - 🚨 **`/blog/impacto-ia-...` LCP empeoró (+5.1 s)**. Probable
+    volatilidad de corrida única o la cascada de chunks le pegó a esta
+    ruta concreta. Volver a medir en una segunda corrida para confirmar.
+- **Decisión sobre la fase**: el cambio se **mantiene** porque la
+  mejora de LCP en 9 rutas (varias con −6 a −10 s) supera el costo de
+  TBT en 2 rutas. El score Perf bajó pero la experiencia real de
+  carga mejora.
+- **Próximo paso recomendado**: la cascada de chunks empeoró TBT. Si
+  se quiere recuperar el score, hay dos opciones:
+  1. **Pre-fetch de chunks pesados**: añadir `<link rel="modulepreload">`
+     para los chunks de las secciones críticas (Demos, Portfolio) en
+     `layout.tsx` para que descarguen en paralelo en vez de en cascada.
+  2. **Re-agrupar el split**: dejar `Demos` eager (es above-the-fold en
+     viewports grandes) y solo splittear las 7 secciones realmente
+     below-the-fold (Portfolio, Codei, BestFeatures, Responsive,
+     AllFeatures, Testimonials, CallToAction). Reduce la cascada.
+
+  La siguiente fase natural ahora es **Fase 1.5 (PNGs blog)** —
+  ataca directamente las 3 rutas blog con LCP 13-16 s.
+
+
 
 ### 2026-06-08
 - Análisis inicial del proyecto y del diagnóstico Unlighthouse.

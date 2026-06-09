@@ -1,20 +1,25 @@
 "use client";
 
 import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import PreviewLayout from "@/layouts/Preview";
 import HeroSlider from "@/components/Slider/HeroSlider";
 import Features from "@/components/Preview/Features";
-import Demos from "@/components/Preview/Demos";
 import InnerPages from "@/components/Preview/InnerPages";
-import BuyNow from "@/components/Preview/BuyNow";
-import Portfolio from "@/components/Preview/Portfolio";
-import Codei from "@/components/Preview/Codei";
-import BestFeatures from "@/components/Preview/BestFeatures";
-import Responsive from "@/components/Preview/Responsive";
-import AllFeatures from "@/components/Preview/AllFeatures";
-import Testimonials from "@/components/Preview/Testimonials";
-import CallToAction from "@/components/Preview/CallToAction";
 import { fixPreviewStylesheetOrder } from "@/common/fixStylesheetsOrder";
+
+// Code-split de secciones below-the-fold. ssr:true (default) mantiene el HTML
+// pre-renderizado intacto — SEO se preserva — pero cada sección queda en su
+// propio chunk JS, sacando peso del bundle inicial del home.
+const Demos = dynamic(() => import("@/components/Preview/Demos"));
+const BuyNow = dynamic(() => import("@/components/Preview/BuyNow"));
+const Portfolio = dynamic(() => import("@/components/Preview/Portfolio"));
+const Codei = dynamic(() => import("@/components/Preview/Codei"));
+const BestFeatures = dynamic(() => import("@/components/Preview/BestFeatures"));
+const Responsive = dynamic(() => import("@/components/Preview/Responsive"));
+const AllFeatures = dynamic(() => import("@/components/Preview/AllFeatures"));
+const Testimonials = dynamic(() => import("@/components/Preview/Testimonials"));
+const CallToAction = dynamic(() => import("@/components/Preview/CallToAction"));
 
 export default function HomePage() {
   useEffect(() => {

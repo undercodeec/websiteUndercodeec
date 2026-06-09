@@ -4,6 +4,7 @@ import Slider from 'react-slick';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Palette } from 'lucide-react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { usePageReady } from '@/common/usePageReady';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -13,7 +14,14 @@ import './slider.css';
 const backgroundPattern = '/assets/slider/6fa818bb935c0e2a1081f259d84df226b237a184.png';
 const phoneImageFloating = '/assets/slider/27243ea8ef847ba47c211ec9091848db1ffe8454.png';
 const mobileImage = '/assets/slider/66f0344ac49f2d8983e5df4c83caa818ebfb5c45.png';
-import HeroModel from '@/components/3D/HeroModel';
+
+// Saca Three.js + drei + GLB del bundle inicial. En mobile/!mounted el
+// fallback <Image mobileImage> ya cubre la espera; en desktop hay un
+// pequeño delay hasta que el chunk descarga.
+const HeroModel = dynamic(() => import('@/components/3D/HeroModel'), {
+  ssr: false,
+  loading: () => null,
+});
 
 const slides = [
   {
