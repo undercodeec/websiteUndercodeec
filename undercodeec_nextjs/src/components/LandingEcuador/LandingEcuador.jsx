@@ -1012,101 +1012,80 @@ const LandingEcuador = () => {
         {/* SERVICES — Galaxy Timeline */}
         <section
           id="servicios"
-          style={{ background: "#080612", paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden", color: "#fff" }}
+          style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden" }}
           onMouseMove={(e) => {
             const r = e.currentTarget.getBoundingClientRect();
             galaxyMouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
           }}
         >
-          {/* Backgrounds */}
-          <div className="galaxy-starfield" />
-          <div className="galaxy-nebula-a" />
-          <div className="galaxy-nebula-b" />
-          <div className="galaxy-nebula-c" />
           {/* Particle canvas */}
           <canvas ref={galaxyCanvasRef} style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }} />
 
           <div className="container" style={{ position: "relative", zIndex: 2 }}>
             {/* Header */}
             <div className="text-center mb-5 animate-fadeUp">
-              <span style={{ textTransform: "uppercase", fontWeight: 700, background: "linear-gradient(135deg, #c084fc, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
+              <span style={{ textTransform: "uppercase", fontWeight: 700, background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
                 Qué hacemos
               </span>
-              <h2 style={{ color: "#fff", fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700, marginTop: "8px", marginBottom: "12px" }}>
+              <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700, marginTop: "8px", marginBottom: "12px" }}>
                 Servicios digitales para empresas en Ecuador
               </h2>
-              <p style={{ color: "rgba(255,255,255,.6)", maxWidth: "680px", fontSize: "17px", margin: "0 auto" }}>
+              <p style={{ color: "#6b7280", maxWidth: "680px", fontSize: "17px", margin: "0 auto" }}>
                 Todo lo que tu empresa necesita para crecer online, con un único equipo y sin intermediarios.
               </p>
             </div>
 
-            {/* Horizontal timeline */}
-            <div className="galaxy-timeline">
-              {services.map((s, i) => (
-                <div
-                  key={i}
-                  className={`galaxy-node${hoveredService === i ? " galaxy-node--active" : ""}`}
-                  onMouseEnter={() => setHoveredService(i)}
-                  onMouseLeave={() => setHoveredService(null)}
-                >
-                  <div className="galaxy-node__ring" />
-                  <div className="galaxy-node__dot">
-                    <i className={s.icon} />
-                  </div>
-                  <p className="galaxy-node__label">{s.title}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Expanded detail panel */}
-            <div className="galaxy-detail">
-              {services.map((s, i) => (
-                <div
-                  key={i}
-                  className={`galaxy-detail__card${hoveredService === i ? " galaxy-detail__card--visible" : ""}`}
-                >
-                  {/* Left column */}
-                  <div className="galaxy-detail__left">
-                    <div className="galaxy-icon-wrap">
+            {/* Timeline + panel: onMouseLeave aquí para que mover al panel no cierre */}
+            <div onMouseLeave={() => setHoveredService(null)}>
+              {/* Horizontal timeline */}
+              <div className="galaxy-timeline">
+                {services.map((s, i) => (
+                  <div
+                    key={i}
+                    className={`galaxy-node${hoveredService === i ? " galaxy-node--active" : ""}`}
+                    onMouseEnter={() => setHoveredService(i)}
+                  >
+                    <div className="galaxy-node__ring" />
+                    <div className="galaxy-node__dot">
                       <i className={s.icon} />
                     </div>
-                    <h3 style={{ color: "#fff", fontSize: "22px", fontWeight: 700, marginBottom: "12px", lineHeight: 1.3 }}>
-                      {s.title}
-                    </h3>
-                    <p style={{ color: "rgba(255,255,255,.68)", fontSize: "15px", lineHeight: 1.75, margin: 0 }}>
-                      {s.text}
-                    </p>
+                    <p className="galaxy-node__label">{s.title}</p>
                   </div>
-                  {/* Vertical divider */}
-                  <div className="galaxy-vdivider" />
-                  {/* Right column */}
-                  <div className="galaxy-detail__right">
-                    <ul className="galaxy-features">
-                      {s.features.map((f, j) => (
-                        <li key={j}>{f}</li>
-                      ))}
-                    </ul>
-                    <Link
-                      href="/contacto"
-                      style={{
-                        display: "inline-block",
-                        marginTop: "24px",
-                        background: "linear-gradient(135deg, #150e23, #600B56)",
-                        color: "#fff",
-                        borderRadius: "50px",
-                        padding: "11px 28px",
-                        fontWeight: 600,
-                        fontSize: "15px",
-                        textDecoration: "none",
-                        boxShadow: "0 4px 20px rgba(96,11,86,.45)",
-                        transition: "opacity .2s",
-                      }}
-                    >
-                      Solicitar presupuesto
-                    </Link>
+                ))}
+              </div>
+
+              {/* Expanded detail panel */}
+              <div className="galaxy-detail">
+                {services.map((s, i) => (
+                  <div
+                    key={i}
+                    className={`galaxy-detail__card${hoveredService === i ? " galaxy-detail__card--visible" : ""}`}
+                  >
+                    {/* Left column */}
+                    <div className="galaxy-detail__left">
+                      <div className="galaxy-icon-wrap">
+                        <i className={s.icon} />
+                      </div>
+                      <h3 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "12px", lineHeight: 1.3, color: "#150e23" }}>
+                        {s.title}
+                      </h3>
+                      <p style={{ color: "#4b5563", fontSize: "15px", lineHeight: 1.75, margin: 0 }}>
+                        {s.text}
+                      </p>
+                    </div>
+                    {/* Vertical divider */}
+                    <div className="galaxy-vdivider" />
+                    {/* Right column */}
+                    <div className="galaxy-detail__right">
+                      <ul className="galaxy-features">
+                        {s.features.map((f, j) => (
+                          <li key={j}>{f}</li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </section>

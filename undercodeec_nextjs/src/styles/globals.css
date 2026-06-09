@@ -255,21 +255,21 @@ html, body {
   margin-top: 14px;
   font-size: 11px; font-weight: 600;
   text-align: center; line-height: 1.4;
-  color: rgba(255,255,255,.45);
+  color: rgba(0,0,0,.45);
   transition: color .3s;
   max-width: 108px; letter-spacing: .02em;
 }
-.galaxy-node--active .galaxy-node__label { color: rgba(255,255,255,.95); }
+.galaxy-node--active .galaxy-node__label { color: rgba(0,0,0,.85); }
 
 /* ---- Detail Panel ---- */
 .galaxy-detail { min-height: 240px; position: relative; }
 .galaxy-detail__card {
   width: 100%;
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(180,40,160,.22);
+  background: #fff;
+  border: 1px solid rgba(96,11,86,.15);
   border-radius: 20px;
   padding: 36px 40px;
-  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 40px rgba(96,11,86,.08);
   display: none;
   gap: 0;
 }
@@ -302,7 +302,7 @@ html, body {
 }
 .galaxy-features li {
   display: flex; align-items: flex-start; gap: 10px;
-  font-size: 15px; color: rgba(255,255,255,.78); line-height: 1.55;
+  font-size: 15px; color: #374151; line-height: 1.55;
 }
 .galaxy-features li::before {
   content: '✦';
