@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { animate, stagger } from "animejs";
 import "@/components/Slider/slider.css";
 
@@ -628,7 +629,355 @@ const FeaturesParticles = ({ active }) => {
   );
 };
 
+const VideoShowcase = () => {
+  const sectionRef = useRef(null);
+  const videoWrapRef = useRef(null);
+  const glowRef = useRef(null);
+  const starCanvasRef = useRef(null);
+  const mouseRef = useRef({ x: 0.5, y: 0.5 });
+  const starAnimRef = useRef(null);
+
+  // Starfield canvas with mouse parallax
+  useEffect(() => {
+    const canvas = starCanvasRef.current;
+    const section = sectionRef.current;
+    if (!canvas || !section) return;
+
+    const ctx = canvas.getContext("2d");
+    let w, h;
+
+    const resize = () => {
+      w = section.offsetWidth;
+      h = section.offsetHeight;
+      canvas.width = w;
+      canvas.height = h;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Create star layers (3 depth layers for parallax)
+    const layers = [
+      { count: 120, speed: 0.3, sizeMin: 0.4, sizeMax: 1.2, alpha: 0.3 },
+      { count: 80, speed: 0.6, sizeMin: 0.8, sizeMax: 2.0, alpha: 0.5 },
+      { count: 40, speed: 1.0, sizeMin: 1.2, sizeMax: 3.0, alpha: 0.8 },
+    ];
+
+    const stars = [];
+    layers.forEach((layer) => {
+      for (let i = 0; i < layer.count; i++) {
+        stars.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          baseX: Math.random() * w,
+          baseY: Math.random() * h,
+          size: layer.sizeMin + Math.random() * (layer.sizeMax - layer.sizeMin),
+          speed: layer.speed,
+          alpha: layer.alpha * (0.5 + Math.random() * 0.5),
+          twinkleSpeed: 0.005 + Math.random() * 0.015,
+          twinkleOffset: Math.random() * Math.PI * 2,
+          hue: Math.random() > 0.7 ? 290 + Math.random() * 30 : 0, // some purple-tinted
+        });
+      }
+    });
+
+    // Shooting stars
+    const shootingStars = [];
+    let lastShoot = 0;
+
+    const spawnShootingStar = () => {
+      shootingStars.push({
+        x: Math.random() * w * 0.8,
+        y: Math.random() * h * 0.3,
+        vx: 4 + Math.random() * 6,
+        vy: 2 + Math.random() * 3,
+        life: 1,
+        length: 40 + Math.random() * 60,
+        size: 1 + Math.random() * 1.5,
+      });
+    };
+
+    const frame = (ts) => {
+      ctx.clearRect(0, 0, w, h);
+
+      const mx = mouseRef.current.x;
+      const my = mouseRef.current.y;
+      const offsetX = (mx - 0.5) * 2; // -1 to 1
+      const offsetY = (my - 0.5) * 2;
+
+      // Draw stars
+      for (let i = 0; i < stars.length; i++) {
+        const s = stars[i];
+        const parallaxX = offsetX * 30 * s.speed;
+        const parallaxY = offsetY * 20 * s.speed;
+        s.x = s.baseX + parallaxX;
+        s.y = s.baseY + parallaxY;
+
+        // Twinkle
+        const twinkle = 0.5 + 0.5 * Math.sin(ts * s.twinkleSpeed + s.twinkleOffset);
+        const finalAlpha = s.alpha * twinkle;
+
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        if (s.hue > 0) {
+          ctx.fillStyle = `hsla(${s.hue}, 80%, 40%, ${finalAlpha})`; // Darker colored stars
+        } else {
+          ctx.fillStyle = `rgba(96,11,86,${finalAlpha})`; // Dark purple instead of white
+        }
+        ctx.fill();
+
+        // Glow for bigger stars
+        if (s.size > 1.8) {
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.size * 3, 0, Math.PI * 2);
+          ctx.fillStyle = s.hue > 0
+            ? `hsla(${s.hue}, 80%, 40%, ${finalAlpha * 0.15})`
+            : `rgba(96,11,86,${finalAlpha * 0.15})`;
+          ctx.fill();
+        }
+      }
+
+      // Draw connections between nearby stars (layer 3 only)
+      const layer3 = stars.filter((s) => s.speed === 1.0);
+      for (let i = 0; i < layer3.length; i++) {
+        for (let j = i + 1; j < layer3.length; j++) {
+          const dx = layer3[i].x - layer3[j].x;
+          const dy = layer3[i].y - layer3[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(layer3[i].x, layer3[i].y);
+            ctx.lineTo(layer3[j].x, layer3[j].y);
+            ctx.strokeStyle = `rgba(180,40,160,${0.12 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Shooting stars
+      if (ts - lastShoot > 4000 + Math.random() * 6000) {
+        spawnShootingStar();
+        lastShoot = ts;
+      }
+      for (let i = shootingStars.length - 1; i >= 0; i--) {
+        const ss = shootingStars[i];
+        ss.x += ss.vx;
+        ss.y += ss.vy;
+        ss.life -= 0.018;
+        if (ss.life <= 0) { shootingStars.splice(i, 1); continue; }
+
+        const grad = ctx.createLinearGradient(
+          ss.x, ss.y,
+          ss.x - ss.vx * ss.length * 0.15, ss.y - ss.vy * ss.length * 0.15
+        );
+        grad.addColorStop(0, `rgba(96,11,86,${ss.life * 0.9})`); // Dark purple head
+        grad.addColorStop(1, `rgba(180,40,160,0)`);
+        ctx.beginPath();
+        ctx.moveTo(ss.x, ss.y);
+        ctx.lineTo(ss.x - ss.vx * ss.length * 0.15, ss.y - ss.vy * ss.length * 0.15);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = ss.size * ss.life;
+        ctx.lineCap = "round";
+        ctx.stroke();
+      }
+
+      starAnimRef.current = requestAnimationFrame(frame);
+    };
+
+    starAnimRef.current = requestAnimationFrame(frame);
+
+    return () => {
+      cancelAnimationFrame(starAnimRef.current);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
+  // Video reveal animation
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const section = sectionRef.current;
+    const videoWrap = videoWrapRef.current;
+    const glow = glowRef.current;
+    if (!section || !videoWrap) return;
+
+    videoWrap.style.opacity = "0";
+    videoWrap.style.transform = "scale(0.82) translateY(60px) rotateX(8deg)";
+    videoWrap.style.filter = "blur(8px)";
+    if (glow) {
+      glow.style.opacity = "0";
+      glow.style.transform = "scale(0.6)";
+    }
+
+    if (reduced) {
+      videoWrap.style.opacity = "1";
+      videoWrap.style.transform = "none";
+      videoWrap.style.filter = "none";
+      if (glow) { glow.style.opacity = "1"; glow.style.transform = "none"; }
+      return;
+    }
+
+    let triggered = false;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !triggered) {
+            triggered = true;
+            observer.unobserve(section);
+
+            animate(videoWrap, {
+              opacity: [0, 1],
+              scale: [0.82, 1],
+              translateY: [60, 0],
+              rotateX: [8, 0],
+              filter: ["blur(8px)", "blur(0px)"],
+              duration: 1200,
+              ease: "outExpo",
+            });
+
+            if (glow) {
+              animate(glow, {
+                opacity: [0, 0.7],
+                scale: [0.6, 1.05],
+                duration: 1400,
+                delay: 300,
+                ease: "outExpo",
+              });
+              setTimeout(() => {
+                animate(glow, {
+                  scale: [1.05, 1.12, 1.05],
+                  opacity: [0.7, 0.9, 0.7],
+                  duration: 3000,
+                  ease: "inOutSine",
+                  loop: true,
+                });
+              }, 1700);
+            }
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  const handleMouseMove = (e) => {
+    const rect = sectionRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseRef.current = {
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height,
+    };
+  };
+
+  const videoRef = useRef(null);
+  const wasMutedBeforeRef = useRef(false);
+
+  // Mute global audio when video plays, restore when paused
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handlePlay = () => {
+      if (typeof window === "undefined") return;
+      // Remember if audio was already muted before we touched it
+      wasMutedBeforeRef.current = localStorage.getItem("isGlobalMuted") === "true";
+      if (!wasMutedBeforeRef.current) {
+        localStorage.setItem("isGlobalMuted", "true");
+        window.dispatchEvent(new Event("storage"));
+        // Pause any playing audio
+        if (window.currentAudio) window.currentAudio.pause();
+        if (window.preloaderAudio) window.preloaderAudio.pause();
+      }
+    };
+
+    const handlePause = () => {
+      if (typeof window === "undefined") return;
+      // Only restore if we were the ones who muted it
+      if (!wasMutedBeforeRef.current) {
+        localStorage.setItem("isGlobalMuted", "false");
+        window.dispatchEvent(new Event("storage"));
+      }
+    };
+
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("pause", handlePause);
+    video.addEventListener("ended", handlePause);
+
+    return () => {
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("pause", handlePause);
+      video.removeEventListener("ended", handlePause);
+    };
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      onMouseMove={handleMouseMove}
+      style={{
+        background: "linear-gradient(180deg, #ffffff 0%, #ffffff 42%, #f8f5f8 48%, #f5f1f5 50%, #f8f5f8 52%, #ffffff 58%, #ffffff 100%)",
+        paddingTop: "100px",
+        paddingBottom: "200px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Interactive starfield canvas */}
+      <canvas
+        ref={starCanvasRef}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+
+      <div className="container" style={{ position: "relative", zIndex: 2 }}>
+        <div
+          ref={videoWrapRef}
+          style={{
+            maxWidth: "960px",
+            margin: "0 auto",
+            borderRadius: "20px",
+            overflow: "hidden",
+            boxShadow: "0 30px 80px rgba(96,11,86,0.5), 0 0 60px rgba(180,40,160,0.2)",
+            border: "1px solid rgba(180,40,160,0.25)",
+            perspective: "1000px",
+            transformStyle: "preserve-3d",
+            willChange: "transform, opacity, filter",
+          }}
+        >
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            controls
+            loop
+            playsInline
+            preload="metadata"
+            style={{
+              width: "100%",
+              height: "auto",
+              display: "block",
+            }}
+          >
+            <source src="/assets/img/video/video-undercode-ec-1.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const LandingEcuador = () => {
+  const router = useRouter();
   const [openFaq, setOpenFaq] = useState(0);
   const [activePricingTab, setActivePricingTab] = useState("web");
   const [hoveredService, setHoveredService] = useState(null);
@@ -638,6 +987,15 @@ const LandingEcuador = () => {
   const galaxyCanvasRef = useRef(null);
   const galaxyAnimRef = useRef(null);
   const galaxyMouseRef = useRef({ x: 0, y: 0 });
+
+  const handleVerPortafolios = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    sessionStorage.setItem("scrollToDemos", "true");
+    // Mark preloader as already seen so it doesn't block the scroll
+    sessionStorage.setItem("preloaderShown_home", "true");
+    router.push("/");
+  };
 
   // Entrada en stagger del hero
   useEffect(() => {
@@ -995,21 +1353,23 @@ const LandingEcuador = () => {
                   >
                     Pide tu presupuesto gratis
                   </a>
-                  <a
-                    href="#servicios"
-                    data-hero-tilt
-                    className="btn btn-lg fw-bold px-4 py-3 hero-cta-tilt"
-                    style={{
-                      borderRadius: "50px",
-                      backgroundColor: "rgb(96, 11, 86)",
-                      color: "#fff",
-                      border: "none",
-                      transformStyle: "preserve-3d",
-                      willChange: "transform",
-                    }}
-                  >
-                    Ver servicios
-                  </a>
+<button
+                     type="button"
+                     onClick={handleVerPortafolios}
+                     data-hero-tilt
+                     className="btn btn-lg fw-bold px-4 py-3 hero-cta-tilt"
+                     style={{
+                       borderRadius: "50px",
+                       backgroundColor: "rgb(96, 11, 86)",
+                       color: "#fff",
+                       border: "none",
+                       transformStyle: "preserve-3d",
+                       willChange: "transform",
+                       cursor: "pointer",
+                     }}
+                   >
+                     Ver portafolios
+                   </button>
                 </div>
                 <div
                   data-hero-anim
@@ -1163,6 +1523,9 @@ const LandingEcuador = () => {
             </div>
           </div>
         </section>
+
+        {/* VIDEO SHOWCASE */}
+        <VideoShowcase />
 
         {/* WHY US */}
         <section className="py-5" style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px" }}>
@@ -1338,13 +1701,16 @@ const LandingEcuador = () => {
               Cuéntanos qué necesitas y en 24-48 h tienes un presupuesto cerrado en dólares, sin compromiso. Atendemos Quito, Sangolquí - Valle de los Chillos, Guayaquil, Cuenca y todo el Ecuador.
             </p>
             <div className="d-flex flex-wrap gap-3 justify-content-center animate-scaleUp" style={{ transitionDelay: '250ms' }}>
-              <Link
-                href="/contacto"
+              <a
+                href="https://wa.me/5930979046329?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20desarrollo%20de%20p%C3%A1ginas%20web%20y%20los%20servicios%20que%20ofrecen.%20%C2%BFPodr%C3%ADan%20ayudarme%3F"
                 className="btn btn-light btn-lg fw-bold px-4 py-3"
                 style={{ borderRadius: "50px", color: "#600b56" }}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                Formulario de contacto
-              </Link>
+                <i className="bi bi-whatsapp me-2"></i>
+                Chatear por WhatsApp
+              </a>
               <a
                 href="tel:+593979046329"
                 className="btn btn-outline-light btn-lg px-4 py-3"

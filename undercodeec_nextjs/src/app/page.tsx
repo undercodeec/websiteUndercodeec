@@ -7,6 +7,7 @@ import HeroSlider from "@/components/Slider/HeroSlider";
 import Features from "@/components/Preview/Features";
 import InnerPages from "@/components/Preview/InnerPages";
 import { fixPreviewStylesheetOrder } from "@/common/fixStylesheetsOrder";
+import { usePageReady } from "@/common/usePageReady";
 
 // Code-split de secciones below-the-fold. ssr:true (default) mantiene el HTML
 // pre-renderizado intacto — SEO se preserva — pero cada sección queda en su
@@ -22,6 +23,8 @@ const Testimonials = dynamic(() => import("@/components/Preview/Testimonials"));
 const CallToAction = dynamic(() => import("@/components/Preview/CallToAction"));
 
 export default function HomePage() {
+  const isReady = usePageReady();
+
   useEffect(() => {
     document.body.classList.add("index-main");
     return () => document.body.classList.remove("index-main");
@@ -30,6 +33,26 @@ export default function HomePage() {
   useEffect(() => {
     fixPreviewStylesheetOrder();
   }, []);
+
+  useEffect(() => {
+    if (isReady && sessionStorage.getItem("scrollToDemos")) {
+      sessionStorage.removeItem("scrollToDemos");
+      // Use an interval to keep checking if the Demos component has mounted
+      const maxAttempts = 40;
+      let attempts = 0;
+      
+      const checkAndScroll = setInterval(() => {
+        attempts++;
+        const section = document.getElementById("demos");
+        if (section) {
+          clearInterval(checkAndScroll);
+          section.scrollIntoView({ behavior: "smooth" });
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkAndScroll);
+        }
+      }, 150);
+    }
+  }, [isReady]);
 
   return (
     <PreviewLayout>
