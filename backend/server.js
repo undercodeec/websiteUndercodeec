@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const cheerio = require('cheerio'); // Fallback scraping
@@ -266,6 +267,43 @@ function safeStringEqual(a, b) {
 // ============================================================================
 // ADMIN AUTH: rate-limit + session store
 // ============================================================================
+
+const BCRYPT_SALT_ROUNDS = 12;
+
+// Obtiene el usuario admin desde la DB (modelo de admin único)
+async function getAdminUser() {
+  const result = await db.query('SELECT id, email, password_hash FROM admin_users ORDER BY id ASC LIMIT 1');
+  return result.rows[0] || null;
+}
+
+// Migración inicial: si la tabla admin_users está vacía, crea el admin desde
+// ADMIN_EMAIL/ADMIN_PASSWORD del .env (hasheando la contraseña con bcrypt).
+// Tras la primera ejecución exitosa, ADMIN_PASSWORD puede (y debe) borrarse del .env.
+async function ensureAdminUser() {
+  try {
+    const existing = await getAdminUser();
+    if (existing) {
+      if (process.env.ADMIN_PASSWORD) {
+        console.warn('⚠️ ADMIN_PASSWORD sigue presente en el .env pero ya NO se usa (las credenciales viven en la tabla admin_users). Elimínala del .env.');
+      }
+      return;
+    }
+    const seedEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
+    const seedPassword = process.env.ADMIN_PASSWORD;
+    if (!seedEmail || !seedPassword) {
+      console.error('❌ No existe usuario admin en la DB y no hay ADMIN_EMAIL/ADMIN_PASSWORD en el .env para crearlo. El login admin no funcionará.');
+      return;
+    }
+    const hash = await bcrypt.hash(seedPassword, BCRYPT_SALT_ROUNDS);
+    await db.query('INSERT INTO admin_users (email, password_hash) VALUES ($1, $2)', [seedEmail, hash]);
+    console.log('✅ Usuario admin migrado a la tabla admin_users (password hasheado con bcrypt).');
+    console.warn('⚠️ IMPORTANTE: elimina la línea ADMIN_PASSWORD del archivo .env — ya no es necesaria.');
+  } catch (err) {
+    console.error('❌ Error inicializando usuario admin:', err.message);
+  }
+}
+// db.js crea las tablas al conectar; pequeño delay para que admin_users exista
+setTimeout(() => { ensureAdminUser(); }, 3000);
 
 // Sesiones de admin: token aleatorio → { expiresAt }
 const adminSessions = new Map();
@@ -2449,47 +2487,6 @@ const adminAuth = (req, res, next) => {
 // Verification Codes Store
 let activeVerificationCodes = {};
 
-// Helper to update env file persistently — sanitiza valor para prevenir env-injection
-const fs = require('fs');
-const path = require('path');
-const updateEnvFile = (key, value) => {
-  try {
-    // Validar key (solo alfanumérico + underscore — defensa en profundidad)
-    if (!/^[A-Z_][A-Z0-9_]*$/i.test(key)) {
-      throw new Error('Invalid env key');
-    }
-    // Validar value: ningún caracter de control (newline, CR, NUL, etc.) que permita inyectar variables
-    if (typeof value !== 'string') {
-      throw new Error('Env value must be a string');
-    }
-    // eslint-disable-next-line no-control-regex
-    if (/[\x00-\x1F\x7F]/.test(value)) {
-      throw new Error('Env value contains control characters');
-    }
-    if (value.length > 256) {
-      throw new Error('Env value too long');
-    }
-    const envPath = path.join(__dirname, '.env');
-    if (!fs.existsSync(envPath)) return;
-    let envContent = fs.readFileSync(envPath, 'utf8');
-    // Escape regex special chars del key (defensa en profundidad)
-    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`^${escapedKey}=.*`, 'm');
-    if (regex.test(envContent)) {
-      envContent = envContent.replace(regex, `${key}=${value}`);
-    } else {
-      if (!envContent.endsWith('\n')) envContent += '\n';
-      envContent += `${key}=${value}\n`;
-    }
-    fs.writeFileSync(envPath, envContent, 'utf8');
-    console.log(`✅ Persistently updated ${key} in .env file`);
-    return true;
-  } catch (error) {
-    console.error(`❌ Error updating .env file for ${key}:`, error.message);
-    return false;
-  }
-};
-
 // Validación de contraseña fuerte: 12+ chars, sin caracteres de control, mezcla mínima
 function validateNewPassword(pwd) {
   if (typeof pwd !== 'string') return { ok: false, error: 'La contraseña debe ser texto' };
@@ -2519,18 +2516,36 @@ app.post('/api/admin/login', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Verificación de ReCAPTCHA fallida' });
   }
 
-  const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
+  // 2. Obtener admin desde la DB (credenciales ya NO viven en el .env)
+  let adminUser;
+  try {
+    adminUser = await getAdminUser();
+  } catch (err) {
+    console.error('Error consultando admin_users:', err.message);
+    return res.status(500).json({ success: false, error: 'Error de configuración del servidor' });
+  }
+  if (!adminUser) {
+    console.error('No existe usuario admin en la tabla admin_users');
+    return res.status(500).json({ success: false, error: 'Error de configuración del servidor' });
+  }
+
+  const adminEmail = (adminUser.email || '').toLowerCase();
   const normalizedEmail = typeof email === 'string' ? email.toLowerCase() : '';
 
-  // 2. Rate-limit por email (incluye intentos contra emails inválidos sobre la cuenta legítima)
+  // 3. Rate-limit por email (incluye intentos contra emails inválidos sobre la cuenta legítima)
   const lockKey = normalizedEmail || 'unknown';
   if (isLocked(adminLoginAttempts, lockKey)) {
     return res.status(429).json({ success: false, error: 'Demasiados intentos. Intenta de nuevo en 15 minutos.' });
   }
 
-  // 3. Verificar credenciales en tiempo constante
+  // 4. Verificar credenciales: email en tiempo constante, password contra hash bcrypt.
+  // bcrypt.compare se ejecuta siempre (aunque el email sea inválido) para no filtrar
+  // por timing si el email es correcto o no.
   const validEmail = safeStringEqual(normalizedEmail, adminEmail);
-  const validPassword = safeStringEqual(typeof password === 'string' ? password : '', process.env.ADMIN_PASSWORD || '');
+  const validPassword = await bcrypt.compare(
+    typeof password === 'string' ? password : '',
+    adminUser.password_hash
+  );
 
   if (!validEmail || !validPassword) {
     registerAttempt(adminLoginAttempts, lockKey, ADMIN_LOGIN_MAX_ATTEMPTS, ADMIN_LOGIN_LOCK_MS);
@@ -2574,9 +2589,21 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 // Admin Verify Code (Step 2: 2FA Verification)
-app.post('/api/admin/verify', (req, res) => {
+app.post('/api/admin/verify', async (req, res) => {
   const { email, password, code } = req.body || {};
-  const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase();
+
+  let adminUser;
+  try {
+    adminUser = await getAdminUser();
+  } catch (err) {
+    console.error('Error consultando admin_users:', err.message);
+    return res.status(500).json({ success: false, error: 'Error de configuración del servidor' });
+  }
+  if (!adminUser) {
+    return res.status(500).json({ success: false, error: 'Error de configuración del servidor' });
+  }
+
+  const adminEmail = (adminUser.email || '').toLowerCase();
   const normalizedEmail = typeof email === 'string' ? email.toLowerCase() : '';
 
   // Rate-limit por email
@@ -2585,9 +2612,12 @@ app.post('/api/admin/verify', (req, res) => {
     return res.status(429).json({ success: false, error: 'Demasiados intentos. Solicita un nuevo código en 15 minutos.' });
   }
 
-  // Credenciales en tiempo constante
+  // Email en tiempo constante, password contra hash bcrypt
   const validEmail = safeStringEqual(normalizedEmail, adminEmail);
-  const validPassword = safeStringEqual(typeof password === 'string' ? password : '', process.env.ADMIN_PASSWORD || '');
+  const validPassword = await bcrypt.compare(
+    typeof password === 'string' ? password : '',
+    adminUser.password_hash
+  );
 
   if (!validEmail || !validPassword) {
     registerAttempt(adminVerifyAttempts, lockKey, ADMIN_VERIFY_MAX_ATTEMPTS, ADMIN_VERIFY_LOCK_MS);
@@ -2635,15 +2665,27 @@ app.post('/api/admin/logout', adminAuth, (req, res) => {
   return res.json({ success: true });
 });
 
-// Admin Change Password (Settings Tab)
-app.post('/api/admin/change-password', adminAuth, (req, res) => {
+// Admin Change Password (Settings Tab) — el hash bcrypt se guarda en la DB, nunca en el .env
+app.post('/api/admin/change-password', adminAuth, async (req, res) => {
   const { currentPassword, newPassword } = req.body || {};
 
   if (typeof currentPassword !== 'string' || typeof newPassword !== 'string') {
     return res.status(400).json({ success: false, error: 'Datos inválidos' });
   }
 
-  if (!safeStringEqual(currentPassword, process.env.ADMIN_PASSWORD || '')) {
+  let adminUser;
+  try {
+    adminUser = await getAdminUser();
+  } catch (err) {
+    console.error('Error consultando admin_users:', err.message);
+    return res.status(500).json({ success: false, error: 'Error de configuración del servidor' });
+  }
+  if (!adminUser) {
+    return res.status(500).json({ success: false, error: 'Error de configuración del servidor' });
+  }
+
+  const currentValid = await bcrypt.compare(currentPassword, adminUser.password_hash);
+  if (!currentValid) {
     return res.status(400).json({ success: false, error: 'La contraseña actual es incorrecta' });
   }
 
@@ -2652,16 +2694,18 @@ app.post('/api/admin/change-password', adminAuth, (req, res) => {
     return res.status(400).json({ success: false, error: validation.error });
   }
 
-  if (safeStringEqual(newPassword, process.env.ADMIN_PASSWORD || '')) {
+  const sameAsCurrent = await bcrypt.compare(newPassword, adminUser.password_hash);
+  if (sameAsCurrent) {
     return res.status(400).json({ success: false, error: 'La nueva contraseña debe ser diferente a la actual' });
   }
 
-  // Persistir cambio (updateEnvFile valida que no haya caracteres de control)
-  const updated = updateEnvFile('ADMIN_PASSWORD', newPassword);
-  if (!updated) {
+  try {
+    const newHash = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+    await db.query('UPDATE admin_users SET password_hash = $1 WHERE id = $2', [newHash, adminUser.id]);
+  } catch (err) {
+    console.error('Error actualizando password_hash:', err.message);
     return res.status(500).json({ success: false, error: 'No se pudo actualizar la contraseña' });
   }
-  process.env.ADMIN_PASSWORD = newPassword;
 
   // Por seguridad, invalidar TODAS las sesiones admin existentes excepto la actual
   const authHeader = req.headers.authorization || '';
@@ -2671,7 +2715,7 @@ app.post('/api/admin/change-password', adminAuth, (req, res) => {
   }
 
   // Notificar por email al admin (best-effort)
-  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminEmail = adminUser.email;
   transporter.sendMail({
     from: `"Undercodeec Admin Security" <${process.env.EMAIL_USER}>`,
     to: adminEmail,
@@ -2688,13 +2732,41 @@ app.post('/api/admin/change-password', adminAuth, (req, res) => {
   return res.json({ success: true, message: 'Contraseña actualizada correctamente de forma persistente' });
 });
 
-// Admin Dashboard - Transferencias
-app.get('/api/admin/transfers', adminAuth, async (req, res) => {
+// Admin Dashboard - Pagos (todos: tarjeta + transferencia)
+app.get('/api/admin/payments', adminAuth, async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM orders WHERE payment_method = 'transferencia' ORDER BY created_at DESC");
+    const result = await db.query('SELECT * FROM orders ORDER BY created_at DESC');
     res.json({ success: true, data: result.rows });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Error fetching transfers' });
+    console.error('Error fetching payments:', error.message);
+    res.status(500).json({ success: false, error: 'Error fetching payments' });
+  }
+});
+
+// Admin Dashboard - Cambiar estado de un pago (aprobar/rechazar transferencias)
+const VALID_PAYMENT_STATUSES = ['pending', 'approved', 'rejected'];
+app.post('/api/admin/payments/:id/status', adminAuth, async (req, res) => {
+  const orderId = Number(req.params.id);
+  const { status } = req.body || {};
+
+  if (!Number.isInteger(orderId) || orderId <= 0) {
+    return res.status(400).json({ success: false, error: 'ID de pago inválido' });
+  }
+  if (!VALID_PAYMENT_STATUSES.includes(status)) {
+    return res.status(400).json({ success: false, error: 'Estado inválido. Usa: pending, approved o rejected' });
+  }
+
+  try {
+    const existing = await db.query('SELECT id FROM orders WHERE id = $1', [orderId]);
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Pago no encontrado' });
+    }
+    await db.query('UPDATE orders SET payment_status = $1 WHERE id = $2', [status, orderId]);
+    const updated = await db.query('SELECT * FROM orders WHERE id = $1', [orderId]);
+    res.json({ success: true, data: updated.rows[0] });
+  } catch (error) {
+    console.error('Error updating payment status:', error.message);
+    res.status(500).json({ success: false, error: 'Error al actualizar el estado del pago' });
   }
 });
 

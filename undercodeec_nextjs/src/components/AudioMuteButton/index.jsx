@@ -127,7 +127,7 @@ const AudioMuteButton = () => {
           ))}
         </div>
         <span className="mute-text">
-          {soundEnabled ? 'Sound On' : 'Muted'}
+          {soundEnabled ? 'Silenciar Sonido' : 'Muted'}
         </span>
       </button>
     </>

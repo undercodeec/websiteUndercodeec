@@ -48,8 +48,49 @@ async function initDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
+    const createAdminUsersTable = `
+      CREATE TABLE IF NOT EXISTS admin_users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `;
+    const createInvoicesTable = `
+      CREATE TABLE IF NOT EXISTS invoices (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        order_id INT NULL,
+        ambiente TINYINT NOT NULL,
+        estab VARCHAR(3) NOT NULL,
+        pto_emi VARCHAR(3) NOT NULL,
+        secuencial INT NOT NULL,
+        clave_acceso VARCHAR(49) UNIQUE,
+        estado VARCHAR(30) NOT NULL DEFAULT 'generada',
+        tipo_identificacion VARCHAR(2) NOT NULL,
+        identificacion VARCHAR(20) NOT NULL,
+        razon_social VARCHAR(300) NOT NULL,
+        direccion VARCHAR(300),
+        email VARCHAR(255),
+        telefono VARCHAR(50),
+        items JSON NOT NULL,
+        forma_pago VARCHAR(2) NOT NULL,
+        subtotal DECIMAL(12,2) NOT NULL,
+        iva DECIMAL(12,2) NOT NULL,
+        total DECIMAL(12,2) NOT NULL,
+        numero_autorizacion VARCHAR(49),
+        fecha_autorizacion DATETIME NULL,
+        mensajes_sri JSON,
+        xml_firmado LONGTEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_serie_secuencial (ambiente, estab, pto_emi, secuencial)
+      )
+    `;
     await pool.query(createOrdersTable);
     await pool.query(createLeadsTable);
+    await pool.query(createAdminUsersTable);
+    await pool.query(createInvoicesTable);
     console.log('✅ Database tables checked/created successfully');
   } catch (error) {
     console.error('❌ Error initializing database tables:', error.message);
