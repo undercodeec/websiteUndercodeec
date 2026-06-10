@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const Responsive = () => {
   const frameRef = useRef(null);
+  const videoRef = useRef(null);
   const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
@@ -18,6 +19,18 @@ const Responsive = () => {
     obs.observe(frameRef.current);
     return () => obs.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!videoRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        videoRef.current.muted = !entry.isIntersecting;
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(videoRef.current);
+    return () => observer.disconnect();
+  }, [shouldLoad]);
 
   return (
     <section className="responsive-section">
@@ -37,6 +50,7 @@ const Responsive = () => {
           <div className="video-frame" ref={frameRef}>
             {shouldLoad ? (
               <video
+                ref={videoRef}
                 className="video-iframe"
                 src="/assets/img/video/video-undercode-ec-1.mp4"
                 autoPlay

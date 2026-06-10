@@ -913,6 +913,25 @@ const VideoShowcase = () => {
     };
   }, []);
 
+  // Intersection Observer to mute/unmute video based on visibility
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        video.muted = !entry.isIntersecting;
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(video);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <section
       ref={sectionRef}
