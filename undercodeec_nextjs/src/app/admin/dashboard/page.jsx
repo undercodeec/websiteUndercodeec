@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import InvoicesTab from './InvoicesTab';
 import '@/components/Slider/slider.css';
 
 const STATUS_STYLES = {
@@ -37,6 +38,9 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
+
+  // Facturación: pago precargado al pulsar "Emitir factura" en el detalle de un pago
+  const [invoicePrefillPayment, setInvoicePrefillPayment] = useState(null);
 
   // Settings / Password states
   const [currentPassword, setCurrentPassword] = useState('');
@@ -307,6 +311,16 @@ export default function AdminDashboard() {
             </span>
           </button>
           <button
+            onClick={() => setActiveTab('invoices')}
+            className={`tw-px-6 tw-py-3 tw-rounded-xl tw-text-sm tw-font-semibold tw-transition-all tw-duration-300 tw-flex tw-items-center tw-gap-3 ${
+              activeTab === 'invoices'
+                ? 'tw-bg-gradient-to-r tw-from-purple-600 tw-to-orange-500 tw-text-white tw-shadow-lg'
+                : 'tw-text-gray-400 hover:tw-text-white hover:tw-bg-gray-700/50'
+            }`}
+          >
+            Facturas
+          </button>
+          <button
             onClick={() => setActiveTab('settings')}
             className={`tw-px-6 tw-py-3 tw-rounded-xl tw-text-sm tw-font-semibold tw-transition-all tw-duration-300 tw-flex tw-items-center tw-gap-3 ${
               activeTab === 'settings'
@@ -554,6 +568,19 @@ export default function AdminDashboard() {
               </div>
             )}
 
+            {/* INVOICES TAB */}
+            {activeTab === 'invoices' && (
+              <InvoicesTab
+                apiUrl={apiUrl}
+                payments={payments}
+                onSessionExpired={handleSessionExpired}
+                formatDate={formatDate}
+                formatMoney={formatMoney}
+                prefillPayment={invoicePrefillPayment}
+                onPrefillConsumed={() => setInvoicePrefillPayment(null)}
+              />
+            )}
+
             {/* SETTINGS TAB */}
             {activeTab === 'settings' && (
               <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-shadow-2xl tw-border tw-border-gray-700/50 tw-overflow-hidden">
@@ -698,6 +725,20 @@ export default function AdminDashboard() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Emitir factura desde este pago */}
+              <div className="tw-pt-2 tw-border-t tw-border-gray-800">
+                <button
+                  onClick={() => {
+                    setInvoicePrefillPayment(selectedPayment);
+                    setSelectedPayment(null);
+                    setActiveTab('invoices');
+                  }}
+                  className="tw-mt-3 tw-px-5 tw-py-2.5 tw-rounded-xl tw-text-white tw-font-bold tw-text-xs tw-bg-gradient-to-r tw-from-purple-600 tw-to-orange-500 hover:tw-from-purple-500 hover:tw-to-orange-400 tw-transition-all tw-shadow-lg tw-shadow-purple-500/20"
+                >
+                  🧾 Emitir factura de este pago
+                </button>
               </div>
 
               {/* Acciones de estado */}

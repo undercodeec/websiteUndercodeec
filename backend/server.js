@@ -9,6 +9,10 @@ const cheerio = require('cheerio'); // Fallback scraping
 const puppeteer = require('puppeteer'); // Advanced scraping for design context
 require('dotenv').config();
 const db = require('./db');
+const { emitInvoice, retryInvoice, listInvoices, getInvoice, formatInvoiceNumber } = require('./invoicing/invoiceService');
+const { getSriConfig, getMissingSriConfig, getMissingSigningConfig } = require('./invoicing/config');
+const { generateRidePdf } = require('./invoicing/ride');
+const { sendInvoiceEmail } = require('./invoicing/mailer');
 
 const app = express();
 const pendingOrders = new Map(); // Store pending orders from Chatbot
@@ -2777,6 +2781,138 @@ app.get('/api/admin/leads', adminAuth, async (req, res) => {
     res.json({ success: true, data: result.rows });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Error fetching leads' });
+  }
+});
+
+// ============================================================================
+// FACTURACIÓN ELECTRÓNICA SRI (ver SRI_FACTURACION_WORKFLOW.md)
+// ============================================================================
+
+// Entrega al cliente (RIDE + XML) cuando la factura queda autorizada. Best-effort.
+function deliverInvoiceIfAuthorized(invoiceRow) {
+  if (!invoiceRow || invoiceRow.estado !== 'autorizada' || !invoiceRow.email) return;
+  generateRidePdf(invoiceRow, runWithPuppeteer)
+    .then((pdf) => sendInvoiceEmail({ transporter, invoiceRow, ridePdfBuffer: pdf }))
+    .then(() => console.log(`📧 Factura ${formatInvoiceNumber(invoiceRow)} enviada a ${invoiceRow.email}`))
+    .catch((err) => console.error('Error enviando factura al cliente:', err.message));
+}
+
+// Listado de facturas + estado de configuración SRI
+app.get('/api/admin/invoices', adminAuth, async (req, res) => {
+  try {
+    const cfg = getSriConfig();
+    const invoices = await listInvoices();
+    res.json({
+      success: true,
+      data: invoices,
+      config: {
+        ambiente: cfg.ambiente,
+        estab: cfg.estab,
+        ptoEmi: cfg.ptoEmi,
+        missingConfig: getMissingSriConfig(cfg),
+        missingSigning: getMissingSigningConfig(cfg)
+      }
+    });
+  } catch (error) {
+    console.error('Error listando facturas:', error.message);
+    res.status(500).json({ success: false, error: 'Error al listar facturas' });
+  }
+});
+
+// Emitir factura: genera XML → firma → recepción SRI → autorización → email al cliente
+app.post('/api/admin/invoices', adminAuth, async (req, res) => {
+  const { orderId, comprador, items, formaPago } = req.body || {};
+  if (!comprador || typeof comprador !== 'object' || !Array.isArray(items)) {
+    return res.status(400).json({ success: false, error: 'Se requiere comprador e items' });
+  }
+  try {
+    const { invoice, error } = await emitInvoice({
+      comprador,
+      items,
+      formaPago,
+      orderId: Number.isInteger(Number(orderId)) && Number(orderId) > 0 ? Number(orderId) : null
+    });
+    deliverInvoiceIfAuthorized(invoice);
+    res.json({ success: true, data: invoice, ...(error ? { warning: error } : {}) });
+  } catch (error) {
+    console.error('Error emitiendo factura:', error.message);
+    const status = error.validationErrors || error.code === 'SRI_CONFIG_MISSING' ? 400 : 500;
+    res.status(status).json({ success: false, error: error.message });
+  }
+});
+
+// Reintentar recepción/autorización (sin regenerar secuencial ni clave)
+app.post('/api/admin/invoices/:id/retry', adminAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ success: false, error: 'ID inválido' });
+  }
+  try {
+    const { invoice } = await retryInvoice(id);
+    deliverInvoiceIfAuthorized(invoice);
+    res.json({ success: true, data: invoice });
+  } catch (error) {
+    console.error('Error reintentando factura:', error.message);
+    const status = error.code === 'NOT_FOUND' ? 404 : (error.code === 'NOT_RETRYABLE' ? 400 : 500);
+    res.status(status).json({ success: false, error: error.message });
+  }
+});
+
+// Descargar XML (firmado o autorizado)
+app.get('/api/admin/invoices/:id/xml', adminAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ success: false, error: 'ID inválido' });
+  }
+  try {
+    const invoice = await getInvoice(id);
+    if (!invoice) return res.status(404).json({ success: false, error: 'Factura no encontrada' });
+    if (!invoice.xml_firmado) return res.status(400).json({ success: false, error: 'La factura aún no tiene XML firmado' });
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="factura_${formatInvoiceNumber(invoice)}.xml"`);
+    res.send(invoice.xml_firmado);
+  } catch (error) {
+    console.error('Error descargando XML:', error.message);
+    res.status(500).json({ success: false, error: 'Error al descargar XML' });
+  }
+});
+
+// Descargar RIDE (PDF)
+app.get('/api/admin/invoices/:id/ride', adminAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ success: false, error: 'ID inválido' });
+  }
+  try {
+    const invoice = await getInvoice(id);
+    if (!invoice) return res.status(404).json({ success: false, error: 'Factura no encontrada' });
+    const pdf = await generateRidePdf(invoice, runWithPuppeteer);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="factura_${formatInvoiceNumber(invoice)}.pdf"`);
+    res.send(pdf);
+  } catch (error) {
+    console.error('Error generando RIDE:', error.message);
+    res.status(500).json({ success: false, error: 'Error al generar el RIDE' });
+  }
+});
+
+// Reenviar email con RIDE+XML al cliente
+app.post('/api/admin/invoices/:id/send-email', adminAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ success: false, error: 'ID inválido' });
+  }
+  try {
+    const invoice = await getInvoice(id);
+    if (!invoice) return res.status(404).json({ success: false, error: 'Factura no encontrada' });
+    if (invoice.estado !== 'autorizada') return res.status(400).json({ success: false, error: 'Solo se pueden enviar facturas autorizadas' });
+    if (!invoice.email) return res.status(400).json({ success: false, error: 'La factura no tiene email del comprador' });
+    const pdf = await generateRidePdf(invoice, runWithPuppeteer);
+    await sendInvoiceEmail({ transporter, invoiceRow: invoice, ridePdfBuffer: pdf });
+    res.json({ success: true, message: `Factura enviada a ${invoice.email}` });
+  } catch (error) {
+    console.error('Error reenviando factura:', error.message);
+    res.status(500).json({ success: false, error: 'Error al enviar la factura por email' });
   }
 });
 

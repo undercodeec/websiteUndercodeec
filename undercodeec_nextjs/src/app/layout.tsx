@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   description: "Expertos en diseño y desarrollo de páginas web profesionales, aplicaciones móviles y posicionamiento SEO. Impulsamos la transformación digital de tu negocio.",
   keywords: [
     "diseño de páginas web",
+    "desarrollo de páginas web",
     "desarrollo web profesional",
     "agencia de desarrollo web",
     "creación de páginas web profesionales",
@@ -85,7 +86,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   verification: {
-    google: "TjIVgYGV2-AduD8UBXsIX_Yf0Q7TwAmOp55hVkZI9ss",
+    google: "SxFpPrIPCwqofE3TadWiw0dRtAWmmNrkpTKywVmqBUc",
   },
 };
 

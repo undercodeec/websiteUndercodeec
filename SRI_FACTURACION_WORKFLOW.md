@@ -158,32 +158,32 @@ SRI_P12_PASSWORD=...
 
 ## 3. Fases de desarrollo
 
-### Fase 1 — Infraestructura (backend)
-- [ ] `pnpm add open-factura` en `backend/`.
-- [ ] Crear tabla `invoices` en `db.js` (initDatabase) + documentar en `database_schema.sql`.
-- [ ] Variables `.env` del emisor + carpeta `backend/secrets/` (gitignored) con el `.p12`.
-- [ ] Módulo `backend/invoicing/` con builder de la estructura de factura (emisor desde env, IVA 15% código 4, clave de acceso).
+### Fase 1 — Infraestructura (backend) ✅
+- [x] `pnpm add open-factura` en `backend/`.
+- [x] Crear tabla `invoices` en `db.js` (initDatabase) + documentar en `database_schema.sql`.
+- [x] Variables `.env` del emisor + carpeta `backend/secrets/` (gitignored) con el `.p12`.
+- [x] Módulo `backend/invoicing/` con builder de la estructura de factura (emisor desde env, IVA 15% código 4, clave de acceso) — `config.js`, `invoiceBuilder.js`.
 
-### Fase 2 — Firma y comunicación con el SRI
-- [ ] Firma XAdES-BES con el `.p12` (open-factura `signXml`).
-- [ ] Cliente SOAP: recepción (`RECIBIDA`/`DEVUELTA`) y autorización (`AUTORIZADO`/`NO AUTORIZADO`), con timeout, reintentos (el SRI a veces tarda en autorizar: poll con backoff ~3 intentos) y registro de `mensajes_sri`.
-- [ ] Manejo de estados en la tabla `invoices` en cada paso (trazabilidad completa).
+### Fase 2 — Firma y comunicación con el SRI ✅
+- [x] Firma XAdES-BES con el `.p12` (`signer.js`, open-factura `signXml`).
+- [x] Cliente SOAP (`sriClient.js`): recepción (`RECIBIDA`/`DEVUELTA`) y autorización (`AUTORIZADO`/`NO AUTORIZADO`), con timeout 30s, poll de autorización con backoff (4 intentos), pre-chequeo del WSDL (open-factura crashea si el WSDL no carga) y registro de `mensajes_sri`.
+- [x] Manejo de estados en la tabla `invoices` en cada paso (`invoiceService.js`: generada → firmada → recibida → autorizada/devuelta/no_autorizada/error).
 
-### Fase 3 — Endpoints admin
-- [ ] `POST /api/admin/invoices` (emisión completa, transaccional sobre el secuencial).
-- [ ] `GET /api/admin/invoices`, `:id/xml`, `:id/retry`.
-- [ ] Pruebas con `curl`/script contra ambiente de certificación del SRI.
+### Fase 3 — Endpoints admin ✅
+- [x] `POST /api/admin/invoices` (emisión completa, secuencial transaccional con `FOR UPDATE` + UNIQUE por serie).
+- [x] `GET /api/admin/invoices`, `:id/xml`, `:id/retry` + extra: `:id/ride`, `:id/send-email`.
+- [ ] Pruebas con `curl`/script contra ambiente de certificación del SRI (requiere .env del emisor + .p12 en `backend/secrets/`).
 
-### Fase 4 — RIDE y entrega al cliente
-- [ ] Plantilla HTML del RIDE (formato estándar SRI: datos emisor, comprador, detalle, totales, clave de acceso con código de barras) renderizada a PDF con Puppeteer (cola `runWithPuppeteer` ya existente).
-- [ ] `GET /api/admin/invoices/:id/ride`.
-- [ ] Envío automático por email al cliente (XML + RIDE adjuntos) al quedar `autorizada`.
+### Fase 4 — RIDE y entrega al cliente ✅
+- [x] Plantilla HTML del RIDE (`ride.js`: datos emisor, comprador, detalle, totales, clave de acceso con código de barras Code128 SVG propio) renderizada a PDF con Puppeteer (usa la cola `runWithPuppeteer`).
+- [x] `GET /api/admin/invoices/:id/ride`.
+- [x] Envío automático por email al cliente (XML + RIDE adjuntos) al quedar `autorizada` (`mailer.js`, best-effort) + reenvío manual.
 
-### Fase 5 — UI Dashboard
-- [ ] Tab "Facturas": listado + badges de estado + acciones.
-- [ ] Formulario de emisión con autocompletado desde pagos (por defecto) y modo manual.
-- [ ] Botón "Emitir factura" en el detalle de cada pago.
-- [ ] Badge de ambiente activo.
+### Fase 5 — UI Dashboard ✅
+- [x] Tab "Facturas" (`InvoicesTab.jsx`): listado + badges de estado + acciones (Detalle, XML, RIDE, Reintentar, Email).
+- [x] Formulario de emisión con autocompletado desde pagos (selector; precio unitario = monto cobrado / 1.15 para cuadrar el total) y modo manual.
+- [x] Botón "Emitir factura de este pago" en el detalle de cada pago.
+- [x] Badge de ambiente activo (PRUEBAS naranja / PRODUCCIÓN verde) + aviso de config SRI faltante.
 
 ### Fase 6 — Certificación y paso a producción
 - [ ] Emitir set de facturas de prueba en `celcer` (autorizadas, devueltas, consumidor final, con RUC).

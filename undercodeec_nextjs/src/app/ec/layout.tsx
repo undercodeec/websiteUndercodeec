@@ -6,6 +6,7 @@ export const metadata: Metadata = {
     "Expertos en diseño y desarrollo de páginas web profesionales, aplicaciones móviles y SEO en Quito, Guayaquil y todo el Ecuador. Impulsamos tu negocio digital.",
   keywords: [
     "paginas web en ecuador",
+    "desarrollo de páginas web",
     "pagina web quito",
     "diseño de paginas web en quito",
     "diseño de paginas web quito",

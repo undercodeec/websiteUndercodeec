@@ -11,6 +11,7 @@ Fuente: `undercodeec_nextjs/src/app/**/layout.tsx` y `undercodeec_nextjs/src/dat
 Archivo: `src/app/layout.tsx`
 
  diseño de páginas web
+ desarrollo de páginas web
  desarrollo web profesional
  agencia de desarrollo web
  creación de páginas web profesionales
@@ -47,6 +48,7 @@ Archivo: `src/app/undercodeec/layout.tsx`
 Archivo: `src/app/ec/layout.tsx`
 
  paginas web en ecuador
+ desarrollo de páginas web
  pagina web quito
  diseño de paginas web en quito
  diseño de paginas web quito
