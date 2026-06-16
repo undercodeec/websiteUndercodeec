@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { animate } from "animejs";
 import "@/components/Slider/slider.css";
+import ScrollShapesDemo from "@/components/LandingEspana/ScrollShapesDemo";
 
 const heroBackgroundPattern = "/assets/slider/6fa818bb935c0e2a1081f259d84df226b237a184.png";
 
@@ -1184,6 +1185,9 @@ const LandingEspana = () => {
 
         {/* VIDEO SHOWCASE */}
         <VideoShowcase />
+
+        {/* DESIGN DEMOS */}
+        <ScrollShapesDemo />
 
         {/* WHY US */}
         <section className="py-5" style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px" }}>
