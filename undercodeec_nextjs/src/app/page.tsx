@@ -15,7 +15,7 @@ import { usePageReady } from "@/common/usePageReady";
 const Demos = dynamic(() => import("@/components/Preview/Demos"));
 const BuyNow = dynamic(() => import("@/components/Preview/BuyNow"));
 const Portfolio = dynamic(() => import("@/components/Preview/Portfolio"));
-const Codei = dynamic(() => import("@/components/Preview/Codei"));
+const Codei = dynamic(() => import("@/components/Preview/Codei"), { ssr: false });
 const BestFeatures = dynamic(() => import("@/components/Preview/BestFeatures"));
 const Responsive = dynamic(() => import("@/components/Preview/Responsive"));
 const AllFeatures = dynamic(() => import("@/components/Preview/AllFeatures"));

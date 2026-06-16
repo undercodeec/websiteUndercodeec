@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { animate } from "animejs";
 import "@/components/Slider/slider.css";
 
@@ -884,6 +885,7 @@ const FeaturesParticles = ({ active }) => {
 };
 
 const LandingEspana = () => {
+  const router = useRouter();
   const [openFaq, setOpenFaq] = useState(0);
   const [hoveredService, setHoveredService] = useState(null);
   const galaxyCanvasRef = useRef(null);
@@ -1036,18 +1038,26 @@ const LandingEspana = () => {
                   >
                     Pide tu presupuesto gratis
                   </a>
-                  <a
-                    href="#servicios"
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      sessionStorage.setItem("scrollToDemos", "true");
+                      sessionStorage.setItem("preloaderShown_home", "true");
+                      router.push("/");
+                    }}
                     className="btn btn-lg fw-bold px-4 py-3"
                     style={{
                       borderRadius: "50px",
                       backgroundColor: "rgb(96, 11, 86)",
                       color: "#fff",
                       border: "none",
+                      cursor: "pointer",
                     }}
                   >
-                    Ver servicios
-                  </a>
+                    Ver portafolio
+                  </button>
                 </div>
                 <div className="mt-4 d-flex flex-wrap gap-4" style={{ fontSize: "14px", color: "#555" }}>
                   <span><i className="bi bi-check-circle me-2" style={{ color: "#600b56" }}></i>Presupuesto en 24 h</span>
@@ -1334,6 +1344,21 @@ const LandingEspana = () => {
               >
                 Formulario de contacto
               </Link>
+              <a
+                href="https://calendly.com/undercodeec/30min"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-lg fw-bold px-4 py-3"
+                style={{
+                  borderRadius: "50px",
+                  backgroundColor: "rgb(96, 11, 86)",
+                  color: "#fff",
+                  border: "none",
+                }}
+              >
+                <i className="bi bi-calendar-event me-2"></i>
+                Agendar Reunión
+              </a>
             </div>
             <p className="mt-4 small" style={{ opacity: 0.8 }}>
               Atención remota · Cobertura nacional en España · Respuesta en 24 h

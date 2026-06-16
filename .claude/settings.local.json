@@ -41,7 +41,16 @@
       "PowerShell(Test-Path *)",
       "Bash(dir *)",
       "Bash(pnpm run *)",
-      "Bash(pnpm add *)"
+      "Bash(pnpm add *)",
+      "PowerShell(Get-Content backend\\\\secrets\\\\.gitignore; Get-Content backend\\\\.env | Select-String \"SRI_\"; \\(Get-Content backend\\\\server.js | Measure-Object -Line\\).Lines)",
+      "PowerShell(Get-ChildItem backend\\\\node_modules\\\\open-factura\\\\dist -Recurse -File | Select-Object -ExpandProperty Name; node -e \"const of = require\\('open-factura'\\); console.log\\(Object.keys\\(of\\).join\\('\\\\n'\\)\\)\")",
+      "PowerShell(node --check server.js; node --check invoicing\\\\invoiceService.js; node --check invoicing\\\\sriClient.js; node --check invoicing\\\\signer.js; node --check invoicing\\\\ride.js; node --check invoicing\\\\mailer.js)",
+      "PowerShell(node -e \"const {buildRideHtml} = require\\('./invoicing/ride'\\); const html = buildRideHtml\\({estab:'001',pto_emi:'002',secuencial:1,ambiente:1,clave_acceso:'1106202601179999999999912100100200000000112345678313',items:[{descripcion:'Plan web',cantidad:1,precioUnitario:100,codigoPorcentajeIva:'4'}],razon_social:'Test',tipo_identificacion:'05',identificacion:'0102030405',subtotal:100,iva:15,total:115,forma_pago:'19',email:'a@b.c',created_at:new Date\\(\\)}\\); console.log\\('HTML OK len', html.length, html.includes\\('<svg'\\) ? 'barcode OK' : 'NO BARCODE'\\)\")",
+      "PowerShell(\\(Get-Content \"D:\\\\Documentos\\\\bakup mi portafolio\\\\mi portafolio\\\\undercodeec_nextjs\\\\src\\\\app\\\\admin\\\\dashboard\\\\page.jsx\" | Measure-Object -Line\\).Lines)",
+      "PowerShell(npx babel --version 2>$null; node -e \"try { require\\('@babel/core'\\) } catch\\(e\\) { console.log\\('no babel'\\) }\")",
+      "PowerShell(node -e \"const es = require\\('next/dist/compiled/babel/code-frame'\\) ? 1 : 0\" 2>$null; node -e \"const esbuild=require\\('esbuild'\\); ['src/app/admin/dashboard/page.jsx','src/app/admin/dashboard/InvoicesTab.jsx'].forEach\\(f=>{ esbuild.transformSync\\(require\\('fs'\\).readFileSync\\(f,'utf8'\\),{loader:'jsx'}\\); console.log\\(f,'OK'\\)}\\)\")",
+      "PowerShell(node -e \"const swc=require\\('next/dist/build/swc'\\); Promise.resolve\\(\\).then\\(async\\(\\)=>{ const fs=require\\('fs'\\); for \\(const f of ['src/app/admin/dashboard/page.jsx','src/app/admin/dashboard/InvoicesTab.jsx']\\) { await swc.transform\\(fs.readFileSync\\(f,'utf8'\\),{jsc:{parser:{syntax:'ecmascript',jsx:true}}}\\); console.log\\(f,'OK'\\); } }\\).catch\\(e=>{console.error\\(e.message\\); process.exit\\(1\\)}\\)\")",
+      "PowerShell(node -e \"const swc=require\\('next/dist/build/swc'\\); \\(async\\(\\)=>{ await swc.loadBindings\\(\\); const fs=require\\('fs'\\); for \\(const f of ['src/app/admin/dashboard/page.jsx','src/app/admin/dashboard/InvoicesTab.jsx']\\) { await swc.transform\\(fs.readFileSync\\(f,'utf8'\\),{jsc:{parser:{syntax:'ecmascript',jsx:true}}}\\); console.log\\(f,'OK'\\); } }\\)\\(\\).catch\\(e=>{console.error\\(e.message\\); process.exit\\(1\\)}\\)\")"
     ]
   }
 }
