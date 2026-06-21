@@ -5,56 +5,6 @@ import { usePathname } from 'next/navigation';
 import { RiRobot2Line, RiCloseLine, RiSendPlaneFill, RiMicFill, RiMicOffFill, RiVolumeUpFill, RiVolumeMuteFill } from 'react-icons/ri';
 import VimeoFacade from '@/components/Vimeo/VimeoFacade';
 
-const TypewriterMessage = ({ content, renderContent }) => {
-    const [visibleChars, setVisibleChars] = useState(0);
-    const [isFinished, setIsFinished] = useState(false);
-
-    useEffect(() => {
-        setVisibleChars(0);
-        setIsFinished(false);
-    }, [content]);
-
-    const waRegex = /\[wa-button\](.*?):\((https:\/\/wa\.me\/[^\)]+)\)/;
-    const payphoneRegex = /\[wa-button\](.*?):\((https:\/\/pay\.payphonetodoesposible\.com[^\)]+)\)/;
-    
-    let rawText = content;
-    let waStr = '';
-    let payphoneStr = '';
-
-    const waMatch = rawText.match(waRegex);
-    if (waMatch) {
-        waStr = waMatch[0];
-        rawText = rawText.replace(waRegex, '').trim();
-    }
-    
-    const payphoneMatch = rawText.match(payphoneRegex);
-    if (payphoneMatch) {
-        payphoneStr = payphoneMatch[0];
-        rawText = rawText.replace(payphoneRegex, '').trim();
-    }
-
-    useEffect(() => {
-        if (visibleChars < rawText.length) {
-            const timer = setTimeout(() => {
-                setVisibleChars(prev => Math.min(prev + 2, rawText.length)); 
-            }, 10);
-            return () => clearTimeout(timer);
-        } else {
-            setIsFinished(true);
-        }
-    }, [visibleChars, rawText.length]);
-
-    const displayedText = isFinished ? rawText : rawText.substring(0, visibleChars);
-    
-    let renderedContent = displayedText;
-    if (isFinished) {
-        if (waStr) renderedContent += `\n${waStr}`;
-        if (payphoneStr) renderedContent += `\n${payphoneStr}`;
-    }
-
-    return renderContent(renderedContent);
-};
-
 const AIAssistant = () => {
     const pathname = usePathname();
     const isHiddenPath = pathname?.startsWith('/admin') || pathname?.startsWith('/contratos');
@@ -131,6 +81,108 @@ const AIAssistant = () => {
             console.error('Error playing sound', error);
         }
     };
+
+    // PERF: fetch TTS en paralelo después de mostrar el texto.
+    // El backend ya no bloquea la respuesta del chat con la síntesis de voz.
+    const fetchAndPlayTTS = async (text) => {
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+            const ttsRes = await fetch(`${baseUrl}/api/chat/tts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text }),
+            });
+            const ttsData = await ttsRes.json();
+            if (ttsData.audio_base64) {
+                const audio = new Audio("data:audio/mp3;base64," + ttsData.audio_base64);
+                audio.volume = 0.9;
+                audio.play().catch(e => console.log('Audio autoplay prevented by browser', e));
+            }
+        } catch (e) {
+            console.error('Error fetching TTS audio:', e);
+        }
+    };
+
+    // Consume el stream SSE de /api/chat. Inserta el mensaje del asistente al
+    // primer delta (no antes — para que el indicador "Pensando..." no conviva
+    // con un bubble vacío) y lo va actualizando.
+    const consumeChatStream = async (response) => {
+        if (!response.body) throw new Error('Sin stream del backend');
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let accumulated = '';
+        let inserted = false;
+
+        const applyDelta = (delta) => {
+            accumulated += delta;
+            if (!inserted) {
+                inserted = true;
+                setMessages(prev => [...prev, { role: 'assistant', content: accumulated, streaming: true }]);
+            } else {
+                setMessages(prev => {
+                    const next = [...prev];
+                    const last = next[next.length - 1];
+                    if (last && last.role === 'assistant') {
+                        next[next.length - 1] = { ...last, content: accumulated, streaming: true };
+                    }
+                    return next;
+                });
+            }
+        };
+
+        const finalize = () => {
+            if (!inserted) return;
+            setMessages(prev => {
+                const next = [...prev];
+                const last = next[next.length - 1];
+                if (last && last.role === 'assistant') {
+                    next[next.length - 1] = { ...last, streaming: false };
+                }
+                return next;
+            });
+        };
+
+        try {
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+
+                let idx;
+                while ((idx = buffer.indexOf('\n\n')) !== -1) {
+                    const rawEvent = buffer.slice(0, idx);
+                    buffer = buffer.slice(idx + 2);
+                    const lines = rawEvent.split('\n').filter(l => l.startsWith('data: '));
+                    for (const line of lines) {
+                        const dataStr = line.slice(6);
+                        if (dataStr === '[DONE]') {
+                            finalize();
+                            return accumulated;
+                        }
+                        try {
+                            const payload = JSON.parse(dataStr);
+                            if (payload.type === 'text' && payload.delta) {
+                                applyDelta(payload.delta);
+                            } else if (payload.type === 'error') {
+                                throw new Error(payload.message || 'Error del servidor');
+                            }
+                        } catch (e) {
+                            console.error('SSE parse error:', e, dataStr);
+                        }
+                    }
+                }
+            }
+            finalize();
+            return accumulated;
+        } catch (e) {
+            finalize();
+            if (!accumulated) {
+                setMessages(prev => [...prev, { role: 'assistant', content: 'Lo siento, hubo un error.', streaming: false }]);
+            }
+            throw e;
+        }
+    };
     
     // Quick Replies Suggestions
     const [showSuggestions, setShowSuggestions] = useState(true);
@@ -160,34 +212,23 @@ const AIAssistant = () => {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
             const backendUrl = `${baseUrl}/api/chat`;
 
-            const response = await fetch(backendUrl, { 
+            const response = await fetch(backendUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: 'SALUDO_INICIAL', useAudio: useVoice }),
+                body: JSON.stringify({ message: 'SALUDO_INICIAL' }),
             });
 
-            const data = await response.json();
+            const fullText = await consumeChatStream(response);
 
-            if (data.output_text) {
-                setMessages([{ role: 'assistant', content: data.output_text }]);
-                
-                if (data.audio_base64 && useVoice) {
-                    try {
-                        const audio = new Audio("data:audio/mp3;base64," + data.audio_base64);
-                        audio.volume = 0.9;
-                        audio.play().catch(e => console.log('Audio autoplay prevented by browser', e));
-                    } catch (e) {
-                        console.error('Error playing TTS audio:', e);
-                    }
-                } else if (!useVoice) {
+            if (fullText) {
+                if (useVoice) {
+                    fetchAndPlayTTS(fullText);
+                } else {
                     playNotificationSound();
                 }
-            } else {
-                 setMessages([{ role: 'assistant', content: 'Lo siento, hubo un error al procesar el mensaje.' }]);
             }
         } catch (error) {
             console.error('Error sending init message:', error);
-            setMessages([{ role: 'assistant', content: 'Hola, soy el asistente virtual de Undercodeec, si necesitas ayuda o necesitas un proyecto, no dudes en preguntarme.' }]);
         } finally {
             setIsLoading(false);
         }
@@ -206,51 +247,32 @@ const AIAssistant = () => {
         setMessages(prev => [...prev, userMessage]);
         if (!customMessage) setInputValue('');
         setIsLoading(true);
-        setShowSuggestions(false); // Ocultar sugerencias tras el primer envío
+        setShowSuggestions(false);
 
         try {
-            // Determinar la URL del backend dinámicamente o usar localhost por defecto para dev
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
             const backendUrl = `${baseUrl}/api/chat`;
-            
-            // Si estamos en Vercel/Next.js y el backend está en otro puerto, necesitamos la URL completa.
-            // Asumo que el backend corre en el puerto 3001 según el .env que vi.
 
-            const response = await fetch(backendUrl, { 
+            const response = await fetch(backendUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    message: userMessage.content, 
-                    history: [...messages, userMessage], 
-                    useAudio: isAudioEnabled 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: userMessage.content,
+                    history: [...messages, userMessage],
                 }),
             });
 
-            const data = await response.json();
+            const fullText = await consumeChatStream(response);
 
-            if (data.output_text) {
-                setMessages(prev => [...prev, { role: 'assistant', content: data.output_text }]);
-                
-                if (data.audio_base64) {
-                    try {
-                        const audio = new Audio("data:audio/mp3;base64," + data.audio_base64);
-                        audio.volume = 0.9;
-                        audio.play().catch(e => console.log('Audio autoplay prevented by browser', e));
-                    } catch (e) {
-                        console.error('Error playing TTS audio:', e);
-                    }
+            if (fullText) {
+                if (isAudioEnabled) {
+                    fetchAndPlayTTS(fullText);
                 } else {
                     playNotificationSound();
                 }
-            } else {
-                 setMessages(prev => [...prev, { role: 'assistant', content: 'Lo siento, hubo un error al procesar tu mensaje.' }]);
             }
-
         } catch (error) {
             console.error('Error sending message:', error);
-            setMessages(prev => [...prev, { role: 'assistant', content: 'Lo siento, no puedo conectar con el servidor en este momento.' }]);
         } finally {
             setIsLoading(false);
         }
@@ -262,17 +284,24 @@ const AIAssistant = () => {
         }
     };
 
-    // Custom text parser for WhatsApp Buttons, Bold text, and PayPhone Links
-    const renderMessageContent = (content) => {
+    // Custom text parser for WhatsApp Buttons, Bold text, and PayPhone Links.
+    // Durante streaming, los patrones [wa-button]... incompletos se ocultan
+    // para que el lector no vea código a medio escribir.
+    const renderMessageContent = (content, isStreaming = false) => {
         if (typeof content !== 'string') return content;
-        
+
+        if (isStreaming) {
+            // Oculta cualquier [wa-button] que aún no haya cerrado con `)`
+            content = content.replace(/\[wa-button\][^\n]*?(?:\)|$)/g, (m) => m.endsWith(')') ? m : '');
+        }
+
         // 1. Check for [wa-button]Text:(url)
         const waRegex = /\[wa-button\](.*?):\((https:\/\/wa\.me\/[^\)]+)\)/;
         const waMatch = content.match(waRegex);
-        
+
         let processedContent = content;
         let whatsappButton = null;
-        
+
         if (waMatch) {
             processedContent = processedContent.replace(waRegex, '').trim();
             const btnText = waMatch[1];
@@ -553,11 +582,9 @@ const AIAssistant = () => {
                                         lineHeight: '1.5',
                                         wordWrap: 'break-word'
                                     }}>
-                                        {msg.role === 'assistant' ? (
-                                            <TypewriterMessage content={msg.content} renderContent={renderMessageContent} />
-                                        ) : (
-                                            renderMessageContent(msg.content)
-                                        )}
+                                        {msg.role === 'assistant'
+                                            ? renderMessageContent(msg.content, !!msg.streaming)
+                                            : renderMessageContent(msg.content)}
                                     </div>
                                 ))}
                         
@@ -603,7 +630,7 @@ const AIAssistant = () => {
                             </>
                         )}
 
-                        {isLoading && (
+                        {isLoading && !messages.some(m => m.streaming) && (
                             <div style={{
                                 alignSelf: 'flex-start',
                                 backgroundColor: '#fff',

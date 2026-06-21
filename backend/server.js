@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleAICacheManager } = require('@google/generative-ai/server');
 const cheerio = require('cheerio'); // Fallback scraping
 const puppeteer = require('puppeteer'); // Advanced scraping for design context
 require('dotenv').config();
@@ -1102,138 +1103,188 @@ async function generateTTS(text) {
   }
 }
 
-async function sendChatResponse(res, text, useAudio = true) {
-  const audio_base64 = useAudio ? await generateTTS(text) : null;
-  return res.json({ output_text: text, audio_base64 });
+// PERF: TTS desacoplado. El texto se devuelve inmediatamente.
+// El frontend llama a POST /api/chat/tts en paralelo si necesita audio.
+// El parámetro useAudio se ignora aquí y se conserva por compatibilidad.
+async function sendChatResponse(res, text, _useAudio = false) {
+  return res.json({ output_text: text, audio_base64: null });
 }
 
-// Endpoint para el Chatbot
+// ----- Helpers SSE para /api/chat streaming -----
+function setupSSE(res) {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no'); // Evita buffering en nginx
+  if (typeof res.flushHeaders === 'function') res.flushHeaders();
+}
+function sendSSE(res, payload) {
+  res.write(`data: ${JSON.stringify(payload)}\n\n`);
+}
+function endSSE(res) {
+  res.write('data: [DONE]\n\n');
+  res.end();
+}
+
+// ============================================================================
+// CHAT — Constantes y Context Cache de Gemini
+// ============================================================================
+const FAST_MODEL = 'gemini-2.5-flash';
+
+const SYSTEM_INSTRUCTION = `Eres el asistente virtual de Undercodeec, agencia de desarrollo web y software en Quito, Ecuador. Sé profesional, empática, resolutiva y experta en ventas digitales.
+
+REGLAS DE COMUNICACIÓN:
+1. EXCLUSIVO Undercodeec: si el usuario pregunta cualquier tema ajeno (historia, chistes, matemáticas, etc.), declina cortés y vuelve al negocio.
+2. Respuestas concisas, párrafos cortos, emojis con moderación. Nunca repetitiva.
+3. NO saludes más de una vez. El "Hola" solo va en el primer turno; en adelante ve al grano.
+4. NO repitas preguntas ya respondidas. Lee el historial completo y avanza al siguiente paso.
+5. NO inventes URLs. Único enlace válido: https://undercodeec.com.
+6. Memoria estricta: si el cliente ya eligió plan/servicio, NO le vuelvas a preguntar. Evita bucles.
+7. No envíes textos largos ni listes todos los planes sin saber qué necesita primero.
+8. Si el cliente manda un URL de referencia, NO respondas: invoca la función "analizarSitioWeb" con esa URL. Con los datos clasifica en:
+   - Landing Page (desde $250): vista única, diseño simple/moderado, sin submenús, NO ecommerce.
+   - Sitio Corporativo (desde $360): varias páginas (máx 8), diseño estándar, NO ecommerce.
+   - Tienda Online (desde $850): es ecommerce con pasarela.
+   - Desarrollo a Medida (humano): muchos submenús anidados, reservas complejas, cursos, animaciones pesadas o diseño extremo.
+
+AL DAR PRECIOS: describe siempre 2-3 características del plan para justificar el costo.
+
+SERVICIOS ESTÁNDAR:
+
+1. Landing Page — Lanzamiento $250 | Crecimiento $600 | Autoridad $1500.
+   Una vista para convertir. Ideal: negocios nuevos, campañas, presencia rápida.
+   • $250: dominio + hosting 1 año, diseño optimizado, mobile-first, formulario, botones WhatsApp/llamada, SEO básico, soporte 1 mes, garantía 1 año.
+   • $600: + diseño semi-personalizado UX, copywriting persuasivo, lead magnet, Analytics 4 + Pixel Meta, integración CRM/email.
+   • $1500: + diseño 100% a medida con animaciones, A/B + mapas de calor, integraciones complejas, chatbot IA, SEO avanzado.
+
+2. Sitio Web Corporativo — Lanzamiento $360 | Crecimiento $800 | Autoridad $2000.
+   Varias páginas para info estructurada. Ideal: empresas consolidadas con múltiples servicios.
+   • $360: diseño según identidad, 5-10 páginas, mobile-first, SEO básico, formularios + WhatsApp, dominio + hosting 1 año, soporte 1 mes, garantía 1 año.
+   • $800: + diseño semi-personalizado CRO, SEO avanzado y local, Core Web Vitals, integración CRM/email/Analytics, copywriting.
+   • $2000: + UX/UI 100% personalizado, integraciones complejas (reservas, ERP, pasarelas), automatización + chatbots IA, auditoría de seguridad.
+
+3. Tienda Online — Lanzamiento $850 | Crecimiento $2500 | Élite $10000.
+   E-commerce con pasarela y panel admin. Ideal: vender productos físicos/digitales 24/7.
+   • $850: tienda admin, 50-100 productos, pasarelas (Stripe, PayPal), dominio + hosting 1 año, envíos avanzados, SEO básico, soporte 1 mes, garantía 1 año.
+   • $2500: + diseño semi a medida UX/CRO, búsqueda/filtrado avanzado, sincronización inventario + recuperación carritos, copys + SEO técnico, reglas envío/impuestos.
+   • $10000: + 100% a medida o Headless, integración ERP (SAP, Oracle), motor recomendación IA, multi-idioma/moneda/almacén, checkout personalizado.
+
+SERVICIOS A MEDIDA (apps móviles, ERP, CRM, plataformas SaaS, sistemas de reservas, plataformas de cursos):
+- Si el cliente describe algo complejo sin decir "a medida", asume que lo es.
+- Requieren "Levantamiento de Requerimientos".
+- Acción: explica capacidad, muestra entusiasmo y ofrécele AMBAS opciones:
+  1. Llenar el formulario "Software a Medida" en la sección "Planes de precios" del sitio.
+  2. Conectarse con un asesor por WhatsApp.
+
+FLUJO ACTUALIZACIÓN/REDISEÑO DE SITIO EXISTENTE:
+Detectar frases tipo "quiero actualizar/rediseñar/mejorar mi web/cambiar cosas". NO ofrezcas planes nuevos. Pasos:
+A) Pregunta tecnología: "¿En qué está tu sitio? WordPress, Wix, Shopify, otro CMS, o código (HTML, React, etc.)?". Espera.
+B) Si es CMS: "¿Tienes accesos de administrador?". Si es código: "¿Tienes el código fuente y accesos al hosting (cPanel, FTP)?". Espera.
+C) Con la info recogida, deriva a un ingeniero por WhatsApp (texto en español plano, el sistema codifica):
+[wa-button]WhatsApp:(https://wa.me/593979046329?text=Hola, vengo del chatbot. Necesito actualizar mi sitio web. Tecnología: {TECH}. Tiene accesos: {SÍ o NO}. Detalle: {RESUMEN})
+
+FLUJO PROYECTOS NUEVOS:
+Paso 1 — Descubrimiento: pregunta sobre el negocio y meta. Si no sabe, asesora (Landing vs Web vs Tienda). Espera.
+Paso 2 — Decisión:
+- A Medida / complejo / pide humano: pide el formulario "Software a Medida" Y deriva a WhatsApp:
+  [wa-button]WhatsApp:(https://wa.me/593979046329?text=Hola,%20vengo%20del%20chatbot,%20y%20quiero%20hablar%20sobre%20mi%20proyecto)
+- Estándar decidido: pregunta "Manejamos un anticipo del 50%. ¿Comenzamos ahora?". Espera.
+Paso 3 — Datos (solo Estándar). Si dice SÍ, pídele en UN mensaje:
+- Nombre o Razón Social
+- Cédula o RUC
+- Correo
+- Teléfono
+Paso 4 — Acción: con los 4 datos, NO respondas con texto: invoca la función "generarCobroCliente" con los parámetros.
+
+!!! REGLA DE ORO — PAGOS !!!
+SIEMPRE que hables de precios, planes o dinero, incluye literalmente:
+"Recuerda que requerimos el 50% de anticipo para arrancar. Los pagos pueden hacerse al contado o diferidos a 3, 6 o 12 meses con tarjeta de crédito (intereses del banco)."
+Esto es OBLIGATORIO sin importar lo larga que sea la conversación.`;
+
+// Cache del system prompt en Gemini. Se crea lazy en el primer request y se
+// renueva en background antes de expirar. Si Gemini rechaza el cache (p.ej.
+// por mínimo de tokens) o falla, el endpoint usa systemInstruction literal.
+const CACHE_TTL_SECONDS = 3600;                 // 1 hora (mínimo del API)
+const CACHE_RENEW_MARGIN_MS = 5 * 60 * 1000;    // renovar 5 min antes de expirar
+let cacheManager = null;
+let cachedContentName = null;
+let cachedContentExpiresAt = 0;
+let cachePromise = null;
+
+async function ensureSystemCache() {
+  if (!process.env.GEMINI_API_KEY) return null;
+  const now = Date.now();
+  if (cachedContentName && now < cachedContentExpiresAt - CACHE_RENEW_MARGIN_MS) {
+    return cachedContentName;
+  }
+  if (cachePromise) return cachePromise;
+
+  cachePromise = (async () => {
+    try {
+      if (!cacheManager) {
+        cacheManager = new GoogleAICacheManager(process.env.GEMINI_API_KEY);
+      }
+      const cached = await cacheManager.create({
+        model: `models/${FAST_MODEL}`,
+        systemInstruction: SYSTEM_INSTRUCTION,
+        // contents es requerido por el SDK; un mensaje mínimo basta porque
+        // lo que aporta tokens cacheables es el systemInstruction.
+        contents: [{ role: 'user', parts: [{ text: '.' }] }],
+        ttlSeconds: CACHE_TTL_SECONDS,
+        displayName: 'undercodeec-chat-system',
+      });
+      cachedContentName = cached.name;
+      cachedContentExpiresAt = Date.now() + CACHE_TTL_SECONDS * 1000;
+      console.log(`[CACHE] System prompt cacheado: ${cachedContentName}`);
+      return cachedContentName;
+    } catch (e) {
+      // Causa típica: el systemInstruction no llega al mínimo de tokens del cache.
+      // En ese caso el endpoint sigue funcionando sin cache.
+      console.error('[CACHE] No se pudo crear el cache, fallback a no-cache:', e.message);
+      cachedContentName = null;
+      cachedContentExpiresAt = 0;
+      return null;
+    } finally {
+      cachePromise = null;
+    }
+  })();
+
+  return cachePromise;
+}
+
+// Endpoint para el Chatbot (Streaming SSE)
 app.post('/api/chat', async (req, res) => {
-  const { message, history, useAudio } = req.body;
+  const { message, history } = req.body;
+
+  setupSSE(res);
+
+  // Cliente cierra la conexión a media respuesta
+  let clientDisconnected = false;
+  req.on('close', () => { clientDisconnected = true; });
 
   if (message === 'SALUDO_INICIAL') {
       const welcomeText = 'Hola, soy el asistente virtual de Undercodeec, si necesitas ayuda o necesitas un proyecto, no dudes en preguntarme.';
-      return await sendChatResponse(res, welcomeText, useAudio);
+      sendSSE(res, { type: 'text', delta: welcomeText });
+      return endSSE(res);
   }
 
   if (!process.env.GEMINI_API_KEY) {
     console.error('❌ Error: GEMINI_API_KEY no está definida en el entorno.');
-    return res.status(500).json({ error: 'Configuración del servidor incompleta (API Key faltante)' });
+    sendSSE(res, { type: 'error', message: 'Configuración del servidor incompleta.' });
+    return endSSE(res);
   }
 
   try {
-    console.log('[CHAT] Iniciando procesamiento con Gemini...');
-    const systemInstruction = `Eres un Asistente Virtual Inteligente y Experto en Ventas de Undercodeec, una agencia de desarrollo de software y diseño web de vanguardia en Quito, Ecuador.
-Tu objetivo es ser un asistente tan completo y útil como el de Hostinger: profesional, empático, resolutivo y muy conocedor de la industria web.
-
-REGLAS DE COMUNICACIÓN:
-1. LÍMITE ESTRICTO DE CONVERSACIÓN (¡AHORRO DE TOKENS!): Eres EXCLUSIVAMENTE una asesora de servicios digitales de Undercodeec. BAJO NINGUNA CIRCUNSTANCIA responderás a preguntas generales, historia, matemáticas, filosofía, chistes o cualquier tema ajeno al desarrollo web, software y ventas. Si el usuario intenta desviarse del tema corporativo, declina cortésmente diciendo que fuiste programada estrictamente para impulsar sus ventas digitales y regresa la conversación a sus necesidades de negocio.
-2. Habla como si estuvieras en un chat moderno: respuestas concisas, párrafos cortos usando emojis con moderación. Nunca suenes repetitivo.
-3. PROHIBIDO SALUDAR MÁS DE UNA VEZ: El saludo "Hola" o "¡Hola! 👋" SOLO se dice en el primer mensaje de la conversación (el de bienvenida). En TODAS las respuestas posteriores NO debes volver a decir "Hola", "Buen día" ni ninguna variante de saludo. Ve directo al grano con la respuesta. Si el usuario te da una respuesta, contesta directamente sin re-saludarlo.
-4. NUNCA REPITAS UNA PREGUNTA YA RESPONDIDA: Si el usuario ya te dijo que su sitio es WordPress, NO vuelvas a preguntarle en qué tecnología está hecho. Si ya dijo que quiere rediseñar, NO vuelvas a preguntar si quiere un sitio nuevo o actualizar el actual. Lee TODO el historial de la conversación antes de responder y avanza al siguiente paso lógico del flujo.
-5. NUNCA inventes URLs. El único enlace válido para el portafolio es: https://undercodeec.com (sección portafolio).
-6. MEMORIA Y CONTEXTO (¡MUY IMPORTANTE!): Presta atención a lo que el usuario ya eligió o respondió. Si ya eligió "Landing Page" y luego elige el "Plan Lanzamiento", NO le vuelvas a preguntar qué servicio quiere. Simplemente avanza al siguiente paso. Evita los bucles conversacionales a toda costa.
-7. Jamás envíes testamentos largos ni ofrezcas todos los planes de memoria sin preguntar qué necesita primero.
-8. Si el cliente te pasa un enlace (URL) de una página de referencia que le gusta, NUNCA respondas de inmediato. Tu ÚNICA ACCIÓN DEBE SER llamar a la función "analizarSitioWeb" pasándole esa URL. 
-   - Cuando "analizarSitioWeb" te devuelva los datos (como submenús, páginas internas, nivel de diseño), usa esos datos para decirle al cliente si su idea encaja en:
-     * Una Landing Page (desde $250): Si solo tiene secciones en una misma página, diseño simple o moderado, sin submenús complejos y NO es tienda online.
-     * Un Sitio Web Corporativo (desde $360): Si tiene varias páginas internas (máximo 8 genéricas), diseño estructurado pero estándar, y NO es tienda online.
-     * Tienda Online (desde $850): Si la referencia ES un e-commerce, tiene pasarela de pagos.
-     * Un Desarrollo a Medida (Cotizar con Humano): Si tiene MUCHOS submenús anidados, sistemas de reservas complejos, plataformas de cursos, animaciones muy pesadas o diseño extremadamente complejo que no cubre un plan estándar. Explícale el motivo.
-
-9. PAGOS DIFERIDOS: SIEMPRE, sin importar qué tan avanzada esté la conversación, informa al cliente que puede diferir los pagos a 3, 6 o 12 meses (con tarjeta + intereses del banco) cuando le hables de precios o planes.
-
-NUESTROS SERVICIOS ESTÁNDAR (Automatizables con pago):
-IMPORTANTE AL DAR PRECIOS: Siempre que menciones un plan o des opciones a un cliente, DESCRIBE obligatoriamente 2 o 3 de sus características (qué incluye el plan) para que el cliente sepa por qué paga.
-
-1. Landing Page (Plan Lanzamiento: $250 | Crecimiento: $600 | Autoridad: $1500 USD).
-   - Qué es: Es una página web de una sola vista diseñada estratégicamente para convertir visitantes en clientes.
-   - Ideal para: Negocios nuevos, campañas específicas de marketing, o empresas para presencia web rápida.
-   - QUÉ INCLUYE CADA PLAN:
-     * Lanzamiento ($250): Lanza tu campaña en tiempo récord. Incluye: Dominio.com y Hosting por 1 año, Diseño unico optimizado, Diseño 100% adaptable (Mobile-first), Formulario de contacto, Botones flotantes de WhatsApp y Llamadas, SEO orgánico integrado, Soporte durante 1 mes y garantía de 1 año.
-     * Crecimiento ($600): Diseño estratégico orientado a la conversión (CRO). Incluye todo lo del Plan Lanzamiento más: Diseño semi-personalizado y UX, Copywriting persuasivo, Lead Magnet (descargables, cupones), Google Analytics 4 y Píxel de Meta, Integración con Email Marketing/CRM.
-     * Autoridad ($1500): El ecosistema definitivo de ventas, creada desde cero. Incluye todo lo del Plan Crecimiento más: Diseño 100% a medida con animaciones, Pruebas A/B y mapas de calor, Integraciones complejas (Reservas, pasarelas), Chatbots inteligentes con IA, SEO Avanzado y arquitectura de contenido.
-   - Pagos: Anticipo del 50%. Puedes pagar corriente o diferir tus pagos (a 3, 6 o 12 meses con intereses del banco) pagando con tarjeta.
-
-2. Sitio Web Corporativo (Plan Lanzamiento: $360 | Crecimiento: $800 | Autoridad: $2000 USD).
-   - Qué es: Es un sitio web de múltiples páginas. Permite organizar mayor cantidad de información estructurada.
-   - Ideal para: Empresas consolidadas o negocios que necesitan explicar a detalle múltiples servicios.
-   - QUÉ INCLUYE CADA PLAN:
-     * Lanzamiento ($360): Tu negocio abierto al mundo 24/7. Incluye: Diseño basado y adaptado a la identidad de la marca, Estructura de 5 a 10 páginas (Inicio, Servicios, Nosotros, etc.), Diseño 100% Mobile-first, Configuración SEO orgánico integrado, Formularios de contacto e integración con WhatsApp, Dominio.com y Hosting por 1 año, Soporte durante 1 mes y garantía de 1 año.
-     * Crecimiento ($800): Transformamos tus visitas en clientes. Incluye todo lo del Plan Lanzamiento más: Diseño semi-personalizado orientado a la conversión (CRO), SEO Avanzado y SEO Local, Cumplimiento de Core Web Vitals (carga rápida), Integración con CRM, email marketing o Google Analytics, Redacción persuasiva (Copywriting).
-     * Autoridad ($2000): El ecosistema digital definitivo. Incluye todo lo del Plan Crecimiento más: Diseño visual UX/UI 100% personalizado, Integraciones complejas (reservas, ERP, pasarelas), Automatización de ventas y Chatbots con IA, Auditoría de seguridad avanzada y arquitectura escalable.
-   - Pagos: Anticipo del 50%. Puedes pagar corriente o diferir tus pagos (a 3, 6 o 12 meses con intereses del banco) pagando con tarjeta.
-
-3. Tienda Online (Plan Lanzamiento: $850 | Crecimiento: $2500 | Élite: $10000 USD).
-   - Qué es: Un E-commerce completo para vender por internet. Incluye pasarela de pagos, panel autogestionable y carga de productos.
-   - Ideal para: Negocios con productos físicos o digitales y quieren automatizar sus ventas 24/7.
-   - QUÉ INCLUYE CADA PLAN:
-     * Lanzamiento ($850): Lanza tu primera tienda online. Incluye: Tienda administrable para subir productos, Carga inicial de 50 a 100 productos con opcion a mas, Integración de pasarelas de pago (Stripe, Paypal, etc.), Dominio.com y Hosting por 1 año, Métodos de envíos avanzados y SEO orgánico integrado, Soporte durante 1 mes y garantía de 1 año.
-     * Crecimiento ($2500): Escala tus ventas con una tienda optimizada. Incluye todo lo del Plan Lanzamiento más: Diseño semi a medida enfocado en UX y CRO, Búsqueda y filtrado avanzado de productos, Sincronización de inventario y recuperación de carritos (CRM), Copys persuasivos y SEO técnico avanzado, Reglas de envío dinámicas e impuestos.
-     * Élite ($10000): Arquitectura de alto rendimiento para líderes del mercado. Incluye todo lo del Plan Crecimiento más: Desarrollo 100% a medida o arquitectura Headless, Integración API con ERPs empresariales (SAP, Oracle), Motores de recomendación con Inteligencia Artificial, Arquitectura multi-idioma, multi-moneda o multi-almacén (sistema de inventario), Checkout y lógica de negocio a medida.
-   - Pagos: Anticipo del 50%. Puedes pagar corriente o diferir tus pagos (a 3, 6 o 12 meses con intereses del banco) pagando con tarjeta.
-
-SERVICIOS A MEDIDA (Software, Apps, Sistemas Complejos):
-- Qué son: Soluciones tecnológicas desarrolladas desde cero para necesidades específicas. Incluye Aplicaciones Móviles (iOS/Android), Sistemas de Gestión (ERP, CRM), plataformas de cursos, sistemas de reservas complejos, o plataformas tipo SaaS.
-- Cuándo aplicar: Detecta proactivamente si el cliente está yendo por esta rama. Si el cliente no usa la palabra "a medida", pero describe una idea compleja, asume inmediatamente que es un desarrollo a medida.
-- Proceso: Como son proyectos súper personalizados, requieren una etapa de "Levantamiento de Requerimientos" detallada para estimar tiempos y costos reales.
-- Acción: Si identificas que el proyecto es a medida, primero EXPLICA brevemente nuestra capacidad para desarrollarlo y muestra entusiasmo. Luego, ofrécele SIEMPRE estas dos opciones para continuar:
-  1. Que se dirija a la sección "Planes de precios" de la página web y llene el formulario de "Software a Medida" para que un ingeniero evalúe su caso.
-  2. Que se contacte directamente con un asesor por WhatsApp para conversar más rápido.
-
-FLUJO ESPECIAL: ACTUALIZACIÓN O REDISEÑO DE SITIO EXISTENTE
-¡MUY IMPORTANTE! Si el cliente menciona que ya tiene una página web y quiere actualizarla, rediseñarla, modificarla, mejorarla o hacerle cambios, NO le ofrezcas planes nuevos desde cero. Sigue este flujo obligatorio:
-
-**Paso A: Detectar la intención**
-Si el cliente dice cosas como: "quiero actualizar mi página", "necesito rediseñar mi web", "mi sitio está desactualizado", "quiero cambiar cosas de mi página", "necesito mejorar mi web actual", entonces activa este flujo especial.
-
-**Paso B: Preguntar la tecnología**
-Pregúntale: "¡Claro que podemos ayudarte! Para darte una asesoría precisa, necesito saber: ¿en qué tecnología está desarrollado tu sitio actual? ¿Está hecho en WordPress, Wix, Shopify u otro CMS? ¿O está desarrollado a código (HTML, React, etc.)?" ESPERA respuesta.
-
-**Paso C: Según la respuesta:**
-- Si es un CMS (WordPress, Wix, Shopify, etc.): Pregúntale "¿Tienes los accesos de administrador de tu sitio (usuario y contraseña del panel de WordPress/Wix)? Los necesitaremos para poder editarlo."
-- Si es código personalizado: Pregúntale "¿Tienes disponible el código fuente del proyecto? ¿Y tienes accesos al hosting donde está alojado tu sitio (cPanel, FTP o similar)?"
-ESPERA su respuesta a estas preguntas.
-
-**Paso D: Redirigir a WhatsApp con la información recolectada**
-Una vez que tengas la información (tecnología + accesos), dile al cliente que un ingeniero revisará su caso personalmente. Genera el botón de WhatsApp usando este formato EXACTO, escribiendo el mensaje en español plano (SIN codificar a URL, el sistema lo hace automáticamente):
-[wa-button]WhatsApp:(https://wa.me/593979046329?text=Hola, vengo del chatbot. Necesito actualizar mi sitio web. Tecnología: {TECNOLOGÍA QUE DIJO}. Tiene accesos: {SÍ o NO}. Detalle: {BREVE RESUMEN DE LO QUE NECESITA})
-Ejemplo: si dijo WordPress, sí tiene accesos y quiere rediseño visual:
-[wa-button]WhatsApp:(https://wa.me/593979046329?text=Hola, vengo del chatbot. Necesito actualizar mi sitio web. Tecnología: WordPress. Tiene accesos: Sí. Detalle: Rediseño visual completo del sitio)
-
-NUEVO FLUJO DE CONVERSACIÓN PARA PROYECTOS NUEVOS:
-
-**Paso 1: Descubrimiento y Asesoría**
-Pregunta al cliente sobre su negocio y qué quiere lograr. Si no sabe lo que necesita, asesóralo explicando la diferencia entre los servicios (Landing vs Web). ESPERA su respuesta.
-
-**Paso 2: Evaluación y Toma de Decisión**
-- Si es un Proyecto a Medida (Apps, Sistemas) o si el cliente describe algo complejo O EL CLIENTE PIDE HABLAR CON UN HUMANO:
-  Pídele que llene el formulario de Software a Medida en la sección de planes de la página, Y ADEMÁS gatilla el cierre derivándolo a WhatsApp usando EXACTAMENTE este formato por si prefiere trato humano:
-  [wa-button]WhatsApp:(https://wa.me/593979046329?text=Hola,%20vengo%20del%20chatbot,%20y%20quiero%20hablar%20sobre%20mi%20proyecto)
-
-- Si es un Proyecto Estándar (Landing, Web Corporativo, Tienda Emprendedor o Tienda Pro):
-  Si el cliente ya decidió, pregúntale: "Manejamos un anticipo del 50% para arrancar. ¿Te gustaría que comencemos con el proyecto ahora mismo?". ESPERA respuesta.
-
-**Paso 3: Recolección de Datos de Facturación (Solo Proyectos Estándar)**
-Si te dice que "SÍ" quiere empezar, dile que necesitas crearle el link de pago del anticipo y su carpeta en Google Drive. Pídele estos 4 datos en un solo mensaje:
-- Nombre o Razón Social
-- Cédula o RUC
-- Correo Electrónico
-- Teléfono/Celular
-
-**Paso 4: Ejecutar Acción (MUY IMPORTANTE)**
-Una vez que el usuario te haya respondido con sus 4 datos, ¡NO RESPONDAS CON TEXTO! En su lugar, tu única acción debe ser llamar a la función (tool) "generarCobroCliente" con los parámetros obtenidos. El sistema por detrás hará el cobro automático.
-
-**!!! REGLA DE ORO INQUEBRANTABLE - PAGOS DIFERIDOS Y ANTICIPOS !!!**
-Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversación, emitirás un mensaje que contenga planes, cotizaciones o hable de dinero sin agregar de forma CLARA y EXPLÍCITA esto:
-"Recuerda que requerimos el 50% de anticipo para arrancar. Los pagos pueden hacerse al contado o puedes diferirlos con tu tarjeta de crédito a 3, 6 o 12 meses (con los intereses de tu banco)". 
-¡DEBES mencionarlo obligatoriamente cada vez que hables de dinero, precios o le recomiendes planes al cliente!`;
+    console.log('[CHAT] Iniciando procesamiento con Gemini (streaming)...');
 
     // Formatear el historial de Next.js al formato de Gemini
+    // PERF: Limitar a los últimos 8 turnos para reducir tokens y latencia
+    const MAX_HISTORY_TURNS = 8;
     let conversationHistory = [];
     if (history && Array.isArray(history)) {
-       history.forEach(msg => {
-           if (msg.role !== 'system') { // Gemini no acepta system en la historia principal
+       const recentHistory = history.slice(-MAX_HISTORY_TURNS);
+       recentHistory.forEach(msg => {
+           if (msg.role !== 'system') {
                conversationHistory.push({
                    role: msg.role === 'assistant' ? 'model' : 'user',
                    parts: [{ text: msg.content }]
@@ -1241,48 +1292,62 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
            }
        });
     }
-    // Gemini requiere que el historial empiece con un mensaje 'user'
     while (conversationHistory.length > 0 && conversationHistory[0].role === 'model') {
         conversationHistory.shift();
     }
 
-    const availableModels = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-pro-latest", "gemini-flash-latest", "gemini-2.0-flash-001"];
-    let finalResponse;
-    let usedModelName = "";
+    // PERF: tools bajo demanda. analizarSitioWeb solo se adjunta cuando el
+    // mensaje actual del cliente trae una URL — el resto de turnos ahorra los
+    // tokens de razonamiento de esa tool.
+    const URL_REGEX = /\bhttps?:\/\/[^\s)]+/i;
+    const includeAnalyzer = typeof message === 'string' && URL_REGEX.test(message);
 
-    for (const modelName of availableModels) {
-        try {
-            console.log(`[CHAT] Intentando con modelo: ${modelName}`);
-            const model = genAI.getGenerativeModel({
-                model: modelName,
-                systemInstruction: systemInstruction,
-                tools: [{ functionDeclarations: [generarCobroClienteTool, analizarSitioWebTool] }]
-            });
+    const activeTools = [generarCobroClienteTool];
+    if (includeAnalyzer) activeTools.push(analizarSitioWebTool);
 
-            const chat = model.startChat({ history: conversationHistory.slice(0, -1) });
-            const result = await chat.sendMessage(message);
-            finalResponse = result.response;
-            usedModelName = modelName;
-            break; 
-        } catch (e) {
-            console.error(`❌ Falló ${modelName}:`, e.message);
-            if (modelName === availableModels[availableModels.length - 1]) {
-                throw e; // Si es el último, lanzamos el error
-            }
-        }
+    // PERF: si el cache está vigente, evitamos reenviar el systemInstruction
+    // en cada request (Gemini cobra ~25% del precio normal por tokens cacheados).
+    const cacheName = await ensureSystemCache();
+    const usingCache = !!cacheName;
+    console.log(`[CHAT] modelo: ${FAST_MODEL} | cache: ${usingCache ? 'sí' : 'no'} | tools: ${activeTools.map(t => t.name).join(',')}`);
+
+    const modelParams = {
+        model: FAST_MODEL,
+        tools: [{ functionDeclarations: activeTools }],
+    };
+    if (usingCache) {
+        modelParams.cachedContent = { name: cacheName, model: `models/${FAST_MODEL}` };
+    } else {
+        modelParams.systemInstruction = SYSTEM_INSTRUCTION;
     }
+    const model = genAI.getGenerativeModel(modelParams);
 
-    const response = finalResponse;
+    const chat = model.startChat({ history: conversationHistory.slice(0, -1) });
 
-    // Verificar si Gemini decidió invocar una función
-    const apiFunctionCalls = response.functionCalls ? response.functionCalls() : null;
+    // Helper: streamea la respuesta SSE de un sendMessageStream y devuelve el response final
+    const streamModelTurn = async (input) => {
+      const streamResult = await chat.sendMessageStream(input);
+      for await (const chunk of streamResult.stream) {
+        if (clientDisconnected) break;
+        const t = (typeof chunk.text === 'function') ? chunk.text() : '';
+        if (t) sendSSE(res, { type: 'text', delta: t });
+      }
+      return streamResult.response;
+    };
+
+    // 1ª ronda: streaming. Si Gemini decide invocar una tool, los functionCalls
+    // aparecen agregados en el `response` final (sin texto previo).
+    const finalResponse = await streamModelTurn(message);
+    const apiFunctionCalls = finalResponse.functionCalls ? finalResponse.functionCalls() : null;
+
     if (apiFunctionCalls && apiFunctionCalls.length > 0) {
         const call = apiFunctionCalls[0];
-        
+
         if (call.name === "analizarSitioWeb") {
             const args = call.args;
             console.log("⚡ Gemini invocó analizarSitioWeb para:", args.url);
-            
+            sendSSE(res, { type: 'status', message: 'Analizando sitio de referencia...' });
+
             // --- SEGURIDAD SSRF: validación robusta (fuera de la cola, es solo DNS) ---
             let urlObj;
             let initialHost;
@@ -1305,14 +1370,13 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
               initialHost = urlObj.hostname.toLowerCase();
             } catch (ssrfError) {
               console.error("❌ Validación SSRF fallida:", ssrfError.message);
-              const resultChat = model.startChat({ history: conversationHistory });
-              const finalMessageResult = await resultChat.sendMessage([{
+              await streamModelTurn([{
                 functionResponse: {
                   name: "analizarSitioWeb",
                   response: { error: ssrfError.message }
                 }
               }]);
-              return await sendChatResponse(res, finalMessageResult.response.text());
+              return endSSE(res);
             }
             // ------------------------------------
 
@@ -1443,9 +1507,8 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
               puppeteerError = error;
             }
 
-            // Enviar resultado a Gemini (fuera de la cola)
-            const resultChat = model.startChat({ history: conversationHistory });
-            const finalMessageResult = await resultChat.sendMessage([{
+            // Enviar resultado a Gemini en streaming (reusa el mismo chat)
+            await streamModelTurn([{
               functionResponse: {
                 name: "analizarSitioWeb",
                 response: puppeteerError
@@ -1453,15 +1516,16 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
                   : safeAnalysisResult
               }
             }]);
-            return await sendChatResponse(res, finalMessageResult.response.text());
+            return endSSE(res);
         }
-        
+
         if (call.name === "generarCobroCliente") {
             const args = call.args;
             const montoAnticipo = Math.round(args.precioTotal / 2);
-            
+
             console.log("⚡ Gemini invocó generarCobroCliente:", args);
-            
+            sendSSE(res, { type: 'status', message: 'Generando enlace de pago...' });
+
             try {
                 // 1. Generar link en PayPhone (50%)
                 const clientTransactionId = crypto.randomBytes(8).toString('hex').substring(0, 15);
@@ -1478,9 +1542,9 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
                   },
                   { headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' } }
                 );
-                
+
                 const paymentLink = typeof payphoneRes.data === 'string' ? payphoneRes.data : payphoneRes.data.paymentUrl;
-                
+
                 // 2. Guardar datos de la orden pendiente en memoria para cuando paguen
                 pendingOrders.set(clientTransactionId, {
                   ...args,
@@ -1489,35 +1553,53 @@ Bajo NINGUNA circunstancia, sin importar cuán larga o profunda sea la conversac
                   amountPaid: montoAnticipo,
                   tipoPago: 'anticipo',
                   metodoPago: 'tarjeta',
-                  businessName: args.razonSocial, // Usamos la razón social como nombre de proyecto por defecto
+                  businessName: args.razonSocial,
                   callePrincipal: 'No especificada',
                   ciudad: 'Ecuador',
                   provincia: 'No especificada',
                   pais: 'Ecuador',
                   tipoCliente: 'No especificado',
-                  __createdAt: Date.now(), // Para TTL cleanup
+                  __createdAt: Date.now(),
                 });
-                
-                // Retornar mensaje de éxito al frontend (sin enviar correos todavía)
+
                 const finalReply = `¡Todo listo! 🚀\n\nAcabo de generar tu pedido. He pre-configurado todo para tu plan **${args.planName}**.\n\nPor favor, ingresa al siguiente enlace seguro para pagar el anticipo del 50% ($ ${montoAnticipo} USD):\n\n[wa-button]Pagar Anticipo Aquí:(${paymentLink})\n\nUna vez realizado el pago, el sistema **automáticamente** te enviará por correo el recibo y el acceso a tu carpeta de Google Drive para subir tu logo e ideas.`;
-                return await sendChatResponse(res, finalReply, useAudio);
-                
+                sendSSE(res, { type: 'text', delta: finalReply });
+                return endSSE(res);
+
             } catch(e) {
                 console.error("Error en Function Calling:", e.message);
-                return await sendChatResponse(res, "Intenté generar tu link de pago pero hubo un error de conexión interno. Por favor, dale clic al botón de abajo para conectarte con un asesor humano por WhatsApp y ellos lo harán manualmente.\\n\\n[wa-button]Pasar por WhatsApp:(https://wa.me/593979046329?text=Hola,%20tuve%20un%20error%20en%20el%20chatbot%20al%20querer%20pagar)", useAudio);
+                sendSSE(res, { type: 'text', delta: "Intenté generar tu link de pago pero hubo un error de conexión interno. Por favor, dale clic al botón de abajo para conectarte con un asesor humano por WhatsApp y ellos lo harán manualmente.\n\n[wa-button]Pasar por WhatsApp:(https://wa.me/593979046329?text=Hola,%20tuve%20un%20error%20en%20el%20chatbot%20al%20querer%20pagar)" });
+                return endSSE(res);
             }
         }
     }
 
-    console.log('[CHAT] Enviando respuesta final al cliente.');
-    await sendChatResponse(res, response.text(), useAudio);
+    console.log('[CHAT] Streaming finalizado.');
+    endSSE(res);
   } catch (error) {
     console.error('❌ Error crítico en /api/chat:', error);
-    
-    res.status(500).json({ 
-        error: 'Error al procesar tu solicitud', 
-        details: error.message
-    });
+    try {
+      sendSSE(res, { type: 'error', message: 'Error al procesar tu solicitud' });
+      endSSE(res);
+    } catch {
+      try { res.end(); } catch {}
+    }
+  }
+});
+
+// Endpoint dedicado de TTS: el frontend lo invoca en paralelo tras recibir el texto.
+// Esto evita que la síntesis de voz bloquee la respuesta del chat.
+app.post('/api/chat/tts', async (req, res) => {
+  const { text } = req.body || {};
+  if (!text || typeof text !== 'string') {
+    return res.status(400).json({ error: 'text requerido' });
+  }
+  try {
+    const audio_base64 = await generateTTS(text);
+    return res.json({ audio_base64 });
+  } catch (e) {
+    console.error('TTS endpoint error:', e.message);
+    return res.status(500).json({ audio_base64: null });
   }
 });
 
