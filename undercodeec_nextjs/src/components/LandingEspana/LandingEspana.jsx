@@ -6,12 +6,9 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { animate } from "animejs";
 import ScrollPinShowcase from "@/components/LandingEspana/ScrollPinShowcase";
+import ScrollJourneyLine from "@/components/LandingEspana/ScrollJourneyLine";
 import "@/components/Slider/slider.css";
 
-const GhostCursorSection = dynamic(
-  () => import("@/components/LandingEspana/GhostCursorSection"),
-  { ssr: false, loading: () => null }
-);
 
 function LazyMount({ children, rootMargin = "300px", minHeight = "100vh" }) {
   const ref = useRef(null);
@@ -1216,13 +1213,12 @@ const LandingEspana = () => {
         {/* VIDEO SHOWCASE */}
         <VideoShowcase />
 
-        {/* GHOST CURSOR — efecto de estela fluida (lazy: Three.js bajo demanda) */}
-        <LazyMount rootMargin="400px" minHeight="100vh">
-          <GhostCursorSection />
-        </LazyMount>
 
         {/* SCROLL-PIN SHOWCASE — fondo fijo + textos por tramos */}
         <ScrollPinShowcase />
+
+        {/* SCROLL JOURNEY LINE — SVG que se dibuja con el scroll */}
+        <ScrollJourneyLine />
 
         {/* WHY US */}
         <section className="py-5" style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px" }}>

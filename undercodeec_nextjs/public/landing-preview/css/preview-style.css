@@ -288,9 +288,6 @@ h6 {
   left: 0;
   bottom: 0;
   right: 0;
-  background: linear-gradient(350deg, #500c4c, #9d2561, #ba27f4, #643ff7, #fdbd55);
-  background: -webkit-linear-gradient(350deg, #500c4c, #9d2561, #ba27f4, #643ff7, #fdbd55);
-  background: linear-gradient(270deg, #500c4c, #9d2561, #ba27f4, #643ff7, #fdbd55);
   opacity: .32;
   background-size: 600% 600%;
   -webkit-animation: gradient 15sease infinite alternate;
