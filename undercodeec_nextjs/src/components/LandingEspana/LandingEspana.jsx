@@ -3,9 +3,39 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { animate } from "animejs";
+import ScrollPinShowcase from "@/components/LandingEspana/ScrollPinShowcase";
 import "@/components/Slider/slider.css";
-import ScrollShapesDemo from "@/components/LandingEspana/ScrollShapesDemo";
+
+const GhostCursorSection = dynamic(
+  () => import("@/components/LandingEspana/GhostCursorSection"),
+  { ssr: false, loading: () => null }
+);
+
+function LazyMount({ children, rootMargin = "300px", minHeight = "100vh" }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!ref.current || visible) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin }
+    );
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, [visible, rootMargin]);
+  return (
+    <div ref={ref} style={{ minHeight: visible ? undefined : minHeight }}>
+      {visible ? children : null}
+    </div>
+  );
+}
 
 const heroBackgroundPattern = "/assets/slider/6fa818bb935c0e2a1081f259d84df226b237a184.png";
 
@@ -1186,8 +1216,13 @@ const LandingEspana = () => {
         {/* VIDEO SHOWCASE */}
         <VideoShowcase />
 
-        {/* DESIGN DEMOS */}
-        <ScrollShapesDemo />
+        {/* GHOST CURSOR — efecto de estela fluida (lazy: Three.js bajo demanda) */}
+        <LazyMount rootMargin="400px" minHeight="100vh">
+          <GhostCursorSection />
+        </LazyMount>
+
+        {/* SCROLL-PIN SHOWCASE — fondo fijo + textos por tramos */}
+        <ScrollPinShowcase />
 
         {/* WHY US */}
         <section className="py-5" style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px" }}>

@@ -5,15 +5,14 @@ import React, { useEffect, useRef } from "react";
 /* ═══════════════════════════════════════════════════════════════
  *  ScrollShapesDemo – Glitch Tech / Cyber Node Animation
  *  ─────────────────────────────────────────────────────────────
- *  Scroll-driven transition:
- *    • Initial state  → 2×2 grid of tech-node shapes
- *    • Scrolled state → central circle (NEXUS) + 3 satellite
- *                        nodes connected by angular SVG paths
- *
- *  All DOM updates happen via refs (no re-renders on scroll).
+ *  MODIFIED FOR INTERNAL SCROLL:
+ *  This demo now manages its own scroll state. It acts as a 
+ *  scrollable container (overflow-y: auto) so it can be placed
+ *  inside smaller bento box cards without relying on window scroll.
  * ═══════════════════════════════════════════════════════════════ */
 
 const ScrollShapesDemo = () => {
+  const scrollWrapperRef = useRef(null);
   const wrapRef       = useRef(null);
   const stickyRef     = useRef(null);
   const svgRef        = useRef(null);
@@ -52,22 +51,22 @@ const ScrollShapesDemo = () => {
       const cx = w / 2;
       const cy = h / 2;
 
-      /* Satellite centres (must match the CSS positions) */
-      const s1x = w * 0.20 + half;          // sat-1: top:15% left:20%
+      /* Satellite centres */
+      const s1x = w * 0.20 + half;
       const s1y = h * 0.15 + half;
-      const s2x = w * 0.20 + half;          // sat-2: bottom:15% left:20%
+      const s2x = w * 0.20 + half;
       const s2y = h * 0.85 - half;
-      const s3x = w * 0.85 - half;          // sat-3: top:50% right:15%
-      const s3y = h * 0.5;                  //         translateY(-50%)
+      const s3x = w * 0.85 - half;
+      const s3y = h * 0.5;
 
       /* Angular bend points */
       const b1x = s1x + (cx - s1x) * 0.38;
       const b2x = s2x + (cx - s2x) * 0.38;
 
       const pathData = [
-        `M ${s1x} ${s1y} L ${b1x} ${s1y} L ${cx} ${cy}`,       // sat-1 → bend → center
-        `M ${s2x} ${s2y} L ${b2x} ${s2y} L ${cx} ${cy}`,       // sat-2 → bend → center
-        `M ${s3x} ${s3y} L ${cx} ${s3y}`,                       // sat-3 → straight → center
+        `M ${s1x} ${s1y} L ${b1x} ${s1y} L ${cx} ${cy}`,
+        `M ${s2x} ${s2y} L ${b2x} ${s2y} L ${cx} ${cy}`,
+        `M ${s3x} ${s3y} L ${cx} ${s3y}`,
       ];
 
       pathData.forEach((d, i) => {
@@ -88,109 +87,60 @@ const ScrollShapesDemo = () => {
     return () => ro.disconnect();
   }, []);
 
-  /* ── 3. Scroll detection → class toggle + path animation ─── */
-  useEffect(() => {
-    const wrap   = wrapRef.current;
+  /* ── 3. Internal Scroll detection ─── */
+  const handleScroll = (e) => {
+    const wrapper = e.target;
     const sticky = stickyRef.current;
-    if (!wrap || !sticky) return;
+    if (!wrapper || !sticky) return;
 
-    const animatePaths = (scrolled) => {
-      const delays = [0.2, 0.3, 0.4];
-      pathRefs.current.forEach((p, i) => {
-        if (!p) return;
-        if (scrolled) {
-          p.style.transition =
-            `stroke-dashoffset 0.8s cubic-bezier(0.87,0,0.13,1) ${delays[i]}s`;
-          p.style.strokeDashoffset = "0";
-        } else {
-          p.style.transition =
-            "stroke-dashoffset 0.5s cubic-bezier(0.87,0,0.13,1)";
-          p.style.strokeDashoffset = String(p.getTotalLength());
-        }
-      });
-    };
+    if (rafId.current) return;
+    rafId.current = requestAnimationFrame(() => {
+      rafId.current = null;
+      
+      // Calculate scroll progress based on the wrapper's scrollTop
+      // Trigger animation when scrolled 25% down the scrollable height
+      const scrollableHeight = wrapper.scrollHeight - wrapper.clientHeight;
+      const triggerPoint = scrollableHeight * 0.25;
+      const scrolled = wrapper.scrollTop > triggerPoint;
 
-    const onScroll = () => {
-      if (rafId.current) return;
-      rafId.current = requestAnimationFrame(() => {
-        rafId.current = null;
-        const rect     = wrap.getBoundingClientRect();
-        const scrolled = -rect.top > window.innerHeight * 0.4;
-        if (scrolled !== isScrolledRef.current) {
-          isScrolledRef.current = scrolled;
-          sticky.classList.toggle("shpdemo-scrolled", scrolled);
-          animatePaths(scrolled);
-        }
-      });
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (rafId.current) cancelAnimationFrame(rafId.current);
-    };
-  }, []);
+      if (scrolled !== isScrolledRef.current) {
+        isScrolledRef.current = scrolled;
+        sticky.classList.toggle("shpdemo-scrolled", scrolled);
+        
+        const delays = [0.2, 0.3, 0.4];
+        pathRefs.current.forEach((p, i) => {
+          if (!p) return;
+          if (scrolled) {
+            p.style.transition = `stroke-dashoffset 0.8s cubic-bezier(0.87,0,0.13,1) ${delays[i]}s`;
+            p.style.strokeDashoffset = "0";
+          } else {
+            p.style.transition = "stroke-dashoffset 0.5s cubic-bezier(0.87,0,0.13,1)";
+            p.style.strokeDashoffset = String(p.getTotalLength());
+          }
+        });
+      }
+    });
+  };
 
   /* ═══════════════════════════════════════════════════════════ */
   /*  R E N D E R                                               */
   /* ═══════════════════════════════════════════════════════════ */
   return (
-    <section id="demos-diseno" style={{ position: "relative", overflow: "hidden" }}>
-      {/* ── gradient transition: white → dark ── */}
-      <div
-        style={{
-          background: "linear-gradient(180deg, #ffffff 0%, #111 100%)",
-          height: 120,
-        }}
-      />
-
-      {/* ── section header on dark bg ── */}
-      <div style={{ background: "#0a0a0a", paddingTop: 40, paddingBottom: 20 }}>
-        <div className="container">
-          <div className="text-center animate-fadeUp">
-            <span
-              style={{
-                textTransform: "uppercase",
-                fontWeight: 700,
-                color: "#FEE07A",
-                letterSpacing: "3px",
-                fontSize: 12,
-              }}
-            >
-              Lo que podemos crear
-            </span>
-            <h2
-              style={{
-                fontSize: "clamp(28px, 4vw, 44px)",
-                fontWeight: 700,
-                marginTop: 10,
-                marginBottom: 14,
-                color: "#fff",
-                letterSpacing: "-0.5px",
-              }}
-            >
-              Diseño que cobra vida con cada scroll
-            </h2>
-            <p
-              style={{
-                color: "#888",
-                maxWidth: 660,
-                fontSize: 16,
-                margin: "0 auto",
-                lineHeight: 1.7,
-              }}
-            >
-              Desliza hacia abajo y observa cómo transformamos ideas simples en
-              experiencias visuales únicas. Esto es solo una muestra de lo que
-              Undercodeec puede crear para tu marca.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── scroll container ── */}
-      <div ref={wrapRef} className="shpdemo-scroll-container">
+    <div
+      ref={scrollWrapperRef}
+      onScroll={handleScroll}
+      className="shpdemo-container"
+      style={{
+        width: "100%",
+        height: "100%", // Takes full height of the bento card
+        overflowY: "auto", // Enables internal scrolling
+        overflowX: "hidden",
+        position: "relative",
+        background: "#0a0a0a"
+      }}
+    >
+      {/* ── scroll area (taller than container to allow scrolling) ── */}
+      <div ref={wrapRef} className="shpdemo-scroll-track">
         <div ref={stickyRef} className="shpdemo-sticky-view">
           {/* cyber grid bg */}
           <div className="shpdemo-cyber-grid" />
@@ -250,35 +200,35 @@ const ScrollShapesDemo = () => {
 
           {/* scroll indicator */}
           <div className="shpdemo-indicator">
-            <span>INITIALIZE SEQUENCE</span>
+            <span>SCROLL TO INITIALIZE</span>
             <div className="shpdemo-drop-line" />
           </div>
         </div>
       </div>
-
-      {/* ── gradient transition: dark → white ── */}
-      <div
-        style={{
-          background: "linear-gradient(180deg, #0a0a0a 0%, #ffffff 100%)",
-          height: 120,
-        }}
-      />
 
       {/* ═══════════════════════════════════════════════════════ */}
       {/*  S C O P E D   S T Y L E S                              */}
       {/* ═══════════════════════════════════════════════════════ */}
       <style jsx global>{`
         /* ── Layout ───────────────────────────── */
-        .shpdemo-scroll-container {
-          height: 250vh;
+        
+        /* Hide scrollbar for a cleaner look but keep functionality */
+        .shpdemo-container::-webkit-scrollbar {
+          width: 0px;
+          background: transparent;
+        }
+
+        .shpdemo-scroll-track {
+          /* Make it taller than container to force scroll */
+          height: 180%; 
           position: relative;
-          background: #0a0a0a;
         }
 
         .shpdemo-sticky-view {
           position: sticky;
           top: 0;
-          height: 100vh;
+          height: 100%;
+          min-height: 400px; /* Minimum height to ensure it fits in small cards */
           width: 100%;
           display: flex;
           align-items: center;
@@ -338,13 +288,13 @@ const ScrollShapesDemo = () => {
         }
 
         .shpdemo-grid-shape {
-          width: 180px;
-          height: 180px;
+          width: 140px;
+          height: 140px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          font-size: 1.2rem;
+          font-size: 1rem;
           font-weight: 700;
           color: #888;
           border-radius: 4px;
@@ -381,8 +331,8 @@ const ScrollShapesDemo = () => {
 
         /* ── Center Circle ───────────────────── */
         .shpdemo-center-circle {
-          width: 280px;
-          height: 280px;
+          width: 220px;
+          height: 220px;
           background-color: #FEE07A;
           border: 4px solid #fff;
           border-radius: 50%;
@@ -412,13 +362,13 @@ const ScrollShapesDemo = () => {
         .shpdemo-nexus-text {
           font-family: "Space Grotesk", sans-serif;
           font-weight: 700;
-          font-size: 2.5rem;
+          font-size: 2rem;
           letter-spacing: -1px;
           margin-bottom: 2px;
         }
 
         .shpdemo-nexus-sub {
-          font-size: 0.7rem;
+          font-size: 0.6rem;
           letter-spacing: 4px;
           font-weight: 700;
           opacity: 0.7;
@@ -426,8 +376,8 @@ const ScrollShapesDemo = () => {
 
         /* ── Satellites ──────────────────────── */
         .shpdemo-satellite {
-          width: 90px;
-          height: 90px;
+          width: 70px;
+          height: 70px;
           border: 2px solid #555;
           background: #111;
           position: absolute;
@@ -441,45 +391,46 @@ const ScrollShapesDemo = () => {
           font-weight: 700;
           color: #fff;
           border-radius: 4px;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
         }
 
         .shpdemo-sat-1 {
           top: 15%;
-          left: 20%;
+          left: 15%;
         }
         .shpdemo-sat-2 {
           bottom: 15%;
-          left: 20%;
+          left: 15%;
         }
         .shpdemo-sat-3 {
           top: 50%;
-          right: 15%;
+          right: 10%;
           transform: translateY(-50%) scale(0);
         }
 
         /* ── Scroll Indicator ────────────────── */
         .shpdemo-indicator {
           position: absolute;
-          bottom: 40px;
+          bottom: 20px;
           left: 50%;
           transform: translateX(-50%);
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           opacity: 1;
           transition: opacity 0.3s;
-          font-size: 0.8rem;
+          font-size: 0.7rem;
           color: #888;
           text-transform: uppercase;
-          letter-spacing: 4px;
+          letter-spacing: 3px;
           z-index: 40;
+          text-align: center;
         }
 
         .shpdemo-drop-line {
           width: 1px;
-          height: 40px;
+          height: 30px;
           background: linear-gradient(to bottom, transparent, #FEE07A);
           animation: shpdemoDrop 1.5s infinite;
         }
@@ -561,62 +512,58 @@ const ScrollShapesDemo = () => {
         /* ══════════════════════════════════════ */
         @media (max-width: 768px) {
           .shpdemo-grid-shape {
-            width: 130px !important;
-            height: 130px !important;
-            font-size: 0.9rem !important;
+            width: 110px !important;
+            height: 110px !important;
+            font-size: 0.8rem !important;
           }
           .shpdemo-initial-grid {
             gap: 1rem !important;
           }
           .shpdemo-center-circle {
-            width: 200px !important;
-            height: 200px !important;
+            width: 170px !important;
+            height: 170px !important;
           }
           .shpdemo-nexus-text {
-            font-size: 1.8rem !important;
+            font-size: 1.5rem !important;
           }
           .shpdemo-satellite {
-            width: 65px !important;
-            height: 65px !important;
-            font-size: 0.75rem !important;
+            width: 55px !important;
+            height: 55px !important;
+            font-size: 0.7rem !important;
           }
         }
 
         @media (max-width: 480px) {
           .shpdemo-grid-shape {
-            width: 105px !important;
-            height: 105px !important;
-            font-size: 0.75rem !important;
+            width: 95px !important;
+            height: 95px !important;
+            font-size: 0.7rem !important;
           }
           .shpdemo-grid-shape i {
-            font-size: 20px !important;
+            font-size: 18px !important;
           }
           .shpdemo-initial-grid {
             gap: 0.7rem !important;
           }
           .shpdemo-center-circle {
-            width: 150px !important;
-            height: 150px !important;
+            width: 140px !important;
+            height: 140px !important;
           }
           .shpdemo-nexus-text {
-            font-size: 1.3rem !important;
+            font-size: 1.2rem !important;
           }
           .shpdemo-nexus-sub {
-            font-size: 0.55rem !important;
+            font-size: 0.5rem !important;
             letter-spacing: 2px !important;
           }
           .shpdemo-satellite {
-            width: 50px !important;
-            height: 50px !important;
+            width: 45px !important;
+            height: 45px !important;
             font-size: 0.6rem !important;
-          }
-          .shpdemo-indicator {
-            font-size: 0.65rem !important;
-            letter-spacing: 2px !important;
           }
         }
       `}</style>
-    </section>
+    </div>
   );
 };
 
