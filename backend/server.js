@@ -1224,9 +1224,14 @@ app.post('/api/chat', async (req, res) => {
 
   setupSSE(res);
 
-  // Cliente cierra la conexión a media respuesta
+  // Cliente cierra la conexión a media respuesta.
+  // OJO: usamos res.on('close'), NO req.on('close'). En Node moderno
+  // req.on('close') dispara cuando el body del request termina de leerse,
+  // aunque la respuesta siga escribiéndose, lo que daba falsos positivos.
   let clientDisconnected = false;
-  req.on('close', () => { clientDisconnected = true; });
+  res.on('close', () => {
+    if (!res.writableEnded) clientDisconnected = true;
+  });
 
   if (message === 'SALUDO_INICIAL') {
       const welcomeText = 'Hola, soy el asistente virtual de Undercodeec, si necesitas ayuda o necesitas un proyecto, no dudes en preguntarme.';
