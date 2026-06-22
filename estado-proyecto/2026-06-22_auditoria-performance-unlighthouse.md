@@ -4,7 +4,7 @@
 | Prioridad | Estado |
 |---|---|
 | P1 — Extraer CSS crítico style.css | ✅ completado (purge -64%) |
-| P2 — Migrar Bootstrap grid → Tailwind | ⏸ pendiente |
+| P2 — Migrar Bootstrap grid → Tailwind | ❌ revertido | Dependencias globales rotas |
 | P3 — Migrar FA/BI → react-icons | ⏸ pendiente |
 | P4 — Consolidar GTM/GA | 🟡 parcial (1/2) |
 | P5 — Eliminar JS legacy layout.tsx | ✅ completado (3/4 scripts removidos) |
@@ -83,6 +83,10 @@ Reordena bootstrap/style/preview en `<head>` para que la cascada CSS funcione. L
 ## Cambios intentados y REVERTIDOS
 
 Se intentó mover `bootstrap.min.css` y `style.css` de render-blocking a deferred → **rompió estilos visuales** (FOUC visible en visitantes recurrentes que skipean el preloader).
+
+**INTENTO 2 (2026-06-22):** Se intentó migrar todo el grid de Bootstrap a Tailwind y refactorizar componentes interactivos para eliminar `bootstrap.min.css`.
+- **Resultado**: La eliminación de `bootstrap.min.css` rompió estilos en múltiples páginas que dependían implícitamente de sus normalizaciones, tipografía y utilidades globales más allá del grid.
+- **Acción**: Revertido completamente al commit base (`bd9edf9`).
 
 **Estado actual: idéntico al inicio de la sesión.** Todo restaurado:
 - `layout.tsx` con los 2 `<link>` render-blocking
@@ -163,13 +167,9 @@ Candidatos a `rm` físico: todo excepto `bootstrap.bundle.min.js` y su carpeta `
 - DevDep agregada: `purgecss@8.0.0`.
 - Pendiente: verificar visualmente en `/`, `/ec`, `/es`, `/hosting` que no haya regresiones.
 
-### P2 — Migrar Bootstrap grid → Tailwind
-86 componentes. Reemplazar:
-- `container` → `tw-container` o `tw-max-w-* tw-mx-auto`
-- `row` → `tw-grid tw-grid-cols-12 tw-gap-*` o `tw-flex tw-flex-wrap`
-- `col-lg-4` → `tw-col-span-4` o `lg:tw-w-1/3`
-- `d-flex align-items-center` → `tw-flex tw-items-center`
-- Después eliminar `bootstrap.min.css` → **-156KB**
+### P2 — Migrar Bootstrap grid → Tailwind — **REVERTIDO 2026-06-22**
+- **Estado Actual**: Se comprobó que eliminar `bootstrap.min.css` rompe estilos visuales en la aplicación debido a dependencias ocultas o implícitas en tipografía, utilidades y resets globales, además del grid.
+- Se cancela temporalmente su eliminación hasta contar con una estrategia que aísle o preserve estas clases globales críticas de Bootstrap.
 
 ### P3 — Migrar FontAwesome / BI → react-icons
 37 componentes con `<i className="fa-*">`, `<i className="bi-*">`.
