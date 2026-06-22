@@ -1289,12 +1289,23 @@ app.post('/api/chat', async (req, res) => {
     // Helper: streamea la respuesta SSE de un sendMessageStream y devuelve el response final
     const streamModelTurn = async (input) => {
       const streamResult = await chat.sendMessageStream(input);
+      let emitted = '';
       for await (const chunk of streamResult.stream) {
         if (clientDisconnected) break;
-        const t = (typeof chunk.text === 'function') ? chunk.text() : '';
-        if (t) sendSSE(res, { type: 'text', delta: t });
+        let t = '';
+        try { t = (typeof chunk.text === 'function') ? chunk.text() : ''; } catch {}
+        if (t) {
+          emitted += t;
+          sendSSE(res, { type: 'text', delta: t });
+        }
       }
-      return streamResult.response;
+      const response = await streamResult.response;
+      if (!emitted && !clientDisconnected) {
+        let finalText = '';
+        try { finalText = (typeof response.text === 'function') ? response.text() : ''; } catch {}
+        if (finalText) sendSSE(res, { type: 'text', delta: finalText });
+      }
+      return response;
     };
 
     // 1ª ronda: streaming. Si Gemini decide invocar una tool, los functionCalls
