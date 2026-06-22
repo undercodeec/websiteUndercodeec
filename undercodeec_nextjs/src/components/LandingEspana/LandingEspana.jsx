@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { animate } from "animejs";
 import ScrollPinShowcase from "@/components/LandingEspana/ScrollPinShowcase";
 import ScrollJourneyLine from "@/components/LandingEspana/ScrollJourneyLine";
+import ThanosTextSection from "@/components/LandingEspana/ThanosTextSection";
 import "@/components/Slider/slider.css";
 
 
@@ -1220,45 +1221,9 @@ const LandingEspana = () => {
         {/* SCROLL JOURNEY LINE — SVG que se dibuja con el scroll */}
         <ScrollJourneyLine />
 
-        {/* WHY US */}
-        <section className="py-5" style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px" }}>
-          <div className="container">
-            <div className="row align-items-center">
-              <div className="col-lg-6 mb-4 mb-lg-0 animate-fadeRight">
-                <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
-                  Por qué Undercodeec
-                </span>
-                <h2 className="mt-2 mb-4" style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 700 }}>
-                  Un equipo técnico, no una agencia de comerciales.
-                </h2>
-                <p className="text-muted mb-4" style={{ fontSize: "17px", lineHeight: 1.7 }}>
-                  Cansado de agencias que prometen mucho y entregan tarde, mal o caro. En Undercodeec hablamos como queremos que nos hablen a nosotros: claro, directo y con números reales sobre la mesa.
-                </p>
-                <ul className="list-unstyled">
-                  {[
-                    "Presupuesto cerrado en euros, sin sustos a final de mes",
-                    "Te asignamos un contacto técnico real, no un cuenta-historias",
-                    "Código fuente 100 % tuyo cuando termina el proyecto",
-                    "Cumplimiento RGPD, AEAT y normativa española de serie",
-                    "Soporte y mantenimiento sin permanencia",
-                  ].map((p, i) => (
-                    <li key={i} className="mb-2" style={{ fontSize: "16px" }}>
-                      <i className="bi bi-check-circle-fill me-2" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}></i>
-                      {p}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="col-lg-6 text-center animate-fadeLeft" style={{ transitionDelay: '150ms' }}>
-                <img
-                  src="/assets/img/about/3d_vector2.svg"
-                  alt="Equipo técnico de desarrollo web y SEO en España"
-                  style={{ maxWidth: "100%", height: "auto" }}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* THANOS TEXT — headline con efecto desintegración */}
+        <ThanosTextSection />
+
 
         {/* PRICING */}
         <section id="presupuesto" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px" }}>

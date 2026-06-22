@@ -286,7 +286,7 @@ export default function ScrollJourneyLine() {
           column-gap: 120px;
           row-gap: 80px;
           z-index: 1;
-          padding-bottom: 1000px;
+          padding-bottom: 700px;
         }
         @media (max-width: 900px) {
           .scroll-journey { padding: 70px 0 90px; }
