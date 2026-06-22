@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import loadingPace from '@/common/loadingPace';
 import { playSoundWithFade } from '@/utils/audio';
 
 const getPreloaderKey = (path) => {
@@ -36,7 +35,6 @@ const PreLoader = () => {
     window.addEventListener('storage', handleStorageChange);
 
     const startPreloaderSequence = () => {
-      setTimeout(() => loadingPace(), 0);
       timer1Ref.current = setTimeout(() => {
         setHasLoaded(true);
       }, 100);
@@ -143,8 +141,7 @@ const PreLoader = () => {
 
   return (
     <>
-      <div id="preloader-pace" style={{ display: 'none' }}></div>
-      <div 
+      <div
         id="immersive-preloader" 
         className="tw-fixed tw-inset-0 tw-w-full tw-h-screen tw-overflow-hidden tw-z-[9999999]"
         style={{ pointerEvents: isEntered ? 'none' : 'auto' }}

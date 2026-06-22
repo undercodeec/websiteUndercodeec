@@ -302,10 +302,7 @@ fbq('track', 'PageView');`}
         </PageTransition>
 
         <Script src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`} strategy="lazyOnload" />
-        <Script src="/assets/js/lib/pace.js" strategy="afterInteractive" />
         <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />
-        <Script src="/landing-preview/js/parallax.min.js" strategy="afterInteractive" />
-        <Script src="/assets/js/main.js" strategy="afterInteractive" />
       </body>
     </html>
   );
