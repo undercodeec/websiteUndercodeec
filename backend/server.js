@@ -1227,11 +1227,14 @@ async function ensureSystemCache() {
       const cached = await cacheManager.create({
         model: `models/${FAST_MODEL}`,
         systemInstruction: SYSTEM_INSTRUCTION,
+        // Gemini no permite pasar tools/systemInstruction en el generateContent
+        // cuando se usa cachedContent — deben estar embebidos aquí en el cache.
+        tools: [{ functionDeclarations: [generarCobroClienteTool, analizarSitioWebTool] }],
         // contents es requerido por el SDK; un mensaje mínimo basta porque
         // lo que aporta tokens cacheables es el systemInstruction.
         contents: [{ role: 'user', parts: [{ text: '.' }] }],
         ttlSeconds: CACHE_TTL_SECONDS,
-        displayName: 'undercodeec-chat-system',
+        displayName: 'undercodeec-chat-system-v2',
       });
       cachedContentName = cached.name;
       cachedContentExpiresAt = Date.now() + CACHE_TTL_SECONDS * 1000;
@@ -1311,14 +1314,14 @@ app.post('/api/chat', async (req, res) => {
     const usingCache = !!cacheName;
     console.log(`[CHAT] modelo: ${FAST_MODEL} | cache: ${usingCache ? 'sí' : 'no'} | tools: ${activeTools.map(t => t.name).join(',')}`);
 
-    const modelParams = {
-        model: FAST_MODEL,
-        tools: [{ functionDeclarations: activeTools }],
-    };
+    const modelParams = { model: FAST_MODEL };
     if (usingCache) {
+        // tools y systemInstruction ya están embebidos en el cache — pasarlos
+        // aquí también causa un 400 de la API de Gemini.
         modelParams.cachedContent = { name: cacheName, model: `models/${FAST_MODEL}` };
     } else {
         modelParams.systemInstruction = SYSTEM_INSTRUCTION;
+        modelParams.tools = [{ functionDeclarations: activeTools }];
     }
     const model = genAI.getGenerativeModel(modelParams);
 
