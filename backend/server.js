@@ -1300,7 +1300,10 @@ app.post('/api/chat', async (req, res) => {
     // 1ª ronda: streaming. Si Gemini decide invocar una tool, los functionCalls
     // aparecen agregados en el `response` final (sin texto previo).
     const finalResponse = await streamModelTurn(message);
+    const finishReason = finalResponse.candidates?.[0]?.finishReason;
+    const aggregatedText = (typeof finalResponse.text === 'function') ? finalResponse.text() : '';
     const apiFunctionCalls = finalResponse.functionCalls ? finalResponse.functionCalls() : null;
+    console.log(`[DEBUG] finishReason=${finishReason} | hasText=${!!aggregatedText} | functionCalls=${JSON.stringify(apiFunctionCalls?.map(c => c.name))}`);
 
     if (apiFunctionCalls && apiFunctionCalls.length > 0) {
         const call = apiFunctionCalls[0];
