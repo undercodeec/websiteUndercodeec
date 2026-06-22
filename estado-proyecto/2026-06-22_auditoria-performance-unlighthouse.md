@@ -3,7 +3,7 @@
 ## Resumen progreso
 | Prioridad | Estado |
 |---|---|
-| P1 — Extraer CSS crítico style.css | ⏸ pendiente |
+| P1 — Extraer CSS crítico style.css | ✅ completado (purge -64%) |
 | P2 — Migrar Bootstrap grid → Tailwind | ⏸ pendiente |
 | P3 — Migrar FA/BI → react-icons | ⏸ pendiente |
 | P4 — Consolidar GTM/GA | 🟡 parcial (1/2) |
@@ -102,6 +102,13 @@ Se intentó mover `bootstrap.min.css` y `style.css` de render-blocking a deferre
 - `src/components/PreLoader/index.jsx`: removido import `loadingPace`, llamada `setTimeout(() => loadingPace(), 0)` y div fantasma `<div id="preloader-pace" />`.
 - Archivos físicos en `public/assets/js/` (pace.js, parallax.min.js, main.js) sin borrar — quedan huérfanos, candidatos a `rm` futuro.
 
+### 2026-06-22 — P1 completado
+- `public/assets/css/style.css`: 483 KB → 176 KB vía PurgeCSS (-64%).
+- `run-purge.cjs` agregado en root del proyecto Next.
+- `package.json`: nuevo script `purge:legacy-css` + devDep `purgecss@8.0.0`.
+- Sin cambios en `layout.tsx` (path del archivo no cambió).
+- Pendiente: validación visual en rutas con preloader.
+
 ## Componentes que dependen del CSS legacy
 
 **Bootstrap grid (86 archivos)** — usan `col-*`, `row`, `container`, `d-flex`, `navbar-expand-lg`, etc.
@@ -148,10 +155,13 @@ Candidatos a `rm` físico: todo excepto `bootstrap.bundle.min.js` y su carpeta `
 
 ## Trabajo pendiente (por prioridad)
 
-### P1 — Extraer CSS crítico de `style.css`
-1. Identificar las ~10KB de clases custom realmente usadas (`.feat-dark`, `.nav-preview`, etc.)
-2. Mover a CSS module / globals.css
-3. Eliminar `style.css` completo → **-460KB, -2-3s FCP**
+### P1 — Extraer CSS crítico de `style.css` — **COMPLETADO 2026-06-22**
+- Estrategia: PurgeCSS con safelist conservadora (no extracción manual a globals.css).
+- `style.css`: 483 KB → 176 KB (**-307 KB, -64%**).
+- Safelist incluida (clases construidas con template literals): `style-1..4`, `color-blue1..7`, `top-navbar`, `nav-preview`, `feat-dark`, `index-main`, `animate-fadeUp`, `section-head`, `brd-gray`, `show/fade/active/collapsed/isdone`.
+- Script `run-purge.cjs` + npm script `pnpm purge:legacy-css` para re-correr.
+- DevDep agregada: `purgecss@8.0.0`.
+- Pendiente: verificar visualmente en `/`, `/ec`, `/es`, `/hosting` que no haya regresiones.
 
 ### P2 — Migrar Bootstrap grid → Tailwind
 86 componentes. Reemplazar:
