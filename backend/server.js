@@ -1212,47 +1212,10 @@ let cachedContentExpiresAt = 0;
 let cachePromise = null;
 
 async function ensureSystemCache() {
-  if (!process.env.GEMINI_API_KEY) return null;
-  const now = Date.now();
-  if (cachedContentName && now < cachedContentExpiresAt - CACHE_RENEW_MARGIN_MS) {
-    return cachedContentName;
-  }
-  if (cachePromise) return cachePromise;
-
-  cachePromise = (async () => {
-    try {
-      if (!cacheManager) {
-        cacheManager = new GoogleAICacheManager(process.env.GEMINI_API_KEY);
-      }
-      const cached = await cacheManager.create({
-        model: `models/${FAST_MODEL}`,
-        systemInstruction: SYSTEM_INSTRUCTION,
-        // Gemini no permite pasar tools/systemInstruction en el generateContent
-        // cuando se usa cachedContent — deben estar embebidos aquí en el cache.
-        tools: [{ functionDeclarations: [generarCobroClienteTool, analizarSitioWebTool] }],
-        // contents es requerido por el SDK; un mensaje mínimo basta porque
-        // lo que aporta tokens cacheables es el systemInstruction.
-        contents: [{ role: 'user', parts: [{ text: '.' }] }],
-        ttlSeconds: CACHE_TTL_SECONDS,
-        displayName: 'undercodeec-chat-system-v2',
-      });
-      cachedContentName = cached.name;
-      cachedContentExpiresAt = Date.now() + CACHE_TTL_SECONDS * 1000;
-      console.log(`[CACHE] System prompt cacheado: ${cachedContentName}`);
-      return cachedContentName;
-    } catch (e) {
-      // Causa típica: el systemInstruction no llega al mínimo de tokens del cache.
-      // En ese caso el endpoint sigue funcionando sin cache.
-      console.error('[CACHE] No se pudo crear el cache, fallback a no-cache:', e.message);
-      cachedContentName = null;
-      cachedContentExpiresAt = 0;
-      return null;
-    } finally {
-      cachePromise = null;
-    }
-  })();
-
-  return cachePromise;
+  // Cache desactivado: la API de Gemini no permite pasar tools/systemInstruction
+  // en el request cuando se usa cachedContent, y el SDK no soporta bien el flujo
+  // cache+tools+chat en esta versión. Se usa systemInstruction directo por ahora.
+  return null;
 }
 
 // Endpoint para el Chatbot (Streaming SSE)
@@ -1314,15 +1277,11 @@ app.post('/api/chat', async (req, res) => {
     const usingCache = !!cacheName;
     console.log(`[CHAT] modelo: ${FAST_MODEL} | cache: ${usingCache ? 'sí' : 'no'} | tools: ${activeTools.map(t => t.name).join(',')}`);
 
-    const modelParams = { model: FAST_MODEL };
-    if (usingCache) {
-        // tools y systemInstruction ya están embebidos en el cache — pasarlos
-        // aquí también causa un 400 de la API de Gemini.
-        modelParams.cachedContent = { name: cacheName, model: `models/${FAST_MODEL}` };
-    } else {
-        modelParams.systemInstruction = SYSTEM_INSTRUCTION;
-        modelParams.tools = [{ functionDeclarations: activeTools }];
-    }
+    const modelParams = {
+        model: FAST_MODEL,
+        systemInstruction: SYSTEM_INSTRUCTION,
+        tools: [{ functionDeclarations: activeTools }],
+    };
     const model = genAI.getGenerativeModel(modelParams);
 
     const chat = model.startChat({ history: conversationHistory.slice(0, -1) });
