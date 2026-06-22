@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { RiRobot2Line, RiCloseLine, RiSendPlaneFill, RiMicFill, RiMicOffFill, RiVolumeUpFill, RiVolumeMuteFill } from 'react-icons/ri';
 import VimeoFacade from '@/components/Vimeo/VimeoFacade';
@@ -14,6 +14,12 @@ const AIAssistant = () => {
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    // Typewriter effect state
+    // Maps message index -> how many characters have been revealed so far
+    const [revealedChars, setRevealedChars] = useState({});
+    const typewriterTimers = useRef({});
+    const TYPEWRITER_SPEED = 18; // ms per character (lower = faster)
     
     // Voice Chat States
     const [isAudioEnabled, setIsAudioEnabled] = useState(true);
@@ -102,6 +108,47 @@ const AIAssistant = () => {
             console.error('Error fetching TTS audio:', e);
         }
     };
+
+    // Typewriter reveal: when a message's full content changes or finishes streaming,
+    // start revealing characters one by one.
+    const startTypewriter = useCallback((msgIndex, fullLength) => {
+        // Clear any existing timer for this index
+        if (typewriterTimers.current[msgIndex]) {
+            clearInterval(typewriterTimers.current[msgIndex]);
+        }
+        const currentRevealed = revealedChars[msgIndex] || 0;
+        if (currentRevealed >= fullLength) return;
+
+        typewriterTimers.current[msgIndex] = setInterval(() => {
+            setRevealedChars(prev => {
+                const current = prev[msgIndex] || 0;
+                if (current >= fullLength) {
+                    clearInterval(typewriterTimers.current[msgIndex]);
+                    delete typewriterTimers.current[msgIndex];
+                    return prev;
+                }
+                // Reveal 1-3 chars at a time for natural speed variation
+                const step = Math.random() > 0.7 ? 2 : 1;
+                return { ...prev, [msgIndex]: Math.min(current + step, fullLength) };
+            });
+        }, TYPEWRITER_SPEED);
+    }, [revealedChars]);
+
+    // Watch for new assistant messages and trigger typewriter
+    useEffect(() => {
+        messages.forEach((msg, idx) => {
+            if (msg.role === 'assistant' && msg.content) {
+                const revealed = revealedChars[idx] || 0;
+                if (revealed < msg.content.length) {
+                    startTypewriter(idx, msg.content.length);
+                }
+            }
+        });
+        // Cleanup on unmount
+        return () => {
+            Object.values(typewriterTimers.current).forEach(clearInterval);
+        };
+    }, [messages, startTypewriter]);
 
     // Consume el stream SSE de /api/chat. Inserta el mensaje del asistente al
     // primer delta (no antes — para que el indicador "Pensando..." no conviva
@@ -567,7 +614,16 @@ const AIAssistant = () => {
                             </div>
                         ) : (
                             <>
-                                {messages.map((msg, index) => (
+                                {messages.map((msg, index) => {
+                                    // For assistant messages, only show revealed portion
+                                    const isAssistant = msg.role === 'assistant';
+                                    const revealed = revealedChars[index] || 0;
+                                    const isTyping = isAssistant && revealed < (msg.content?.length || 0);
+                                    const displayContent = isAssistant
+                                        ? (msg.content || '').slice(0, revealed)
+                                        : msg.content;
+
+                                    return (
                                     <div key={index} style={{
                                         alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                                         backgroundColor: msg.role === 'user' ? '#4A00E1' : '#fff',
@@ -576,17 +632,35 @@ const AIAssistant = () => {
                                         borderRadius: '15px',
                                         borderTopLeftRadius: msg.role === 'user' ? '15px' : '2px',
                                         borderTopRightRadius: msg.role === 'user' ? '2px' : '15px',
-                                        boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                                         maxWidth: '85%',
                                         fontSize: '14px',
                                         lineHeight: '1.5',
-                                        wordWrap: 'break-word'
+                                        wordWrap: 'break-word',
+                                        animation: 'msgFadeIn 0.4s ease-out',
+                                        position: 'relative'
                                     }}>
-                                        {msg.role === 'assistant'
-                                            ? renderMessageContent(msg.content, !!msg.streaming)
+                                        {isAssistant
+                                            ? (
+                                                <>
+                                                    {renderMessageContent(displayContent, isTyping || !!msg.streaming)}
+                                                    {isTyping && (
+                                                        <span className="ai-cursor" style={{
+                                                            display: 'inline-block',
+                                                            width: '2px',
+                                                            height: '14px',
+                                                            backgroundColor: '#4A00E1',
+                                                            marginLeft: '2px',
+                                                            verticalAlign: 'text-bottom',
+                                                            animation: 'cursorBlink 0.8s step-end infinite'
+                                                        }} />
+                                                    )}
+                                                </>
+                                            )
                                             : renderMessageContent(msg.content)}
                                     </div>
-                                ))}
+                                    );
+                                })}
                         
                         {/* Cajas de sugerencias o "Quick Replies" */}                                {showSuggestions && messages.length <= 1 && (
                             <div style={{
@@ -634,55 +708,34 @@ const AIAssistant = () => {
                             <div style={{
                                 alignSelf: 'flex-start',
                                 backgroundColor: '#fff',
-                                padding: '12px 16px',
-                                borderRadius: '12px',
-                                maxWidth: '220px',
-                                width: '100%'
+                                padding: '14px 20px',
+                                borderRadius: '15px',
+                                borderTopLeftRadius: '2px',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                                animation: 'msgFadeIn 0.4s ease-out',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px'
                             }}>
-                                {/* Shimmer bars - Gemini style */}
-                                <style>{`
-                                    @keyframes geminiShimmer {
-                                        0% { background-position: -200% 0; }
-                                        100% { background-position: 200% 0; }
-                                    }
-                                    @keyframes geminiPulse {
-                                        0%, 100% { opacity: 0.4; }
-                                        50% { opacity: 1; }
-                                    }
-                                    @keyframes geminiSpark {
-                                        0%, 100% { transform: scale(0.8) rotate(0deg); opacity: 0.5; }
-                                        50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
-                                    }
-                                `}</style>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                                    <span style={{
-                                        display: 'inline-block',
-                                        width: '18px',
-                                        height: '18px',
-                                        animation: 'geminiSpark 1.5s ease-in-out infinite',
-                                        fontSize: '14px',
-                                        lineHeight: '18px',
-                                        textAlign: 'center'
-                                    }}>✨</span>
-                                    <span style={{
-                                        fontSize: '12px',
-                                        fontWeight: '500',
-                                        color: '#888',
-                                        animation: 'geminiPulse 1.8s ease-in-out infinite'
-                                    }}>Pensando...</span>
+                                {/* Modern thinking dots */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    {[0, 1, 2].map(i => (
+                                        <span key={i} style={{
+                                            width: '7px',
+                                            height: '7px',
+                                            borderRadius: '50%',
+                                            background: 'linear-gradient(135deg, #4A00E1, #8E2DE2)',
+                                            display: 'inline-block',
+                                            animation: `thinkingDot 1.4s ease-in-out ${i * 0.2}s infinite`
+                                        }} />
+                                    ))}
                                 </div>
-                                {[100, 75, 50].map((w, i) => (
-                                    <div key={i} style={{
-                                        height: '8px',
-                                        width: `${w}%`,
-                                        borderRadius: '4px',
-                                        marginBottom: i < 2 ? '6px' : '0',
-                                        background: 'linear-gradient(90deg, #e8e8e8 25%, #d0d0f8 37%, #c4b5fd 50%, #d0d0f8 63%, #e8e8e8 75%)',
-                                        backgroundSize: '200% 100%',
-                                        animation: `geminiShimmer 1.8s ease-in-out infinite`,
-                                        animationDelay: `${i * 0.15}s`
-                                    }} />
-                                ))}
+                                <span style={{
+                                    fontSize: '13px',
+                                    fontWeight: '500',
+                                    color: '#999',
+                                    fontStyle: 'italic'
+                                }}>Karen está escribiendo</span>
                             </div>
                         )}
                     </div>
@@ -869,6 +922,30 @@ const AIAssistant = () => {
                     100% {
                         transform: scale(1);
                         box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 0 20px rgba(0, 0, 0, 0.2);
+                    }
+                }
+                @keyframes msgFadeIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(8px) scale(0.97);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                }
+                @keyframes cursorBlink {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0; }
+                }
+                @keyframes thinkingDot {
+                    0%, 80%, 100% {
+                        transform: scale(0.6);
+                        opacity: 0.4;
+                    }
+                    40% {
+                        transform: scale(1);
+                        opacity: 1;
                     }
                 }
             `}</style>
