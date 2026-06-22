@@ -1300,10 +1300,12 @@ app.post('/api/chat', async (req, res) => {
         }
       }
       const response = await streamResult.response;
-      if (!emitted && !clientDisconnected) {
-        let finalText = '';
-        try { finalText = (typeof response.text === 'function') ? response.text() : ''; } catch {}
-        if (finalText) sendSSE(res, { type: 'text', delta: finalText });
+      let fbText = '';
+      try { fbText = (typeof response.text === 'function') ? response.text() : ''; } catch (e) { console.error('[DEBUG-FB] response.text() threw:', e.message); }
+      console.log(`[DEBUG-FB] emitted.len=${emitted.length} | clientDisc=${clientDisconnected} | fbText.len=${fbText.length}`);
+      if (!emitted && !clientDisconnected && fbText) {
+        sendSSE(res, { type: 'text', delta: fbText });
+        console.log('[DEBUG-FB] fallback delta enviado');
       }
       return response;
     };
