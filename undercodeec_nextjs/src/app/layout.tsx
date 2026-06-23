@@ -4,6 +4,7 @@ import AIAssistant from "@/components/AIAssistant";
 import CustomCursor from "@/components/CustomCursor";
 import AudioMuteButton from "@/components/AudioMuteButton";
 import PageTransition from "@/components/PageTransition";
+import PromoBanner from "@/components/PromoBanner";
 import "@/styles/globals.css";
 import "@/styles/preloader.css";
 import "@/styles/trading-card.css";
@@ -294,6 +295,7 @@ fbq('track', 'PageView');`}
         </noscript>
         {/* End Meta Pixel Code (noscript) */}
 
+        <PromoBanner />
         <CustomCursor />
         <AIAssistant />
         <AudioMuteButton />

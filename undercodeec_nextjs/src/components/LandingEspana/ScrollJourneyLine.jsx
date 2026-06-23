@@ -6,7 +6,6 @@ import {
   useScroll,
   useTransform,
   useSpring,
-  useVelocity,
   useMotionValue,
 } from "framer-motion";
 
@@ -80,14 +79,8 @@ export default function ScrollJourneyLine() {
     });
   }, [pathLength, sphereX, sphereY]);
 
-  // Sphere + path fade out near end so they "stay behind"
+  // Chip opacity fades out near end
   const sphereOpacity = useTransform(smoothProgress, [0.70, 0.84], [1, 0]);
-  const pathOpacity   = useTransform(smoothProgress, [0.70, 0.84], [1, 0]);
-
-  // Sphere spin accelerates with scroll velocity
-  const scrollVelocity = useVelocity(smoothProgress);
-  const rawSpin = useTransform(scrollVelocity, [-3, 0, 3], [-2400, 0, 2400]);
-  const spinSpeed = useSpring(rawSpin, { stiffness: 300, damping: 25 });
 
   return (
     <section ref={sectionRef} className="scroll-journey">
@@ -176,18 +169,46 @@ export default function ScrollJourneyLine() {
               stroke="url(#journeyGradient)"
               strokeWidth="6"
               strokeLinecap="round"
-              style={{ pathLength, opacity: pathOpacity }}
+              style={{ pathLength, opacity: sphereOpacity }}
               filter="url(#journeyGlow)"
             />
 
-            {/* Spinning sphere at path tip */}
+            {/* Minimalist Chip at path tip */}
             <motion.g
-              style={{ x: sphereX, y: sphereY, rotate: spinSpeed, opacity: sphereOpacity }}
+              style={{ x: sphereX, y: sphereY, opacity: sphereOpacity }}
               filter="url(#sphereGlow)"
             >
-              <circle cx="0" cy="0" r="18" fill="url(#sphereGrad)" />
-              <circle cx="0" cy="0" r="18" fill="url(#sphereGrad2)" />
-              <circle cx="-5" cy="-6" r="5" fill="rgba(255,255,255,0.4)" />
+              {/* Pins (Legs) */}
+              <g fill="#efa238" opacity="0.9">
+                <rect x="-22" y="-12" width="6" height="4" rx="1" />
+                <rect x="-22" y="-2" width="6" height="4" rx="1" />
+                <rect x="-22" y="8" width="6" height="4" rx="1" />
+                
+                <rect x="16" y="-12" width="6" height="4" rx="1" />
+                <rect x="16" y="-2" width="6" height="4" rx="1" />
+                <rect x="16" y="8" width="6" height="4" rx="1" />
+                
+                <rect x="-12" y="-22" width="4" height="6" rx="1" />
+                <rect x="-2" y="-22" width="4" height="6" rx="1" />
+                <rect x="8" y="-22" width="4" height="6" rx="1" />
+                
+                <rect x="-12" y="16" width="4" height="6" rx="1" />
+                <rect x="-2" y="16" width="4" height="6" rx="1" />
+                <rect x="8" y="16" width="4" height="6" rx="1" />
+              </g>
+
+              {/* Chip Body */}
+              <rect x="-18" y="-18" width="36" height="36" rx="4" fill="#150e23" stroke="#efa238" strokeWidth="1.5" />
+              
+              {/* Internal Circuit Tracks (Base) */}
+              <path d="M-18 -10 L-8 -10 L-8 -6 M-18 10 L-8 10 L-8 6 M18 -10 L8 -10 L8 -6 M18 10 L8 10 L8 6" fill="none" stroke="#270f31" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              
+              {/* Animated Internal Circuits */}
+              <path className="elec-path" d="M-18 -10 L-8 -10 L-8 -6 M-18 10 L-8 10 L-8 6 M18 -10 L8 -10 L8 -6 M18 10 L8 10 L8 6" fill="none" stroke="#efa238" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+
+              {/* Inner Core */}
+              <rect x="-6" y="-6" width="12" height="12" rx="2" fill="#270f31" stroke="#600b56" strokeWidth="1" />
+              <circle className="chip-core-pulse" cx="0" cy="0" r="3" fill="#ffffff" />
             </motion.g>
           </svg>
 
@@ -214,6 +235,21 @@ export default function ScrollJourneyLine() {
           padding: 0px;
           position: relative;
           z-index: 1;
+        }
+        .elec-path {
+          stroke-dasharray: 4 12;
+          animation: flow-elec 1.2s linear infinite;
+        }
+        @keyframes flow-elec {
+          to { stroke-dashoffset: -16; }
+        }
+        .chip-core-pulse {
+          animation: core-pulse 1s ease-in-out infinite alternate;
+          transform-origin: center;
+        }
+        @keyframes core-pulse {
+          0% { opacity: 0.5; fill: #efa238; transform: scale(0.85); }
+          100% { opacity: 1; fill: #ffffff; transform: scale(1.15); }
         }
         .journey-intro {
           text-align: center;

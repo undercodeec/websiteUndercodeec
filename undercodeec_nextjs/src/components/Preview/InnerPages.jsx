@@ -139,7 +139,9 @@ const moodleSteps = [
 const landingPriceCards = [
   {
     id: 'lanzamiento',
-    price: 250,
+    price: 80,
+    originalPrice: 250,
+    discount: 68,
     label: '🎯 Landing Express',
     description: 'Lanza tu campaña en tiempo récord. Una sola página diseñada exclusivamente para que el cliente realice una acción: llamar o escribir por WhatsApp.',
     icon: 'circle',
@@ -153,7 +155,9 @@ const landingPriceCards = [
   },
   {
     id: 'crecimiento',
-    price: 600,
+    price: 192,
+    originalPrice: 600,
+    discount: 68,
     label: '🔥 Landing Estratégica',
     description: 'Convertimos tus clics en dinero. Diseño persuasivo con herramientas de rastreo para medir cada dólar invertido en publicidad.',
     icon: 'triangle',
@@ -167,7 +171,9 @@ const landingPriceCards = [
   },
   {
     id: 'autoridad',
-    price: 1500,
+    price: 480,
+    originalPrice: 1500,
+    discount: 68,
     label: '⚡ Landing Premium',
     description: 'El ecosistema de ventas definitivo. Un embudo automatizado que trabaja y califica prospectos por ti las 24 horas.',
     icon: 'star',
@@ -185,7 +191,9 @@ const landingPriceCards = [
 const sitioWebPriceCards = [
   {
     id: 'lanzamiento',
-    price: 360,
+    price: 120,
+    originalPrice: 360,
+    discount: 67,
     label: '🚀 Plan Lanzamiento',
     description: 'Tu negocio abierto al mundo 24/7. Una web profesional, rápida y lista para generar confianza desde el primer clic.',
     icon: 'circle',
@@ -200,7 +208,9 @@ const sitioWebPriceCards = [
   },
   {
     id: 'crecimiento',
-    price: 800,
+    price: 264,
+    originalPrice: 800,
+    discount: 67,
     label: '📈 Plan Crecimiento',
     description: 'Transformamos visitas en clientes reales. Estrategia web diseñada específicamente para captar prospectos y vender más.',
     icon: 'triangle',
@@ -215,7 +225,9 @@ const sitioWebPriceCards = [
   },
   {
     id: 'autoridad',
-    price: 2000,
+    price: 660,
+    originalPrice: 2000,
+    discount: 67,
     label: '🏆 Plan Autoridad',
     description: 'El ecosistema digital definitivo. Plataformas exclusivas hechas a medida con automatización total para empresas líderes.',
     icon: 'star',
@@ -233,7 +245,9 @@ const sitioWebPriceCards = [
 const ecommercePriceCards = [
   {
     id: 'lanzamiento',
-    price: 550,
+    price: 248,
+    originalPrice: 550,
+    discount: 55,
     label: '🛒 Tienda de Lanzamiento',
     description: 'Lanza tu primera tienda online. Todo lo necesario para vender de forma segura, rápida y sin complicaciones técnicas.',
     icon: 'circle',
@@ -249,7 +263,9 @@ const ecommercePriceCards = [
   },
   {
     id: 'crecimiento',
-    price: 850,
+    price: 383,
+    originalPrice: 850,
+    discount: 55,
     label: '🚀 Tienda de Crecimiento',
     description: 'Escala tus ventas y automatiza procesos. Mejoramos la experiencia de compra y recuperamos clientes indecisos.',
     icon: 'triangle',
@@ -264,7 +280,9 @@ const ecommercePriceCards = [
   },
   {
     id: 'elite',
-    price: 3490,
+    price: 1571,
+    originalPrice: 3490,
+    discount: 55,
     label: '💎 Tienda Élite',
     description: 'Infraestructura tecnológica de alto rendimiento para líderes del mercado. Velocidad extrema e integraciones corporativas.',
     icon: 'star',
@@ -1868,12 +1886,49 @@ const AffiliationSection = () => {
           >
             {/* Plan Name */}
             <h3 className="price-card-name">{card.label}</h3>
-            
+
             {/* Description */}
             <p className="price-card-description">{card.description}</p>
 
             {/* Price */}
             <div className="price-card-price">
+              {card.originalPrice && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    flexWrap: "wrap",
+                    marginBottom: "6px",
+                  }}
+                >
+                  <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)" }}>antes</span>
+                  <span
+                    style={{
+                      fontSize: "18px",
+                      textDecoration: "line-through",
+                      color: "rgba(255,255,255,0.55)",
+                    }}
+                  >
+                    ${card.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  <span
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "999px",
+                      fontSize: "12px",
+                      fontWeight: 800,
+                      letterSpacing: "0.3px",
+                      background: "linear-gradient(135deg, #ff4d4d, #f7b733)",
+                      color: "#fff",
+                      boxShadow: "0 6px 16px rgba(255, 77, 77, 0.35)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    AHORRA {card.discount}%
+                  </span>
+                </div>
+              )}
               ${card.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
 
@@ -2423,12 +2478,49 @@ const AffiliationSection = () => {
           >
             {/* Plan Name */}
             <h3 className="price-card-name">{card.label}</h3>
-            
+
             {/* Description */}
             <p className="price-card-description">{card.description}</p>
 
             {/* Price */}
             <div className="price-card-price">
+              {card.originalPrice && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    flexWrap: "wrap",
+                    marginBottom: "6px",
+                  }}
+                >
+                  <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)" }}>antes</span>
+                  <span
+                    style={{
+                      fontSize: "18px",
+                      textDecoration: "line-through",
+                      color: "rgba(255,255,255,0.55)",
+                    }}
+                  >
+                    ${card.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  <span
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "999px",
+                      fontSize: "12px",
+                      fontWeight: 800,
+                      letterSpacing: "0.3px",
+                      background: "linear-gradient(135deg, #ff4d4d, #f7b733)",
+                      color: "#fff",
+                      boxShadow: "0 6px 16px rgba(255, 77, 77, 0.35)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    AHORRA {card.discount}%
+                  </span>
+                </div>
+              )}
               ${card.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
 
@@ -2989,9 +3081,46 @@ const AffiliationSection = () => {
             
             {/* Price */}
             <div className="price-card-price">
-                ${card.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {card.originalPrice && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    flexWrap: "wrap",
+                    marginBottom: "6px",
+                  }}
+                >
+                  <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)" }}>antes</span>
+                  <span
+                    style={{
+                      fontSize: "18px",
+                      textDecoration: "line-through",
+                      color: "rgba(255,255,255,0.55)",
+                    }}
+                  >
+                    ${card.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  <span
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "999px",
+                      fontSize: "12px",
+                      fontWeight: 800,
+                      letterSpacing: "0.3px",
+                      background: "linear-gradient(135deg, #ff4d4d, #f7b733)",
+                      color: "#fff",
+                      boxShadow: "0 6px 16px rgba(255, 77, 77, 0.35)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    AHORRA {card.discount}%
+                  </span>
+                </div>
+              )}
+              ${card.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
-            
+
             <ul className="price-card-features">
               {card.features.map((feature, idx) => {
                 const key = `store-${card.id}-${idx}`;

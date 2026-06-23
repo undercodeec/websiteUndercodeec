@@ -8,6 +8,7 @@ import { animate } from "animejs";
 import ScrollPinShowcase from "@/components/LandingEspana/ScrollPinShowcase";
 import ScrollJourneyLine from "@/components/LandingEspana/ScrollJourneyLine";
 import ThanosTextSection from "@/components/LandingEspana/ThanosTextSection";
+import CompetenceTable from "@/components/LandingEspana/CompetenceTable";
 import "@/components/Slider/slider.css";
 
 
@@ -217,7 +218,9 @@ const services = [
 const pricingPlans = [
   {
     name: "Landing Page",
-    price: "250",
+    price: "80",
+    originalPrice: "250",
+    discount: 68,
     description: "Para autónomos y pequeños negocios que necesitan estar en Google ya.",
     features: [
       "Dominio.com y Hosting por 1 año",
@@ -231,7 +234,9 @@ const pricingPlans = [
   },
   {
     name: "Web Site Lanzamiento",
-    price: "360",
+    price: "120",
+    originalPrice: "360",
+    discount: 67,
     description: "Para mostrar servicios variados , gran cantidad de informacion todo desde un portal web completo. ",
     features: [
       "Diseño basado, optimizadas y adaptadas a la identidad de la marca",
@@ -245,8 +250,10 @@ const pricingPlans = [
     featured: true,
   },
   {
-    name: "Tienda Onlinea",
-    price: "Desde 550",
+    name: "Tienda Online",
+    price: "250",
+    originalPrice: "550",
+    discount: 55,
     description: "Tienda autogestionable perfecta para vender 24/7 sin preocuparse de procesos manuales.",
     features: [
       "4 conceptos de diseño",
@@ -457,6 +464,36 @@ const PlanCard = ({ plan, index }) => {
           {plan.name}
         </h3>
         <div className="my-3">
+          {plan.originalPrice && (
+            <div style={{ marginBottom: "6px", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+              <span style={{ fontSize: "13px", opacity: plan.featured ? 0.85 : 1, color: plan.featured ? "#fff" : "#888" }}>antes</span>
+              <span
+                style={{
+                  fontSize: "20px",
+                  textDecoration: "line-through",
+                  opacity: 0.6,
+                  color: plan.featured ? "rgba(255,255,255,0.75)" : "#888",
+                }}
+              >
+                {plan.originalPrice}€
+              </span>
+              <span
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: "999px",
+                  fontSize: "12px",
+                  fontWeight: 800,
+                  letterSpacing: "0.3px",
+                  background: plan.featured ? "#fff" : "linear-gradient(135deg, #ff4d4d, #f7b733)",
+                  color: plan.featured ? "#600b56" : "#fff",
+                  boxShadow: "0 6px 16px rgba(255, 77, 77, 0.25)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                AHORRA {plan.discount}%
+              </span>
+            </div>
+          )}
           <span style={{ fontSize: "14px", verticalAlign: "top" }}>desde</span>{" "}
           <span style={{ fontSize: "44px", fontWeight: 700 }}>{plan.price}</span>
           <span style={{ fontSize: "24px" }}>€</span>
@@ -1294,6 +1331,9 @@ const LandingEspana = () => {
             </div>
           </div>
         </section>
+
+        {/* COMPARATIVA COMPETENCIA */}
+        <CompetenceTable />
 
         {/* CTA FINAL */}
         <section
