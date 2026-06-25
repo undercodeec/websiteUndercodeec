@@ -26,3 +26,8 @@ undercodeec_nextjs/out/
 # PERFORMANCE TOOLING
 .unlighthouse/
 **/_originals/
+
+# LOCALES / NO SUBIR
+prompts-Animaciones/
+prompts-style-web/
+.claude/commands/
