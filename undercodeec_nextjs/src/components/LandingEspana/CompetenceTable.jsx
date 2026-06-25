@@ -233,7 +233,7 @@ export default function CompetenceTable() {
             lineHeight: 1.2,
             marginBottom: "16px",
           }}>
-            Impacto Digital{" "}
+            Undercodeec{" "}
             <span style={{
               background: "linear-gradient(135deg, #150e23, #600b56)",
               WebkitBackgroundClip: "text",
@@ -302,7 +302,7 @@ export default function CompetenceTable() {
                 ★ Mejor opción
               </span>
               <span style={{ marginTop: "28px", fontSize: "15px", fontWeight: 800, color: "#ffffff" }}>
-                Impacto Digital
+                Undercodeec
               </span>
             </div>
             <div style={{ padding: "20px 16px", textAlign: "center", fontSize: "14px", fontWeight: 700, color: "#374151" }}>

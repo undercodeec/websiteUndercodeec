@@ -146,11 +146,15 @@ const landingPriceCards = [
     description: 'Lanza tu campaña en tiempo récord. Una sola página diseñada exclusivamente para que el cliente realice una acción: llamar o escribir por WhatsApp.',
     icon: 'circle',
     features: [
-      { title: "Diseño de Impacto Único", description: "Estructurada en una sola sección continua, optimizada para celulares." },
-      { title: "Listo para Google (SEO Integrado)", description: "Configuración técnica base para que los buscadores reconozcan y registren tu página de campaña de forma correcta." },
-      { title: "Llamado a la Acción Inmediato", description: "Botones flotantes e irresistibles de WhatsApp y llamadas directas." },
-      { title: "Infraestructura", description: "Dominio .com y hosting básico por 1 año." },
-      { title: "Soporte", description: "1 mes de acompañamiento y 1 año de garantía." }
+      { title: "Landing page de una sola sección", description: "Página enfocada en captación o ventas, diseñada para que el visitante tome acción de inmediato." },
+      { title: "Diseño responsive para celulares", description: "Optimizado para que se vea y funcione perfecto en cualquier dispositivo móvil." },
+      { title: "Botón flotante de WhatsApp y llamada directa", description: "Accesos rápidos visibles en todo momento para que el cliente te contacte sin buscar." },
+      { title: "Formulario de contacto o captura de prospectos", description: "Recopila los datos de quienes están interesados en tu servicio o producto." },
+      { title: "Sección de beneficios del servicio o producto", description: "Presenta de forma clara qué gana el cliente contigo, antes de que se vaya." },
+      { title: "Dominio .com y hosting básico por 1 año", description: "Tu dirección web y alojamiento incluidos sin costo extra durante el primer año." },
+      { title: "5 correos corporativos", description: "Cuentas tipo info@tunegocio.com para proyectar profesionalismo desde el primer contacto." },
+      { title: "SEO técnico base", description: "Título, metadescripción, H1, indexación y estructura inicial para que Google te encuentre." },
+      { title: "1 mes de soporte posterior a la entrega", description: "Acompañamiento para ajustes y dudas durante el primer mes tras el lanzamiento." }
     ]
   },
   {
@@ -163,10 +167,11 @@ const landingPriceCards = [
     icon: 'triangle',
     features: [
       { title: "Todo lo de la Landing Express", description: null },
-      { title: "Textos que Venden (Copywriting)", description: "Redacción enfocada en los dolores y soluciones del cliente." },
-      { title: "Estrategia de Regalo (Lead Magnet)", description: "Sistema para regalar cupones o descargables a cambio de los datos del cliente." },
-      { title: "Rastreo de Anuncios", description: "Integración del Píxel de Meta (Facebook/Instagram) y Google Analytics 4 para saber exactamente de dónde vienen tus ventas." },
-      { title: "Automatización", description: "Conexión con tu plataforma de email marketing." }
+      { title: "Textos persuasivos para tu oferta", description: "Presentamos mejor tu propuesta de valor y motivamos al cliente a contactarte con lenguaje orientado a la acción." },
+      { title: "Formulario optimizado para captar prospectos", description: "Menos campos, mejor orden y diseño enfocado en reducir la fricción al momento de registrarse." },
+      { title: "Recurso promocional o incentivo de conversión", description: "Descuento, guía o beneficio especial para aumentar el número de personas que dejan sus datos." },
+      { title: "Seguimiento de campañas y anuncios con Google Analitycs", description: "Medimos de dónde llegan tus contactos para que sepas qué canal te está dando resultados reales ." },
+      { title: "Integración con WhatsApp y respuestas iniciales", description: "Conectamos el formulario con WhatsApp y configuramos respuestas automáticas para atender prospectos más rápido." }
     ]
   },
   {
@@ -178,11 +183,10 @@ const landingPriceCards = [
     description: 'El ecosistema de ventas definitivo. Un embudo automatizado que trabaja y califica prospectos por ti las 24 horas.',
     icon: 'star',
     features: [
-      { title: "Todo lo de la Landing Estratégica", description: null },
-      { title: "SEO Avanzado y Arquitectura de Contenido", description: "Estructuramos la página para que, además de servir para anuncios pagados, se posicione en Google a largo plazo y capture tráfico orgánico (gratis)." },
-      { title: "Pruebas y Optimización (A/B Testing)", description: "Creamos variantes de la página para medir cuál vende más basándonos en mapas de calor reales." },
-      { title: "Asistente Virtual con IA", description: "Chatbot avanzado que interactúa con el usuario, resuelve dudas del producto y agenda citas automáticamente en tu calendario." },
-      { title: "Animaciones y Experiencia Premium", description: "Interfaz visual interactiva que eleva el valor percibido de tu producto o servicio." }
+      { title: "Todo lo de la Landing Express", description: null },
+      { title: "Palabras clave optimizadas para Google", description: "Seleccionadas según lo que buscan tus clientes reales, para aparecer justo cuando alguien necesita lo que ofreces." },
+      { title: "Campaña en Google Ads activa durante 1 mes", description: "Configuración avanzada de segmentación, anuncios y presupuesto para atraer tráfico calificado desde el primer día." },
+      { title: "Diseño personalizado con animaciones inmersivas", description: "Experiencia visual de alto impacto que capta la atención, transmite profesionalismo y hace que tu marca sea imposible de olvidar." }
     ]
   }
 ];
@@ -198,12 +202,14 @@ const sitioWebPriceCards = [
     description: 'Tu negocio abierto al mundo 24/7. Una web profesional, rápida y lista para generar confianza desde el primer clic.',
     icon: 'circle',
     features: [
-      { title: "Estructura Ideal", description: "De 5 a 10 secciones principales (Inicio, Servicios, Nosotros, Contacto, etc.)." },
-      { title: "Diseño Inteligente", description: "Adaptado perfectamente a teléfonos celulares (pantallas móviles), que es donde está el 90% de tus clientes hoy." },
-      { title: "Conexión Directa", description: "Formularios de contacto y botón flotante de WhatsApp para que te escriban con un solo clic." },
-      { title: "Listo para Google", description: "Configuración inicial para que los buscadores encuentren tu negocio." },
-      { title: "Todo Incluido", description: "Dominio (.com) y alojamiento web (hosting) de alta velocidad gratis por un año." },
-      { title: "Tranquilidad Total", description: "1 mes de soporte técnico para cambios y 1 año de garantía ante cualquier fallo." }
+      { title: "Diseño profesional con hasta 5 páginas", description: "Inicio, Servicios, Nosotros, Contacto y 1 página adicional según tu negocio." },
+      { title: "Adaptado para celulares, tablets y computadoras", description: "Tu web se ve y funciona perfecto en cualquier dispositivo, sin excepciones." },
+      { title: "Dominio .com y hosting incluido por 1 año", description: "Tu dirección web y alojamiento listos desde el primer día, sin costos ocultos." },
+      { title: "Certificado de seguridad SSL", description: "Candado verde en el navegador para transmitir confianza y proteger los datos de tus visitantes." },
+      { title: "Hasta 5 cuentas de correo corporativo", description: "Cuentas tipo contacto@tunegocio.com para comunicarte con imagen profesional." },
+      { title: "Formulario de contacto y botón de WhatsApp", description: "Canales de comunicación directa para que los clientes te encuentren con un solo clic." },
+      { title: "Configuración inicial en Google", description: "Tu web registrada en buscadores para que empiece a aparecer cuando busquen tu negocio." },
+      { title: "1 mes de soporte técnico incluido", description: "Ajustes, dudas y cambios menores cubiertos durante el primer mes tras el lanzamiento." }
     ]
   },
   {
@@ -216,11 +222,13 @@ const sitioWebPriceCards = [
     icon: 'triangle',
     features: [
       { title: "Todo lo del Plan Lanzamiento", description: null },
-      { title: "Diseño Persuasivo (Copywriting)", description: "Redactamos los textos de tu web con técnicas de venta para convencer a tus visitantes." },
-      { title: "Estrategia de Conversión", description: "Estructura visualmente guiada para que el usuario deje sus datos o compre sin distracciones." },
-      { title: "Velocidad Extrema", description: "Optimización interna para que la página cargue al instante (evitando que el cliente se vaya por esperar)." },
-      { title: "Posicionamiento Local y Avanzado", description: "Configuración para aparecer en Google Maps y búsquedas clave en tu ciudad." },
-      { title: "Conexión con tus Herramientas", description: "Integración con sistemas de correo masivo (Email Marketing), bases de datos (CRM) o Google Analytics para medir tus resultados." }
+      { title: "Hasta 8 páginas con estructura para vender más", description: "Arquitectura de contenido pensada para guiar al visitante hacia el contacto o la compra." },
+      { title: "Textos persuasivos que generan confianza", description: "Comunicamos mejor tu oferta con lenguaje orientado a convencer y reducir la duda del cliente." },
+      { title: "Optimización de velocidad de carga", description: "Tu web carga rápido en cualquier dispositivo para que no pierdas visitas por tiempos de espera." },
+      { title: "Posicionamiento local en Google", description: "Palabras clave, Google Maps y búsquedas de tu ciudad o zona para aparecer donde están tus clientes." },
+      { title: "Google Analytics y Search Console conectados", description: "Ve cuántas personas visitan tu web, desde dónde llegan y qué páginas les interesan más." },
+      { title: "Integración con tus herramientas", description: "CRM, formularios, email o redes sociales conectados para que todo tu negocio trabaje junto." },
+      { title: "3 meses de soporte técnico incluido", description: "Ajustes, actualizaciones y asistencia técnica cubiertos durante los primeros tres meses." }
     ]
   },
   {
@@ -233,10 +241,13 @@ const sitioWebPriceCards = [
     icon: 'star',
     features: [
       { title: "Todo lo del Plan Crecimiento", description: null },
-      { title: "Diseño 100% Exclusivo", description: "Sin plantillas. Interfaz única diseñada desde cero para tu marca." },
-      { title: "Automatización con Inteligencia Artificial", description: "Chatbots inteligentes capaces de calificar clientes o responder preguntas frecuentes las 24 horas." },
-      { title: "Sistemas Complejos", description: "Integración de sistemas de reservas de citas, conexión con el inventario/sistema de tu empresa (ERP) o pasarelas de pago integradas." },
-      { title: "Blindaje de Seguridad", description: "Auditoría y protección avanzada contra hackeos o caídas del sistema." }
+      { title: "Diseño 100% personalizado, sin plantillas", description: "Interfaz única diseñada desde cero, sin elementos genéricos, para que tu marca destaque frente a la competencia." },
+      { title: "Automatización con Inteligencia Artificial", description: "Respuestas automáticas, captación de prospectos y atención fuera de horario para que no pierdas ninguna oportunidad." },
+      { title: "Sistemas avanzados a medida", description: "Catálogos, reservas, cotizadores, portales de clientes o cualquier función específica que tu negocio necesite." },
+      { title: "Seguridad reforzada", description: "Protección contra ataques, respaldos automáticos y monitoreo constante para que tu web esté siempre disponible y segura." },
+      { title: "Campaña en Google Ads activa durante 1 mes", description: "Palabras clave seleccionadas para tu negocio, anuncios optimizados y segmentación avanzada por ubicación, horario y tipo de cliente." },
+      { title: "Seguimiento de resultados de la campaña", description: "Reporte de cuántos clics, consultas y contactos generó tu inversión en Google para que midas el retorno real." },
+      { title: "Soporte VIP prioritario por 6 meses", description: "Atención preferencial con tiempos de respuesta reducidos para cambios, actualizaciones y asistencia técnica." }
     ]
   }
 ];
@@ -252,13 +263,16 @@ const ecommercePriceCards = [
     description: 'Lanza tu primera tienda online. Todo lo necesario para vender de forma segura, rápida y sin complicaciones técnicas.',
     icon: 'circle',
     features: [
-      { title: "Catálogo Autoadministrable", description: "Sube, edita o elimina tus productos tú mismo de forma ultra sencilla." },
-      { title: "Carga Inicial", description: "Nosotros subimos tus primeros 50 a 100 productos para que arranques facturando." },
-      { title: "Caja Registradora Virtual", description: "Integración de pasarelas de pago seguras (tarjetas de crédito, PayPal, Payphone o Stripe) y compras directas por WhatsApp." },
-      { title: "Visibilidad en Buscadores (SEO Orgánico)", description: "Configuración inicial para que tus categorías y productos principales comiencen a aparecer de forma natural cuando la gente busque lo que vendes en Google." },
-      { title: "Envíos Inteligentes", description: "Configuración de métodos de entrega según la zona del cliente." },
-      { title: "Todo Incluido", description: "Dominio .com y hosting optimizado para comercio electrónico por 1 año." },
-      { title: "Garantía", description: "1 mes de soporte guiado y 1 año de respaldo técnico." }
+      { title: "Catálogo de productos administrable", description: "Agrega, edita y organiza tus productos sin necesitar conocimientos técnicos." },
+      { title: "Carga inicial de hasta 20 productos", description: "Tu equipo los sube y configura por ti para que empieces a vender de inmediato." },
+      { title: "Carrito de compras y proceso de pago seguro", description: "Tus clientes pagan con tarjeta, transferencia o billeteras digitales sin salir de tu tienda." },
+      { title: "Dominio .com, hosting y SSL por 1 año", description: "Tu dirección web, alojamiento y certificado de seguridad incluidos sin costos ocultos." },
+      { title: "Diseño adaptado para todos los dispositivos", description: "Tu tienda se ve y funciona perfecto en celulares, tablets y computadoras." },
+      { title: "Configuración de envíos", description: "Zonas, peso o monto del pedido configurados para calcular el costo de entrega automáticamente." },
+      { title: "Configuración inicial en Google", description: "Tu tienda registrada en buscadores para que empiece a aparecer cuando busquen tus productos." },
+      { title: "5 correos corporativos", description: "Cuentas tipo ventas@tunegocio.com para gestionar tu tienda con imagen profesional." },
+      { title: "Capacitación para gestionar tu tienda", description: "Te enseñamos a administrar tu tienda de forma independiente desde el primer día." },
+      { title: "1 mes de soporte técnico incluido", description: "Ajustes y asistencia cubiertos durante el primer mes tras el lanzamiento." }
     ]
   },
   {
@@ -271,11 +285,12 @@ const ecommercePriceCards = [
     icon: 'triangle',
     features: [
       { title: "Todo lo de la Tienda de Lanzamiento", description: null },
-      { title: "Filtros Avanzados", description: "Buscador inteligente para que tus clientes encuentren tallas, colores o categorías en segundos." },
-      { title: "SEO Técnico Avanzado", description: "Optimizamos la estructura interna de la tienda y la velocidad de indexación para que Google posicione tus productos por encima de tu competencia." },
-      { title: "Recuperación de Carritos Abandonados", description: "Sistema automático que envía correos a los clientes que dejaron productos olvidados para convencerlos de comprar." },
-      { title: "Sincronización de Inventario", description: "Control automático de stock para que nunca vendas algo que no tienes disponible." },
-      { title: "Estrategia de Envíos Dinámicos", description: "Configuración de envío gratis por compras mínimas o cálculo automático de impuestos." }
+      { title: "Filtros de búsqueda avanzados", description: "Tus clientes encuentran lo que buscan por categoría, precio, color o talla en segundos." },
+      { title: "SEO técnico avanzado", description: "Posiciónate mejor en Google y atrae más visitas sin pagar publicidad gracias a una estructura optimizada." },
+      { title: "Recuperación de carritos abandonados", description: "Recordatorios automáticos para clientes que agregaron productos pero no completaron su compra." },
+      { title: "Control de inventario en tiempo real", description: "Stock actualizado automáticamente con cada venta para evitar errores y sobreventa." },
+      { title: "Estrategia de envíos por zonas y condiciones", description: "Envío gratis por monto mínimo, tarifas diferenciadas o retiro en tienda según tu operativa." },
+      { title: "3 meses de soporte técnico incluido", description: "Ajustes, actualizaciones y asistencia cubiertos durante los primeros tres meses." }
     ]
   },
   {
@@ -288,10 +303,14 @@ const ecommercePriceCards = [
     icon: 'star',
     features: [
       { title: "Todo lo de la Tienda de Crecimiento", description: null },
-      { title: "Tecnología Ultra Rápida", description: "Desarrollo con arquitectura moderna e independiente (Headless) que hace que la tienda cargue en milisegundos, lo que Google premia dándote un mejor posicionamiento web de forma natural." },
-      { title: "Conexión Empresarial", description: "Sincronización directa vía API con sistemas contables o de inventario grandes (como SAP, Oracle o sistemas locales)." },
-      { title: "Recomendador con IA", description: "Motor de Inteligencia Artificial que sugiere productos personalizados a los clientes según su comportamiento de compra." },
-      { title: "Internacional", description: "Configuración multi-idioma, multi-moneda o para manejar múltiples bodegas y almacenes físicos." }
+      { title: "Tecnología ultra rápida", description: "Servidores de alto rendimiento para que tu tienda cargue en segundos y no pierda ventas por lentitud." },
+      { title: "Conexión con tus sistemas empresariales", description: "Integración con tu ERP, CRM, sistema contable o plataformas de gestión interna vía API." },
+      { title: "Recomendador inteligente con IA", description: "Sugiere productos relacionados a cada cliente según su historial y comportamiento de compra para aumentar el ticket promedio." },
+      { title: "Ventas internacionales", description: "Múltiples monedas, idiomas y métodos de pago para vender fuera del país sin barreras técnicas." },
+      { title: "Automatización de marketing", description: "Correos, notificaciones y promociones que se envían solos según el comportamiento de tus clientes." },
+      { title: "Facturación electrónica integrada", description: "Generación automática de comprobantes de venta cumpliendo la normativa del SRI." },
+      { title: "Seguridad reforzada y respaldos automáticos", description: "Protección contra ataques, monitoreo constante y copias de seguridad diarias para que tu tienda esté siempre disponible." },
+      { title: "Soporte VIP prioritario por 6 meses", description: "Atención preferencial con tiempos de respuesta reducidos para cualquier ajuste o incidencia." }
     ]
   }
 ];
@@ -817,6 +836,10 @@ const AffiliationSection = () => {
 
   // Handle PayPhone payment - calls backend API to create payment link
   const handlePayPhonePayment = async () => {
+    if (typeof window !== "undefined" && window.fbq) {
+      window.fbq('track', 'InitiateCheckout');
+    }
+    
     setIsSubmitting(true);
     
     let selectedCard;

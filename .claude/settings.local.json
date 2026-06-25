@@ -50,7 +50,15 @@
       "PowerShell(npx babel --version 2>$null; node -e \"try { require\\('@babel/core'\\) } catch\\(e\\) { console.log\\('no babel'\\) }\")",
       "PowerShell(node -e \"const es = require\\('next/dist/compiled/babel/code-frame'\\) ? 1 : 0\" 2>$null; node -e \"const esbuild=require\\('esbuild'\\); ['src/app/admin/dashboard/page.jsx','src/app/admin/dashboard/InvoicesTab.jsx'].forEach\\(f=>{ esbuild.transformSync\\(require\\('fs'\\).readFileSync\\(f,'utf8'\\),{loader:'jsx'}\\); console.log\\(f,'OK'\\)}\\)\")",
       "PowerShell(node -e \"const swc=require\\('next/dist/build/swc'\\); Promise.resolve\\(\\).then\\(async\\(\\)=>{ const fs=require\\('fs'\\); for \\(const f of ['src/app/admin/dashboard/page.jsx','src/app/admin/dashboard/InvoicesTab.jsx']\\) { await swc.transform\\(fs.readFileSync\\(f,'utf8'\\),{jsc:{parser:{syntax:'ecmascript',jsx:true}}}\\); console.log\\(f,'OK'\\); } }\\).catch\\(e=>{console.error\\(e.message\\); process.exit\\(1\\)}\\)\")",
-      "PowerShell(node -e \"const swc=require\\('next/dist/build/swc'\\); \\(async\\(\\)=>{ await swc.loadBindings\\(\\); const fs=require\\('fs'\\); for \\(const f of ['src/app/admin/dashboard/page.jsx','src/app/admin/dashboard/InvoicesTab.jsx']\\) { await swc.transform\\(fs.readFileSync\\(f,'utf8'\\),{jsc:{parser:{syntax:'ecmascript',jsx:true}}}\\); console.log\\(f,'OK'\\); } }\\)\\(\\).catch\\(e=>{console.error\\(e.message\\); process.exit\\(1\\)}\\)\")"
+      "PowerShell(node -e \"const swc=require\\('next/dist/build/swc'\\); \\(async\\(\\)=>{ await swc.loadBindings\\(\\); const fs=require\\('fs'\\); for \\(const f of ['src/app/admin/dashboard/page.jsx','src/app/admin/dashboard/InvoicesTab.jsx']\\) { await swc.transform\\(fs.readFileSync\\(f,'utf8'\\),{jsc:{parser:{syntax:'ecmascript',jsx:true}}}\\); console.log\\(f,'OK'\\); } }\\)\\(\\).catch\\(e=>{console.error\\(e.message\\); process.exit\\(1\\)}\\)\")",
+      "Bash(where pnpm *)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm rebuild *)",
+      "Bash(pnpm approve-builds *)",
+      "Bash(pnpm dev *)",
+      "Bash(rg *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3030)"
     ]
   }
 }

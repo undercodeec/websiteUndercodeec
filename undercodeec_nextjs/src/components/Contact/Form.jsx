@@ -92,6 +92,10 @@ const ContactSection = ({ style }) => {
         if (result.status === 'success') {
           alert('Mensaje enviado con éxito');
 
+          if (typeof window !== "undefined" && window.fbq) {
+            window.fbq('track', 'CompleteRegistration');
+          }
+
           // Limpiar formulario
           setFormData({
             name: "",

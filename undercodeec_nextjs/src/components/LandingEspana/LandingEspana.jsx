@@ -958,6 +958,16 @@ const LandingEspana = () => {
   const galaxyAnimRef = useRef(null);
   const galaxyMouseRef = useRef({ x: 0, y: 0 });
 
+  // Tracking Meta Pixel ViewContent
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.fbq) {
+      window.fbq('track', 'ViewContent', {
+        content_name: 'Landing Page España',
+        content_category: 'Landing Pages'
+      });
+    }
+  }, []);
+
   // Galaxy particle canvas
   useEffect(() => {
     const canvas = galaxyCanvasRef.current;
@@ -1029,8 +1039,37 @@ const LandingEspana = () => {
     return () => cancelAnimationFrame(galaxyAnimRef.current);
   }, [hoveredService]);
 
+  // Efecto "mounting" de presupuesto encima de thanos
+  useEffect(() => {
+    const section = document.getElementById("presupuesto");
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return;
+        observer.disconnect();
+        animate(section, {
+          translateY: [30, 0],
+          opacity: [0, 1],
+          scale: [0.97, 1],
+          duration: 850,
+          ease: "outExpo",
+        });
+      },
+      { threshold: 0.04 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
+      {/* clip-path en presupuesto: muestra shadow solo hacia arriba, corta la parte inferior */}
+      <style>{`
+        #presupuesto { clip-path: inset(-220px 0 0 0); }
+      `}</style>
+
       {/* JSON-LD: Organization, Service, FAQPage */}
       <script
         type="application/ld+json"
@@ -1261,9 +1300,20 @@ const LandingEspana = () => {
         {/* THANOS TEXT — headline con efecto desintegración */}
         <ThanosTextSection />
 
-
-        {/* PRICING */}
-        <section id="presupuesto" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px" }}>
+        {/* PRICING — card que sube encima de thanos */}
+        <section
+          id="presupuesto"
+          className="py-5"
+          style={{
+            paddingTop: "80px",
+            paddingBottom: "80px",
+            background: "#fff",
+            boxShadow: "0 -28px 72px rgba(21,14,35,0.18), 0 -4px 20px rgba(96,11,86,0.10)",
+            position: "relative",
+            zIndex: 2,
+            marginTop: "-80px",
+          }}
+        >
           <div className="container">
             <div className="text-center mb-5 animate-fadeUp">
               <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
@@ -1373,6 +1423,14 @@ const LandingEspana = () => {
                 href="mailto:gerencia@undercodeec.com"
                 className="btn btn-light btn-lg fw-bold px-4 py-3"
                 style={{ borderRadius: "50px", color: "#600b56" }}
+                onClick={() => {
+                  if (typeof window !== "undefined" && window.fbq) {
+                    window.fbq('track', 'Contact', {
+                      content_name: 'Clic Email',
+                      content_category: 'Contacto Mail'
+                    });
+                  }
+                }}
               >
                 <i className="bi bi-envelope-fill me-2"></i>
                 gerencia@undercodeec.com
@@ -1394,6 +1452,14 @@ const LandingEspana = () => {
                   backgroundColor: "rgb(96, 11, 86)",
                   color: "#fff",
                   border: "none",
+                }}
+                onClick={() => {
+                  if (typeof window !== "undefined" && window.fbq) {
+                    window.fbq('track', 'Schedule', {
+                      content_name: 'Clic Agendar Reunión',
+                      content_category: 'Calendly'
+                    });
+                  }
                 }}
               >
                 <i className="bi bi-calendar-event me-2"></i>

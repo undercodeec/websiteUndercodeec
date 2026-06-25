@@ -229,53 +229,54 @@ const services = [
 
 const pricingPlans = [
   {
-    name: "Landing Page",
+    name: "Landing Express",
     price: "80",
     originalPrice: "250",
     discount: 68,
-    description: "Para autónomos y pequeños negocios que necesitan estar en Google ya.",
+    description: "Presencia online inmediata. Una página de alto impacto para captar leads o cerrar ventas rápido.",
     features: [
-      "Dominio.com y Hosting por 1 año",
-      "Diseño unico optimizado",
-      "Diseño 100% adaptable (Mobile-first)",
-      "Formulario de contacto",
-      "Botones flotantes de WhatsApp y Llamadas",
-      "SEO orgánico integrado",
-      "Soporte durante 1 mes y garantía de 1 año.",
+      "Landing page de una sola sección enfocada en captación o ventas",
+      "Diseño responsive optimizado para celulares",
+      "Botón flotante de WhatsApp y llamada directa",
+      "Formulario de contacto o captura de prospectos",
+      "Sección de beneficios del servicio o producto",
+      "Dominio .com y hosting básico por 1 año",
+      "5 correos corporativos (ej: info@tunegocio.com)",
+      "SEO técnico base: título, metadescripción, H1 e indexación",
+      "1 mes de soporte posterior a la entrega",
     ],
   },
   {
-    name: "Web Site Lanzamiento",
+    name: "Landing Estratégica",
     price: "120",
     originalPrice: "360",
     discount: 67,
-    description: "Para mostrar servicios variados, gran cantidad de información todo desde un portal web completo.",
+    description: "Convierte visitas en clientes con copywriting profesional, automatización y métricas de conversión reales.",
     features: [
-      "Diseño basado, optimizadas y adaptadas a la identidad de la marca",
-      "Estructura de 5 a 10 páginas (Inicio, Servicios, Nosotros, etc.)",
-      "Diseño 100% Mobile-first (obligatorio en 2026)",
-      "Configuración SEO orgánico integrado",
-      "Formularios de contacto e integración con WhatsApp",
-      "Dominio.com y Hosting por 1 año",
-      "Soporte durante 1 mes y garantía de 1 año.",
+      "Todo lo de la Landing Express",
+      "Textos persuasivos para presentar mejor tu oferta y motivar al cliente a contactarte",
+      "Formulario de contacto optimizado para captar prospectos con menos fricción",
+      "Recurso promocional o incentivo para aumentar registros, como descuento, guía o beneficio especial",
+      "Seguimiento de campañas y anuncios para medir de dónde llegan tus contactos",
+      "Integración con WhatsApp y respuestas iniciales para atender prospectos más rápido",
     ],
     featured: true,
   },
   {
-    name: "Tienda Online",
+    name: "Landing Premium",
     price: "250",
     originalPrice: "550",
     discount: 55,
-    description: "Tienda autogestionable perfecta para vender 24/7 sin preocuparse de procesos manuales.",
+    description: "Embudo de conversión automatizado con IA, pruebas A/B y métricas avanzadas para escalar resultados.",
     features: [
-      "4 conceptos de diseño",
-      "Tienda administrable para subir productos",
-      "Carga inicial de 50 a 100 productos con opción a más",
-      "Integración de pasarelas de pago (Stripe, Paypal, etc.)",
-      "Dominio.com y Hosting por 1 año",
-      "Compra de productos por WhatsApp, Telegram y redes sociales",
-      "Métodos de envíos avanzados y SEO orgánico integrado",
-      "Soporte durante 1 mes y garantía de 1 año.",
+      "Todo lo del plan Estratégica",
+      "Estructura de embudo con secciones avanzadas de conversión",
+      "SEO ampliado y arquitectura de contenido para mejor visibilidad",
+      "Pruebas A/B para titulares, botones o formularios",
+      "Integración de asistente virtual o chatbot con IA",
+      "Animaciones premium y experiencia visual avanzada",
+      "Segmentación o calificación de prospectos",
+      "Dashboard con métricas clave para seguimiento comercial",
     ],
   },
 ];
@@ -1043,6 +1044,16 @@ const LandingEcuador = () => {
   const galaxyAnimRef = useRef(null);
   const galaxyMouseRef = useRef({ x: 0, y: 0 });
 
+  // Tracking Meta Pixel ViewContent
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.fbq) {
+      window.fbq('track', 'ViewContent', {
+        content_name: 'Landing Page Ecuador',
+        content_category: 'Landing Pages'
+      });
+    }
+  }, []);
+
   const handleVerPortafolios = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -1762,6 +1773,14 @@ const LandingEcuador = () => {
                 style={{ borderRadius: "50px", color: "#600b56" }}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                  if (typeof window !== "undefined" && window.fbq) {
+                    window.fbq('track', 'Contact', {
+                      content_name: 'Clic WhatsApp',
+                      content_category: 'Chat Directo'
+                    });
+                  }
+                }}
               >
                 <i className="bi bi-whatsapp me-2"></i>
                 Chatear por WhatsApp
@@ -1770,6 +1789,14 @@ const LandingEcuador = () => {
                 href="tel:+593979046329"
                 className="btn btn-outline-light btn-lg px-4 py-3"
                 style={{ borderRadius: "50px" }}
+                onClick={() => {
+                  if (typeof window !== "undefined" && window.fbq) {
+                    window.fbq('track', 'Contact', {
+                      content_name: 'Clic Llamada Telefonica',
+                      content_category: 'Llamada Directa'
+                    });
+                  }
+                }}
               >
                 <i className="bi bi-telephone-fill me-2"></i>
                 +593 979 046 329

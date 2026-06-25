@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="darkreader-lock" />
+    <link rel="icon" href="assets/js/img/undercode-logo.ico" />
+    <title>
+      Undercodeec Studio · Animaciones de Vanguardia
+    </title>
+    <meta name="description" content="Estudio de animaciones web premium · Movimiento 3D, narrativa por scroll y física real para proyectos digitales únicos" />
+    <link href="https://animejs.com/assets/css/styles.css?v=1.0.0" rel="stylesheet" />
+    <script>
+      window.paths = {
+        demos: 'https://animejs.com/documentation-demos',
+        'easings': 'https://animejs.com/assets/json/easings.json',
+        'github-sponsors': 'https://animejs.com/sponsors/github-sponsors',
+        'platinum-sponsors': 'https://animejs.com/sponsors/platinum-sponsors',
+        'gold-sponsors': 'https://animejs.com/sponsors/gold-sponsors',
+        'silver-sponsors': 'https://animejs.com/sponsors/silver-sponsors',
+      };
+    </script>
+    <style id="light-theme">
+      :root {
+        --hex-bg-1: #ffffff;
+        --hex-bg-2: #fafafa;
+        --hex-bg-3: #f5f5f5;
+        --hex-bg-4: #f0f0f0;
+        --hex-bg-5: #ebebeb;
+        --hex-bg-6: #e5e5e5;
+        --hex-bg-7: #e0e0e0;
+        --hex-fg-1: #252423;
+        --hex-fg-2: #3b3937;
+        --hex-fg-3: #5b5855;
+        --hex-fg-4: #706e69;
+        --hex-fg-5: #85837e;
+        --hex-fg-6: #a7a5a1;
+        --hex-fg-7: #c7c5c1;
+        --hex-fg-8: #d9d7d4;
+      }
+      .home-section-light .text-xxl { color: var(--hex-fg-1) !important; }
+      .home-section-light .text-xl  { color: var(--hex-fg-2) !important; }
+      .home-section-light .text-m,
+      .home-section-light .text-l   { color: var(--hex-fg-3) !important; }
+      .home-section-light .home-section-text h2 { color: var(--hex-fg-1) !important; }
+      .home-section-light .home-section-text p  { color: var(--hex-fg-3) !important; }
+      .toolbox-labels li,
+      .toolbox-labels a { color: var(--hex-fg-2) !important; }
+      .modules-list li,
+      .modules-list .size { color: var(--hex-fg-3) !important; }
+      .box-heading h3, .modules-bundle-size { color: var(--hex-fg-1) !important; }
+      .scroll-bar {
+        background-image: linear-gradient(to right, rgba(37,36,35,.22) 1px, transparent 1px) !important;
+      }
+      .home-progress-card {
+        background-color: #f0f0f0 !important;
+        box-shadow: inset 0 0 0 1px rgba(37,36,35,.08);
+      }
+    </style>
+    <style id="ajustes-paleta">
+      .scroll-cursor { background-color: var(--cursor-marca) !important; }
+      .scroll-cursor-ghost { background-color: var(--cursor-marca-difuso) !important; }
+
+      #panel-paleta { position: fixed; top: 14px; right: 14px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+      #panel-paleta-disparador { display: flex; align-items: center; gap: .4rem; cursor: pointer; border: 1px solid rgba(37,36,35,.14); background: #ffffff; color: #3b3937; font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 8px 13px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+      #panel-paleta-disparador::before { content: ""; width: 11px; height: 11px; border-radius: 50%; background: linear-gradient(135deg, #600b56 0%, #b65fd0 45%, #efa238 100%); }
+      #panel-paleta-cuerpo { display: none; margin-top: 8px; width: 234px; background: #ffffff; border: 1px solid rgba(37,36,35,.1); border-radius: 11px; box-shadow: 0 10px 28px rgba(0,0,0,.14); padding: 13px; }
+      #panel-paleta.abierto #panel-paleta-cuerpo { display: block; }
+      #panel-paleta-titulo { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: #85837e; margin-bottom: 9px; }
+      .fila-paleta { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 0; }
+      .fila-paleta label { font-size: 12.5px; font-weight: 600; color: #3b3937; }
+      .fila-paleta input[type=color] { appearance: none; -webkit-appearance: none; border: none; width: 30px; height: 22px; border-radius: 5px; background: none; cursor: pointer; padding: 0; box-shadow: inset 0 0 0 1px rgba(37,36,35,.18); }
+      .fila-paleta input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+      .fila-paleta input[type=color]::-webkit-color-swatch { border: none; border-radius: 5px; }
+      .separador-paleta { height: 1px; background: rgba(37,36,35,.09); margin: 9px 0; }
+      #restablecer-paleta { width: 100%; margin-top: 9px; border: 1px solid rgba(37,36,35,.14); background: #f3f3f3; color: #3b3937; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 8px; border-radius: 7px; cursor: pointer; }
+      #restablecer-paleta:hover { background: #ececec; }
+    </style>
+    <script>
+      (function () {
+        var PASOS_DEGRADADO = [0, 0.21, 0.57, 0.67, 0.77, 0.86, 0.93, 1.0];
+        var PALETA_INICIAL = {
+          red: '#d44e7a', corail: '#ef7d4c', orange: '#ef9a3c', yellow: '#efc24f',
+          citrus: '#e6cf5a', lime: '#edab3e', green: '#cf5c8f', turquoise: '#7d62d6',
+          cyan: '#b75cc6', sky: '#e8a94c', sega: '#9f63d4', king: '#a85fd6',
+          indigo: '#8a6be0', lavender: '#9d6ad8', purple: '#b65fd0', magenta: '#cf5bae', pink: '#e06b9e'
+        };
+        var CURSOR_INICIAL = '#efa238';
+        var CLAVE_ALMACENAMIENTO = 'undercodeec.paleta.v1';
+
+        function hexARgb(valor) {
+          valor = valor.replace('#', '');
+          return [parseInt(valor.slice(0, 2), 16), parseInt(valor.slice(2, 4), 16), parseInt(valor.slice(4, 6), 16)];
+        }
+
+        function rgbAHex(componentes) {
+          return '#' + componentes.map(function (canal) {
+            canal = Math.round(Math.max(0, Math.min(255, canal)));
+            return (canal < 16 ? '0' : '') + canal.toString(16);
+          }).join('');
+        }
+
+        function rgbAHsl(rojo, verde, azul) {
+          rojo /= 255; verde /= 255; azul /= 255;
+          var maximo = Math.max(rojo, verde, azul);
+          var minimo = Math.min(rojo, verde, azul);
+          var matiz;
+          var saturacion;
+          var luz = (maximo + minimo) / 2;
+          if (maximo === minimo) {
+            matiz = saturacion = 0;
+          } else {
+            var delta = maximo - minimo;
+            saturacion = luz > 0.5 ? delta / (2 - maximo - minimo) : delta / (maximo + minimo);
+            if (maximo === rojo) {
+              matiz = (verde - azul) / delta + (verde < azul ? 6 : 0);
+            } else if (maximo === verde) {
+              matiz = (azul - rojo) / delta + 2;
+            } else {
+              matiz = (rojo - verde) / delta + 4;
+            }
+            matiz /= 6;
+          }
+          return [matiz, saturacion, luz];
+        }
+
+        function hslARgb(matiz, saturacion, luz) {
+          var rojo;
+          var verde;
+          var azul;
+          if (saturacion === 0) {
+            rojo = verde = azul = luz;
+          } else {
+            var interpolar = function (p, q, t) {
+              if (t < 0) t += 1;
+              if (t > 1) t -= 1;
+              if (t < 1 / 6) return p + (q - p) * 6 * t;
+              if (t < 1 / 2) return q;
+              if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+              return p;
+            };
+            var q = luz < 0.5 ? luz * (1 + saturacion) : luz + saturacion - luz * saturacion;
+            var p = 2 * luz - q;
+            rojo = interpolar(p, q, matiz + 1 / 3);
+            verde = interpolar(p, q, matiz);
+            azul = interpolar(p, q, matiz - 1 / 3);
+          }
+          return [rojo * 255, verde * 255, azul * 255];
+        }
+
+        function generarDegradado(hex) {
+          var color = hexARgb(hex);
+          var matiz = rgbAHsl(color[0], color[1], color[2])[0];
+          var final = hslARgb(matiz, 0.12, 0.15);
+          return PASOS_DEGRADADO.map(function (paso) {
+            return rgbAHex([
+              color[0] + (final[0] - color[0]) * paso,
+              color[1] + (final[1] - color[1]) * paso,
+              color[2] + (final[2] - color[2]) * paso
+            ]);
+          });
+        }
+
+        function leerAlmacenamiento() {
+          try {
+            return JSON.parse(localStorage.getItem(CLAVE_ALMACENAMIENTO) || '{}');
+          } catch (error) {
+            return {};
+          }
+        }
+
+        function persistirAlmacenamiento() {
+          try {
+            localStorage.setItem(CLAVE_ALMACENAMIENTO, JSON.stringify(coloresElegidos));
+          } catch (error) {}
+        }
+
+        var coloresElegidos = leerAlmacenamiento();
+
+        function aplicarPaleta() {
+          var raiz = document.documentElement;
+          Object.keys(PALETA_INICIAL).forEach(function (nombre) {
+            generarDegradado(coloresElegidos[nombre] || PALETA_INICIAL[nombre]).forEach(function (color, indice) {
+              raiz.style.setProperty('--hex-' + nombre + '-' + (indice + 1), color);
+            });
+          });
+          var cursor = coloresElegidos.cursor || CURSOR_INICIAL;
+          raiz.style.setProperty('--cursor-marca', cursor);
+          var matizCursor = rgbAHsl.apply(null, hexARgb(cursor))[0];
+          raiz.style.setProperty('--cursor-marca-difuso', rgbAHex(hslARgb(matizCursor, 0.5, 0.45)));
+        }
+
+        aplicarPaleta();
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var controles = [
+            { nombre: 'red', etiqueta: 'Movimiento 3D' },
+            { nombre: 'orange', etiqueta: 'Composición' },
+            { nombre: 'turquoise', etiqueta: 'Narrativa / Scroll' },
+            { nombre: 'king', etiqueta: 'Cascada' },
+            { nombre: 'sky', etiqueta: 'Formas / SVG' },
+            { nombre: 'lime', etiqueta: 'Física' },
+            { nombre: 'yellow', etiqueta: 'Coreografía' },
+            { nombre: 'green', etiqueta: 'Responsive' },
+            { separador: true },
+            { nombre: 'cursor', etiqueta: 'Cursor de progreso' }
+          ];
+          var valorPorDefecto = function (nombre) {
+            return nombre === 'cursor' ? CURSOR_INICIAL : PALETA_INICIAL[nombre];
+          };
+
+          var panel = document.createElement('div');
+          panel.id = 'panel-paleta';
+
+          var disparador = document.createElement('button');
+          disparador.id = 'panel-paleta-disparador';
+          disparador.type = 'button';
+          disparador.textContent = 'Colores';
+          disparador.addEventListener('click', function () {
+            panel.classList.toggle('abierto');
+          });
+
+          var cuerpo = document.createElement('div');
+          cuerpo.id = 'panel-paleta-cuerpo';
+
+          var titulo = document.createElement('div');
+          titulo.id = 'panel-paleta-titulo';
+          titulo.textContent = 'Paleta de marca';
+          cuerpo.appendChild(titulo);
+
+          var referencias = [];
+          controles.forEach(function (control) {
+            if (control.separador) {
+              var separador = document.createElement('div');
+              separador.className = 'separador-paleta';
+              cuerpo.appendChild(separador);
+              return;
+            }
+            var fila = document.createElement('div');
+            fila.className = 'fila-paleta';
+            var etiqueta = document.createElement('label');
+            etiqueta.textContent = control.etiqueta;
+            var entrada = document.createElement('input');
+            entrada.type = 'color';
+            entrada.value = coloresElegidos[control.nombre] || valorPorDefecto(control.nombre);
+            entrada.addEventListener('input', function () {
+              coloresElegidos[control.nombre] = entrada.value;
+              aplicarPaleta();
+              persistirAlmacenamiento();
+            });
+            referencias.push({ nombre: control.nombre, entrada: entrada });
+            fila.appendChild(etiqueta);
+            fila.appendChild(entrada);
+            cuerpo.appendChild(fila);
+          });
+
+          var restablecer = document.createElement('button');
+          restablecer.id = 'restablecer-paleta';
+          restablecer.type = 'button';
+          restablecer.textContent = 'Restablecer';
+          restablecer.addEventListener('click', function () {
+            coloresElegidos = {};
+            persistirAlmacenamiento();
+            aplicarPaleta();
+            referencias.forEach(function (referencia) {
+              referencia.entrada.value = valorPorDefecto(referencia.nombre);
+            });
+          });
+          cuerpo.appendChild(restablecer);
+
+          panel.appendChild(disparador);
+          panel.appendChild(cuerpo);
+          document.body.appendChild(panel);
+        });
+      })();
+    </script>
+  </head>
+  <body data-template="home">
+    <div class="page">
+      <header id="site-header" class="layout-container text-ui ui-overlay" style="display:none !important">
+        <div id="site-header-content">
+          <h1 class="heading-logo header-logo"><a href="#"><span>Undercodeec Studio</span></a>
+            <label id="docs-versions" class="ui-select ui-input docs-info-version" style="display:none">
+              <select class="ui-input" name="docs-versions" aria-label="Versiones">
+                <option value="#">1.0.0</option>
+              </select>
+            </label>
+          </h1>
+          <nav id="site-menu">
+            <ul></ul>
+          </nav>
+          <button id="toggle-site-menu" class="ui-input trigger-pane">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+              <rect width="16" height="1.75" x="4" y="8" fill="currentColor"></rect>
+              <rect width="16" height="1.75" x="4" y="14" fill="currentColor"></rect>
+            </svg>
+          </button>
+        </div>
+      </header>
+      <main id="home" class="layout-container">
+        <section id="intro" data-chapter="intro" data-label="HEADING">
+          <div class="home-section text-layout">
+            <div class="home-section-content">
+              <div class="home-section-text home-section-text-short">
+                <h2>
+                  Animaciones
+                  <br />
+                  de vanguardia
+                  <br />
+                  para tu proyecto
+                  <span class="animation-engine red-dot">                  .
+</span>
+                </h2>
+                <p>
+                  Undercodeec Studio crea
+                  <br />
+                  experiencias únicas que animan
+                  <span class="animate-anything-wrapper">                  <span class="animate-anything">                  la web
+</span>
+                  <span class="animate-anything-dot">                  .
+</span>
+</span>
+                </p>
+                <p>
+                </p>
+              </div>
+              <div class="fixed-container heading-links">
+                <div class="layout-container">
+                  <pre class="npm-install" style="display:none !important"><code>undercodeec-studio</code></pre>
+                  <div class="ui-group">
+
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="section-spacer">
+          </div>
+          <div class="section-spacer">
+          </div>
+        </section>
+        <section id="toolbox" class="home-section-container home-section-light" data-chapter="toolbox" data-label="TOOLBOX" data-enter-offset="-=100lvh" data-leave-offset="-=10lvh">
+          <div class="home-section fixed-section">
+            <div class="home-section-content">
+              <div class="home-section-text text-layout home-section-text-short">
+                <h2 class="section-heading text-xxl">
+                  Animaciones que definen
+                  <br />
+                  un estilo único
+                </h2>
+                <p class="section-sub-heading">
+                  En Undercodeec Studio dominamos las tecnologías de animación más avanzadas para crear experiencias visuales que impactan y diferencian cada proyecto.
+                </p>
+              </div>
+              <div class="toolbox-labels-container layout-container">
+                <div class="toolbox-labels">
+                  <ul class="toolbox-labels-left">
+                  </ul>
+                  <ul class="toolbox-labels-right">
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="section-spacer">
+          </div>
+          <div class="section-spacer">
+          </div>
+          <div class="section-spacer">
+          </div>
+          <div class="section-spacer">
+          </div>
+        </section>
+        <section id="features-gallery" data-label="FEATURES">
+          <section id="intuitive" class="home-section feature-section text-layout color-getting-started" data-chapter="intuitive" data-demo="intuitive">
+            <div class="home-section-content">
+              <div class="home-section-text">
+                <div class="home-section-text-heading">
+                  <h2>
+                    Movimiento 3D en tiempo real
+                  </h2>
+                  <p>
+                    Integramos objetos tridimensionales que responden e interactúan con el usuario de forma orgánica, dando vida a cada pantalla.
+                  </p>
+                </div>
+                <ul class="feature-links">
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Objetos 3D interactivos
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Transiciones en profundidad
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Efectos de cámara personalizados
+</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="feature-section-demo-wrapper">
+                <div class="feature-section-demo fixed-section">
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="composition" class="home-section feature-section text-layout color-animation" data-chapter="composition" data-demo="composition">
+            <div class="home-section-content">
+              <div class="home-section-text">
+                <div class="home-section-text-heading">
+                  <h2>
+                    Composición visual única
+                  </h2>
+                  <p>
+                    Mezclamos capas de movimiento con precisión milimétrica para crear transiciones que se convierten en la identidad visual de cada proyecto.
+                  </p>
+                </div>
+                <ul class="feature-links">
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Capas de movimiento combinadas
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Transiciones con identidad propia
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Movimiento orgánico y fluido
+</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="feature-section-demo-wrapper">
+                <div class="feature-section-demo fixed-section">
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="scroll" class="home-section feature-section text-layout color-turquoise" data-chapter="scroll" data-demo="scroll">
+            <div class="home-section-content">
+              <div class="home-section-text">
+                <div class="home-section-text-heading">
+                  <h2>
+                    Narrativa guiada por el scroll
+                  </h2>
+                  <p>
+                    Activamos secuencias 3D sincronizadas con el desplazamiento, convirtiendo cada sección en una experiencia visual cinematográfica.
+                  </p>
+                </div>
+                <ul class="feature-links">
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Scroll cinematográfico
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Parallax de profundidad
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Narrativa visual por sección
+</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="feature-section-demo-wrapper">
+                <div class="feature-section-demo fixed-section">
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="staggering" class="home-section feature-section text-layout color-utils" data-chapter="staggering" data-demo="staggering">
+            <div class="home-section-content">
+              <div class="home-section-text">
+                <div class="home-section-text-heading">
+                  <h2>
+                    Efectos en cascada de impacto
+                  </h2>
+                  <p>
+                    Diseñamos secuencias escalonadas que dan ritmo y personalidad visual única a cada presentación de contenido.
+                  </p>
+                </div>
+                <ul class="feature-links">
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Secuencias escalonadas
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Ritmo visual personalizado
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Explosiones y ondas visuales
+</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="feature-section-demo-wrapper">
+                <div class="feature-section-demo fixed-section">
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="svgUtils" class="home-section feature-section text-layout color-svg" data-chapter="svgUtils" data-demo="svgUtils">
+            <div class="home-section-content">
+              <div class="home-section-text">
+                <div class="home-section-text-heading">
+                  <h2>
+                    Formas que cobran vida
+                  </h2>
+                  <p>
+                    Transformamos vectores y rutas en animaciones dinámicas que refuerzan el lenguaje visual e identidad gráfica de cada marca.
+                  </p>
+                </div>
+                <ul class="feature-links">
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Morfología de formas
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Trazado dinámico
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Rutas de movimiento
+</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="feature-section-demo-wrapper">
+                <div class="feature-section-demo fixed-section">
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="draggable" class="home-section feature-section text-layout color-draggable" data-chapter="draggable" data-demo="draggable">
+            <div class="home-section-content">
+              <div class="home-section-text">
+                <div class="home-section-text-heading">
+                  <h2>
+                    Interactividad con física real
+                  </h2>
+                  <p>
+                    Añadimos física real —resortes, inercia y fricción— para crear interfaces donde cada elemento responde de forma completamente natural.
+                  </p>
+                </div>
+                <ul class="feature-links">
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Física de resorte y gravedad
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Respuesta táctil precisa
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Zonas de ajuste inteligentes
+</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="feature-section-demo-wrapper">
+                <div id="draggable-demo" class="feature-section-demo">
+                  <div class="draggable-container">
+                    <div class="draggable">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="clockwork" class="home-section feature-section text-layout color-timeline" data-chapter="clockwork" data-demo="clockwork">
+            <div class="home-section-content">
+              <div class="home-section-text">
+                <div class="home-section-text-heading">
+                  <h2>
+                    Coreografías
+                    <br />
+                    visuales precisas
+                  </h2>
+                  <p>
+                    Orquestamos secuencias complejas de animación para que cada elemento aparezca exactamente cuando debe, generando el máximo impacto visual.
+                  </p>
+                </div>
+                <ul class="feature-links">
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Líneas de tiempo maestras
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Sincronización de milisegundos
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Control total de ritmo
+</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="feature-section-demo-wrapper">
+                <div class="feature-section-demo fixed-section">
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="responsive" class="home-section feature-section text-layout color-green" data-chapter="responsive" data-demo="responsive">
+            <div class="home-section-content">
+              <div class="home-section-text">
+                <div class="home-section-text-heading">
+                  <h2>
+                    Diseño que se adapta
+                  </h2>
+                  <p>
+                    Cada proyecto de Undercodeec se diseña para lucir perfecto en cualquier dispositivo, con animaciones que se reconfiguran inteligentemente.
+                  </p>
+                </div>
+                <ul class="feature-links">
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Adaptación multi-dispositivo
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Experiencia consistente
+</a>
+                  </li>
+                  <li>
+                    <a class="text-ui" href="#">                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon">
+                      <g fill="none" fill-rule="evenodd">
+                        <polygon fill="currentColor" fill-rule="nonzero" points="17.737 11.987 12.5 17.225 11.263 15.987 14.388 12.862 6.5 12.862 6.5 11.112 14.388 11.112 11.263 7.987 12.5 6.75">
+                        </polygon>
+                      </g>
+                    </svg>
+                    Animaciones contextuales
+</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="feature-section-demo-wrapper">
+                <div class="feature-section-demo fixed-section">
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+        <div class="section-spacer">
+        </div>
+        <section id="modules" class="home-section-container home-section-light" data-chapter="modules" data-label="MODULES" data-enter-offset="+=10lvh" data-leave-offset="-=75lvh">
+          <section class="home-section fixed-section">
+            <div class="home-section-content">
+              <div class="home-section-text text-layout home-section-text-short">
+                <h2 class="section-heading text-xxl">
+                  Tecnología optimizada
+                  <br />
+                  para cada proyecto
+                </h2>
+                <p class="section-sub-heading">
+                  Integramos únicamente lo que cada proyecto requiere, garantizando rendimiento máximo sin sacrificar calidad visual ni impacto.
+                </p>
+              </div>
+            </div>
+          </section>
+          <div class="section-spacer">
+          </div>
+          <div class="section-spacer">
+          </div>
+          <div class="section-spacer">
+          </div>
+          <div class="section-spacer">
+          </div>
+        </section>
+        <section id="sponsors" class="home-section text-layout" data-chapter="sponsors" data-label="SPONSORS">
+          <div class="home-section-content">
+            <div class="home-section-text">
+              <h2>
+                Proyectos y colaboraciones
+              </h2>
+              <p>
+                Trabajamos con marcas, agencias y equipos que buscan diferenciarse con animaciones de vanguardia que generan impacto real.
+              </p>
+            </div>
+          </div>
+          <div class="section-spacer">
+          </div>
+          <div class="section-spacer">
+          </div>
+        </section>
+        <section id="get-started" data-chapter="get-started" data-label="GET_STARTED">
+          <div class="section-spacer">
+          </div>
+          <section class="home-section text-layout">
+            <div class="home-section-content home-section-centered">
+              <div class="home-section-text home-section-centered">
+                <h2 class="text-xxxl">
+                  UNDERCODEEC STUDIO
+                </h2>
+                <p style="margin-top:1rem;font-size:1rem;opacity:.6">Animaciones de vanguardia · Estilo único para cada proyecto</p>
+              </div>
+            </div>
+          </section>
+        </section>
+        <div class="sub-nav">
+          <div class="home-progress-card">
+            <div class="scroll-bar">
+              <div class="scroll-cursor">
+              </div>
+              <div class="scroll-cursor-ghost scroll-cursor">
+              </div>
+            </div>
+          </div>
+          <div data-card="intuitive" class="home-section-card text-layout" style="padding:1.5rem 1.75rem">
+            <p style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:.5rem">Movimiento 3D en Tiempo Real</p>
+            <p style="font-size:.82rem;line-height:1.5;color:var(--hex-fg-1)">Integramos modelos 3D que responden al usuario de forma orgánica. Los objetos se mueven, rotan y transforman creando experiencias visuales completamente inmersivas.</p>
+          </div>
+          <div data-card="composition" class="home-section-card text-layout" style="padding:1.5rem 1.75rem">
+            <p style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:.5rem">Composición Visual de Impacto</p>
+            <p style="font-size:.82rem;line-height:1.5;color:var(--hex-fg-1)">Mezcla y combina propiedades de transformación CSS de forma independiente. El modo <em>blend</em> fusiona animaciones activas sin interrumpirlas, creando movimientos orgánicos y fluidos.</p>
+          </div>
+          <div data-card="svgUtils" class="home-section-card text-layout" style="padding:1.5rem 1.75rem">
+            <p style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:.5rem">Identidad Gráfica en Movimiento</p>
+            <p style="font-size:.82rem;line-height:1.5;color:var(--hex-fg-1)">Transformamos vectores y formas en animaciones dinámicas que refuerzan el lenguaje visual de la marca y la hacen memorable.</p>
+          </div>
+          <div data-card="scroll" class="home-section-card text-layout" style="padding:1.5rem 1.75rem">
+            <p style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:.5rem">Narrativa Cinematográfica</p>
+            <p style="font-size:.82rem;line-height:1.5;color:var(--hex-fg-1)">Sincronizamos secuencias 3D con el desplazamiento del usuario. Cada sección se convierte en un momento visual de alto impacto que guía la experiencia.</p>
+          </div>
+          <div data-card="staggering" class="home-section-card text-layout" style="padding:1.5rem 1.75rem">
+            <p style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:.5rem">Ritmo Visual Perfecto</p>
+            <p style="font-size:.82rem;line-height:1.5;color:var(--hex-fg-1)">Aplica retardos escalonados en tiempo, valores y posición de forma precisa. Crea efectos de grilla, ondas y explosiones radiales con la función <em>stagger</em> integrada.</p>
+          </div>
+          <div data-card="draggable" class="home-section-card text-layout" style="padding:1.5rem 1.75rem">
+            <p style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:.5rem">Física que se Siente Real</p>
+            <p style="font-size:.82rem;line-height:1.5;color:var(--hex-fg-1)">Añadimos resortes, inercia y fricción para crear interfaces donde cada elemento responde de forma natural, haciendo la experiencia intuitiva y satisfactoria.</p>
+          </div>
+          <div data-card="clockwork" class="home-section-card text-layout" style="padding:1.5rem 1.75rem">
+            <p style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:.5rem">Coreografía de Precisión</p>
+            <p style="font-size:.82rem;line-height:1.5;color:var(--hex-fg-1)">Orquestamos cada animación para que ocurra exactamente cuando debe. La sincronización perfecta crea la máxima sensación de pulido y profesionalismo.</p>
+          </div>
+          <div data-card="responsive" class="home-section-card text-layout" style="padding:1.5rem 1.75rem">
+            <p style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:.5rem">Impacto en Cualquier Pantalla</p>
+            <p style="font-size:.82rem;line-height:1.5;color:var(--hex-fg-1)">Cada proyecto de Undercodeec se diseña para lucir impecable en cualquier dispositivo. Las animaciones se reconfiguran inteligentemente sin perder impacto.</p>
+          </div>
+          <div class="modules-sizes home-section-card text-layout" data-card="modules" data-enter-offset="-=50lvh" data-leave-offset="-=150lvh">
+            <div class="box-heading">
+              <h3>
+                Tamaño del bundle
+              </h3>
+              <div class="modules-bundle-size">
+                <span class="size">                24.50
+</span>
+                KB
+              </div>
+            </div>
+            <div class="modules-sizes-chart chart">
+              <div data-size="3.50" class="chart-bar module-waapi color-waapi">
+              </div>
+              <div data-size="0.55" class="chart-bar module-timeline color-timeline">
+              </div>
+              <div data-size="0.48" class="chart-bar module-stagger color-utils">
+              </div>
+              <div data-size="0.35" class="chart-bar module-svg color-svg">
+              </div>
+              <div data-size="0.52" class="chart-bar module-spring color-easings">
+              </div>
+              <div data-size="5.60" class="chart-bar module-timer color-timer">
+              </div>
+              <div data-size="4.30" class="chart-bar module-scroll color-events">
+              </div>
+              <div data-size="5.20" class="chart-bar module-animation color-animation">
+              </div>
+              <div data-size="6.41" class="chart-bar module-draggable color-draggable">
+              </div>
+              <div data-size="0.22" class="chart-bar module-scope color-scope">
+              </div>
+            </div>
+            <ul class="modules-list">
+              <li>
+                <span class="label-dot color-timer"></span>
+                Temporizador
+                <span class="size">                5.60 KB
+</span>
+              </li>
+              <li>
+                <span class="label-dot color-animation"></span>
+                Animación
+                <span class="size">                +5.20 KB
+</span>
+              </li>
+              <li>
+                <span class="label-dot color-timeline"></span>
+                Línea de tiempo
+                <span class="size">                +0.55 KB
+</span>
+              </li>
+              <li>
+                <span class="label-dot color-animatable"></span>
+                Animatable
+                <span class="size">                +0.40 KB
+</span>
+              </li>
+              <li>
+                <span class="label-dot color-draggable"></span>
+                Draggable
+                <span class="size">                +6.41 KB
+</span>
+              </li>
+              <li>
+                <span class="label-dot color-events"></span>
+                Scroll
+                <span class="size">                +4.30 KB
+</span>
+              </li>
+              <li>
+                <span class="label-dot color-scope"></span>
+                Scope
+                <span class="size">                +0.22 KB
+</span>
+              </li>
+              <li>
+                <span class="label-dot color-svg"></span>
+                SVG
+                <span class="size">                0.35 KB
+</span>
+              </li>
+              <li>
+                <span class="label-dot color-utils"></span>
+                Stagger
+                <span class="size">                +0.48 KB
+</span>
+              </li>
+              <li>
+                <span class="label-dot color-easings"></span>
+                Spring
+                <span class="size">                0.52 KB
+</span>
+              </li>
+              <li>
+                <span class="label-dot color-waapi"></span>
+                WAAPI
+                <span class="size">                3.50 KB
+</span>
+              </li>
+            </ul>
+          </div>
+          <div class="funding-level-box home-section-card text-layout" data-card="sponsors" data-enter-offset="-=50lvh" data-leave-offset="-=50lvh">
+
+          </div>
+        </div>
+      </main>
+      <div id="engine">
+      </div>
+    </div>
+    <script src="assets/js/scripts.js?v=1.0.0">
+    </script>
+  </body>
+</html>

@@ -94,7 +94,6 @@ const StackingCardsDemo = forwardRef(function StackingCardsDemo(props, ref) {
         minHeight: "500px",
         borderRadius: "16px",
         background: "#ffffff",
-        overflow: "hidden",
         perspective: "1400px",
       }}
     >

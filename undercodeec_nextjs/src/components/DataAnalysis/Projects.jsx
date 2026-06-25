@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+"use client";
+import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { Autoplay, Keyboard, Navigation } from 'swiper';
 import projects from '@/data/DataAnalysis/projects.json';
@@ -8,12 +9,10 @@ import 'swiper/css/autoplay';
 import 'swiper/css/keyboard';
 import 'swiper/css/navigation';
 
-SwiperCore.use([Autoplay, Keyboard, Navigation]);
-
 const Projects = () => {
-  const [load, setLoad] = useState(false);
+  const [load, setLoad] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     setTimeout(() => {
       setLoad(true);
     });
@@ -22,7 +21,7 @@ const Projects = () => {
   return (
     <section className="projects style-8 section-padding bg-gray2">
       <div className="container">
-        <div className="section-head style-8 mb-80 animate-fadeUp">
+        <div className="section-head style-8 mb-80">
           <h3>Proyectos Completados</h3>
           <div className="arrows">
             <div className="swiper-button-next">
@@ -33,15 +32,19 @@ const Projects = () => {
             </div>
           </div>
         </div>
-        <div className="content animate-fadeIn" style={{ transitionDelay: '200ms' }}>
+        <div className="content" style={{ transitionDelay: '200ms' }}>
           <div className="projects-slider8">
             {load && (
               <Swiper
                 className="swiper-container"
+                style={{ minHeight: '500px', display: 'block', width: '100%' }}
+                modules={[Autoplay, Keyboard, Navigation]}
                 slidesPerView={1}
                 spaceBetween={0}
                 speed={1200}
                 pagination={false}
+                observer={true}
+                observeParents={true}
                 navigation={{
                   nextEl: '.projects.style-8 .swiper-button-next',
                   prevEl: '.projects.style-8 .swiper-button-prev',
@@ -58,7 +61,7 @@ const Projects = () => {
                   <SwiperSlide key={index}>
                     <div className="project-card">
                       <div className="row align-items-center">
-                        <div className="col-lg-6 animate-fadeRight">
+                        <div className="col-lg-6">
                           <div className="img">
                             {project.iframeUrl ? (
                               <iframe
@@ -74,7 +77,7 @@ const Projects = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="col-lg-6 animate-fadeLeft" style={{ transitionDelay: '150ms' }}>
+                        <div className="col-lg-6">
                           <div className="info">
                             <p>{project.text}</p>
                             <div className="proj-det">
