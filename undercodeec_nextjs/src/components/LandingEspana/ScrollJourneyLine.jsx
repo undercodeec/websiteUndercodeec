@@ -8,6 +8,7 @@ import {
   useSpring,
   useMotionValue,
 } from "framer-motion";
+import CameraAnim from "@/components/LandingEspana/CameraAnim";
 
 const PROJECTS = [
   {
@@ -358,17 +359,57 @@ function JourneyStep({ index, project, side, topOffset = 0 }) {
         <span>{index}</span>
       </motion.div>
 
-      <a href={project.link} className="step-card" aria-label={`Ver ${project.name}`}>
-        <img
-          src={project.image}
-          alt={project.name}
-          loading="lazy"
-          onError={(e) => { e.currentTarget.style.opacity = "0"; }}
-        />
-        <div className="step-card-overlay">
-          <h3>{project.name}</h3>
-          <p>{project.style}</p>
-        </div>
+      <a
+        href={index === 1 ? "https://understudio.undercodeec.com/" : project.link}
+        target={index === 1 ? "_blank" : undefined}
+        rel={index === 1 ? "noopener noreferrer" : undefined}
+        className={`step-card${index === 1 ? " step-card--anim" : ""}`}
+        aria-label={index === 1 ? "Visita Understudio en undercodeec.com" : `Ver ${project.name}`}
+      >
+        {index === 1 ? (
+          <div className="step-card-anim">
+            <span className="lens-pulse" aria-hidden="true" />
+            <span className="lens-pulse lens-pulse--delay" aria-hidden="true" />
+            <div className="lens-wrap">
+              <CameraAnim ariaLabel={`Animación cámara de ${project.name}`} />
+            </div>
+            <div className="lens-cta">
+              <span className="lens-cta-title">Entra a Understudio</span>
+              <span className="lens-cta-sub">
+                Captura nuestro estudio creativo
+                <svg
+                  className="lens-cta-arrow"
+                  viewBox="0 0 24 24"
+                  width="14"
+                  height="14"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M5 12h14M13 6l6 6-6 6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </div>
+          </div>
+        ) : (
+          <>
+            <img
+              src={project.image}
+              alt={project.name}
+              loading="lazy"
+              onError={(e) => { e.currentTarget.style.opacity = "0"; }}
+            />
+            <div className="step-card-overlay">
+              <h3>{project.name}</h3>
+              <p>{project.style}</p>
+            </div>
+          </>
+        )}
       </a>
 
       <style jsx>{`
@@ -432,6 +473,124 @@ function JourneyStep({ index, project, side, topOffset = 0 }) {
           height: 100%;
           object-fit: cover;
           display: block;
+        }
+        .step-card-anim {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          background: transparent;
+          cursor: pointer;
+        }
+        .lens-wrap {
+          position: relative;
+          width: 78%;
+          height: 78%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                      filter 0.45s ease;
+          z-index: 2;
+        }
+        .step-card--anim:hover .lens-wrap {
+          transform: scale(1.08);
+          filter: drop-shadow(0 8px 28px rgba(166, 241, 255, 0.45));
+        }
+        .step-card--anim:active .lens-wrap {
+          transform: scale(0.98);
+        }
+        .step-card-anim :global(.intuitive-demo-mini),
+        .step-card-anim :global(.camera-anim-wrapper),
+        .step-card-anim :global(svg.camera-anim) {
+          width: 100%;
+          height: 100%;
+          max-width: 100%;
+          max-height: 100%;
+          display: block;
+          overflow: visible;
+        }
+        .lens-pulse {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 60%;
+          aspect-ratio: 1 / 1;
+          border-radius: 50%;
+          border: 2px solid rgba(166, 241, 255, 0.55);
+          transform: translate(-50%, -50%);
+          animation: lens-pulse 2.4s ease-out infinite;
+          pointer-events: none;
+          z-index: 1;
+        }
+        .lens-pulse--delay {
+          animation-delay: 1.2s;
+        }
+        @keyframes lens-pulse {
+          0% {
+            transform: translate(-50%, -50%) scale(0.7);
+            opacity: 0.75;
+            border-width: 2px;
+          }
+          70% {
+            opacity: 0.15;
+            border-width: 1px;
+          }
+          100% {
+            transform: translate(-50%, -50%) scale(1.45);
+            opacity: 0;
+            border-width: 0.5px;
+          }
+        }
+        .lens-cta {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: -38px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          padding: 0 12px;
+          text-align: center;
+          z-index: 3;
+          pointer-events: none;
+        }
+        .lens-cta-title {
+          font-size: 13px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          color: #150e23;
+          text-transform: uppercase;
+        }
+        .lens-cta-sub {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #5a5566;
+          transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .lens-cta-arrow {
+          transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .step-card--anim:hover .lens-cta-sub {
+          color: #150e23;
+        }
+        .step-card--anim:hover .lens-cta-arrow {
+          transform: translateX(4px);
+        }
+        .step-card--anim {
+          background: transparent !important;
+          overflow: visible;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .lens-pulse { animation: none; opacity: 0; }
+          .lens-wrap { transition: none; }
         }
         .step-card-overlay {
           position: absolute;

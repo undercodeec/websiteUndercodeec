@@ -36,6 +36,55 @@ setInterval(() => {
 }, PENDING_ORDER_CLEANUP_INTERVAL_MS);
 
 // ============================================================================
+// CHAT RATE LIMIT: throttle por IP en /api/chat para no quemar tokens Gemini
+// ============================================================================
+const CHAT_RATE_WINDOW_MS = 60 * 1000;   // ventana 1 min
+const CHAT_RATE_MAX = 10;                // 10 requests/min/IP
+const CHAT_RATE_DAILY_MAX = 100;         // 100 requests/día/IP
+const CHAT_RATE_DAILY_WINDOW_MS = 24 * 60 * 60 * 1000;
+const chatRateMap = new Map(); // ip -> { windowStart, count, dayStart, dayCount }
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of chatRateMap) {
+    if (now - entry.dayStart > CHAT_RATE_DAILY_WINDOW_MS) chatRateMap.delete(ip);
+  }
+}, 10 * 60 * 1000);
+
+function chatRateLimit(req, res, next) {
+  const ip = (req.headers['x-forwarded-for'] || req.ip || req.socket?.remoteAddress || 'unknown').toString().split(',')[0].trim();
+  const now = Date.now();
+  let entry = chatRateMap.get(ip);
+  if (!entry) {
+    entry = { windowStart: now, count: 0, dayStart: now, dayCount: 0 };
+    chatRateMap.set(ip, entry);
+  }
+  if (now - entry.windowStart > CHAT_RATE_WINDOW_MS) {
+    entry.windowStart = now;
+    entry.count = 0;
+  }
+  if (now - entry.dayStart > CHAT_RATE_DAILY_WINDOW_MS) {
+    entry.dayStart = now;
+    entry.dayCount = 0;
+  }
+  entry.count++;
+  entry.dayCount++;
+  if (entry.count > CHAT_RATE_MAX) {
+    console.warn(`[CHAT] Rate limit (min) IP=${ip} count=${entry.count}`);
+    return res.status(429).json({ error: 'Demasiadas solicitudes. Espera un momento.' });
+  }
+  if (entry.dayCount > CHAT_RATE_DAILY_MAX) {
+    console.warn(`[CHAT] Rate limit (día) IP=${ip} dayCount=${entry.dayCount}`);
+    return res.status(429).json({ error: 'Límite diario alcanzado. Intenta mañana.' });
+  }
+  next();
+}
+
+// Límites de input del chat
+const CHAT_MESSAGE_MAX_LEN = 2000;
+const CHAT_HISTORY_MSG_MAX_LEN = 1000;
+
+// ============================================================================
 // PUPPETEER QUEUE: limita instancias simultáneas de Chromium en la VPS
 // ============================================================================
 const PUPPETEER_MAX_CONCURRENT = 3;
@@ -1219,7 +1268,7 @@ async function ensureSystemCache() {
 }
 
 // Endpoint para el Chatbot (Streaming SSE)
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', chatRateLimit, async (req, res) => {
   const { message, history } = req.body;
 
   setupSSE(res);
@@ -1239,6 +1288,16 @@ app.post('/api/chat', async (req, res) => {
       return endSSE(res);
   }
 
+  // Validación de input: tipo, presencia, longitud
+  if (!message || typeof message !== 'string') {
+    sendSSE(res, { type: 'error', message: 'Mensaje inválido.' });
+    return endSSE(res);
+  }
+  if (message.length > CHAT_MESSAGE_MAX_LEN) {
+    sendSSE(res, { type: 'error', message: `Mensaje demasiado largo (máx ${CHAT_MESSAGE_MAX_LEN} caracteres).` });
+    return endSSE(res);
+  }
+
   if (!process.env.GEMINI_API_KEY) {
     console.error('❌ Error: GEMINI_API_KEY no está definida en el entorno.');
     sendSSE(res, { type: 'error', message: 'Configuración del servidor incompleta.' });
@@ -1255,10 +1314,14 @@ app.post('/api/chat', async (req, res) => {
     if (history && Array.isArray(history)) {
        const recentHistory = history.slice(-MAX_HISTORY_TURNS);
        recentHistory.forEach(msg => {
-           if (msg.role !== 'system') {
+           if (msg && msg.role !== 'system') {
+               const content = typeof msg.content === 'string'
+                   ? msg.content.substring(0, CHAT_HISTORY_MSG_MAX_LEN)
+                   : '';
+               if (!content) return;
                conversationHistory.push({
                    role: msg.role === 'assistant' ? 'model' : 'user',
-                   parts: [{ text: msg.content }]
+                   parts: [{ text: content }]
                });
            }
        });
@@ -1286,6 +1349,10 @@ app.post('/api/chat', async (req, res) => {
         model: FAST_MODEL,
         systemInstruction: SYSTEM_INSTRUCTION,
         tools: [{ functionDeclarations: activeTools }],
+        generationConfig: {
+            maxOutputTokens: 800,   // techo por respuesta para no quemar tokens
+            temperature: 0.7,
+        },
     };
     const model = genAI.getGenerativeModel(modelParams);
 
