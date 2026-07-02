@@ -1,4 +1,7 @@
 {
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://127.0.0.1:8787"
+  },
   "permissions": {
     "allow": [
       "Skill(update-config)",
@@ -15,7 +18,11 @@
       "Bash(npm install *)",
       "Bash(npx next *)",
       "Bash(node *)",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(xargs grep -l \"useGLTF\\\\|Canvas\\\\|@react-three\")",
+      "Bash(node -e \"const d=require\\('@react-three/drei/package.json'\\); console.log\\('drei version', d.version\\)\")",
+      "Bash(node -e \"console.log\\('Bounds+Center exported:', ['Bounds','Center','Environment'].every\\(k=>Object.keys\\(require\\('@react-three/drei'\\)\\).includes\\(k\\)\\)\\)\")",
+      "Read(//d/Documentos/bakup mi portafolio/mi portafolio/demo-luna/**)"
     ]
   }
 }

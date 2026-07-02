@@ -8,7 +8,12 @@ import {
   useSpring,
   useMotionValue,
 } from "framer-motion";
+import dynamic from "next/dynamic";
 import CameraAnim from "@/components/LandingEspana/CameraAnim";
+
+const MoonMini = dynamic(() => import("@/components/3D/MoonMini"), {
+  ssr: false,
+});
 
 const PROJECTS = [
   {
@@ -18,8 +23,8 @@ const PROJECTS = [
     link: "/es/proyectos/proyecto-1",
   },
   {
-    name: "Proyecto 2",
-    style: "Estilo brutalista moderno con tipografías editoriales y micro-interacciones.",
+    name: "21HRS on the Moon",
+    style: "Experiencia 3D interactiva: explora un modelo lunar en tiempo real con WebGL.",
     image: "/assets/projects/placeholder-2.jpg",
     link: "/es/proyectos/proyecto-2",
   },
@@ -120,22 +125,22 @@ export default function ScrollJourneyLine() {
           >
             <defs>
               <linearGradient id="journeyGradient" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
-                <stop offset="0%"   stopColor="#600b56" />
-                <stop offset="30%"  stopColor="#270f31" />
-                <stop offset="73%"  stopColor="#efa238" />
-                <stop offset="100%" stopColor="#efa238" />
+                <stop offset="0%"   stopColor="#0055ff" />
+                <stop offset="30%"  stopColor="#001133" />
+                <stop offset="73%"  stopColor="#00f0ff" />
+                <stop offset="100%" stopColor="#00f0ff" />
               </linearGradient>
               <radialGradient id="sphereGrad" cx="35%" cy="35%" r="65%">
                 <stop offset="0%"   stopColor="#ffffff" stopOpacity="0.9" />
-                <stop offset="25%"  stopColor="#efa238" />
-                <stop offset="55%"  stopColor="#600b56" />
-                <stop offset="80%"  stopColor="#270f31" />
-                <stop offset="100%" stopColor="#efa238" stopOpacity="0.6" />
+                <stop offset="25%"  stopColor="#00f0ff" />
+                <stop offset="55%"  stopColor="#0055ff" />
+                <stop offset="80%"  stopColor="#001133" />
+                <stop offset="100%" stopColor="#00f0ff" stopOpacity="0.6" />
               </radialGradient>
               <radialGradient id="sphereGrad2" cx="65%" cy="65%" r="65%">
-                <stop offset="0%"   stopColor="#efa238" stopOpacity="0.8" />
-                <stop offset="40%"  stopColor="#600b56" stopOpacity="0.6" />
-                <stop offset="100%" stopColor="#270f31" stopOpacity="0" />
+                <stop offset="0%"   stopColor="#00f0ff" stopOpacity="0.8" />
+                <stop offset="40%"  stopColor="#0055ff" stopOpacity="0.6" />
+                <stop offset="100%" stopColor="#001133" stopOpacity="0" />
               </radialGradient>
               <filter id="journeyGlow" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="6" result="blur" />
@@ -174,13 +179,25 @@ export default function ScrollJourneyLine() {
               filter="url(#journeyGlow)"
             />
 
+            {/* Electromagnetic Pulses */}
+            <path
+              className="pulse-path"
+              d="M200 0 C 60 250, 340 550, 200 800 S 60 1350, 200 1600"
+              fill="none"
+              stroke="#00f0ff"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              pathLength="1"
+              filter="url(#journeyGlow)"
+            />
+
             {/* Minimalist Chip at path tip */}
             <motion.g
               style={{ x: sphereX, y: sphereY, opacity: sphereOpacity }}
               filter="url(#sphereGlow)"
             >
               {/* Pins (Legs) */}
-              <g fill="#efa238" opacity="0.9">
+              <g fill="#00f0ff" opacity="0.9">
                 <rect x="-22" y="-12" width="6" height="4" rx="1" />
                 <rect x="-22" y="-2" width="6" height="4" rx="1" />
                 <rect x="-22" y="8" width="6" height="4" rx="1" />
@@ -199,16 +216,16 @@ export default function ScrollJourneyLine() {
               </g>
 
               {/* Chip Body */}
-              <rect x="-18" y="-18" width="36" height="36" rx="4" fill="#150e23" stroke="#efa238" strokeWidth="1.5" />
+              <rect x="-18" y="-18" width="36" height="36" rx="4" fill="#000511" stroke="#00f0ff" strokeWidth="1.5" />
               
               {/* Internal Circuit Tracks (Base) */}
-              <path d="M-18 -10 L-8 -10 L-8 -6 M-18 10 L-8 10 L-8 6 M18 -10 L8 -10 L8 -6 M18 10 L8 10 L8 6" fill="none" stroke="#270f31" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M-18 -10 L-8 -10 L-8 -6 M-18 10 L-8 10 L-8 6 M18 -10 L8 -10 L8 -6 M18 10 L8 10 L8 6" fill="none" stroke="#001133" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               
               {/* Animated Internal Circuits */}
-              <path className="elec-path" d="M-18 -10 L-8 -10 L-8 -6 M-18 10 L-8 10 L-8 6 M18 -10 L8 -10 L8 -6 M18 10 L8 10 L8 6" fill="none" stroke="#efa238" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path className="elec-path" d="M-18 -10 L-8 -10 L-8 -6 M-18 10 L-8 10 L-8 6 M18 -10 L8 -10 L8 -6 M18 10 L8 10 L8 6" fill="none" stroke="#00f0ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
               {/* Inner Core */}
-              <rect x="-6" y="-6" width="12" height="12" rx="2" fill="#270f31" stroke="#600b56" strokeWidth="1" />
+              <rect x="-6" y="-6" width="12" height="12" rx="2" fill="#001133" stroke="#0055ff" strokeWidth="1" />
               <circle className="chip-core-pulse" cx="0" cy="0" r="3" fill="#ffffff" />
             </motion.g>
           </svg>
@@ -244,12 +261,21 @@ export default function ScrollJourneyLine() {
         @keyframes flow-elec {
           to { stroke-dashoffset: -16; }
         }
+        .pulse-path {
+          stroke-dasharray: 0.015 0.12;
+          animation: flow-pulse 3s linear infinite;
+          opacity: 0.8;
+        }
+        @keyframes flow-pulse {
+          0% { stroke-dashoffset: 0; }
+          100% { stroke-dashoffset: -1; }
+        }
         .chip-core-pulse {
           animation: core-pulse 1s ease-in-out infinite alternate;
           transform-origin: center;
         }
         @keyframes core-pulse {
-          0% { opacity: 0.5; fill: #efa238; transform: scale(0.85); }
+          0% { opacity: 0.5; fill: #00f0ff; transform: scale(0.85); }
           100% { opacity: 1; fill: #ffffff; transform: scale(1.15); }
         }
         .journey-intro {
@@ -272,7 +298,7 @@ export default function ScrollJourneyLine() {
           font-weight: 700;
           letter-spacing: 2px;
           font-size: 13px;
-          background: linear-gradient(90deg, #600b56 0%, #270f31 30%, #efa238 73%);
+          background: linear-gradient(90deg, #0055ff 0%, #001133 30%, #00f0ff 73%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -281,12 +307,12 @@ export default function ScrollJourneyLine() {
         .journey-title {
           font-size: clamp(30px, 4.5vw, 50px);
           font-weight: 800;
-          color: #150e23;
+          color: #000511;
           line-height: 1.15;
           margin-bottom: 18px;
         }
         .journey-title-grad {
-          background: linear-gradient(90deg, #600b56 0%, #270f31 30%, #efa238 73%);
+          background: linear-gradient(90deg, #0055ff 0%, #001133 30%, #00f0ff 73%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -396,6 +422,16 @@ function JourneyStep({ index, project, side, topOffset = 0 }) {
               </span>
             </div>
           </div>
+        ) : index === 2 ? (
+          <>
+            <div className="step-card-moon" aria-hidden="true">
+              <MoonMini />
+            </div>
+            <div className="step-card-overlay step-card-overlay--moon">
+              <h3>{project.name}</h3>
+              <p>{project.style}</p>
+            </div>
+          </>
         ) : (
           <>
             <img
@@ -434,14 +470,14 @@ function JourneyStep({ index, project, side, topOffset = 0 }) {
           width: 60px;
           height: 60px;
           border-radius: 50%;
-          background: linear-gradient(90deg, #600b56 0%, #270f31 30%, #efa238 73%);
+          background: linear-gradient(90deg, #0055ff 0%, #001133 30%, #00f0ff 73%);
           color: #fff;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 800;
           font-size: 22px;
-          box-shadow: 0 10px 30px rgba(96, 11, 86, 0.4);
+          box-shadow: 0 10px 30px rgba(0, 85, 255, 0.4);
           z-index: 3;
           border: 4px solid #fff;
         }
@@ -473,6 +509,12 @@ function JourneyStep({ index, project, side, topOffset = 0 }) {
           height: 100%;
           object-fit: cover;
           display: block;
+        }
+        .step-card-moon {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          background: transparent;
         }
         .step-card-anim {
           position: absolute;
@@ -563,7 +605,7 @@ function JourneyStep({ index, project, side, topOffset = 0 }) {
           font-size: 13px;
           font-weight: 800;
           letter-spacing: 0.04em;
-          color: #150e23;
+          color: #000511;
           text-transform: uppercase;
         }
         .lens-cta-sub {
@@ -579,7 +621,7 @@ function JourneyStep({ index, project, side, topOffset = 0 }) {
           transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .step-card--anim:hover .lens-cta-sub {
-          color: #150e23;
+          color: #000511;
         }
         .step-card--anim:hover .lens-cta-arrow {
           transform: translateX(4px);
@@ -601,6 +643,9 @@ function JourneyStep({ index, project, side, topOffset = 0 }) {
           padding: 20px 22px;
           background: linear-gradient(180deg, rgba(21, 14, 35, 0) 30%, rgba(21, 14, 35, 0.85) 100%);
           z-index: 2;
+        }
+        .step-card-overlay--moon {
+          background: none;
         }
         .step-card-overlay h3 {
           font-size: 20px;
