@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<style>html,body{margin:0;background:#000;height:100%}model-viewer{width:100vw;height:100vh}</style>
+</head>
+<body>
+<model-viewer src="model-3D/luna-media.glb" camera-controls auto-rotate
+  exposure="1.1" shadow-intensity="0"
+  onload="document.title='LOADED'"></model-viewer>
+<script type="module">
+  const mv = document.querySelector('model-viewer');
+  mv.addEventListener('load', ()=>console.log('MODEL LOADED ok'));
+  mv.addEventListener('error', (e)=>console.error('MODEL ERROR', e.detail));
+</script>
+</body>
+</html>

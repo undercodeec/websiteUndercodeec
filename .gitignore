@@ -27,6 +27,10 @@ undercodeec_nextjs/out/
 .unlighthouse/
 **/_originals/
 
+# TOOLING LOCAL (tokensave)
+.tokensave/
+**/.tokensave/
+
 # LOCALES / NO SUBIR
 prompts-Animaciones/
 prompts-style-web/
