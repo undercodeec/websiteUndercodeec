@@ -100,7 +100,14 @@
       "Bash(python -)",
       "Bash(rm -f _check.js)",
       "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)",
-      "Bash(echo \"exit=$?\")"
+      "Bash(echo \"exit=$?\")",
+      "Bash(grep -q \"Ready in\\\\|started server\\\\|Local:\" /tmp/luna-dev.log)",
+      "Bash(break)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /tmp/luna-page.html -w \"%{http_code}\" http://localhost:3999/demo-luna)",
+      "Bash(curl -s -o /dev/null -w \"%{redirect_url}\\\\n\" http://localhost:3999/demo-luna)",
+      "Bash(curl -sL -o /tmp/luna-page.html -w \"%{http_code}\" http://localhost:3999/demo-luna)",
+      "Bash(pkill -f \"next dev\")"
     ]
   }
 }
