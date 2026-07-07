@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { animate } from "animejs";
 import { STACK_TIMELINE_HTML } from "@/components/LandingEspana/stackTimelineHtml";
 
 /* Réplica EXACTA y self-contained de la sección "Innovación, diseñada."
@@ -79,14 +80,15 @@ const WHITE_THEME = `
   [scrollto-lenis] .timeline_main.mobile .colum_card_main:nth-child(3) .timeline_connector { display: none !important; }
   [scrollto-lenis] .stack-medallion-wrap {
     width: 100%;
-    height: 100%;
-    min-height: 272px;
+    height: 17em !important;
+    min-height: 17em !important;
     display: grid;
     place-items: center;
+    opacity: 1;
   }
   [scrollto-lenis] .stack-medallion {
     position: relative;
-    width: min(88%, 330px);
+    width: min(82%, 15.5em);
     aspect-ratio: 1;
     border-radius: 50%;
     overflow: hidden;
@@ -99,6 +101,12 @@ const WHITE_THEME = `
       inset 0 0 0 7px #141416,
       0 1px 0 #4c4c50,
       0 12px 22px rgba(10, 10, 15, 0.18);
+    transform-origin: center;
+    will-change: transform;
+  }
+  [scrollto-lenis] .stack-medallion > * {
+    pointer-events: none;
+    will-change: transform, opacity;
   }
   [scrollto-lenis] .stack-medallion::before {
     content: "";
@@ -122,6 +130,38 @@ const WHITE_THEME = `
       linear-gradient(125deg, transparent 2%, rgba(78, 78, 82, 0.85) 3% 10%, transparent 11% 76%, rgba(255, 184, 132, 0.9) 78% 79%, transparent 80%),
       repeating-radial-gradient(circle at 50% 50%, transparent 0 10px, rgba(0, 0, 0, 0.32) 11px 12px);
   }
+  [scrollto-lenis] .stack-medallion-rim {
+    position: absolute;
+    inset: 1.8%;
+    border-radius: 50%;
+    z-index: 4;
+    background:
+      conic-gradient(from 0deg, #d79b2b 0 7%, transparent 8% 43%, #f2a66d 45% 52%, transparent 53% 70%, #a449f0 73% 82%, transparent 83% 100%);
+    -webkit-mask: radial-gradient(circle, transparent 0 88%, #000 89% 100%);
+    mask: radial-gradient(circle, transparent 0 88%, #000 89% 100%);
+    transform-origin: center;
+  }
+  [scrollto-lenis] .stack-medallion-ticks {
+    position: absolute;
+    inset: 9%;
+    border-radius: 50%;
+    z-index: 3;
+    background: repeating-conic-gradient(from 0deg, #c84b78 0deg 1.15deg, transparent 1.15deg 3.2deg);
+    -webkit-mask: radial-gradient(circle, transparent 0 86%, #000 87% 100%);
+    mask: radial-gradient(circle, transparent 0 86%, #000 87% 100%);
+    transform-origin: center;
+    opacity: 0.95;
+  }
+  [scrollto-lenis] .stack-medallion-core {
+    position: absolute;
+    inset: 24%;
+    border-radius: 50%;
+    z-index: 2;
+    background:
+      repeating-radial-gradient(circle, transparent 0 9px, rgba(0, 0, 0, 0.38) 10px 11px),
+      radial-gradient(circle, rgba(30, 30, 34, 0.9), rgba(13, 13, 16, 0.95));
+    transform-origin: center;
+  }
   [scrollto-lenis] .stack-medallion-diamond {
     position: absolute;
     left: 50%;
@@ -131,6 +171,8 @@ const WHITE_THEME = `
     transform: translate(-50%, -50%) rotate(45deg);
     background: repeating-linear-gradient(0deg, #bd3f70 0 2px, transparent 2px 5px);
     filter: drop-shadow(0 0 1px rgba(230, 87, 134, 0.75));
+    z-index: 5;
+    transform-origin: center;
   }
   [scrollto-lenis] .stack-medallion-orbit {
     position: absolute;
@@ -140,17 +182,22 @@ const WHITE_THEME = `
     height: 10px;
     transform: translate(-50%, -50%) rotate(-24deg);
     background: radial-gradient(circle, #ca4a77 0 2.8px, transparent 3.2px) 0 50% / 15px 10px repeat-x;
+    z-index: 6;
+    transform-origin: center;
   }
   @media (max-width: 991px) {
     [scrollto-lenis] .padding-large { padding-left: 5%; padding-right: 5%; }
-    [scrollto-lenis] .stack-medallion-wrap { min-height: 220px; }
+    [scrollto-lenis] .stack-medallion-wrap { height: 220px !important; min-height: 220px !important; }
     [scrollto-lenis] .stack-medallion { width: min(78vw, 300px); }
   }
 `;
 
 const STACK_MEDALLION_HTML = `
-  <div class="rivesize first stack-medallion-wrap">
+  <div class="stack-medallion-wrap">
     <div class="stack-medallion" aria-hidden="true">
+      <div class="stack-medallion-rim"></div>
+      <div class="stack-medallion-ticks"></div>
+      <div class="stack-medallion-core"></div>
       <div class="stack-medallion-diamond"></div>
       <div class="stack-medallion-orbit"></div>
     </div>
@@ -178,6 +225,96 @@ function replaceScopeCards(root) {
   });
 }
 
+function mountMedallionAnimations(root) {
+  const animations = [];
+
+  root.querySelectorAll(".stack-medallion").forEach((medallion) => {
+    const rim = medallion.querySelector(".stack-medallion-rim");
+    const ticks = medallion.querySelector(".stack-medallion-ticks");
+    const core = medallion.querySelector(".stack-medallion-core");
+    const diamond = medallion.querySelector(".stack-medallion-diamond");
+    const orbit = medallion.querySelector(".stack-medallion-orbit");
+
+    animations.push(
+      animate(medallion, {
+        rotate: ["0deg", "360deg"],
+        duration: 52000,
+        ease: "linear",
+        loop: true,
+      })
+    );
+
+    if (rim) {
+      animations.push(
+        animate(rim, {
+          rotate: ["0deg", "360deg"],
+          duration: 9000,
+          ease: "linear",
+          loop: true,
+        })
+      );
+    }
+
+    if (ticks) {
+      animations.push(
+        animate(ticks, {
+          rotate: ["0deg", "-360deg"],
+          duration: 22000,
+          ease: "linear",
+          loop: true,
+        })
+      );
+    }
+
+    if (core) {
+      animations.push(
+        animate(core, {
+          rotate: ["0deg", "360deg"],
+          scale: [0.96, 1.03],
+          duration: 7000,
+          ease: "inOutSine",
+          alternate: true,
+          loop: true,
+        })
+      );
+    }
+
+    if (diamond) {
+      animations.push(
+        animate(diamond, {
+          rotate: ["45deg", "405deg"],
+          translateX: ["-50%", "-50%"],
+          translateY: ["-50%", "-50%"],
+          scale: [0.94, 1.06],
+          duration: 12000,
+          ease: "inOutSine",
+          alternate: true,
+          loop: true,
+        })
+      );
+    }
+
+    if (orbit) {
+      animations.push(
+        animate(orbit, {
+          rotate: ["-24deg", "336deg"],
+          translateX: ["-50%", "-50%"],
+          translateY: ["-50%", "-50%"],
+          duration: 6400,
+          ease: "linear",
+          loop: true,
+        })
+      );
+    }
+  });
+
+  return () => {
+    animations.forEach((animation) => {
+      if (animation && typeof animation.pause === "function") animation.pause();
+    });
+  };
+}
+
 export default function StackTimeline() {
   const hostRef = useRef(null);
 
@@ -200,6 +337,7 @@ export default function StackTimeline() {
 
     const root = shadow.querySelector(".st-root");
     replaceScopeCards(root);
+    cleanups.push(mountMedallionAnimations(root));
 
     // Espera a que carguen las hojas de estilo (para medir alturas reales) y
     // luego monta Rive + GSAP ScrollTrigger.
@@ -278,7 +416,7 @@ export default function StackTimeline() {
       root.querySelectorAll(".colum_card_main").forEach((card) => {
         const anim = card.querySelector(".timeline_card_anim");
         if (!anim) return;
-        const riveBox = anim.querySelector(".rivesize");
+        const riveBox = anim.querySelector(".rivesize, .stack-medallion-wrap");
         const bottomCard = card.querySelector(".timeline_colum_card.bottom");
         const openH = anim.getBoundingClientRect().height || 272;
 
@@ -294,6 +432,9 @@ export default function StackTimeline() {
           trigger: card, start: "top 50%",
           onEnter: () => openTl.play(),
           onLeaveBack: () => openTl.reverse(),
+        });
+        requestAnimationFrame(() => {
+          if (stCard.progress > 0 || stCard.isActive) openTl.play();
         });
         cleanups.push(() => { stCard.kill(); openTl.kill(); });
       });
