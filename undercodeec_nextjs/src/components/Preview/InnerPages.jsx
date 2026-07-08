@@ -5478,6 +5478,23 @@ const AffiliationSection = () => {
             <span className="fz-12">PLAN DE PRECIOS</span>
           </h6>
           <h2>Elija el plan adecuado para usted.</h2>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '14px' }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#ff4757',
+              color: '#fff',
+              fontSize: '13px',
+              fontWeight: '700',
+              padding: '7px 18px',
+              borderRadius: '30px',
+              letterSpacing: '0.02em',
+              boxShadow: '0 4px 14px rgba(255,71,87,0.35)',
+            }}>
+              🎉 Descuentos especiales de hasta 68% en nuestros planes web
+            </span>
+          </div>
         </div>
         <div className={`plans-two-columns ${showLandingPrices || showSitioWebPrices || showEcommercePrices ? 'expanded-wizard' : ''}`}>
           {/* COLUMNA IZQUIERDA - Agendar Reunión */}

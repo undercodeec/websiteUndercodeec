@@ -94,7 +94,7 @@ Agencia digital para empresas en España. Diseño web a medida, aplicaciones mó
 
 - **Badge:** Agencia digital · Cobertura nacional en España
 - **H1:** Hacemos webs, apps móviles y SEO que venden en España.
-- **Descripción:** Sin postureo, sin letra pequeña y con presupuestos cerrados en euros. Diseñamos páginas web, desarrollamos aplicaciones móviles para Android e iOS y posicionamos tu negocio en Google para que te encuentren tus clientes en Madrid, Barcelona, Valencia y toda España.
+- **Descripción:** Sin postureo, sin letra pequeña y con presupuestos que se ajustan a tu billetera. Diseñamos páginas web, desarrollamos aplicaciones móviles para Android e iOS y posicionamos tu negocio en Google para que te encuentren tus clientes en Madrid, Barcelona, Valencia y toda España.
 - **Botón 1:** Pide tu presupuesto gratis → `#presupuesto`
 - **Botón 2:** Ver portafolio → navega al home (sección demos)
 - **Badges inferiores:**

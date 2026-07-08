@@ -128,7 +128,7 @@ const faqJsonLd = {
       "acceptedAnswer": {
         "@type": "Answer",
         "text":
-          "El precio de una página web profesional en Ecuador parte desde $250 USD para una landing page corporativa, hasta $5.000 USD o más para tiendas online avanzadas o sistemas a medida. Trabajamos con presupuestos cerrados en dólares, sin costos ocultos.",
+          "El precio de una página web profesional en Ecuador parte desde $250 USD para una landing page corporativa, hasta $5.000 USD o más para tiendas online avanzadas o sistemas a medida. Trabajamos con presupuestos que se ajustan a tu bolsillo, sin costos ocultos.",
       },
     },
     {
@@ -396,7 +396,7 @@ const storePlans = [
 const faqs = [
   {
     q: "¿Cuánto cuesta una página web profesional en Quito o Ecuador?",
-    a: "El precio de una página web profesional en Ecuador parte desde $250 USD para una landing page corporativa, hasta $5.000 USD o más para tiendas online avanzadas o sistemas a medida. Trabajamos con presupuestos cerrados en dólares, sin costos ocultos.",
+    a: "El precio de una página web profesional en Ecuador parte desde $250 USD para una landing page corporativa, hasta $5.000 USD o más para tiendas online avanzadas o sistemas a medida. Trabajamos con presupuestos que se ajustan a tu bolsillo, sin costos ocultos.",
   },
   {
     q: "¿Atienden proyectos fuera de Quito?",
@@ -1470,7 +1470,7 @@ const LandingEcuador = () => {
                   className="mb-4"
                   style={{ fontSize: "18px", color: "#333", maxWidth: "600px", lineHeight: 1.7, opacity: 0 }}
                 >
-                  Expertos en diseño y desarrollo de páginas web profesionales, aplicaciones móviles y SEO en Quito, Guayaquil y todo el Ecuador. Impulsamos tu negocio digital con presupuestos cerrados en dólares y resultados medibles.
+                  Expertos en diseño y desarrollo de páginas web profesionales, aplicaciones móviles y SEO en Quito, Guayaquil y todo el Ecuador. Impulsamos tu negocio digital con presupuestos que se ajustan a tu bolsillo.
                 </p>
                 <div data-hero-anim className="d-flex flex-wrap gap-3 mt-4" style={{ opacity: 0 }}>
                   <a

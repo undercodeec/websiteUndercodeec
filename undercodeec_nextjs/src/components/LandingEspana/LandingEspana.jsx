@@ -1143,7 +1143,7 @@ const LandingEspana = () => {
                   Hacemos webs, apps móviles y SEO que venden en España.
                 </h1>
                 <p className="mb-4" style={{ fontSize: "18px", color: "#333", maxWidth: "600px", lineHeight: 1.7 }}>
-                  Sin postureo, sin letra pequeña y con presupuestos cerrados en euros. Diseñamos páginas web, desarrollamos aplicaciones móviles para Android e iOS y posicionamos tu negocio en Google para que te encuentren tus clientes en Madrid, Barcelona, Valencia y toda España.
+                  Sin postureo, sin letra pequeña y con presupuestos que se ajustan a tu billetera. Diseñamos páginas web, desarrollamos aplicaciones móviles para Android e iOS y posicionamos tu negocio en Google para que te encuentren tus clientes en Madrid, Barcelona, Valencia y toda España.
                 </p>
                 <div className="d-flex flex-wrap gap-3 mt-4">
                   <a
