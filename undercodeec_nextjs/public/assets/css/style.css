@@ -5929,22 +5929,17 @@ section.clients.style-5 {
   background: linear-gradient(135deg, #600b56, #150E23);
   position: relative;
   padding-bottom: 0px;
+  overflow: hidden;
 }
 
 .chat-banner.style-3::after {
-  position: absolute;
-  content: "";
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 60%;
-  background-image: url(../img/0011.png);
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: bottom;
-  opacity: 0.08;
-  -webkit-filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(1003%) contrast(103%);
-  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(1003%) contrast(103%);
+  content: none;
+}
+
+.chat-banner.style-3 > .container,
+.chat-banner.style-3 > footer {
+  position: relative;
+  z-index: 1;
 }
 
 .chat-banner.style-3 .info h3 {

@@ -2,6 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import BinaryCodeBackground from '../common/BinaryCodeBackground';
 
 const footerColumns = [
   {
@@ -70,6 +71,7 @@ const footerColumns = [
 const Footer = ({ noWave }) => {
   return (
     <section className="chat-banner style-3 section-padding">
+      <BinaryCodeBackground />
       <div className="container">
         <div className="row align-items-center">
 

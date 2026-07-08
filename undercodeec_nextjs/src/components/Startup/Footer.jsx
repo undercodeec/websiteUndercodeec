@@ -1,10 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
+import BinaryCodeBackground from '../common/BinaryCodeBackground';
 
 
 const Blog = () => {
   return (
     <section className="chat-banner style-3 section-padding">
+      <BinaryCodeBackground />
       <div className="container">
         <div className="row align-items-center">
           <div className="col-lg-7">

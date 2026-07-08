@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { animate, stagger } from "animejs";
 import "@/components/Slider/slider.css";
 import ScrollPinShowcase from "@/components/LandingEcuador/ScrollPinShowcase";
-import ScrollJourneyLine from "@/components/LandingEcuador/ScrollJourneyLine";
+import StackTimeline from "@/components/LandingEspana/StackTimeline";
 import ThanosTextSection from "@/components/LandingEcuador/ThanosTextSection";
 import CompetenceTable from "@/components/LandingEcuador/CompetenceTable";
 
@@ -1600,8 +1600,8 @@ const LandingEcuador = () => {
         {/* SCROLL-PIN SHOWCASE */}
         <ScrollPinShowcase />
 
-        {/* SCROLL JOURNEY LINE */}
-        <ScrollJourneyLine />
+        {/* STACK TIMELINE */}
+        <StackTimeline />
 
         {/* THANOS TEXT */}
         <ThanosTextSection />
