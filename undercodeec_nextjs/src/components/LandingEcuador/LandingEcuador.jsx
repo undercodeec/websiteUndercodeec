@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { animate, stagger } from "animejs";
 import "@/components/Slider/slider.css";
@@ -161,6 +160,72 @@ const faqJsonLd = {
     },
   ],
 };
+
+const organizationJsonLdString = JSON.stringify(organizationJsonLd);
+const localBusinessJsonLdString = JSON.stringify(localBusinessJsonLd);
+const serviceJsonLdString = JSON.stringify(serviceJsonLd);
+const faqJsonLdString = JSON.stringify(faqJsonLd);
+
+const planCardGlobalStyles = `
+  .plan-card-tilt {
+    overflow: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .plan-card-tilt::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle 280px at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, 0.2),
+      transparent 65%
+    );
+    opacity: 0;
+    transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      background 0.15s linear;
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 1;
+  }
+  .plan-card-tilt:hover::before {
+    opacity: 1;
+  }
+  .plan-card-tilt:hover {
+    box-shadow: 0 35px 60px -15px rgba(96, 11, 86, 0.45) !important;
+  }
+  .plan-card-tilt > * {
+    position: relative;
+    z-index: 2;
+  }
+  .hero-cta-tilt {
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .hero-cta-tilt::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle 140px at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, 0.45),
+      transparent 65%
+    );
+    opacity: 0;
+    mix-blend-mode: screen;
+    transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  .hero-cta-tilt:hover::after {
+    opacity: 1;
+  }
+  .hero-cta-tilt:hover {
+    box-shadow: 0 18px 35px -10px rgba(96, 11, 86, 0.55);
+  }
+`;
 
 const services = [
   {
@@ -1039,7 +1104,7 @@ const VideoShowcase = () => {
 const LandingEcuador = () => {
   const router = useRouter();
   const [openFaq, setOpenFaq] = useState(0);
-  const [activePricingTab, setActivePricingTab] = useState("web");
+  const [activePricingTab] = useState("web");
   const [hoveredService, setHoveredService] = useState(null);
   const heroRef = useRef(null);
   const heroImgRef = useRef(null);
@@ -1341,19 +1406,19 @@ const LandingEcuador = () => {
       {/* JSON-LD: Organization, LocalBusiness/ProfessionalService, Service, FAQPage */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: organizationJsonLdString }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: localBusinessJsonLdString }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serviceJsonLdString }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: faqJsonLdString }}
       />
 
       <main className="landing-ecuador">
@@ -1558,7 +1623,10 @@ const LandingEcuador = () => {
               </div>
 
               {/* Expanded detail panel */}
-              <div className={`galaxy-detail${hoveredService !== null ? " galaxy-detail--open" : ""}`}>
+              <div
+                className={`galaxy-detail${hoveredService !== null ? " galaxy-detail--open" : ""}`}
+                data-cursor-noinvert="true"
+              >
                 {services.map((s, i) => (
                   <div
                     key={i}
@@ -1786,66 +1854,7 @@ const LandingEcuador = () => {
         </section>
       </main>
 
-      <style jsx global>{`
-        .plan-card-tilt {
-          overflow: hidden;
-          transform-style: preserve-3d;
-          will-change: transform;
-          transition: box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .plan-card-tilt::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            circle 280px at var(--mx, 50%) var(--my, 50%),
-            rgba(255, 255, 255, 0.2),
-            transparent 65%
-          );
-          opacity: 0;
-          transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-            background 0.15s linear;
-          pointer-events: none;
-          border-radius: inherit;
-          z-index: 1;
-        }
-        .plan-card-tilt:hover::before {
-          opacity: 1;
-        }
-        .plan-card-tilt:hover {
-          box-shadow: 0 35px 60px -15px rgba(96, 11, 86, 0.45) !important;
-        }
-        .plan-card-tilt > * {
-          position: relative;
-          z-index: 2;
-        }
-        .hero-cta-tilt {
-          position: relative;
-          overflow: hidden;
-          transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .hero-cta-tilt::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            circle 140px at var(--mx, 50%) var(--my, 50%),
-            rgba(255, 255, 255, 0.45),
-            transparent 65%
-          );
-          opacity: 0;
-          mix-blend-mode: screen;
-          transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-          pointer-events: none;
-          border-radius: inherit;
-        }
-        .hero-cta-tilt:hover::after {
-          opacity: 1;
-        }
-        .hero-cta-tilt:hover {
-          box-shadow: 0 18px 35px -10px rgba(96, 11, 86, 0.55);
-        }
-      `}</style>
+      <style jsx global>{planCardGlobalStyles}</style>
     </>
   );
 };

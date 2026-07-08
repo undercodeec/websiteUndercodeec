@@ -3,38 +3,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import { animate } from "animejs";
 import ScrollPinShowcase from "@/components/LandingEspana/ScrollPinShowcase";
-import ScrollJourneyLine from "@/components/LandingEspana/ScrollJourneyLine";
+import StackTimeline from "@/components/LandingEspana/StackTimeline";
 import ThanosTextSection from "@/components/LandingEspana/ThanosTextSection";
 import CompetenceTable from "@/components/LandingEspana/CompetenceTable";
 import "@/components/Slider/slider.css";
-
-
-function LazyMount({ children, rootMargin = "300px", minHeight = "100vh" }) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    if (!ref.current || visible) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setVisible(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin }
-    );
-    io.observe(ref.current);
-    return () => io.disconnect();
-  }, [visible, rootMargin]);
-  return (
-    <div ref={ref} style={{ minHeight: visible ? undefined : minHeight }}>
-      {visible ? children : null}
-    </div>
-  );
-}
 
 const heroBackgroundPattern = "/assets/slider/6fa818bb935c0e2a1081f259d84df226b237a184.png";
 
@@ -145,6 +119,49 @@ const faqJsonLd = {
     },
   ],
 };
+
+const organizationJsonLdString = JSON.stringify(organizationJsonLd);
+const serviceJsonLdString = JSON.stringify(serviceJsonLd);
+const faqJsonLdString = JSON.stringify(faqJsonLd);
+
+const budgetClipStyles = `
+  #presupuesto { clip-path: inset(-220px 0 0 0); }
+`;
+
+const planCardGlobalStyles = `
+  .plan-card-tilt {
+    overflow: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .plan-card-tilt::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle 280px at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, 0.2),
+      transparent 65%
+    );
+    opacity: 0;
+    transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      background 0.15s linear;
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 1;
+  }
+  .plan-card-tilt:hover::before {
+    opacity: 1;
+  }
+  .plan-card-tilt:hover {
+    box-shadow: 0 35px 60px -15px rgba(96, 11, 86, 0.45) !important;
+  }
+  .plan-card-tilt > * {
+    position: relative;
+    z-index: 2;
+  }
+`;
 
 const services = [
   {
@@ -1066,22 +1083,20 @@ const LandingEspana = () => {
   return (
     <>
       {/* clip-path en presupuesto: muestra shadow solo hacia arriba, corta la parte inferior */}
-      <style>{`
-        #presupuesto { clip-path: inset(-220px 0 0 0); }
-      `}</style>
+      <style>{budgetClipStyles}</style>
 
       {/* JSON-LD: Organization, Service, FAQPage */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: organizationJsonLdString }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serviceJsonLdString }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: faqJsonLdString }}
       />
 
       <main className="landing-espana">
@@ -1251,7 +1266,10 @@ const LandingEspana = () => {
               </div>
 
               {/* Expanded detail panel */}
-              <div className={`galaxy-detail${hoveredService !== null ? " galaxy-detail--open" : ""}`}>
+              <div
+                className={`galaxy-detail${hoveredService !== null ? " galaxy-detail--open" : ""}`}
+                data-cursor-noinvert="true"
+              >
                 {services.map((s, i) => (
                   <div
                     key={i}
@@ -1294,8 +1312,8 @@ const LandingEspana = () => {
         {/* SCROLL-PIN SHOWCASE — fondo fijo + textos por tramos */}
         <ScrollPinShowcase />
 
-        {/* SCROLL JOURNEY LINE — SVG que se dibuja con el scroll */}
-        <ScrollJourneyLine />
+        {/* STACK TIMELINE — "Innovación, diseñada." (réplica scrollto-lenis) */}
+        <StackTimeline />
 
         {/* THANOS TEXT — headline con efecto desintegración */}
         <ThanosTextSection />
@@ -1473,40 +1491,7 @@ const LandingEspana = () => {
         </section>
       </main>
 
-      <style jsx global>{`
-        .plan-card-tilt {
-          overflow: hidden;
-          transform-style: preserve-3d;
-          will-change: transform;
-          transition: box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .plan-card-tilt::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            circle 280px at var(--mx, 50%) var(--my, 50%),
-            rgba(255, 255, 255, 0.2),
-            transparent 65%
-          );
-          opacity: 0;
-          transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-            background 0.15s linear;
-          pointer-events: none;
-          border-radius: inherit;
-          z-index: 1;
-        }
-        .plan-card-tilt:hover::before {
-          opacity: 1;
-        }
-        .plan-card-tilt:hover {
-          box-shadow: 0 35px 60px -15px rgba(96, 11, 86, 0.45) !important;
-        }
-        .plan-card-tilt > * {
-          position: relative;
-          z-index: 2;
-        }
-      `}</style>
+      <style jsx global>{planCardGlobalStyles}</style>
     </>
   );
 };
