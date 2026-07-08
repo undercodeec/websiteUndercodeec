@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { animate } from "animejs";
+import { createElement, useEffect, useRef } from "react";
+import { createRoot } from "react-dom/client";
+import MoonMini from "@/components/3D/MoonMini";
+import IsometricVoxelCard from "@/components/LandingEspana/IsometricVoxelCard";
+import OrbVisualizer from "@/components/LandingEspana/OrbVisualizer";
 import { STACK_TIMELINE_HTML } from "@/components/LandingEspana/stackTimelineHtml";
 
 /* Réplica EXACTA y self-contained de la sección "Innovación, diseñada."
@@ -16,6 +19,11 @@ import { STACK_TIMELINE_HTML } from "@/components/LandingEspana/stackTimelineHtm
    de Webflow, independiente del stack-demo. */
 
 const BASE = "/landing-espana/stack-timeline";
+const CARD_LINKS = {
+  1: "https://understudio.undercodeec.com",
+  2: "https://understudio.undercodeec.com/demo-moon",
+  3: "https://understudio.undercodeec.com/stack-demo",
+};
 
 // Overrides de tema BLANCO (contenido de texto intacto, solo re-tinte de lo
 // que en el original era claro-sobre-oscuro).
@@ -46,6 +54,7 @@ const WHITE_THEME = `
     font-size: max(28px, min(3.6vw, 56px));
     font-weight: 800;
     line-height: 1.1;
+    text-align: center;
   }
   [scrollto-lenis] .timeline_heading .ts-18px {
     color: transparent !important;
@@ -57,6 +66,105 @@ const WHITE_THEME = `
   }
   [scrollto-lenis] .timeline_num { color: #0a0a0f !important; border-color: #d3d7e0 !important; }
   [scrollto-lenis] .timeline_colum_card { border-top-color: #e2e5ec !important; }
+  /* Quitar fondo oscuro Webflow (#131518) de los cards — fondo transparente */
+  [scrollto-lenis] .colum_card_main {
+    background-color: transparent !important;
+    border-color: #e2e5ec !important;
+  }
+  [scrollto-lenis] .timeline_card_anim { background: transparent !important; }
+  /* timeline_wrapper: sin padding-top y row-gap reducido */
+  [scrollto-lenis] .timeline_wrapper {
+    padding-top: 0 !important;
+    grid-row-gap: 5.625em !important;
+  }
+  /* Card 03: el blanco vive en el contenedor; el canvas renderiza normal
+     para no ocultar ni alterar el modelado de Rive. */
+  [scrollto-lenis] .rivesize.third,
+  [scrollto-lenis] .rivesize.third .riveicon {
+    background: #ffffff !important;
+  }
+  [scrollto-lenis] .rivesize.third canvas {
+    background: transparent !important;
+    mix-blend-mode: normal !important;
+    display: block !important;
+  }
+
+  /* ── Hero background dentro del [scrollto-lenis] ── */
+  [scrollto-lenis] { position: relative; overflow: hidden; }
+  .st-hero-bg {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    background: #ffffff;
+  }
+  .st-rotating-pattern {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1; pointer-events: none;
+  }
+  .st-rotating-pattern img {
+    width: 100%; height: 100%; object-fit: cover; opacity: 0.3;
+    animation: st-rotate-center 60s linear infinite;
+  }
+  @keyframes st-rotate-center {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .st-blob-1 {
+    position: absolute; width: 700px; height: 700px;
+    top: 20%; right: 10%;
+    background: radial-gradient(circle, #643ff7 0%, transparent 70%);
+    filter: blur(110px); opacity: 0.2; z-index: 1;
+    animation: st-float3 22s ease-in-out infinite alternate;
+  }
+  .st-blob-2 {
+    position: absolute; width: 500px; height: 500px;
+    bottom: 30%; left: 20%;
+    background: radial-gradient(circle, #fdbd55 0%, transparent 70%);
+    filter: blur(90px); opacity: 0.15; z-index: 1;
+    animation: st-float4 16s ease-in-out infinite alternate;
+  }
+  .st-blob-3 {
+    position: absolute; width: 600px; height: 600px;
+    top: 50%; left: 50%;
+    background: radial-gradient(circle, #500c4c 0%, transparent 70%);
+    filter: blur(100px); opacity: 0.18; z-index: 1;
+    animation: st-float5 24s ease-in-out infinite alternate;
+  }
+  @keyframes st-float3 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(-120px,60px) scale(0.95); }
+  }
+  @keyframes st-float4 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(90px,-70px) scale(1.1); }
+  }
+  @keyframes st-float5 {
+    0%,100% { transform: translate(-50%,-50%) scale(1); }
+    50%     { transform: translate(calc(-50% + 50px),calc(-50% - 50px)) scale(1.05); }
+  }
+  /* Asegurar que el contenido del timeline quede sobre el bg */
+  [scrollto-lenis] > *:not(.st-hero-bg) { position: relative; z-index: 2; }
+  [scrollto-lenis] .timeline_colum_card [global-target] {
+    color: transparent !important;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(90deg, #600b56 0%, #270f31 30%, #efa238 73%);
+    -webkit-background-clip: text;
+    background-clip: text;
+   
+    max-width: 520px;
+    margin: 0;
+    font-family: "Inter", sans-serif !important;
+    font-size: max(15px, min(1.2vw, 18px));
+    line-height: 1.65;
+    display: block;
+  }
+  [scrollto-lenis] .timeline_colum_card .ts-18px {
+    color: #150e23b3 !important;
+    max-width: 520px;
+    margin: 0;
+    font-size: max(15px, min(1.2vw, 18px));
+    line-height: 1.65;
+    display: block;
+  }
   [scrollto-lenis] .connector_line_top,
   [scrollto-lenis] .connector_line_bottom { background-color: #d3d7e0 !important; }
   [scrollto-lenis] .gray_cube { background-color: #0a0a0f !important; }
@@ -78,6 +186,54 @@ const WHITE_THEME = `
   /* Mobile: solo 3 cards */
   [scrollto-lenis] .timeline_main.mobile .colum_card_main:nth-child(n+4) { display: none !important; }
   [scrollto-lenis] .timeline_main.mobile .colum_card_main:nth-child(3) .timeline_connector { display: none !important; }
+  /* .mobile solo se muestra en su breakpoint (≤991px). En desktop queda
+     display:none (base Webflow) para no duplicar el zigzag. */
+  [scrollto-lenis] .timeline_main.mobile {
+    align-items: flex-start !important;
+    gap: 18px !important;
+  }
+  @media screen and (max-width: 991px) {
+    [scrollto-lenis] .timeline_main.mobile { display: flex !important; }
+  }
+  [scrollto-lenis] .timeline_main.mobile .mobile_optimized {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    overflow: visible !important;
+  }
+  [scrollto-lenis] .timeline_main.mobile .timeline_progress_main {
+    position: relative !important;
+    height: auto !important;
+    min-height: 100% !important;
+    flex: 0 0 auto !important;
+  }
+  [scrollto-lenis] .stack-orb-wrap {
+    width: 100%;
+    height: 17em !important;
+    min-height: 17em !important;
+    display: grid;
+    place-items: center;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+  }
+  [scrollto-lenis] .stack-orb-host {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  [scrollto-lenis] .stack-orb-host canvas {
+    width: min(90%, 17em) !important;
+    height: min(90%, 17em) !important;
+    aspect-ratio: 1 / 1;
+    display: block;
+    background: transparent !important;
+  }
   [scrollto-lenis] .stack-medallion-wrap {
     width: 100%;
     height: 17em !important;
@@ -85,6 +241,39 @@ const WHITE_THEME = `
     display: grid;
     place-items: center;
     opacity: 1;
+  }
+  [scrollto-lenis] .stack-moon-wrap {
+    width: 100%;
+    height: 17em !important;
+    min-height: 17em !important;
+    display: grid;
+    place-items: center;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+    box-shadow: none;
+  }
+  [scrollto-lenis] .stack-moon-host {
+    position: absolute;
+    inset: 0;
+  }
+  [scrollto-lenis] .stack-moon-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    background: transparent !important;
+  }
+  [scrollto-lenis] .stack-voxel-wrap {
+    width: 100%;
+    height: 17em !important;
+    min-height: 17em !important;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+  }
+  [scrollto-lenis] .stack-voxel-host {
+    position: absolute;
+    inset: 0;
   }
   [scrollto-lenis] .stack-medallion {
     position: relative;
@@ -187,20 +376,29 @@ const WHITE_THEME = `
   }
   @media (max-width: 991px) {
     [scrollto-lenis] .padding-large { padding-left: 5%; padding-right: 5%; }
+    [scrollto-lenis] .stack-orb-wrap { height: 220px !important; min-height: 220px !important; }
     [scrollto-lenis] .stack-medallion-wrap { height: 220px !important; min-height: 220px !important; }
+    [scrollto-lenis] .stack-moon-wrap { height: 220px !important; min-height: 220px !important; }
+    [scrollto-lenis] .stack-voxel-wrap { height: 220px !important; min-height: 220px !important; }
     [scrollto-lenis] .stack-medallion { width: min(78vw, 300px); }
   }
 `;
 
-const STACK_MEDALLION_HTML = `
-  <div class="stack-medallion-wrap">
-    <div class="stack-medallion" aria-hidden="true">
-      <div class="stack-medallion-rim"></div>
-      <div class="stack-medallion-ticks"></div>
-      <div class="stack-medallion-core"></div>
-      <div class="stack-medallion-diamond"></div>
-      <div class="stack-medallion-orbit"></div>
-    </div>
+const STACK_ORB_HTML = `
+  <div class="stack-orb-wrap">
+    <div class="stack-orb-host"></div>
+  </div>
+`;
+
+const STACK_MOON_HTML = `
+  <div class="stack-moon-wrap">
+    <div class="stack-moon-host"></div>
+  </div>
+`;
+
+const STACK_VOXEL_HTML = `
+  <div class="stack-voxel-wrap">
+    <div class="stack-voxel-host"></div>
   </div>
 `;
 
@@ -219,99 +417,102 @@ function ensureFonts() {
 function replaceScopeCards(root) {
   root.querySelectorAll(".colum_card_main").forEach((card) => {
     const num = card.querySelector(".timeline_num .mono");
-    if (!num || num.textContent.trim() !== "01") return;
     const anim = card.querySelector(".timeline_card_anim");
-    if (anim) anim.innerHTML = STACK_MEDALLION_HTML;
+    if (!num || !anim) return;
+    const value = num.textContent.trim();
+    if (value === "01") {
+      anim.innerHTML = STACK_ORB_HTML;
+      return;
+    }
+    if (value === "02") {
+      anim.innerHTML = STACK_MOON_HTML;
+      return;
+    }
+    if (value === "03") {
+      anim.innerHTML = STACK_VOXEL_HTML;
+    }
   });
 }
 
-function mountMedallionAnimations(root) {
-  const animations = [];
+function keepOnlyFirstThreeCards(root) {
+  root.querySelectorAll(".colum_card_main").forEach((card) => {
+    const num = card.querySelector(".timeline_num .mono");
+    const value = (num?.textContent || "").trim();
+    if (value === "01" || value === "02" || value === "03") return;
+    card.remove();
+  });
+}
 
-  root.querySelectorAll(".stack-medallion").forEach((medallion) => {
-    const rim = medallion.querySelector(".stack-medallion-rim");
-    const ticks = medallion.querySelector(".stack-medallion-ticks");
-    const core = medallion.querySelector(".stack-medallion-core");
-    const diamond = medallion.querySelector(".stack-medallion-diamond");
-    const orbit = medallion.querySelector(".stack-medallion-orbit");
+function mountCardLinks(root) {
+  const cleanups = [];
 
-    animations.push(
-      animate(medallion, {
-        rotate: ["0deg", "360deg"],
-        duration: 52000,
-        ease: "linear",
-        loop: true,
-      })
-    );
+  root.querySelectorAll(".colum_card_main").forEach((card) => {
+    const num = card.querySelector(".timeline_num .mono");
+    const key = Number.parseInt((num?.textContent || "").trim(), 10);
+    const href = CARD_LINKS[key];
+    if (!href) return;
 
-    if (rim) {
-      animations.push(
-        animate(rim, {
-          rotate: ["0deg", "360deg"],
-          duration: 9000,
-          ease: "linear",
-          loop: true,
-        })
-      );
-    }
+    const go = (event) => {
+      if (event.type === "keydown" && event.key !== "Enter" && event.key !== " ") return;
+      if (event.type === "keydown") event.preventDefault();
+      window.open(href, "_blank", "noopener noreferrer");
+    };
 
-    if (ticks) {
-      animations.push(
-        animate(ticks, {
-          rotate: ["0deg", "-360deg"],
-          duration: 22000,
-          ease: "linear",
-          loop: true,
-        })
-      );
-    }
-
-    if (core) {
-      animations.push(
-        animate(core, {
-          rotate: ["0deg", "360deg"],
-          scale: [0.96, 1.03],
-          duration: 7000,
-          ease: "inOutSine",
-          alternate: true,
-          loop: true,
-        })
-      );
-    }
-
-    if (diamond) {
-      animations.push(
-        animate(diamond, {
-          rotate: ["45deg", "405deg"],
-          translateX: ["-50%", "-50%"],
-          translateY: ["-50%", "-50%"],
-          scale: [0.94, 1.06],
-          duration: 12000,
-          ease: "inOutSine",
-          alternate: true,
-          loop: true,
-        })
-      );
-    }
-
-    if (orbit) {
-      animations.push(
-        animate(orbit, {
-          rotate: ["-24deg", "336deg"],
-          translateX: ["-50%", "-50%"],
-          translateY: ["-50%", "-50%"],
-          duration: 6400,
-          ease: "linear",
-          loop: true,
-        })
-      );
-    }
+    card.style.cursor = "pointer";
+    card.setAttribute("role", "link");
+    card.tabIndex = 0;
+    card.addEventListener("click", go, true);
+    card.addEventListener("keydown", go);
+    cleanups.push(() => {
+      card.removeEventListener("click", go, true);
+      card.removeEventListener("keydown", go);
+    });
   });
 
   return () => {
-    animations.forEach((animation) => {
-      if (animation && typeof animation.pause === "function") animation.pause();
-    });
+    cleanups.forEach((cleanup) => cleanup());
+  };
+}
+
+function mountOrbVisualizer(root) {
+  const cleanups = [];
+
+  root.querySelectorAll(".stack-orb-host").forEach((host) => {
+    const reactRoot = createRoot(host);
+    reactRoot.render(createElement(OrbVisualizer));
+    cleanups.push(() => reactRoot.unmount());
+  });
+
+  return () => {
+    cleanups.forEach((cleanup) => cleanup());
+  };
+}
+
+function mountMoonModel(root) {
+  const cleanups = [];
+
+  root.querySelectorAll(".stack-moon-host").forEach((host) => {
+    const reactRoot = createRoot(host);
+    reactRoot.render(createElement(MoonMini));
+    cleanups.push(() => reactRoot.unmount());
+  });
+
+  return () => {
+    cleanups.forEach((cleanup) => cleanup());
+  };
+}
+
+function mountIsometricVoxel(root) {
+  const cleanups = [];
+
+  root.querySelectorAll(".stack-voxel-host").forEach((host) => {
+    const reactRoot = createRoot(host);
+    reactRoot.render(createElement(IsometricVoxelCard));
+    cleanups.push(() => reactRoot.unmount());
+  });
+
+  return () => {
+    cleanups.forEach((cleanup) => cleanup());
   };
 }
 
@@ -336,8 +537,38 @@ export default function StackTimeline() {
     `;
 
     const root = shadow.querySelector(".st-root");
+
+    /* Inyectar hero-background (gradient-bg + rotating-pattern + blobs) */
+    const heroBg = document.createElement("div");
+    heroBg.className = "st-hero-bg";
+
+    const patternWrap = document.createElement("div");
+    patternWrap.className = "st-rotating-pattern";
+    const patternImg = document.createElement("img");
+    patternImg.src = "/assets/slider/6fa818bb935c0e2a1081f259d84df226b237a184.png";
+    patternImg.alt = "";
+    patternImg.setAttribute("aria-hidden", "true");
+    patternWrap.appendChild(patternImg);
+
+    const blob1 = document.createElement("div"); blob1.className = "st-blob-1";
+    const blob2 = document.createElement("div"); blob2.className = "st-blob-2";
+    const blob3 = document.createElement("div"); blob3.className = "st-blob-3";
+
+    heroBg.appendChild(patternWrap);
+    heroBg.appendChild(blob1);
+    heroBg.appendChild(blob2);
+    heroBg.appendChild(blob3);
+    /* Inyectar dentro del propio [scrollto-lenis] que ya tiene
+       position:relative + overflow:hidden — así el absolute queda anclado */
+    const lenisEl = root.querySelector("[scrollto-lenis]") || root;
+    lenisEl.prepend(heroBg);
+
+    keepOnlyFirstThreeCards(root);
     replaceScopeCards(root);
-    cleanups.push(mountMedallionAnimations(root));
+    cleanups.push(mountCardLinks(root));
+    cleanups.push(mountOrbVisualizer(root));
+    cleanups.push(mountMoonModel(root));
+    cleanups.push(mountIsometricVoxel(root));
 
     // Espera a que carguen las hojas de estilo (para medir alturas reales) y
     // luego monta Rive + GSAP ScrollTrigger.
@@ -416,7 +647,7 @@ export default function StackTimeline() {
       root.querySelectorAll(".colum_card_main").forEach((card) => {
         const anim = card.querySelector(".timeline_card_anim");
         if (!anim) return;
-        const riveBox = anim.querySelector(".rivesize, .stack-medallion-wrap");
+        const riveBox = anim.querySelector(".rivesize, .stack-orb-wrap, .stack-medallion-wrap, .stack-moon-wrap, .stack-security-wrap");
         const bottomCard = card.querySelector(".timeline_colum_card.bottom");
         const openH = anim.getBoundingClientRect().height || 272;
 
@@ -439,23 +670,96 @@ export default function StackTimeline() {
         cleanups.push(() => { stCard.kill(); openTl.kill(); });
       });
 
-      /* ---- white_cube sigue el scroll a lo largo del timeline ---- */
+      /* ---- Barra de progreso: los puntos llegan hasta la 3ª card ----
+         El track visible (desktop o mobile) marca la altura: la barra
+         se estira hasta el fondo de la última card. El .timeline_current
+         (sticky) hace que el white_cube se deslice con el scroll. */
       const progressMain = root.querySelector(".timeline_progress_main");
       const timelineCurrent = root.querySelector(".timeline_current");
-      if (progressMain && timelineCurrent) {
-        const tlSection = root.querySelector("[scrollto-lenis]");
-        gsap.set(timelineCurrent, { y: 0 });
-        const cubeAnim = gsap.to(timelineCurrent, {
-          y: () => progressMain.offsetHeight - timelineCurrent.offsetHeight,
-          ease: "none",
-          scrollTrigger: {
-            trigger: tlSection || root,
-            start: "top 60%",
-            end: "bottom 40%",
-            scrub: 1,
-          },
+      const whiteCube = root.querySelector(".white_cube");
+      const desktopTrack = root.querySelector(".timeline_main:not(.mobile) .timeline_colum_left.right");
+      const mobileTrack = root.querySelector(".timeline_main.mobile .timeline_colum_left.right");
+
+      const activeTrack = () => {
+        if (mobileTrack && mobileTrack.getBoundingClientRect().height > 0) return mobileTrack;
+        return desktopTrack;
+      };
+      const syncProgressHeight = () => {
+        if (!progressMain) return 0;
+        const track = activeTrack();
+        const trackHeight = Math.max(
+          track ? track.scrollHeight || 0 : 0,
+          track ? track.getBoundingClientRect().height || 0 : 0,
+          timelineCurrent ? timelineCurrent.offsetHeight || 0 : 0,
+        );
+        // setProperty con 'important' vence al height:auto !important del tema.
+        progressMain.style.setProperty("height", `${trackHeight}px`, "important");
+        progressMain.style.setProperty("min-height", `${trackHeight}px`, "important");
+        return trackHeight;
+      };
+      if (progressMain) {
+        syncProgressHeight();
+        const trackObserver = new ResizeObserver(() => {
+          syncProgressHeight();
+          requestAnimationFrame(() => ScrollTrigger.refresh());
         });
-        cleanups.push(() => cubeAnim.scrollTrigger?.kill());
+        [desktopTrack, mobileTrack].forEach((t) => t && trackObserver.observe(t));
+        cleanups.push(() => trackObserver.disconnect());
+      }
+
+      /* ---- white_cube: se desliza por la línea entrecortada (↑/↓) ----
+         position:absolute dentro de progressMain; y se anima de 0 → maxY
+         sincronizado con el scroll. scrub alto (2.5) amortigua saltos
+         cuando los cards se abren y cambian la altura del track. */
+      if (whiteCube && timelineCurrent && progressMain) {
+        gsap.set(timelineCurrent, {
+          position: "absolute",
+          top: 0,
+          left: "50%",
+          xPercent: -50,
+          marginLeft: 0,
+          marginRight: 0,
+          y: 0,
+        });
+
+        let cubeSlide;
+        const buildCubeAnim = () => {
+          const totalH = syncProgressHeight();
+          const cubeH = timelineCurrent.offsetHeight || 0;
+          const endY = Math.max(0, totalH - cubeH);
+          if (cubeSlide) {
+            cubeSlide.scrollTrigger?.kill();
+            cubeSlide.kill();
+          }
+          cubeSlide = gsap.fromTo(
+            timelineCurrent,
+            { y: 0 },
+            {
+              y: endY,
+              ease: "none",
+              scrollTrigger: {
+                trigger: progressMain,
+                start: "top 60%",
+                end: "bottom 60%",
+                scrub: 2.5,
+              },
+            },
+          );
+        };
+
+        buildCubeAnim();
+
+        // Reconstruir cuando los cards abren y cambian la altura.
+        const cubeResizeObs = new ResizeObserver(() => {
+          buildCubeAnim();
+          requestAnimationFrame(() => ScrollTrigger.refresh());
+        });
+        cubeResizeObs.observe(progressMain);
+        cleanups.push(() => {
+          cubeResizeObs.disconnect();
+          cubeSlide?.scrollTrigger?.kill();
+          cubeSlide?.kill();
+        });
       }
 
       /* ---- Reveal del heading ---- */

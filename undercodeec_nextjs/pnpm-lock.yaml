@@ -14,6 +14,9 @@ importers:
       '@react-three/fiber':
         specifier: ^9.5.0
         version: 9.5.0(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(three@0.170.0)
+      '@rive-app/canvas':
+        specifier: ^2.38.4
+        version: 2.38.4
       '@supabase/supabase-js':
         specifier: ^2.95.3
         version: 2.95.3
@@ -556,6 +559,9 @@ packages:
         optional: true
       react-native:
         optional: true
+
+  '@rive-app/canvas@2.38.4':
+    resolution: {integrity: sha512-exs2Q5Y8liDB0IW7wo0ROZhA6FwddcK1ha+5vlN+ce05eOHjyIBwPWvPsGCGTHvSixInvpFa9Nd6c0Cjo16srQ==}
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
@@ -2989,6 +2995,8 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
       - immer
+
+  '@rive-app/canvas@2.38.4': {}
 
   '@rtsao/scc@1.1.0': {}
 
