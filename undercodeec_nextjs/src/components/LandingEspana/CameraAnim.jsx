@@ -165,6 +165,7 @@ export default function CameraAnim({ ariaLabel = "Lente de cámara animado" }) {
 
   const bladeCount = 9;
   const knurlCount = 64;
+  const f = (n) => Math.round(n * 1e5) / 1e5;
 
   return (
     <div
@@ -267,10 +268,10 @@ export default function CameraAnim({ ariaLabel = "Lente de cámara animado" }) {
           return (
             <line
               key={`knurl-${i}`}
-              x1={Math.cos(angle) * r1}
-              y1={Math.sin(angle) * r1}
-              x2={Math.cos(angle) * r2}
-              y2={Math.sin(angle) * r2}
+              x1={f(Math.cos(angle) * r1)}
+              y1={f(Math.sin(angle) * r1)}
+              x2={f(Math.cos(angle) * r2)}
+              y2={f(Math.sin(angle) * r2)}
               stroke="#3a3a3a"
               strokeWidth="1"
               strokeLinecap="round"
@@ -284,8 +285,8 @@ export default function CameraAnim({ ariaLabel = "Lente de cámara animado" }) {
 
         {Array.from({ length: 4 }).map((_, i) => {
           const angle = (i * 90 + 45) * (Math.PI / 180);
-          const cx = Math.cos(angle) * 82;
-          const cy = Math.sin(angle) * 82;
+          const cx = f(Math.cos(angle) * 82);
+          const cy = f(Math.sin(angle) * 82);
           return (
             <g key={`screw-${i}`}>
               <circle cx={cx} cy={cy} r="2.2" fill="#1a1a1a" />
@@ -309,10 +310,10 @@ export default function CameraAnim({ ariaLabel = "Lente de cámara animado" }) {
           return (
             <line
               key={`scale-${i}`}
-              x1={Math.cos(angle) * r1}
-              y1={Math.sin(angle) * r1}
-              x2={Math.cos(angle) * r2}
-              y2={Math.sin(angle) * r2}
+              x1={f(Math.cos(angle) * r1)}
+              y1={f(Math.sin(angle) * r1)}
+              x2={f(Math.cos(angle) * r2)}
+              y2={f(Math.sin(angle) * r2)}
               stroke="#dadada"
               strokeWidth="0.9"
               opacity="0.9"
@@ -328,10 +329,10 @@ export default function CameraAnim({ ariaLabel = "Lente de cámara animado" }) {
           return (
             <line
               key={`finescale-${i}`}
-              x1={Math.cos(angle) * r1}
-              y1={Math.sin(angle) * r1}
-              x2={Math.cos(angle) * r2}
-              y2={Math.sin(angle) * r2}
+              x1={f(Math.cos(angle) * r1)}
+              y1={f(Math.sin(angle) * r1)}
+              x2={f(Math.cos(angle) * r2)}
+              y2={f(Math.sin(angle) * r2)}
               stroke="#9a9a9a"
               strokeWidth="0.5"
               opacity="0.7"
@@ -364,12 +365,12 @@ export default function CameraAnim({ ariaLabel = "Lente de cámara animado" }) {
             const angleNext = ((i + 1) * (360 / bladeCount) * Math.PI) / 180;
             const inner = 16;
             const outer = 52;
-            const x1 = Math.cos(angle) * inner;
-            const y1 = Math.sin(angle) * inner;
-            const x2 = Math.cos(angle) * outer;
-            const y2 = Math.sin(angle) * outer;
-            const x3 = Math.cos(angleNext) * outer;
-            const y3 = Math.sin(angleNext) * outer;
+            const x1 = f(Math.cos(angle) * inner);
+            const y1 = f(Math.sin(angle) * inner);
+            const x2 = f(Math.cos(angle) * outer);
+            const y2 = f(Math.sin(angle) * outer);
+            const x3 = f(Math.cos(angleNext) * outer);
+            const y3 = f(Math.sin(angleNext) * outer);
             return (
               <path
                 key={`blade-${i}`}
