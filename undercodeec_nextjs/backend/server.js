@@ -14,6 +14,11 @@ const { emitInvoice, retryInvoice, listInvoices, getInvoice, formatInvoiceNumber
 const { getSriConfig, getMissingSriConfig, getMissingSigningConfig } = require('./invoicing/config');
 const { generateRidePdf } = require('./invoicing/ride');
 const { sendInvoiceEmail } = require('./invoicing/mailer');
+const {
+  buildCommercialSnapshot,
+  getStaticChatReply,
+  SYSTEM_INSTRUCTION,
+} = require('./chatCommercialPlaybook');
 
 const app = express();
 const pendingOrders = new Map(); // Store pending orders from Chatbot
@@ -1340,21 +1345,20 @@ app.post('/api/confirm-payment', async (req, res) => {
 // Declaración de la Herramienta para Gemini (Function Calling)
 const generarCobroClienteTool = {
   name: "generarCobroCliente",
-  description: "Crea un link de pago en PayPhone de Ecuador, genera una carpeta en Google Drive y envía un correo al cliente. Úsala SOLAMENTE cuando el cliente ya te confirmó que quiere empezar a trabajar contigo, que el proyecto no es a medida, y ya te proporcionó estos 4 datos: Nombre/Razón Social, Cédula/RUC, Email, y Teléfono.",
+  description: "Crea un link de pago en PayPhone de Ecuador, genera una carpeta en Google Drive y envia un correo al cliente. Usala SOLAMENTE cuando el cliente ya confirmo que quiere empezar, que el proyecto no es a medida, y ya proporciono estos 4 datos: Nombre/Razon Social, Cedula/RUC, Email y Telefono. No la uses en diagnostico ni cuando el usuario solo compara precios.",
   parameters: {
     type: "OBJECT",
     properties: {
-      planName: { type: "STRING", description: "Nombre del plan, ej: 'Landing Page Lanzamiento', 'Sitio Web Lanzamiento', 'Tienda Online Lanzamiento'." },
-      precioTotal: { type: "NUMBER", description: "El precio total del plan seleccionado en dólares (ej: 250, 360, 850)." },
-      razonSocial: { type: "STRING", description: "Nombre completo o razón social del cliente." },
-      rucCedula: { type: "STRING", description: "Número de cédula o RUC del cliente." },
-      email: { type: "STRING", description: "Correo electrónico explícito del cliente." },
-      telefono: { type: "STRING", description: "Teléfono o celular del cliente." }
+      planName: { type: "STRING", description: "Nombre del plan vigente, ej: 'Landing Express', 'Plan Lanzamiento', 'Tienda de Lanzamiento'." },
+      precioTotal: { type: "NUMBER", description: "El precio total vigente con descuento en dolares (ej: 80, 120, 248)." },
+      razonSocial: { type: "STRING", description: "Nombre completo o razon social del cliente." },
+      rucCedula: { type: "STRING", description: "Numero de cedula o RUC del cliente." },
+      email: { type: "STRING", description: "Correo electronico explicito del cliente." },
+      telefono: { type: "STRING", description: "Telefono o celular del cliente." }
     },
     required: ["planName", "precioTotal", "razonSocial", "rucCedula", "email", "telefono"]
   }
 };
-
 const analizarSitioWebTool = {
   name: "analizarSitioWeb",
   description: "Toma la URL de un sitio web que el cliente haya proporcionado como referencia, y lee su contenido y estructura para entender cuántas páginas internas tiene. Úsala SIEMPRE que el cliente mande una URL de referencia.",
@@ -1460,119 +1464,10 @@ function endSSE(res) {
   res.end();
 }
 
-function normalizeChatText(value) {
-  return String(value || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim();
-}
-
-function getStaticChatReply(message) {
-  const text = normalizeChatText(message);
-  if (!text || text === 'saludo_inicial') return null;
-
-  if (/\b(whatsapp|asesor|humano|contacto|telefono|llamar)\b/.test(text)) {
-    return 'Puedes hablar directamente con un asesor de Undercodeec por WhatsApp. Te atenderemos para revisar tu proyecto, presupuesto y siguientes pasos.\n\n[wa-button]Hablar con un asesor:(https://wa.me/593979046329?text=Hola,%20vengo%20del%20asistente%20IA%20y%20quiero%20hablar%20con%20un%20asesor)';
-  }
-
-  if (/\b(precio|precios|cuanto cuesta|cuanto vale|planes|tarifa|costo|costos)\b/.test(text)) {
-    return 'Estos son nuestros precios base:\n\n**Landing Page:** desde $250.\n**Sitio Web Corporativo:** desde $360.\n**Tienda Online:** desde $850.\n**Software o apps a medida:** requiere levantamiento de requerimientos.\n\nRecuerda que requerimos el 50% de anticipo para arrancar. Los pagos pueden hacerse al contado o diferidos a 3, 6 o 12 meses con tarjeta de credito (intereses del banco).\n\n[wa-button]Cotizar por WhatsApp:(https://wa.me/593979046329?text=Hola,%20quiero%20cotizar%20un%20proyecto%20con%20Undercodeec)';
-  }
-
-  if (/\b(portafolio|trabajos|ejemplos|proyectos|casos)\b/.test(text)) {
-    return 'Puedes revisar ejemplos y secciones de nuestro trabajo en https://undercodeec.com. Si quieres, tambien podemos revisar tu idea y recomendarte el tipo de proyecto adecuado.\n\n[wa-button]Pedir ejemplos por WhatsApp:(https://wa.me/593979046329?text=Hola,%20quiero%20ver%20ejemplos%20de%20trabajos%20de%20Undercodeec)';
-  }
-
-  if (/\b(pago|pagos|anticipo|tarjeta|diferido|financiamiento|credito)\b/.test(text)) {
-    return 'Manejamos un anticipo del 50% para iniciar el proyecto. Los pagos pueden hacerse al contado o diferidos a 3, 6 o 12 meses con tarjeta de credito, segun condiciones del banco.\n\n[wa-button]Consultar forma de pago:(https://wa.me/593979046329?text=Hola,%20quiero%20consultar%20formas%20de%20pago%20para%20mi%20proyecto)';
-  }
-
-  if (/\b(hosting|dominio|garantia|soporte|mantenimiento)\b/.test(text)) {
-    return 'Nuestros planes base incluyen dominio y hosting por 1 ano, soporte inicial y garantia segun el alcance contratado. Para mantenimiento mensual o soporte extendido, podemos cotizarlo aparte segun la necesidad del proyecto.';
-  }
-
-  if (/\b(horario|atienden|atencion|ubicacion|quito|ecuador)\b/.test(text)) {
-    return 'Undercodeec trabaja desde Quito, Ecuador, atendiendo proyectos locales e internacionales. Puedes escribirnos por WhatsApp y un asesor te respondera lo antes posible.\n\n[wa-button]Escribir a Undercodeec:(https://wa.me/593979046329?text=Hola,%20quiero%20informacion%20sobre%20Undercodeec)';
-  }
-
-  return null;
-}
-
 // ============================================================================
-// CHAT — Constantes y Context Cache de Gemini
+// CHAT - Constantes y Context Cache de Gemini
 // ============================================================================
 const FAST_MODEL = 'gemini-2.5-flash';
-
-const SYSTEM_INSTRUCTION = `Eres el asistente virtual de Undercodeec, agencia de desarrollo web y software en Quito, Ecuador. Sé profesional, empática, resolutiva y experta en ventas digitales.
-
-REGLAS DE COMUNICACIÓN:
-1. EXCLUSIVO Undercodeec: si el usuario pregunta cualquier tema ajeno (historia, chistes, matemáticas, etc.), declina cortés y vuelve al negocio.
-2. Respuestas concisas, párrafos cortos, emojis con moderación. Nunca repetitiva.
-3. NO saludes más de una vez. El "Hola" solo va en el primer turno; en adelante ve al grano.
-4. NO repitas preguntas ya respondidas. Lee el historial completo y avanza al siguiente paso.
-5. NO inventes URLs. Único enlace válido: https://undercodeec.com.
-6. Memoria estricta: si el cliente ya eligió plan/servicio, NO le vuelvas a preguntar. Evita bucles.
-7. No envíes textos largos ni listes todos los planes sin saber qué necesita primero.
-8. Si el cliente manda un URL de referencia, NO respondas: invoca la función "analizarSitioWeb" con esa URL. Con los datos clasifica en:
-   - Landing Page (desde $250): vista única, diseño simple/moderado, sin submenús, NO ecommerce.
-   - Sitio Corporativo (desde $360): varias páginas (máx 8), diseño estándar, NO ecommerce.
-   - Tienda Online (desde $850): es ecommerce con pasarela.
-   - Desarrollo a Medida (humano): muchos submenús anidados, reservas complejas, cursos, animaciones pesadas o diseño extremo.
-
-AL DAR PRECIOS: describe siempre 2-3 características del plan para justificar el costo.
-
-SERVICIOS ESTÁNDAR:
-
-1. Landing Page — Lanzamiento $250 | Crecimiento $600 | Autoridad $1500.
-   Una vista para convertir. Ideal: negocios nuevos, campañas, presencia rápida.
-   • $250: dominio + hosting 1 año, diseño optimizado, mobile-first, formulario, botones WhatsApp/llamada, SEO básico, soporte 1 mes, garantía 1 año.
-   • $600: + diseño semi-personalizado UX, copywriting persuasivo, lead magnet, Analytics 4 + Pixel Meta, integración CRM/email.
-   • $1500: + diseño 100% a medida con animaciones, A/B + mapas de calor, integraciones complejas, chatbot IA, SEO avanzado.
-
-2. Sitio Web Corporativo — Lanzamiento $360 | Crecimiento $800 | Autoridad $2000.
-   Varias páginas para info estructurada. Ideal: empresas consolidadas con múltiples servicios.
-   • $360: diseño según identidad, 5-10 páginas, mobile-first, SEO básico, formularios + WhatsApp, dominio + hosting 1 año, soporte 1 mes, garantía 1 año.
-   • $800: + diseño semi-personalizado CRO, SEO avanzado y local, Core Web Vitals, integración CRM/email/Analytics, copywriting.
-   • $2000: + UX/UI 100% personalizado, integraciones complejas (reservas, ERP, pasarelas), automatización + chatbots IA, auditoría de seguridad.
-
-3. Tienda Online — Lanzamiento $850 | Crecimiento $2500 | Élite $10000.
-   E-commerce con pasarela y panel admin. Ideal: vender productos físicos/digitales 24/7.
-   • $850: tienda admin, 50-100 productos, pasarelas (Stripe, PayPal), dominio + hosting 1 año, envíos avanzados, SEO básico, soporte 1 mes, garantía 1 año.
-   • $2500: + diseño semi a medida UX/CRO, búsqueda/filtrado avanzado, sincronización inventario + recuperación carritos, copys + SEO técnico, reglas envío/impuestos.
-   • $10000: + 100% a medida o Headless, integración ERP (SAP, Oracle), motor recomendación IA, multi-idioma/moneda/almacén, checkout personalizado.
-
-SERVICIOS A MEDIDA (apps móviles, ERP, CRM, plataformas SaaS, sistemas de reservas, plataformas de cursos):
-- Si el cliente describe algo complejo sin decir "a medida", asume que lo es.
-- Requieren "Levantamiento de Requerimientos".
-- Acción: explica capacidad, muestra entusiasmo y ofrécele AMBAS opciones:
-  1. Llenar el formulario "Software a Medida" en la sección "Planes de precios" del sitio.
-  2. Conectarse con un asesor por WhatsApp.
-
-FLUJO ACTUALIZACIÓN/REDISEÑO DE SITIO EXISTENTE:
-Detectar frases tipo "quiero actualizar/rediseñar/mejorar mi web/cambiar cosas". NO ofrezcas planes nuevos. Pasos:
-A) Pregunta tecnología: "¿En qué está tu sitio? WordPress, Wix, Shopify, otro CMS, o código (HTML, React, etc.)?". Espera.
-B) Si es CMS: "¿Tienes accesos de administrador?". Si es código: "¿Tienes el código fuente y accesos al hosting (cPanel, FTP)?". Espera.
-C) Con la info recogida, deriva a un ingeniero por WhatsApp (texto en español plano, el sistema codifica):
-[wa-button]WhatsApp:(https://wa.me/593979046329?text=Hola, vengo del chatbot. Necesito actualizar mi sitio web. Tecnología: {TECH}. Tiene accesos: {SÍ o NO}. Detalle: {RESUMEN})
-
-FLUJO PROYECTOS NUEVOS:
-Paso 1 — Descubrimiento: pregunta sobre el negocio y meta. Si no sabe, asesora (Landing vs Web vs Tienda). Espera.
-Paso 2 — Decisión:
-- A Medida / complejo / pide humano: pide el formulario "Software a Medida" Y deriva a WhatsApp:
-  [wa-button]WhatsApp:(https://wa.me/593979046329?text=Hola,%20vengo%20del%20chatbot,%20y%20quiero%20hablar%20sobre%20mi%20proyecto)
-- Estándar decidido: pregunta "Manejamos un anticipo del 50%. ¿Comenzamos ahora?". Espera.
-Paso 3 — Datos (solo Estándar). Si dice SÍ, pídele en UN mensaje:
-- Nombre o Razón Social
-- Cédula o RUC
-- Correo
-- Teléfono
-Paso 4 — Acción: con los 4 datos, NO respondas con texto: invoca la función "generarCobroCliente" con los parámetros.
-
-!!! REGLA DE ORO — PAGOS !!!
-SIEMPRE que hables de precios, planes o dinero, incluye literalmente:
-"Recuerda que requerimos el 50% de anticipo para arrancar. Los pagos pueden hacerse al contado o diferidos a 3, 6 o 12 meses con tarjeta de crédito (intereses del banco)."
-Esto es OBLIGATORIO sin importar lo larga que sea la conversación.`;
 
 // Cache del system prompt en Gemini. Se crea lazy en el primer request y se
 // renueva en background antes de expirar. Si Gemini rechaza el cache (p.ej.
@@ -1964,7 +1859,7 @@ app.post('/api/chat', chatRateLimit, async (req, res) => {
   });
 
   if (message === 'SALUDO_INICIAL') {
-      const welcomeText = 'Hola, soy el asistente virtual de Undercodeec, si necesitas ayuda o necesitas un proyecto, no dudes en preguntarme.';
+      const welcomeText = 'Hola, soy Karen, asistente virtual de Undercodeec. Puedo orientarte con una web, tienda online, software/app, rediseño, SEO o anuncios.\n\nPara empezar: quieres cotizar algo nuevo, mejorar una web actual, aparecer mejor en Google o hablar con ventas por WhatsApp?';
       sendSSE(res, { type: 'text', delta: welcomeText });
       recordChatMessage(req, 'assistant', welcomeText, { eventType: 'chat_welcome', usedAI: false });
       recordChatUsage(req, 'chat_welcome', {
@@ -1986,12 +1881,14 @@ app.post('/api/chat', chatRateLimit, async (req, res) => {
 
   const staticReply = getStaticChatReply(message);
   if (staticReply) {
+    const commercialSnapshot = buildCommercialSnapshot(message);
     sendSSE(res, { type: 'text', delta: staticReply });
     recordChatMessage(req, 'user', message, { eventType: 'chat_static_reply', usedAI: false });
     recordChatMessage(req, 'assistant', staticReply, { eventType: 'chat_static_reply', usedAI: false });
     recordChatUsage(req, 'chat_static_reply', {
       messageLength: message.length,
       responseLength: staticReply.length,
+      metadata: { commercial: commercialSnapshot, sessionId: getChatExternalSessionId(req) },
     });
     return endSSE(res);
   }
@@ -2327,11 +2224,12 @@ app.post('/api/chat', chatRateLimit, async (req, res) => {
     }
 
     console.log('[CHAT] Streaming finalizado.');
+    const commercialSnapshot = buildCommercialSnapshot(message);
     recordChatMessage(req, 'assistant', totalEmittedText, { eventType: 'chat_ai_response', usedAI: true });
     recordChatUsage(req, 'chat_ai_response', {
       messageLength: message.length,
       responseLength: totalEmittedText.length,
-      metadata: { model: FAST_MODEL, usedTools: activeTools.map(t => t.name) },
+      metadata: { model: FAST_MODEL, usedTools: activeTools.map(t => t.name), commercial: commercialSnapshot, sessionId: getChatExternalSessionId(req) },
     });
     endSSE(res);
   } catch (error) {
@@ -2357,10 +2255,10 @@ app.post('/api/chat/lead', chatLeadRateLimit, async (req, res) => {
   const cleanProjectType = typeof projectType === 'string' ? projectType.trim().slice(0, 120) : '';
   const cleanMessage = typeof message === 'string' ? message.trim().slice(0, 800) : '';
 
-  if (!cleanName || (!cleanEmail && !cleanPhone)) {
+  if (!cleanName || !cleanPhone || !cleanProjectType) {
     return res.status(400).json({
       success: false,
-      error: 'Necesitamos tu nombre y al menos WhatsApp o email para continuar.',
+      error: 'Necesitamos tu nombre, WhatsApp y tipo de proyecto para continuar.',
     });
   }
 
@@ -2392,7 +2290,18 @@ app.post('/api/chat/lead', chatLeadRateLimit, async (req, res) => {
     }
     recordChatUsage(req, 'chat_lead_saved', {
       messageLength: cleanMessage.length,
-      metadata: { leadId, projectType: cleanProjectType, hasEmail: !!cleanEmail, hasPhone: !!cleanPhone },
+      metadata: {
+        leadId,
+        projectType: cleanProjectType,
+        hasEmail: !!cleanEmail,
+        hasPhone: !!cleanPhone,
+        sessionId: getChatExternalSessionId(req),
+        commercial: buildCommercialSnapshot(cleanProjectType || cleanMessage, {
+          extraScore: 40,
+          likelyService: cleanProjectType,
+          nextAction: 'Ventas debe contactar por WhatsApp con prioridad y revisar la conversacion.',
+        }),
+      },
     });
     res.setHeader('X-Chat-Access-Tier', 'qualified_lead');
     res.setHeader('X-Chat-Remaining-Today', String(CHAT_QUALIFIED_AI_DAILY_MAX));
@@ -2400,7 +2309,7 @@ app.post('/api/chat/lead', chatLeadRateLimit, async (req, res) => {
       success: true,
       accessTier: 'qualified_lead',
       remainingToday: CHAT_QUALIFIED_AI_DAILY_MAX,
-      message: 'Recibimos tus datos. Activamos mas consultas IA para continuar tu cotizacion y un asesor de Undercodeec puede seguir por WhatsApp o email.',
+      message: 'Recibimos tus datos. Activamos mas consultas IA para continuar tu cotizacion y ventas puede seguir por WhatsApp con el contexto de tu proyecto.',
     });
   } catch (error) {
     console.error('Error guardando lead del chat:', error.message);
@@ -3758,7 +3667,42 @@ app.get('/api/admin/chat-usage', adminAuth, async (req, res) => {
       ORDER BY s.updated_at DESC
       LIMIT 50
     `);
-    res.json({ success: true, days, summary: summary.rows, recent: recent.rows, sessions: sessions.rows });
+    const commercialRows = await db.query(`
+      SELECT id, metadata, created_at
+      FROM chat_usage
+      WHERE metadata IS NOT NULL
+        AND (
+          event_type IN ('chat_static_reply', 'chat_ai_response', 'chat_lead_saved')
+        )
+      ORDER BY created_at DESC
+      LIMIT 300
+    `);
+    const commercialBySession = new Map();
+    for (const row of commercialRows.rows || []) {
+      const meta = typeof row.metadata === 'string' ? (() => { try { return JSON.parse(row.metadata); } catch { return {}; } })() : (row.metadata || {});
+      const externalSessionId = meta.sessionId;
+      const commercial = meta.commercial;
+      if (externalSessionId && commercial && !commercialBySession.has(externalSessionId)) {
+        commercialBySession.set(externalSessionId, { ...commercial, updatedAt: row.created_at });
+      }
+    }
+    const enrichedSessions = (sessions.rows || []).map(session => ({
+      ...session,
+      commercial: commercialBySession.get(session.external_session_id) || null,
+    }));
+    const commercialSummary = {
+      byIntent: {},
+      byTemperature: {},
+      byService: {},
+      snapshots: 0,
+    };
+    for (const value of commercialBySession.values()) {
+      commercialSummary.snapshots += 1;
+      if (value.intent) commercialSummary.byIntent[value.intent] = (commercialSummary.byIntent[value.intent] || 0) + 1;
+      if (value.temperature) commercialSummary.byTemperature[value.temperature] = (commercialSummary.byTemperature[value.temperature] || 0) + 1;
+      if (value.likelyService) commercialSummary.byService[value.likelyService] = (commercialSummary.byService[value.likelyService] || 0) + 1;
+    }
+    res.json({ success: true, days, summary: summary.rows, recent: recent.rows, sessions: enrichedSessions, commercialSummary });
   } catch (error) {
     console.error('Error fetching chat usage:', error.message);
     res.status(500).json({ success: false, error: 'Error fetching chat usage' });
@@ -3789,7 +3733,23 @@ app.get('/api/admin/chat-sessions/:id/messages', adminAuth, async (req, res) => 
        ORDER BY created_at ASC, id ASC`,
       [sessionId]
     );
-    return res.json({ success: true, session: session.rows[0], messages: messages.rows });
+    const commercialRows = await db.query(
+      `SELECT metadata, created_at
+       FROM chat_usage
+       WHERE metadata IS NOT NULL
+       ORDER BY created_at DESC
+       LIMIT 300`
+    );
+    let commercial = null;
+    const externalSessionId = session.rows[0].external_session_id;
+    for (const row of commercialRows.rows || []) {
+      const meta = typeof row.metadata === 'string' ? (() => { try { return JSON.parse(row.metadata); } catch { return {}; } })() : (row.metadata || {});
+      if (meta.sessionId === externalSessionId && meta.commercial) {
+        commercial = { ...meta.commercial, updatedAt: row.created_at };
+        break;
+      }
+    }
+    return res.json({ success: true, session: { ...session.rows[0], commercial }, messages: messages.rows });
   } catch (error) {
     console.error('Error fetching chat session messages:', error.message);
     return res.status(500).json({ success: false, error: 'Error fetching chat session messages' });

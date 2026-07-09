@@ -1,0 +1,40 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test:commercial": "node test_chat_commercial_playbook.js"
+  },
+  "keywords": [
+    "payphone",
+    "payment",
+    "api"
+  ],
+  "author": "Undercodeec",
+  "license": "ISC",
+  "description": "Backend API para pagos con PayPhone",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@google-cloud/recaptcha-enterprise": "^6.4.0",
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.95.3",
+    "axios": "^1.8.4",
+    "bcryptjs": "^3.0.3",
+    "cheerio": "^1.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "multer": "^2.1.1",
+    "mysql2": "^3.22.3",
+    "nodemailer": "^8.0.0",
+    "open-factura": "^0.1.1",
+    "openai": "^6.18.0",
+    "pg": "^8.20.0",
+    "puppeteer": "^24.38.0"
+  }
+}
