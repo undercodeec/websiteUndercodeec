@@ -49,6 +49,7 @@ const footerColumns = [
         <li><Link href="/">Inicio</Link></li>
         <li><Link href="/nuestra-trayectoria">Nuestra Trayectoria</Link></li>
         <li><Link href="/servicios">Servicios</Link></li>
+        <li><Link href="/portal">Portal de clientes</Link></li>
         <li><Link href="/politicas-playconsole">Términos y Condiciones</Link></li>
         <li><Link href="/contacto">Contactos</Link></li>
       </ul>

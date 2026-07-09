@@ -27,6 +27,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('payments');
   const [payments, setPayments] = useState([]);
   const [leads, setLeads] = useState([]);
+  const [chatUsage, setChatUsage] = useState({ days: 7, summary: [], recent: [] });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -38,6 +39,9 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
+  const [selectedChatSession, setSelectedChatSession] = useState(null);
+  const [chatSessionMessages, setChatSessionMessages] = useState([]);
+  const [loadingChatSession, setLoadingChatSession] = useState(false);
 
   // Facturación: pago precargado al pulsar "Emitir factura" en el detalle de un pago
   const [invoicePrefillPayment, setInvoicePrefillPayment] = useState(null);
@@ -66,25 +70,30 @@ export default function AdminDashboard() {
     if (isRefresh) setRefreshing(true); else setLoading(true);
     setError('');
     try {
-      const [paymentsRes, leadsRes] = await Promise.all([
+      const [paymentsRes, leadsRes, chatUsageRes] = await Promise.all([
         fetch(`${apiUrl}/api/admin/payments`, {
           headers: { Authorization: `Bearer ${token}` }
         }),
         fetch(`${apiUrl}/api/admin/leads`, {
           headers: { Authorization: `Bearer ${token}` }
+        }),
+        fetch(`${apiUrl}/api/admin/chat-usage?days=7`, {
+          headers: { Authorization: `Bearer ${token}` }
         })
       ]);
 
-      if (paymentsRes.status === 401 || leadsRes.status === 401) {
+      if (paymentsRes.status === 401 || leadsRes.status === 401 || chatUsageRes.status === 401) {
         handleSessionExpired();
         return;
       }
 
       const paymentsData = await paymentsRes.json();
       const leadsData = await leadsRes.json();
+      const chatUsageData = await chatUsageRes.json();
 
       if (paymentsData.success) setPayments(paymentsData.data);
       if (leadsData.success) setLeads(leadsData.data);
+      if (chatUsageData.success) setChatUsage(chatUsageData);
 
     } catch (err) {
       console.error(err);
@@ -186,6 +195,34 @@ export default function AdminDashboard() {
     router.push('/admin');
   };
 
+  const openChatSession = async (session) => {
+    const token = localStorage.getItem('adminToken');
+    setSelectedChatSession(session);
+    setChatSessionMessages([]);
+    setLoadingChatSession(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/admin/chat-sessions/${session.id}/messages`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.status === 401) {
+        handleSessionExpired();
+        return;
+      }
+      const data = await res.json();
+      if (data.success) {
+        setSelectedChatSession(data.session);
+        setChatSessionMessages(data.messages || []);
+      } else {
+        alert(data.error || 'No se pudo cargar la conversación');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión al cargar la conversación');
+    } finally {
+      setLoadingChatSession(false);
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString('es-EC', {
       year: 'numeric',
@@ -230,6 +267,42 @@ export default function AdminDashboard() {
       return true;
     });
   }, [payments, filterMethod, filterStatus, searchQuery]);
+
+  const chatMetrics = useMemo(() => {
+    const rows = Array.isArray(chatUsage.summary) ? chatUsage.summary : [];
+    const byEvent = rows.reduce((acc, row) => {
+      const events = Number(row.events) || 0;
+      const messageChars = Number(row.total_message_chars) || 0;
+      const responseChars = Number(row.total_response_chars) || 0;
+      const current = acc[row.event_type] || { events: 0, messageChars: 0, responseChars: 0 };
+      acc[row.event_type] = {
+        events: current.events + events,
+        messageChars: current.messageChars + messageChars,
+        responseChars: current.responseChars + responseChars
+      };
+      return acc;
+    }, {});
+
+    const eventCount = (name) => byEvent[name]?.events || 0;
+    const aiResponses = eventCount('chat_ai_response');
+    const staticReplies = eventCount('chat_static_reply') + eventCount('chat_welcome');
+    const limits = eventCount('chat_rate_limited_minute') + eventCount('chat_rate_limited_daily') + eventCount('chat_tts_rate_limited');
+    const leadsCaptured = eventCount('chat_lead_saved');
+    const ttsGenerated = eventCount('chat_tts_generated');
+    const responseChars = Object.values(byEvent).reduce((sum, row) => sum + row.responseChars, 0);
+
+    return {
+      byEvent,
+      aiResponses,
+      staticReplies,
+      limits,
+      leadsCaptured,
+      ttsGenerated,
+      responseChars,
+      totalEvents: Object.values(byEvent).reduce((sum, row) => sum + row.events, 0),
+      estimatedOutputTokens: Math.ceil(responseChars / 4)
+    };
+  }, [chatUsage]);
 
   const renderStatusBadge = (status) => {
     const s = STATUS_STYLES[status] || STATUS_STYLES.pending;
@@ -319,6 +392,19 @@ export default function AdminDashboard() {
             }`}
           >
             Facturas
+          </button>
+          <button
+            onClick={() => setActiveTab('ai')}
+            className={`tw-px-6 tw-py-3 tw-rounded-xl tw-text-sm tw-font-semibold tw-transition-all tw-duration-300 tw-flex tw-items-center tw-gap-3 ${
+              activeTab === 'ai'
+                ? 'tw-bg-gradient-to-r tw-from-purple-600 tw-to-orange-500 tw-text-white tw-shadow-lg'
+                : 'tw-text-gray-400 hover:tw-text-white hover:tw-bg-gray-700/50'
+            }`}
+          >
+            IA
+            <span className={`tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs ${activeTab === 'ai' ? 'tw-bg-black/20' : 'tw-bg-gray-700 tw-text-gray-300'}`}>
+              {chatMetrics.totalEvents}
+            </span>
           </button>
           <button
             onClick={() => setActiveTab('settings')}
@@ -581,6 +667,184 @@ export default function AdminDashboard() {
               />
             )}
 
+            {/* AI METRICS TAB */}
+            {activeTab === 'ai' && (
+              <div className="tw-space-y-6">
+                <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3">
+                  <div>
+                    <h2 className="tw-text-xl tw-font-bold tw-text-white">Métricas del Asistente IA</h2>
+                    <p className="tw-text-xs tw-text-gray-400 tw-mt-1">Resumen de los últimos {chatUsage.days || 7} días.</p>
+                  </div>
+                  <button
+                    onClick={() => fetchData(true)}
+                    disabled={refreshing}
+                    className="tw-flex tw-items-center tw-gap-2 tw-px-4 tw-py-2.5 tw-bg-purple-600/10 tw-text-purple-400 hover:tw-bg-purple-600 hover:tw-text-white tw-rounded-xl tw-border tw-border-purple-500/30 tw-transition-all tw-duration-300 tw-text-sm tw-font-bold disabled:tw-opacity-50"
+                  >
+                    <svg className={`tw-w-4 tw-h-4 ${refreshing ? 'tw-animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    {refreshing ? 'Actualizando...' : 'Refrescar'}
+                  </button>
+                </div>
+
+                <div className="tw-grid tw-grid-cols-2 lg:tw-grid-cols-6 tw-gap-4">
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-border tw-border-gray-700/50 tw-p-5">
+                    <p className="tw-text-xs tw-text-gray-400 tw-uppercase tw-tracking-wider tw-font-bold">IA real</p>
+                    <p className="tw-text-2xl tw-font-bold tw-text-purple-400 tw-mt-2">{chatMetrics.aiResponses}</p>
+                    <p className="tw-text-[11px] tw-text-gray-500 tw-mt-1">Llamadas a Gemini</p>
+                  </div>
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-border tw-border-gray-700/50 tw-p-5">
+                    <p className="tw-text-xs tw-text-gray-400 tw-uppercase tw-tracking-wider tw-font-bold">Plantillas</p>
+                    <p className="tw-text-2xl tw-font-bold tw-text-blue-400 tw-mt-2">{chatMetrics.staticReplies}</p>
+                    <p className="tw-text-[11px] tw-text-gray-500 tw-mt-1">Sin costo IA</p>
+                  </div>
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-border tw-border-gray-700/50 tw-p-5">
+                    <p className="tw-text-xs tw-text-gray-400 tw-uppercase tw-tracking-wider tw-font-bold">Límites</p>
+                    <p className="tw-text-2xl tw-font-bold tw-text-yellow-400 tw-mt-2">{chatMetrics.limits}</p>
+                    <p className="tw-text-[11px] tw-text-gray-500 tw-mt-1">Bloqueos sanos</p>
+                  </div>
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-border tw-border-gray-700/50 tw-p-5">
+                    <p className="tw-text-xs tw-text-gray-400 tw-uppercase tw-tracking-wider tw-font-bold">Leads IA</p>
+                    <p className="tw-text-2xl tw-font-bold tw-text-green-400 tw-mt-2">{chatMetrics.leadsCaptured}</p>
+                    <p className="tw-text-[11px] tw-text-gray-500 tw-mt-1">Capturados en chat</p>
+                  </div>
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-border tw-border-gray-700/50 tw-p-5">
+                    <p className="tw-text-xs tw-text-gray-400 tw-uppercase tw-tracking-wider tw-font-bold">Voz</p>
+                    <p className="tw-text-2xl tw-font-bold tw-text-orange-400 tw-mt-2">{chatMetrics.ttsGenerated}</p>
+                    <p className="tw-text-[11px] tw-text-gray-500 tw-mt-1">TTS generado</p>
+                  </div>
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-border tw-border-gray-700/50 tw-p-5">
+                    <p className="tw-text-xs tw-text-gray-400 tw-uppercase tw-tracking-wider tw-font-bold">Tokens aprox.</p>
+                    <p className="tw-text-2xl tw-font-bold tw-text-pink-400 tw-mt-2">{chatMetrics.estimatedOutputTokens}</p>
+                    <p className="tw-text-[11px] tw-text-gray-500 tw-mt-1">Salida estimada</p>
+                  </div>
+                </div>
+
+                <div className="tw-grid lg:tw-grid-cols-2 tw-gap-6">
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-shadow-2xl tw-border tw-border-gray-700/50 tw-overflow-hidden">
+                    <div className="tw-p-5 tw-border-b tw-border-gray-800">
+                      <h3 className="tw-text-sm tw-font-bold tw-text-white">Eventos por tipo</h3>
+                      <p className="tw-text-xs tw-text-gray-500 tw-mt-1">Sirve para ver ahorro por plantillas y presión de límites.</p>
+                    </div>
+                    <div className="tw-overflow-x-auto">
+                      <table className="tw-w-full tw-text-left tw-text-sm">
+                        <thead className="tw-uppercase tw-tracking-wider tw-border-b tw-border-gray-700 tw-bg-gray-800/80 tw-text-gray-400 tw-text-xs tw-font-bold">
+                          <tr>
+                            <th className="tw-px-5 tw-py-4">Evento</th>
+                            <th className="tw-px-5 tw-py-4 tw-text-right">Cantidad</th>
+                            <th className="tw-px-5 tw-py-4 tw-text-right">Chars respuesta</th>
+                          </tr>
+                        </thead>
+                        <tbody className="tw-divide-y tw-divide-gray-700/50">
+                          {Object.entries(chatMetrics.byEvent).length === 0 ? (
+                            <tr><td colSpan="3" className="tw-px-5 tw-py-10 tw-text-center tw-text-gray-500">Aún no hay métricas registradas.</td></tr>
+                          ) : (
+                            Object.entries(chatMetrics.byEvent).map(([eventType, row]) => (
+                              <tr key={eventType} className="hover:tw-bg-gray-800/50">
+                                <td className="tw-px-5 tw-py-4 tw-font-mono tw-text-xs tw-text-purple-300">{eventType}</td>
+                                <td className="tw-px-5 tw-py-4 tw-text-right tw-font-bold tw-text-white">{row.events}</td>
+                                <td className="tw-px-5 tw-py-4 tw-text-right tw-text-gray-400">{row.responseChars}</td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-shadow-2xl tw-border tw-border-gray-700/50 tw-overflow-hidden">
+                    <div className="tw-p-5 tw-border-b tw-border-gray-800">
+                      <h3 className="tw-text-sm tw-font-bold tw-text-white">Eventos recientes</h3>
+                      <p className="tw-text-xs tw-text-gray-500 tw-mt-1">Últimos 100 registros del asistente.</p>
+                    </div>
+                    <div className="tw-divide-y tw-divide-gray-800 tw-max-h-[430px] tw-overflow-y-auto custom-scrollbar">
+                      {(chatUsage.recent || []).length === 0 ? (
+                        <div className="tw-px-5 tw-py-10 tw-text-center tw-text-gray-500 tw-text-sm">Sin eventos recientes.</div>
+                      ) : (
+                        chatUsage.recent.map((event) => (
+                          <div key={event.id} className="tw-p-4 hover:tw-bg-gray-800/40 tw-transition-colors">
+                            <div className="tw-flex tw-items-center tw-justify-between tw-gap-3">
+                              <span className="tw-font-mono tw-text-xs tw-text-purple-300">{event.event_type}</span>
+                              <span className="tw-text-[11px] tw-text-gray-500 tw-whitespace-nowrap">{formatDate(event.created_at)}</span>
+                            </div>
+                            <div className="tw-mt-2 tw-flex tw-flex-wrap tw-gap-2 tw-text-[11px] tw-text-gray-400">
+                              <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-2 tw-py-1">msg {event.message_length || 0}</span>
+                              <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-2 tw-py-1">resp {event.response_length || 0}</span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-shadow-2xl tw-border tw-border-gray-700/50 tw-overflow-hidden">
+                  <div className="tw-p-5 tw-border-b tw-border-gray-800">
+                    <h3 className="tw-text-sm tw-font-bold tw-text-white">Sesiones recientes del chat</h3>
+                    <p className="tw-text-xs tw-text-gray-500 tw-mt-1">Base para historial persistente y seguimiento comercial.</p>
+                  </div>
+                  <div className="tw-overflow-x-auto">
+                    <table className="tw-w-full tw-text-left tw-text-sm">
+                      <thead className="tw-uppercase tw-tracking-wider tw-border-b tw-border-gray-700 tw-bg-gray-800/80 tw-text-gray-400 tw-text-xs tw-font-bold">
+                        <tr>
+                          <th className="tw-px-5 tw-py-4">Sesión</th>
+                          <th className="tw-px-5 tw-py-4">Estado</th>
+                          <th className="tw-px-5 tw-py-4 tw-text-right">Mensajes</th>
+                          <th className="tw-px-5 tw-py-4">Lead</th>
+                          <th className="tw-px-5 tw-py-4">Usuario</th>
+                          <th className="tw-px-5 tw-py-4">Última actividad</th>
+                          <th className="tw-px-5 tw-py-4">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody className="tw-divide-y tw-divide-gray-700/50">
+                        {(chatUsage.sessions || []).length === 0 ? (
+                          <tr><td colSpan="7" className="tw-px-5 tw-py-10 tw-text-center tw-text-gray-500">Aún no hay sesiones guardadas.</td></tr>
+                        ) : (
+                          chatUsage.sessions.map((session) => (
+                            <tr key={session.id} className="hover:tw-bg-gray-800/50">
+                              <td className="tw-px-5 tw-py-4 tw-font-mono tw-text-xs tw-text-purple-300">{session.external_session_id}</td>
+                              <td className="tw-px-5 tw-py-4">
+                                <span className={`tw-inline-flex tw-px-2.5 tw-py-1 tw-rounded-lg tw-text-[11px] tw-font-bold tw-border ${
+                                  session.status === 'client'
+                                    ? 'tw-bg-amber-500/10 tw-text-amber-400 tw-border-amber-500/20'
+                                    : session.status === 'lead_captured'
+                                    ? 'tw-bg-green-500/10 tw-text-green-400 tw-border-green-500/20'
+                                    : session.status === 'registered'
+                                    ? 'tw-bg-blue-500/10 tw-text-blue-400 tw-border-blue-500/20'
+                                    : 'tw-bg-gray-700/50 tw-text-gray-300 tw-border-gray-600'
+                                }`}>
+                                  {session.status || 'active'}
+                                </span>
+                              </td>
+                              <td className="tw-px-5 tw-py-4 tw-text-right tw-font-bold tw-text-white">{session.message_count || 0}</td>
+                              <td className="tw-px-5 tw-py-4 tw-text-gray-300">{session.lead_id ? `#${session.lead_id}` : '-'}</td>
+                              <td className="tw-px-5 tw-py-4">
+                                {session.user_email ? (
+                                  <div>
+                                    <div className="tw-text-white tw-font-semibold">{session.user_name || 'Usuario IA'}</div>
+                                    <div className="tw-text-xs tw-text-gray-500">{session.user_email}</div>
+                                  </div>
+                                ) : (
+                                  <span className="tw-text-gray-500">-</span>
+                                )}
+                              </td>
+                              <td className="tw-px-5 tw-py-4 tw-text-gray-400 tw-whitespace-nowrap">{formatDate(session.last_message_at || session.updated_at)}</td>
+                              <td className="tw-px-5 tw-py-4">
+                                <button
+                                  onClick={() => openChatSession(session)}
+                                  className="tw-px-3 tw-py-1.5 tw-text-xs tw-font-bold tw-bg-gray-800 tw-text-gray-300 hover:tw-bg-purple-600 hover:tw-text-white tw-rounded-lg tw-border tw-border-gray-700 hover:tw-border-purple-500 tw-transition-all"
+                                >
+                                  Ver
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* SETTINGS TAB */}
             {activeTab === 'settings' && (
               <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-shadow-2xl tw-border tw-border-gray-700/50 tw-overflow-hidden">
@@ -651,6 +915,86 @@ export default function AdminDashboard() {
           </>
         )}
       </main>
+
+      {/* CHAT SESSION DETAIL MODAL */}
+      {selectedChatSession && (
+        <div
+          className="tw-fixed tw-inset-0 tw-z-[100] tw-flex tw-items-center tw-justify-center tw-p-4 tw-bg-black/70 tw-backdrop-blur-sm"
+          onClick={() => setSelectedChatSession(null)}
+        >
+          <div
+            className="tw-bg-gray-900 tw-border tw-border-gray-700 tw-rounded-2xl tw-shadow-2xl tw-w-full tw-max-w-3xl tw-max-h-[85vh] tw-overflow-hidden tw-flex tw-flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="tw-flex tw-justify-between tw-items-center tw-p-6 tw-border-b tw-border-gray-800">
+              <div>
+                <h3 className="tw-text-lg tw-font-bold tw-text-white">Conversación IA #{selectedChatSession.id}</h3>
+                <p className="tw-text-xs tw-text-gray-400 tw-mt-0.5 tw-font-mono">{selectedChatSession.external_session_id}</p>
+              </div>
+              <button
+                onClick={() => setSelectedChatSession(null)}
+                className="tw-w-9 tw-h-9 tw-flex tw-items-center tw-justify-center tw-rounded-lg tw-bg-gray-800 tw-text-gray-400 hover:tw-text-white hover:tw-bg-gray-700 tw-transition-all"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="tw-p-5 tw-border-b tw-border-gray-800 tw-flex tw-flex-wrap tw-gap-3 tw-text-xs">
+              <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-3 tw-py-1.5 tw-text-gray-300">
+                Estado: {selectedChatSession.status || 'active'}
+              </span>
+              <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-3 tw-py-1.5 tw-text-gray-300">
+                Lead: {selectedChatSession.lead_id ? `#${selectedChatSession.lead_id}` : '-'}
+              </span>
+              <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-3 tw-py-1.5 tw-text-gray-300">
+                Usuario: {selectedChatSession.user_email ? `${selectedChatSession.user_name || 'Usuario IA'} (${selectedChatSession.user_email})` : '-'}
+              </span>
+              <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-3 tw-py-1.5 tw-text-gray-300">
+                Inicio: {formatDate(selectedChatSession.created_at)}
+              </span>
+            </div>
+
+            <div className="tw-p-6 tw-overflow-y-auto custom-scrollbar tw-space-y-4">
+              {loadingChatSession ? (
+                <div className="tw-flex tw-justify-center tw-items-center tw-h-40">
+                  <div className="tw-animate-spin tw-rounded-full tw-h-10 tw-w-10 tw-border-t-2 tw-border-b-2 tw-border-orange-500"></div>
+                </div>
+              ) : chatSessionMessages.length === 0 ? (
+                <div className="tw-text-center tw-text-gray-500 tw-py-12">No hay mensajes guardados para esta sesión.</div>
+              ) : (
+                chatSessionMessages.map((message) => {
+                  const isUser = message.role === 'user';
+                  const isAssistant = message.role === 'assistant';
+                  return (
+                    <div
+                      key={message.id}
+                      className={`tw-flex ${isUser ? 'tw-justify-end' : 'tw-justify-start'}`}
+                    >
+                      <div className={`tw-max-w-[82%] tw-rounded-2xl tw-p-4 tw-border ${
+                        isUser
+                          ? 'tw-bg-purple-600/20 tw-border-purple-500/30 tw-text-white'
+                          : isAssistant
+                            ? 'tw-bg-gray-800/80 tw-border-gray-700 tw-text-gray-100'
+                            : 'tw-bg-orange-500/10 tw-border-orange-500/20 tw-text-orange-200'
+                      }`}>
+                        <div className="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-mb-2">
+                          <span className="tw-text-[11px] tw-font-bold tw-uppercase tw-tracking-wider tw-text-purple-300">{message.role}</span>
+                          <span className="tw-text-[10px] tw-text-gray-500">{formatDate(message.created_at)}</span>
+                        </div>
+                        <p className="tw-text-sm tw-leading-relaxed tw-whitespace-pre-wrap">{message.content}</p>
+                        <div className="tw-mt-2 tw-flex tw-gap-2 tw-text-[10px] tw-text-gray-500">
+                          {message.event_type && <span>{message.event_type}</span>}
+                          {message.used_ai ? <span>IA</span> : <span>sin IA</span>}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* PAYMENT DETAIL MODAL */}
       {selectedPayment && (

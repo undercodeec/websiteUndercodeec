@@ -14,6 +14,56 @@ const AIAssistant = () => {
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showLeadCapture, setShowLeadCapture] = useState(false);
+    const [leadForm, setLeadForm] = useState({ name: '', phone: '', email: '', projectType: '' });
+    const [isSubmittingLead, setIsSubmittingLead] = useState(false);
+    const [showChatAuth, setShowChatAuth] = useState(false);
+    const [chatAuthMode, setChatAuthMode] = useState('register');
+    const [chatAuthForm, setChatAuthForm] = useState({ name: '', email: '', phone: '', password: '', code: '' });
+    const [isSubmittingChatAuth, setIsSubmittingChatAuth] = useState(false);
+    const [chatUser, setChatUser] = useState(null);
+    const [remainingAIRequests, setRemainingAIRequests] = useState(null);
+    const [chatAccessTier, setChatAccessTier] = useState('public');
+    const chatSessionIdRef = useRef(null);
+
+    const appendAssistantMessage = (content) => {
+        setMessages(prev => [...prev, { role: 'assistant', content, streaming: false }]);
+    };
+
+    const getChatSessionId = () => {
+        if (chatSessionIdRef.current) return chatSessionIdRef.current;
+        const key = 'undercodeec_chat_session_id';
+        let sessionId = localStorage.getItem(key);
+        if (!sessionId) {
+            const randomPart = Math.random().toString(36).slice(2);
+            sessionId = `chat_${Date.now().toString(36)}_${randomPart}`;
+            localStorage.setItem(key, sessionId);
+        }
+        chatSessionIdRef.current = sessionId;
+        return sessionId;
+    };
+
+    const updateRemainingAIRequests = (response) => {
+        const remaining = response.headers.get('X-Chat-Remaining-Today');
+        const tier = response.headers.get('X-Chat-Access-Tier');
+        if (remaining !== null) {
+            const value = Number(remaining);
+            if (Number.isFinite(value)) setRemainingAIRequests(value);
+        }
+        if (tier) setChatAccessTier(tier);
+    };
+
+    const getChatAuthToken = () => {
+        if (typeof window === 'undefined') return '';
+        return localStorage.getItem('undercodeec_chat_auth_token') || '';
+    };
+
+    const buildChatHeaders = () => {
+        const headers = { 'Content-Type': 'application/json' };
+        const token = getChatAuthToken();
+        if (token) headers.Authorization = `Bearer ${token}`;
+        return headers;
+    };
 
     // Typewriter effect state
     // Maps message index -> how many characters have been revealed so far
@@ -25,6 +75,7 @@ const AIAssistant = () => {
     const [isAudioEnabled, setIsAudioEnabled] = useState(true);
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef(null);
+    const currentTTSAudioRef = useRef(null);
 
     // Speech Recognition Setup
     const finalTranscriptRef = useRef('');
@@ -61,6 +112,19 @@ const AIAssistant = () => {
         }
     }, []);
 
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const storedUser = localStorage.getItem('undercodeec_chat_user');
+        if (storedUser) {
+            try {
+                setChatUser(JSON.parse(storedUser));
+                setChatAccessTier('registered_user');
+            } catch {
+                localStorage.removeItem('undercodeec_chat_user');
+            }
+        }
+    }, []);
+
     const toggleListening = () => {
         if (isListening) {
             recognitionRef.current?.stop();
@@ -88,9 +152,26 @@ const AIAssistant = () => {
         }
     };
 
+    // Sincronizar con el botón de mute global (AudioMuteButton)
+    useEffect(() => {
+        const handleGlobalMuteChange = () => {
+            const isMuted = localStorage.getItem('isGlobalMuted') === 'true';
+            if (isMuted) {
+                setIsAudioEnabled(false);
+                if (currentTTSAudioRef.current && !currentTTSAudioRef.current.paused) {
+                    currentTTSAudioRef.current.pause();
+                    currentTTSAudioRef.current.currentTime = 0;
+                }
+            }
+        };
+        window.addEventListener('storage', handleGlobalMuteChange);
+        return () => window.removeEventListener('storage', handleGlobalMuteChange);
+    }, []);
+
     // PERF: fetch TTS en paralelo después de mostrar el texto.
     // El backend ya no bloquea la respuesta del chat con la síntesis de voz.
     const fetchAndPlayTTS = async (text) => {
+        if (localStorage.getItem('isGlobalMuted') === 'true') return;
         try {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
             const ttsRes = await fetch(`${baseUrl}/api/chat/tts`, {
@@ -102,6 +183,7 @@ const AIAssistant = () => {
             if (ttsData.audio_base64) {
                 const audio = new Audio("data:audio/mp3;base64," + ttsData.audio_base64);
                 audio.volume = 0.9;
+                currentTTSAudioRef.current = audio;
                 audio.play().catch(e => console.log('Audio autoplay prevented by browser', e));
             }
         } catch (e) {
@@ -244,6 +326,156 @@ const AIAssistant = () => {
         handleSendMessage(text);
         setShowSuggestions(false);
     };
+
+    const submitChatAuth = async () => {
+        if (!chatAuthForm.email.trim() || !chatAuthForm.password.trim() || (chatAuthMode === 'register' && !chatAuthForm.name.trim())) {
+            appendAssistantMessage(chatAuthMode === 'register'
+                ? 'Para registrarte necesito nombre, email y clave.'
+                : 'Para iniciar sesion necesito email y clave.');
+            return;
+        }
+
+        setIsSubmittingChatAuth(true);
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+            const response = await fetch(`${baseUrl}/api/chat/auth/${chatAuthMode}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...chatAuthForm,
+                    sessionId: getChatSessionId(),
+                }),
+            });
+            updateRemainingAIRequests(response);
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                appendAssistantMessage(data.error || 'No pude activar tu cuenta del asistente.');
+                return;
+            }
+            if (data.token) localStorage.setItem('undercodeec_chat_auth_token', data.token);
+            if (data.user) {
+                localStorage.setItem('undercodeec_chat_user', JSON.stringify(data.user));
+                setChatUser(data.user);
+            }
+            if (data.accessTier) setChatAccessTier(data.accessTier);
+            if (Number.isFinite(Number(data.remainingToday))) setRemainingAIRequests(Number(data.remainingToday));
+            setShowChatAuth(false);
+            setShowLeadCapture(false);
+            appendAssistantMessage(data.message || 'Sesion activada. Ya puedes seguir usando el asistente con mas consultas.');
+        } catch (error) {
+            console.error('Error authenticating chat user:', error);
+            appendAssistantMessage('No pude activar tu cuenta ahora. Puedes dejar tus datos o continuar por WhatsApp.');
+        } finally {
+            setIsSubmittingChatAuth(false);
+        }
+    };
+
+    const submitChatForgot = async () => {
+        if (!chatAuthForm.email.trim()) {
+            appendAssistantMessage('Escribe tu email para enviarte el codigo de recuperacion.');
+            return;
+        }
+        setIsSubmittingChatAuth(true);
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+            const response = await fetch(`${baseUrl}/api/chat/auth/forgot`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: chatAuthForm.email }),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                appendAssistantMessage(data.error || 'No pude enviar el codigo de recuperacion.');
+                return;
+            }
+            setChatAuthMode('reset');
+            appendAssistantMessage(data.message || 'Si el email existe, te enviamos un codigo. Revisa tu correo e ingresalo aqui.');
+        } catch (error) {
+            console.error('Error requesting password reset:', error);
+            appendAssistantMessage('No pude enviar el codigo ahora. Intenta de nuevo en un momento.');
+        } finally {
+            setIsSubmittingChatAuth(false);
+        }
+    };
+
+    const submitChatReset = async () => {
+        if (!chatAuthForm.email.trim() || !/^\d{6}$/.test(chatAuthForm.code.trim()) || chatAuthForm.password.length < 6) {
+            appendAssistantMessage('Necesito tu email, el codigo de 6 digitos y una nueva clave de minimo 6 caracteres.');
+            return;
+        }
+        setIsSubmittingChatAuth(true);
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+            const response = await fetch(`${baseUrl}/api/chat/auth/reset`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: chatAuthForm.email,
+                    code: chatAuthForm.code.trim(),
+                    password: chatAuthForm.password,
+                    sessionId: getChatSessionId(),
+                }),
+            });
+            updateRemainingAIRequests(response);
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                appendAssistantMessage(data.error || 'No pude restablecer tu contrasena.');
+                return;
+            }
+            if (data.token) localStorage.setItem('undercodeec_chat_auth_token', data.token);
+            if (data.user) {
+                localStorage.setItem('undercodeec_chat_user', JSON.stringify(data.user));
+                setChatUser(data.user);
+            }
+            if (data.accessTier) setChatAccessTier(data.accessTier);
+            if (Number.isFinite(Number(data.remainingToday))) setRemainingAIRequests(Number(data.remainingToday));
+            setChatAuthForm({ name: '', email: '', phone: '', password: '', code: '' });
+            setShowChatAuth(false);
+            setShowLeadCapture(false);
+            appendAssistantMessage(data.message || 'Contrasena actualizada. Ya iniciaste sesion.');
+        } catch (error) {
+            console.error('Error resetting password:', error);
+            appendAssistantMessage('No pude restablecer tu contrasena ahora. Intenta de nuevo en un momento.');
+        } finally {
+            setIsSubmittingChatAuth(false);
+        }
+    };
+
+    const submitLeadCapture = async () => {
+        if (!leadForm.name.trim() || (!leadForm.phone.trim() && !leadForm.email.trim())) {
+            appendAssistantMessage('Para continuar necesito tu nombre y al menos tu WhatsApp o email.');
+            return;
+        }
+
+        setIsSubmittingLead(true);
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+            const response = await fetch(`${baseUrl}/api/chat/lead`, {
+                method: 'POST',
+                headers: buildChatHeaders(),
+                body: JSON.stringify({
+                    ...leadForm,
+                    sessionId: getChatSessionId(),
+                    message: messages.slice(-4).map(m => `${m.role}: ${m.content}`).join('\n'),
+                    source: 'ai_assistant_limit_form',
+                }),
+            });
+            updateRemainingAIRequests(response);
+            const data = await response.json().catch(() => ({}));
+            if (data.accessTier) setChatAccessTier(data.accessTier);
+            if (Number.isFinite(Number(data.remainingToday))) setRemainingAIRequests(Number(data.remainingToday));
+            appendAssistantMessage(data.message || data.error || 'Recibimos tus datos. Un asesor continuara contigo.');
+            if (response.ok) {
+                setShowLeadCapture(false);
+                setLeadForm({ name: '', phone: '', email: '', projectType: '' });
+            }
+        } catch (error) {
+            console.error('Error submitting chat lead:', error);
+            appendAssistantMessage('No pude guardar tus datos ahora. Puedes continuar directamente por WhatsApp.');
+        } finally {
+            setIsSubmittingLead(false);
+        }
+    };
     
     // Highlight effect states removed
     const showHighlight = false;
@@ -261,9 +493,20 @@ const AIAssistant = () => {
 
             const response = await fetch(backendUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: 'SALUDO_INICIAL' }),
+                headers: buildChatHeaders(),
+                body: JSON.stringify({ message: 'SALUDO_INICIAL', sessionId: getChatSessionId() }),
             });
+            updateRemainingAIRequests(response);
+
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}));
+                appendAssistantMessage(data.cta || data.error || 'No pude iniciar el asistente en este momento.');
+                if (response.status === 429) {
+                    setShowLeadCapture(true);
+                    setShowChatAuth(true);
+                }
+                return;
+            }
 
             const fullText = await consumeChatStream(response);
 
@@ -302,12 +545,24 @@ const AIAssistant = () => {
 
             const response = await fetch(backendUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: buildChatHeaders(),
                 body: JSON.stringify({
+                    sessionId: getChatSessionId(),
                     message: userMessage.content,
                     history: [...messages, userMessage],
                 }),
             });
+            updateRemainingAIRequests(response);
+
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}));
+                appendAssistantMessage(data.cta || data.error || 'No pude procesar tu mensaje. Intenta nuevamente.');
+                if (response.status === 429) {
+                    setShowLeadCapture(true);
+                    setShowChatAuth(true);
+                }
+                return;
+            }
 
             const fullText = await consumeChatStream(response);
 
@@ -552,12 +807,34 @@ const AIAssistant = () => {
                             />
                             <div>
                                 <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>Karen Asistente IA</h4>
-                                <span style={{ fontSize: '11px', opacity: 0.8, display: 'block' }}>En línea</span>
+                                {remainingAIRequests !== null && (
+                                    <span style={{
+                                        display: 'inline-block',
+                                        marginTop: '4px',
+                                        padding: '2px 7px',
+                                        borderRadius: '999px',
+                                        backgroundColor: remainingAIRequests > 0 ? 'rgba(255,255,255,0.18)' : 'rgba(255, 71, 87, 0.28)',
+                                        fontSize: '10px',
+                                        fontWeight: 600
+                                    }}>
+                                        {remainingAIRequests > 0
+                                            ? `${remainingAIRequests} consultas IA ${chatAccessTier === 'client' ? 'de cliente' : chatAccessTier === 'qualified_lead' ? 'de lead' : chatAccessTier === 'registered_user' ? 'registradas' : 'gratis'} hoy`
+                                            : 'Limite gratuito alcanzado'}
+                                    </span>
+                                )}
+                                <span style={{ fontSize: '11px', opacity: 0.8, display: 'block' }}>{chatUser?.name ? `Sesion: ${chatUser.name}` : 'En linea'}</span>
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: '5px' }}>
-                            <button 
-                                onClick={() => setIsAudioEnabled(!isAudioEnabled)}
+                            <button
+                                onClick={() => {
+                                    const newEnabled = !isAudioEnabled;
+                                    setIsAudioEnabled(newEnabled);
+                                    if (!newEnabled && currentTTSAudioRef.current && !currentTTSAudioRef.current.paused) {
+                                        currentTTSAudioRef.current.pause();
+                                        currentTTSAudioRef.current.currentTime = 0;
+                                    }
+                                }}
                                 style={{
                                     background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '5px'
                                 }}
@@ -698,6 +975,193 @@ const AIAssistant = () => {
                                         {suggestion}
                                     </button>
                                 ))}
+                            </div>
+                        )}
+
+                        {showChatAuth && (
+                            <div style={{
+                                alignSelf: 'stretch',
+                                backgroundColor: '#101828',
+                                color: '#fff',
+                                borderRadius: '16px',
+                                padding: '14px',
+                                boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '9px'
+                            }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
+                                    <strong style={{ fontSize: '14px' }}>Amplia tu cupo IA gratis</strong>
+                                    <button
+                                        onClick={() => setChatAuthMode(prev => {
+                                            if (prev === 'register') return 'login';
+                                            if (prev === 'login') return 'register';
+                                            return 'login'; // desde forgot/reset volver a login
+                                        })}
+                                        disabled={isSubmittingChatAuth}
+                                        style={{
+                                            border: '1px solid rgba(255,255,255,0.2)',
+                                            background: 'rgba(255,255,255,0.08)',
+                                            color: '#fff',
+                                            borderRadius: '999px',
+                                            padding: '5px 9px',
+                                            fontSize: '11px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {chatAuthMode === 'register' ? 'Ya tengo cuenta' : chatAuthMode === 'login' ? 'Crear cuenta' : 'Volver a iniciar sesion'}
+                                    </button>
+                                </div>
+                                <span style={{ color: 'rgba(255,255,255,0.72)', fontSize: '12px', lineHeight: 1.4 }}>
+                                    {chatAuthMode === 'register'
+                                        ? 'Registrate y subimos tu limite a 25 consultas IA hoy.'
+                                        : chatAuthMode === 'forgot'
+                                        ? 'Escribe tu email y te enviamos un codigo de 6 digitos para restablecer tu clave.'
+                                        : chatAuthMode === 'reset'
+                                        ? 'Ingresa el codigo que te enviamos y tu nueva clave.'
+                                        : 'Inicia sesion para recuperar tu cupo de usuario registrado.'}
+                                </span>
+                                {chatAuthMode === 'register' && (
+                                    <input
+                                        type="text"
+                                        placeholder="Nombre"
+                                        value={chatAuthForm.name}
+                                        onChange={(e) => setChatAuthForm(prev => ({ ...prev, name: e.target.value }))}
+                                        disabled={isSubmittingChatAuth}
+                                        style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
+                                    />
+                                )}
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={chatAuthForm.email}
+                                    onChange={(e) => setChatAuthForm(prev => ({ ...prev, email: e.target.value }))}
+                                    disabled={isSubmittingChatAuth}
+                                    style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
+                                />
+                                {chatAuthMode === 'register' && (
+                                    <input
+                                        type="text"
+                                        placeholder="WhatsApp opcional"
+                                        value={chatAuthForm.phone}
+                                        onChange={(e) => setChatAuthForm(prev => ({ ...prev, phone: e.target.value }))}
+                                        disabled={isSubmittingChatAuth}
+                                        style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
+                                    />
+                                )}
+                                {chatAuthMode === 'reset' && (
+                                    <input
+                                        type="text"
+                                        inputMode="numeric"
+                                        maxLength={6}
+                                        placeholder="Codigo de 6 digitos"
+                                        value={chatAuthForm.code}
+                                        onChange={(e) => setChatAuthForm(prev => ({ ...prev, code: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                                        disabled={isSubmittingChatAuth}
+                                        style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none', letterSpacing: '4px' }}
+                                    />
+                                )}
+                                {chatAuthMode !== 'forgot' && (
+                                    <input
+                                        type="password"
+                                        placeholder={chatAuthMode === 'reset' ? 'Nueva clave' : 'Clave'}
+                                        value={chatAuthForm.password}
+                                        onChange={(e) => setChatAuthForm(prev => ({ ...prev, password: e.target.value }))}
+                                        disabled={isSubmittingChatAuth}
+                                        style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
+                                    />
+                                )}
+                                {chatAuthMode === 'login' && (
+                                    <button
+                                        onClick={() => setChatAuthMode('forgot')}
+                                        disabled={isSubmittingChatAuth}
+                                        style={{
+                                            alignSelf: 'flex-start',
+                                            background: 'none',
+                                            border: 'none',
+                                            color: '#efa238',
+                                            fontSize: '11px',
+                                            cursor: 'pointer',
+                                            padding: 0,
+                                            textDecoration: 'underline'
+                                        }}
+                                    >
+                                        Olvide mi clave
+                                    </button>
+                                )}
+                                <button
+                                    onClick={chatAuthMode === 'forgot' ? submitChatForgot : chatAuthMode === 'reset' ? submitChatReset : submitChatAuth}
+                                    disabled={isSubmittingChatAuth}
+                                    style={{
+                                        border: 'none',
+                                        borderRadius: '999px',
+                                        padding: '10px 14px',
+                                        backgroundColor: isSubmittingChatAuth ? '#667085' : '#efa238',
+                                        color: '#101828',
+                                        fontWeight: 'bold',
+                                        cursor: isSubmittingChatAuth ? 'not-allowed' : 'pointer',
+                                        fontSize: '13px'
+                                    }}
+                                >
+                                    {isSubmittingChatAuth ? 'Procesando...' : chatAuthMode === 'register' ? 'Registrarme gratis' : chatAuthMode === 'forgot' ? 'Enviar codigo' : chatAuthMode === 'reset' ? 'Guardar nueva clave' : 'Iniciar sesion'}
+                                </button>
+                            </div>
+                        )}
+
+                        {showLeadCapture && (
+                            <div style={{
+                                alignSelf: 'stretch',
+                                backgroundColor: '#fff',
+                                border: '1px solid rgba(74, 0, 225, 0.16)',
+                                borderRadius: '16px',
+                                padding: '14px',
+                                boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '9px'
+                            }}>
+                                <strong style={{ color: '#4A00E1', fontSize: '14px' }}>Continuemos tu cotizacion</strong>
+                                <span style={{ color: '#666', fontSize: '12px', lineHeight: 1.4 }}>
+                                    Deja tus datos y un asesor puede continuar sin gastar mas consultas IA.
+                                </span>
+                                {[
+                                    ['name', 'Nombre'],
+                                    ['phone', 'WhatsApp'],
+                                    ['email', 'Email opcional'],
+                                    ['projectType', 'Tipo de proyecto']
+                                ].map(([field, placeholder]) => (
+                                    <input
+                                        key={field}
+                                        type={field === 'email' ? 'email' : 'text'}
+                                        placeholder={placeholder}
+                                        value={leadForm[field]}
+                                        onChange={(e) => setLeadForm(prev => ({ ...prev, [field]: e.target.value }))}
+                                        disabled={isSubmittingLead}
+                                        style={{
+                                            border: '1px solid #eee',
+                                            borderRadius: '10px',
+                                            padding: '9px 11px',
+                                            fontSize: '12px',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                ))}
+                                <button
+                                    onClick={submitLeadCapture}
+                                    disabled={isSubmittingLead}
+                                    style={{
+                                        border: 'none',
+                                        borderRadius: '999px',
+                                        padding: '10px 14px',
+                                        backgroundColor: isSubmittingLead ? '#bbb' : '#25D366',
+                                        color: '#fff',
+                                        fontWeight: 'bold',
+                                        cursor: isSubmittingLead ? 'not-allowed' : 'pointer',
+                                        fontSize: '13px'
+                                    }}
+                                >
+                                    {isSubmittingLead ? 'Enviando...' : 'Enviar datos'}
+                                </button>
                             </div>
                         )}
 
