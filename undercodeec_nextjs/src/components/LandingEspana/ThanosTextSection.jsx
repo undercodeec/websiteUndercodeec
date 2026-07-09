@@ -12,12 +12,13 @@ export default function ThanosTextSection() {
   const scaleRef = useRef(null);
   const bouncedRef = useRef(false);
   const rafRef = useRef(0);
-  const [reduced, setReduced] = useState(false);
+  const [reduced, setReduced] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
   const [phase, setPhase] = useState("before"); // before | pinned | after
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
     const onChange = (e) => setReduced(e.matches);
     mq.addEventListener?.("change", onChange);
     return () => mq.removeEventListener?.("change", onChange);

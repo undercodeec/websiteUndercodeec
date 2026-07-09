@@ -1,18 +1,24 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function PromoBanner() {
   const bannerRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const isBudgetLanding = /^\/(es|ec)(\/)?$/.test(pathname || "");
 
-  const handleSaberMas = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const el = document.getElementById("presupuesto");
-    if (el) {
-      e.preventDefault();
-      el.scrollIntoView({ behavior: "smooth" });
+  const handleSaberMas = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isBudgetLanding) {
+      window.location.assign("/#planes");
+      return;
     }
+
+    window.dispatchEvent(new CustomEvent("open-budget-modal"));
   };
 
   useEffect(() => {
@@ -28,7 +34,6 @@ export default function PromoBanner() {
 
   return (
     <>
-      {/* Espaciador estático que empuja el resto del contenido hacia abajo */}
       <div ref={spacerRef} aria-hidden="true" />
 
       <div
@@ -54,7 +59,7 @@ export default function PromoBanner() {
         }}
       >
         <span style={{ fontWeight: 600, letterSpacing: "0.2px" }}>
-          🔥 <strong>Descuentos Junio &amp; Julio</strong> — hasta el{" "}
+          🔥 <strong>Descuentos Junio &amp; Julio</strong> - hasta el{" "}
           <span
             style={{
               display: "inline-block",
@@ -72,8 +77,8 @@ export default function PromoBanner() {
           en nuestros planes
         </span>
 
-        <Link
-          href="/#planes"
+        <button
+          type="button"
           onClick={handleSaberMas}
           style={{
             color: "#f7b733",
@@ -82,10 +87,23 @@ export default function PromoBanner() {
             textUnderlineOffset: "3px",
             whiteSpace: "nowrap",
             fontSize: "14px",
+            background: "transparent",
+            border: "none",
+            padding: "8px 10px",
+            margin: "-8px -10px",
+            display: "inline-flex",
+            alignItems: "center",
+            minHeight: "34px",
+            lineHeight: 1.2,
+            cursor: "pointer",
+            pointerEvents: "auto",
+            position: "relative",
+            zIndex: 1,
+            touchAction: "manipulation",
           }}
         >
           Saber más →
-        </Link>
+        </button>
       </div>
     </>
   );

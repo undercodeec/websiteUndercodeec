@@ -166,6 +166,10 @@ const localBusinessJsonLdString = JSON.stringify(localBusinessJsonLd);
 const serviceJsonLdString = JSON.stringify(serviceJsonLd);
 const faqJsonLdString = JSON.stringify(faqJsonLd);
 
+const budgetClipStyles = `
+  #presupuesto { clip-path: inset(-220px 0 0 0); }
+`;
+
 const planCardGlobalStyles = `
   .plan-card-tilt {
     overflow: hidden;
@@ -298,97 +302,53 @@ const services = [
 
 const pricingPlans = [
   {
-    name: "Landing Express",
+    name: "Landing Page",
     price: "80",
     originalPrice: "250",
     discount: 68,
-    description: "Presencia online inmediata. Una página de alto impacto para captar leads o cerrar ventas rápido.",
+    description: "Para autónomos y pequeños negocios que necesitan estar en Google ya.",
     features: [
-      "Landing page de una sola sección enfocada en captación o ventas",
-      "Diseño responsive optimizado para celulares",
-      "Botón flotante de WhatsApp y llamada directa",
-      "Formulario de contacto o captura de prospectos",
-      "Sección de beneficios del servicio o producto",
-      "Dominio .com y hosting básico por 1 año",
-      "5 correos corporativos (ej: info@tunegocio.com)",
-      "SEO técnico base: título, metadescripción, H1 e indexación",
-      "1 mes de soporte posterior a la entrega",
+      "Dominio.com y Hosting por 1 año",
+      "Diseño unico optimizado",
+      "Diseño 100% adaptable (Mobile-first)",
+      "Formulario de contacto",
+      "Botones flotantes de WhatsApp y Llamadas",
+      "SEO orgánico integrado",
+      "Soporte durante 1 mes y garantía de 1 año.",
     ],
   },
   {
-    name: "Landing Estratégica",
+    name: "Web Site Lanzamiento",
     price: "120",
     originalPrice: "360",
     discount: 67,
-    description: "Convierte visitas en clientes con copywriting profesional, automatización y métricas de conversión reales.",
+    description: "Para mostrar servicios variados , gran cantidad de informacion todo desde un portal web completo. ",
     features: [
-      "Todo lo de la Landing Express",
-      "Textos persuasivos para presentar mejor tu oferta y motivar al cliente a contactarte",
-      "Formulario de contacto optimizado para captar prospectos con menos fricción",
-      "Recurso promocional o incentivo para aumentar registros, como descuento, guía o beneficio especial",
-      "Seguimiento de campañas y anuncios para medir de dónde llegan tus contactos",
-      "Integración con WhatsApp y respuestas iniciales para atender prospectos más rápido",
+      "Diseño basado, optimizadas y adaptadas a la identidad de la marca",
+      "Estructura de 5 a 10 páginas (Inicio, Servicios, Nosotros, etc.)",
+      "Diseño 100% Mobile-first (obligatorio en 2026)",
+      "Configuración SEO orgánico integrado",
+      "Formularios de contacto e integración con WhatsApp",
+      "Dominio.com y Hosting por 1 año",
+      "Soporte durante 1 mes y garantía de 1 año.",
     ],
     featured: true,
   },
   {
-    name: "Landing Premium",
+    name: "Tienda Online",
     price: "250",
     originalPrice: "550",
     discount: 55,
-    description: "Embudo de conversión automatizado con IA, pruebas A/B y métricas avanzadas para escalar resultados.",
+    description: "Tienda autogestionable perfecta para vender 24/7 sin preocuparse de procesos manuales.",
     features: [
-      "Todo lo del plan Estratégica",
-      "Estructura de embudo con secciones avanzadas de conversión",
-      "SEO ampliado y arquitectura de contenido para mejor visibilidad",
-      "Pruebas A/B para titulares, botones o formularios",
-      "Integración de asistente virtual o chatbot con IA",
-      "Animaciones premium y experiencia visual avanzada",
-      "Segmentación o calificación de prospectos",
-      "Dashboard con métricas clave para seguimiento comercial",
-    ],
-  },
-];
-
-const storePlans = [
-  {
-    name: "🛒 Tienda de Lanzamiento",
-    price: "550",
-    description: "Lanza tu primera tienda online. Todo lo necesario para vender de forma segura, rápida y sin complicaciones técnicas.",
-    features: [
-      "Catálogo autoadministrable: sube, edita o elimina productos tú mismo",
-      "Carga inicial de 50 a 100 productos para que arranques facturando",
-      "Pasarelas de pago seguras (tarjetas, PayPal, Payphone, Stripe) y compras por WhatsApp",
-      "SEO orgánico inicial para que tus productos aparezcan en Google",
-      "Configuración de métodos de envío según la zona del cliente",
-      "Dominio .com y hosting optimizado para e-commerce por 1 año",
-      "1 mes de soporte guiado + 1 año de respaldo técnico",
-    ],
-  },
-  {
-    name: "🚀 Tienda de Crecimiento",
-    price: "850",
-    description: "Escala tus ventas y automatiza procesos. Mejoramos la experiencia de compra y recuperamos clientes indecisos.",
-    features: [
-      "Todo lo de la Tienda de Lanzamiento",
-      "Filtros avanzados y buscador inteligente por talla, color o categoría",
-      "SEO técnico avanzado para posicionar tus productos sobre la competencia",
-      "Recuperación de carritos abandonados con correos automáticos",
-      "Sincronización de inventario: nunca vendas algo sin stock",
-      "Envío gratis por compra mínima o cálculo automático de impuestos",
-    ],
-    featured: true,
-  },
-  {
-    name: "💎 Tienda Élite",
-    price: "3,490",
-    description: "Infraestructura tecnológica de alto rendimiento para líderes del mercado. Velocidad extrema e integraciones corporativas.",
-    features: [
-      "Todo lo de la Tienda de Crecimiento",
-      "Arquitectura Headless ultra rápida (carga en milisegundos, mejor ranking en Google)",
-      "Conexión vía API con sistemas contables/inventario (SAP, Oracle o sistemas locales)",
-      "Recomendador con IA: sugerencias de productos personalizadas por comportamiento",
-      "Multi-idioma, multi-moneda o múltiples bodegas y almacenes",
+      "4 conceptos de diseño",
+      "Tienda administrable para subir productos",
+      "Carga inicial de 50 a 100 productos con opcion a mas",
+      "Integración de pasarelas de pago (Stripe, Paypal, etc.)",
+      "Dominio.com y Hosting por 1 año",
+      "Compra de productos por WhatsApp, Telegram y redes sociales",
+      "Métodos de envíos avanzados y SEO orgánico integrado",
+      "Soporte durante 1 mes y garantía de 1 año.",
     ],
   },
 ];
@@ -659,6 +619,82 @@ const PlanCard = ({ plan, index }) => {
       </a>
     </div>
   </div>
+  );
+};
+
+const BudgetModal = ({ open, onClose }) => {
+  if (!open) return null;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="budget-modal-title"
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 10050,
+        background: "rgba(8, 6, 14, 0.72)",
+        backdropFilter: "blur(10px)",
+        overflowY: "auto",
+        padding: "clamp(18px, 4vw, 48px)",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: "relative",
+          width: "min(1180px, 100%)",
+          margin: "0 auto",
+          background: "#fff",
+          borderRadius: "28px",
+          padding: "clamp(24px, 4vw, 48px)",
+          boxShadow: "0 30px 90px rgba(0,0,0,0.35)",
+        }}
+      >
+        <button
+          type="button"
+          aria-label="Cerrar presupuestos"
+          onClick={onClose}
+          style={{
+            position: "absolute",
+            top: "18px",
+            right: "18px",
+            width: "42px",
+            height: "42px",
+            borderRadius: "50%",
+            border: "1px solid #eadfee",
+            background: "#fff",
+            color: "#600b56",
+            fontSize: "24px",
+            lineHeight: 1,
+            cursor: "pointer",
+            zIndex: 2,
+          }}
+        >
+          ×
+        </button>
+
+        <div className="text-center mb-5">
+          <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
+            Tarifas en dólares
+          </span>
+          <h2 id="budget-modal-title" className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
+            Presupuestos transparentes, sin letra pequeña
+          </h2>
+          <p className="text-muted mx-auto" style={{ maxWidth: "650px", fontSize: "17px" }}>
+            Elige un punto de partida y contáctanos por WhatsApp sin tener que atravesar las animaciones de la página.
+          </p>
+        </div>
+
+        <div className="row g-4 justify-content-center">
+          {pricingPlans.map((plan, i) => (
+            <PlanCard key={i} plan={plan} index={i} />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -1104,8 +1140,8 @@ const VideoShowcase = () => {
 const LandingEcuador = () => {
   const router = useRouter();
   const [openFaq, setOpenFaq] = useState(0);
-  const [activePricingTab] = useState("web");
   const [hoveredService, setHoveredService] = useState(null);
+  const [budgetModalOpen, setBudgetModalOpen] = useState(false);
   const heroRef = useRef(null);
   const heroImgRef = useRef(null);
   const trustBarRef = useRef(null);
@@ -1131,6 +1167,35 @@ const LandingEcuador = () => {
     sessionStorage.setItem("preloaderShown_home", "true");
     router.push("/");
   };
+
+  const openBudgetModal = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setBudgetModalOpen(true);
+  };
+
+  useEffect(() => {
+    const openModal = () => setBudgetModalOpen(true);
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setBudgetModalOpen(false);
+    };
+
+    window.addEventListener("open-budget-modal", openModal);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("open-budget-modal", openModal);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!budgetModalOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [budgetModalOpen]);
 
   // Entrada en stagger del hero
   useEffect(() => {
@@ -1401,8 +1466,36 @@ const LandingEcuador = () => {
     return () => cancelAnimationFrame(galaxyAnimRef.current);
   }, [hoveredService]);
 
+  // Efecto "mounting" de presupuesto encima de thanos
+  useEffect(() => {
+    const section = document.getElementById("presupuesto");
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return;
+        observer.disconnect();
+        animate(section, {
+          translateY: [30, 0],
+          opacity: [0, 1],
+          scale: [0.97, 1],
+          duration: 850,
+          ease: "outExpo",
+        });
+      },
+      { threshold: 0.04 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
+      {/* clip-path en presupuesto: muestra shadow solo hacia arriba, corta la parte inferior */}
+      <style>{budgetClipStyles}</style>
+      <BudgetModal open={budgetModalOpen} onClose={() => setBudgetModalOpen(false)} />
+
       {/* JSON-LD: Organization, LocalBusiness/ProfessionalService, Service, FAQPage */}
       <script
         type="application/ld+json"
@@ -1473,8 +1566,9 @@ const LandingEcuador = () => {
                   Expertos en diseño y desarrollo de páginas web profesionales, aplicaciones móviles y SEO en Quito, Guayaquil y todo el Ecuador. Impulsamos tu negocio digital con presupuestos que se ajustan a tu bolsillo.
                 </p>
                 <div data-hero-anim className="d-flex flex-wrap gap-3 mt-4" style={{ opacity: 0 }}>
-                  <a
-                    href="#presupuesto"
+                  <button
+                    type="button"
+                    onClick={openBudgetModal}
                     data-hero-tilt
                     className="btn btn-lg fw-bold px-4 py-3 hero-cta-tilt"
                     style={{
@@ -1487,7 +1581,7 @@ const LandingEcuador = () => {
                     }}
                   >
                     Pide tu presupuesto gratis
-                  </a>
+                  </button>
 <button
                      type="button"
                      onClick={handleVerPortafolios}
@@ -1675,52 +1769,38 @@ const LandingEcuador = () => {
         <ThanosTextSection />
 
 
-        {/* PRICING */}
-        <section id="presupuesto" className="py-5" style={{ paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern-reverse" style={{ width: "140%", height: "140%", objectFit: "cover", opacity: 0.08, filter: "brightness(0)", pointerEvents: "none" }} />
-          </div>
-          <div className="container" style={{ position: "relative", zIndex: 2 }}>
-            <div className="text-center mb-4 animate-fadeUp">
+        {/* PRICING — card que sube encima de thanos */}
+        <section
+          id="presupuesto"
+          className="py-5"
+          style={{
+            scrollMarginTop: "calc(var(--promo-banner-height, 0px) + 16px)",
+            paddingTop: "80px",
+            paddingBottom: "80px",
+            background: "#fff",
+            boxShadow: "0 -28px 72px rgba(21,14,35,0.18), 0 -4px 20px rgba(96,11,86,0.10)",
+            position: "relative",
+            zIndex: 2,
+            marginTop: "-80px",
+          }}
+        >
+          <div className="container">
+            <div className="text-center mb-5 animate-fadeUp">
+              <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
+                Tarifas en dólares
+              </span>
               <h2 className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
-                Planes y Precios
+                Presupuestos transparentes, sin letra pequeña
               </h2>
               <p className="text-muted mx-auto" style={{ maxWidth: "650px", fontSize: "17px" }}>
-                Elige la categoría que mejor describe tu proyecto. Cada plan incluye presupuesto cerrado en dólares, sin sorpresas.
+                Estos son nuestros puntos de partida. Cada proyecto se ajusta a tus necesidades reales con un presupuesto cerrado.
               </p>
             </div>
-
-           
-
-            {/* TAB: WEBS CORPORATIVAS */}
-            {activePricingTab === "web" && (
-              <>
-                <div className="row g-4 justify-content-center">
-                  {pricingPlans.map((plan, i) => (
-                    <PlanCard key={i} plan={plan} index={i} />
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* TAB: TIENDAS ONLINE */}
-            {activePricingTab === "store" && (
-              <>
-                <div className="text-center mb-4 animate-fadeUp">
-                  <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
-                    Tiendas Online · Tu Sucursal 24/7
-                  </span>
-                  <p className="text-muted mt-2 mx-auto" style={{ maxWidth: "600px", fontSize: "16px" }}>
-                    Vende tus productos en internet las 24 horas, todos los días. Desde tu primera tienda hasta una plataforma de alto rendimiento.
-                  </p>
-                </div>
-                <div className="row g-4 justify-content-center">
-                  {storePlans.map((plan, i) => (
-                    <PlanCard key={i} plan={plan} index={i} />
-                  ))}
-                </div>
-              </>
-            )}
+            <div className="row g-4 justify-content-center">
+              {pricingPlans.map((plan, i) => (
+                <PlanCard key={i} plan={plan} index={i} />
+              ))}
+            </div>
           </div>
         </section>
 

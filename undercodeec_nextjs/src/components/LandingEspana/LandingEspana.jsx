@@ -550,6 +550,82 @@ const PlanCard = ({ plan, index }) => {
   );
 };
 
+const BudgetModal = ({ open, onClose }) => {
+  if (!open) return null;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="budget-modal-title"
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 10050,
+        background: "rgba(8, 6, 14, 0.72)",
+        backdropFilter: "blur(10px)",
+        overflowY: "auto",
+        padding: "clamp(18px, 4vw, 48px)",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: "relative",
+          width: "min(1180px, 100%)",
+          margin: "0 auto",
+          background: "#fff",
+          borderRadius: "28px",
+          padding: "clamp(24px, 4vw, 48px)",
+          boxShadow: "0 30px 90px rgba(0,0,0,0.35)",
+        }}
+      >
+        <button
+          type="button"
+          aria-label="Cerrar presupuestos"
+          onClick={onClose}
+          style={{
+            position: "absolute",
+            top: "18px",
+            right: "18px",
+            width: "42px",
+            height: "42px",
+            borderRadius: "50%",
+            border: "1px solid #eadfee",
+            background: "#fff",
+            color: "#600b56",
+            fontSize: "24px",
+            lineHeight: 1,
+            cursor: "pointer",
+            zIndex: 2,
+          }}
+        >
+          ×
+        </button>
+
+        <div className="text-center mb-5">
+          <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
+            Tarifas en euros
+          </span>
+          <h2 id="budget-modal-title" className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
+            Presupuestos transparentes, sin letra pequeña
+          </h2>
+          <p className="text-muted mx-auto" style={{ maxWidth: "650px", fontSize: "17px" }}>
+            Elige un punto de partida y contáctanos por WhatsApp sin tener que atravesar las animaciones de la página.
+          </p>
+        </div>
+
+        <div className="row g-4 justify-content-center">
+          {pricingPlans.map((plan, i) => (
+            <PlanCard key={i} plan={plan} index={i} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const VideoShowcase = () => {
   const sectionRef = useRef(null);
   const videoWrapRef = useRef(null);
@@ -971,9 +1047,39 @@ const LandingEspana = () => {
   const router = useRouter();
   const [openFaq, setOpenFaq] = useState(0);
   const [hoveredService, setHoveredService] = useState(null);
+  const [budgetModalOpen, setBudgetModalOpen] = useState(false);
   const galaxyCanvasRef = useRef(null);
   const galaxyAnimRef = useRef(null);
   const galaxyMouseRef = useRef({ x: 0, y: 0 });
+
+  const openBudgetModal = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setBudgetModalOpen(true);
+  };
+
+  useEffect(() => {
+    const openModal = () => setBudgetModalOpen(true);
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setBudgetModalOpen(false);
+    };
+
+    window.addEventListener("open-budget-modal", openModal);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("open-budget-modal", openModal);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!budgetModalOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [budgetModalOpen]);
 
   // Tracking Meta Pixel ViewContent
   useEffect(() => {
@@ -1084,6 +1190,7 @@ const LandingEspana = () => {
     <>
       {/* clip-path en presupuesto: muestra shadow solo hacia arriba, corta la parte inferior */}
       <style>{budgetClipStyles}</style>
+      <BudgetModal open={budgetModalOpen} onClose={() => setBudgetModalOpen(false)} />
 
       {/* JSON-LD: Organization, Service, FAQPage */}
       <script
@@ -1146,8 +1253,9 @@ const LandingEspana = () => {
                   Sin postureo, sin letra pequeña y con presupuestos que se ajustan a tu billetera. Diseñamos páginas web, desarrollamos aplicaciones móviles para Android e iOS y posicionamos tu negocio en Google para que te encuentren tus clientes en Madrid, Barcelona, Valencia y toda España.
                 </p>
                 <div className="d-flex flex-wrap gap-3 mt-4">
-                  <a
-                    href="#presupuesto"
+                  <button
+                    type="button"
+                    onClick={openBudgetModal}
                     className="btn btn-lg fw-bold px-4 py-3"
                     style={{
                       borderRadius: "50px",
@@ -1157,7 +1265,7 @@ const LandingEspana = () => {
                     }}
                   >
                     Pide tu presupuesto gratis
-                  </a>
+                  </button>
                   <button
                     type="button"
                     onClick={(e) => {
@@ -1323,6 +1431,7 @@ const LandingEspana = () => {
           id="presupuesto"
           className="py-5"
           style={{
+            scrollMarginTop: "calc(var(--promo-banner-height, 0px) + 16px)",
             paddingTop: "80px",
             paddingBottom: "80px",
             background: "#fff",
