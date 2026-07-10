@@ -8,6 +8,7 @@ export default function PromoBanner() {
   const spacerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const isBudgetLanding = /^\/(es|ec)(\/)?$/.test(pathname || "");
+  const isStandaloneStackPage = /^\/recursos-humanos(\/)?$/.test(pathname || "");
 
   const handleSaberMas = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -31,6 +32,8 @@ export default function PromoBanner() {
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
+
+  if (isStandaloneStackPage) return null;
 
   return (
     <>

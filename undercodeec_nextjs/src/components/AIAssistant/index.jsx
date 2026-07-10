@@ -7,7 +7,7 @@ import VimeoFacade from '@/components/Vimeo/VimeoFacade';
 
 const AIAssistant = () => {
     const pathname = usePathname();
-    const isHiddenPath = pathname?.startsWith('/admin') || pathname?.startsWith('/contratos');
+    const isHiddenPath = pathname?.startsWith('/admin') || pathname?.startsWith('/contratos') || pathname?.startsWith('/recursos-humanos');
     const [isOpen, setIsOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [chatModeSelected, setChatModeSelected] = useState(false);
@@ -316,12 +316,11 @@ const AIAssistant = () => {
     // Quick Replies Suggestions
     const [showSuggestions, setShowSuggestions] = useState(true);
     const suggestions = [
-        "👉 Quiero cotizar un proyecto nuevo",
-        "🔄 Necesito modernizar mi web actual",
-        "💼 Me gustaría ver ejemplos de su trabajo",
-        "📞 Deseo comunicarme con un asesor humano"
+        "Quiero cotizar un proyecto nuevo",
+        "Necesito modernizar mi web actual",
+        "Quiero mejorar mi SEO o aparecer en Google",
+        "Deseo comunicarme con un asesor humano"
     ];
-
     const handleSuggestionClick = (text) => {
         handleSendMessage(text);
         setShowSuggestions(false);
@@ -442,8 +441,8 @@ const AIAssistant = () => {
     };
 
     const submitLeadCapture = async () => {
-        if (!leadForm.name.trim() || (!leadForm.phone.trim() && !leadForm.email.trim())) {
-            appendAssistantMessage('Para continuar necesito tu nombre y al menos tu WhatsApp o email.');
+        if (!leadForm.name.trim() || !leadForm.phone.trim() || !leadForm.projectType.trim()) {
+            appendAssistantMessage('Para continuar necesito tu nombre, WhatsApp y tipo de proyecto.');
             return;
         }
 
@@ -1122,7 +1121,7 @@ const AIAssistant = () => {
                             }}>
                                 <strong style={{ color: '#4A00E1', fontSize: '14px' }}>Continuemos tu cotizacion</strong>
                                 <span style={{ color: '#666', fontSize: '12px', lineHeight: 1.4 }}>
-                                    Deja tus datos y un asesor puede continuar sin gastar mas consultas IA.
+                                    Deja tu nombre, WhatsApp y tipo de proyecto. Ventas puede continuar por WhatsApp sin hacerte repetir el contexto.
                                 </span>
                                 {[
                                     ['name', 'Nombre'],

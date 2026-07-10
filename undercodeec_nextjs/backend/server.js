@@ -2776,6 +2776,122 @@ app.post('/api/send-order-emails', async (req, res) => {
 });
 
 
+// Endpoint para postulaciones de Recursos Humanos (sin base de datos).
+app.post('/api/send-hr-application', async (req, res) => {
+  const {
+    fullName,
+    email,
+    phone,
+    city,
+    position,
+    experience,
+    portfolio,
+    availability,
+    workMode,
+    skills,
+    motivation,
+    terms,
+    recaptchaToken
+  } = req.body || {};
+
+  const recaptchaCheck = await verifyRecaptcha(recaptchaToken);
+  if (!recaptchaCheck.ok) {
+    if (recaptchaCheck.error === 'config_missing') {
+      return res.status(500).json({ error: 'Error de configuracion del servidor' });
+    }
+    return res.status(400).json({ error: 'Verificacion de ReCAPTCHA fallida' });
+  }
+
+  if (!fullName || !email || !phone || !position || !experience || !motivation || !terms) {
+    return res.status(400).json({ error: 'Datos de postulacion incompletos' });
+  }
+
+  if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    return res.status(400).json({ error: 'Email invalido' });
+  }
+
+  const safe = escapeFieldsForHtml({
+    fullName,
+    email,
+    phone,
+    city,
+    position,
+    experience,
+    portfolio,
+    availability,
+    workMode,
+    skills,
+    motivation
+  });
+
+  const submittedAt = new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' });
+  const rawPortfolio = typeof portfolio === 'string' ? portfolio.trim() : '';
+  const portfolioHref = /^https?:\/\//i.test(rawPortfolio) ? escapeHtml(rawPortfolio) : '';
+  const adminEmailHtml = `<!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body{font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;color:#333;}
+      .container{background:#fff;padding:30px;border-radius:8px;max-width:680px;margin:auto;}
+      h2{color:#600b56;border-bottom:2px solid #efa238;padding-bottom:10px;margin-top:0;}
+      h3{color:#150e23;margin:24px 0 12px;}
+      .row{margin-bottom:12px;}
+      .label{font-weight:bold;color:#555;display:block;margin-bottom:3px;}
+      .value{color:#222;line-height:1.5;white-space:pre-wrap;}
+      .badge{display:inline-block;background:#f7eef6;color:#600b56;padding:6px 10px;border-radius:999px;font-weight:bold;}
+      .footer{font-size:12px;color:#777;margin-top:28px;border-top:1px solid #eee;padding-top:14px;}
+      a{color:#600b56;}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Nueva postulacion de Recursos Humanos</h2>
+      <p>Se recibio una postulacion desde la pagina de carreras de Undercodeec.</p>
+
+      <h3>Datos del candidato</h3>
+      <div class="row"><span class="label">Nombre completo</span><span class="value">${safe.fullName}</span></div>
+      <div class="row"><span class="label">Email</span><span class="value">${safe.email}</span></div>
+      <div class="row"><span class="label">Telefono / WhatsApp</span><span class="value">${safe.phone}</span></div>
+      <div class="row"><span class="label">Ciudad / pais</span><span class="value">${safe.city || 'No indicado'}</span></div>
+
+      <h3>Perfil</h3>
+      <div class="row"><span class="label">Area de interes</span><span class="badge">${safe.position}</span></div>
+      <div class="row"><span class="label">Experiencia</span><span class="value">${safe.experience}</span></div>
+      <div class="row"><span class="label">Disponibilidad</span><span class="value">${safe.availability || 'No indicada'}</span></div>
+      <div class="row"><span class="label">Modalidad preferida</span><span class="value">${safe.workMode || 'No indicada'}</span></div>
+      <div class="row"><span class="label">Portafolio / LinkedIn / CV</span><span class="value">${portfolioHref ? `<a href="${portfolioHref}">${portfolioHref}</a>` : (safe.portfolio || 'No indicado')}</span></div>
+      <div class="row"><span class="label">Habilidades principales</span><span class="value">${safe.skills || 'No indicadas'}</span></div>
+      <div class="row"><span class="label">Motivacion</span><span class="value">${safe.motivation}</span></div>
+
+      <div class="footer">
+        Enviado el ${escapeHtml(submittedAt)}. Este correo fue generado automaticamente por el sistema de Undercodeec.
+      </div>
+    </div>
+  </body>
+  </html>`;
+
+  try {
+    await transporter.sendMail({
+      from: `"Undercodeec Recursos Humanos" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_BUSINESS || process.env.EMAIL_USER,
+      subject: `Nueva postulacion RRHH: ${fullName} - ${position}`,
+      html: adminEmailHtml
+    });
+
+    await sendUserConfirmationEmail({
+      to: email,
+      name: fullName,
+      formLabel: 'tu postulacion para trabajar con Undercodeec'
+    });
+
+    return res.json({ success: true, message: 'Postulacion enviada correctamente' });
+  } catch (error) {
+    console.error('Error procesando postulacion RRHH:', error.message);
+    return res.status(500).json({ error: 'Error interno al enviar la postulacion' });
+  }
+});
+
 // Endpoint para enviar solicitud de desarrollo de software
 app.post('/api/send-software-request', async (req, res) => {
   const { 
