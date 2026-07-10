@@ -1,0 +1,45 @@
+/* .canvas-wrapper original: fixed, full viewport, arranca oculto abajo. */
+.canvasWrapper {
+  z-index: 30;
+  width: 0%;
+  height: 100%;
+  height: 100svh;
+  position: fixed;
+  inset: 0% 0% auto;
+  overflow: hidden;
+  transform: translateY(99.26svh);
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(107, 214, 61, 0.2), transparent 18%),
+    radial-gradient(circle at 50% 105%, rgba(96, 11, 86, 0.55), transparent 42%),
+    #030307;
+}
+
+/* .canvas_sequence original + recolor azul -> morado del hero. */
+.canvasSequence {
+  z-index: 999;
+  width: 100vw;
+  height: 100%;
+  position: absolute;
+  inset: 0%;
+  overflow: clip;
+  object-fit: cover;
+  filter: hue-rotate(100deg) saturate(1.1) brightness(0.95);
+}
+
+/* Seccion ancla: define la distancia de scroll del takeover. */
+.anchor {
+  position: relative;
+  height: 240vh;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(107, 214, 61, 0.2), transparent 18%),
+    radial-gradient(circle at 50% 105%, rgba(96, 11, 86, 0.55), transparent 42%),
+    #030307;
+}
+
+@media (max-width: 640px) {
+  .anchor {
+    height: 200vh;
+  }
+}
