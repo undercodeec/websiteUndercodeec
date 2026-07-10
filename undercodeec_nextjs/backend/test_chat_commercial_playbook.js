@@ -17,9 +17,29 @@ const priceIntent = classifyCommercialIntent('Cuanto cuesta una pagina web?');
 assert.strictEqual(priceIntent.intent, 'faq_price');
 assert.strictEqual(priceIntent.shouldOfferPayment, false);
 
+// Primer toque de precio: rango gancho (una landing), no la tabla completa.
 const priceReply = getStaticChatReply('Cuanto cuesta una pagina web?');
-assertIncludes(priceReply, 'landing desde $80');
+assertIncludes(priceReply, 'desde $80');
 assertIncludes(priceReply, 'Para no recomendarte algo que no necesitas');
+assert.ok(!priceReply.includes('tienda online desde'), 'El primer toque no debe volcar todos los planes');
+
+// "Cotizar un proyecto nuevo" ya no se trata como consulta de precios:
+// debe pasar a diagnostico (sin respuesta estatica de precios).
+const quoteIntent = classifyCommercialIntent('Quiero cotizar un proyecto nuevo');
+assert.notStrictEqual(quoteIntent.intent, 'faq_price');
+assert.strictEqual(getStaticChatReply('Quiero cotizar un proyecto nuevo'), null);
+
+// En seguimiento (mas de un turno del usuario) las intenciones consultivas
+// las maneja el modelo con contexto: no se repite el bloque estatico.
+const followUpHistory = [
+  { role: 'assistant', content: 'Hola, soy Karen.' },
+  { role: 'user', content: 'Quiero cotizar un proyecto nuevo' },
+  { role: 'assistant', content: 'Cual es el objetivo principal?' },
+  { role: 'user', content: 'Ya compre hosting y quiero saber el costo total y el tiempo' },
+];
+assert.strictEqual(getStaticChatReply('Ya compre hosting y quiero saber el costo total', followUpHistory), null);
+// El primer toque de precio si conserva la respuesta estatica barata.
+assert.ok(getStaticChatReply('Cuanto cuesta una pagina web?', [{ role: 'user', content: 'Cuanto cuesta una pagina web?' }]));
 
 const seoIntent = classifyCommercialIntent('Quiero aparecer en Google con SEO');
 assert.strictEqual(seoIntent.intent, 'seo_marketing');

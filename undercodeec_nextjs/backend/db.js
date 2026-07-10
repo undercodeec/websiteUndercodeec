@@ -162,6 +162,17 @@ async function initDatabase() {
     await ensureIndex('chat_users', 'idx_chat_users_is_client', 'is_client');
     await ensureColumn('chat_users', 'reset_code_hash', 'VARCHAR(255) NULL');
     await ensureColumn('chat_users', 'reset_expires', 'DATETIME NULL');
+    // Verificacion de correo para el modo Asistente IA.
+    const addedEmailVerified = await ensureColumn('chat_users', 'email_verified', 'TINYINT NOT NULL DEFAULT 0');
+    await ensureColumn('chat_users', 'verify_code_hash', 'VARCHAR(255) NULL');
+    await ensureColumn('chat_users', 'verify_expires', 'DATETIME NULL');
+    // Backfill: al agregar la columna por primera vez, los usuarios existentes
+    // quedan verificados para no bloquearlos con el nuevo requisito de IA.
+    if (addedEmailVerified) {
+      await pool.query('UPDATE chat_users SET email_verified = 1');
+    }
+    // Separar IA vs Bot en el analisis de campanas.
+    await ensureColumn('chat_sessions', 'mode', 'VARCHAR(20) NULL');
     console.log('✅ Database tables checked/created successfully');
   } catch (error) {
     console.error('❌ Error initializing database tables:', error.message);
@@ -176,7 +187,9 @@ async function ensureColumn(tableName, columnName, definition) {
   );
   if (rows.length === 0) {
     await pool.query(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+    return true;
   }
+  return false;
 }
 
 async function ensureIndex(tableName, indexName, columnName) {

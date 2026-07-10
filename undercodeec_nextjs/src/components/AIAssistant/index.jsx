@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
-import { RiRobot2Line, RiCloseLine, RiSendPlaneFill, RiMicFill, RiMicOffFill, RiVolumeUpFill, RiVolumeMuteFill } from 'react-icons/ri';
+import { RiRobot2Line, RiCloseLine, RiSendPlaneFill, RiMicFill, RiMicOffFill, RiVolumeUpFill, RiVolumeMuteFill, RiChat3Line } from 'react-icons/ri';
 import VimeoFacade from '@/components/Vimeo/VimeoFacade';
 
 const AIAssistant = () => {
@@ -11,6 +11,8 @@ const AIAssistant = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [chatModeSelected, setChatModeSelected] = useState(false);
+    const [chatMode, setChatMode] = useState(null); // 'ia' | 'bot'
+    const [pendingVerifyEmail, setPendingVerifyEmail] = useState('');
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -326,7 +328,30 @@ const AIAssistant = () => {
         setShowSuggestions(false);
     };
 
+    // Al autenticar/verificar con exito: guarda sesion y, si el usuario eligio IA,
+    // arranca la conversacion con el asesor personal.
+    const onChatAuthSuccess = (data) => {
+        if (data.token) localStorage.setItem('undercodeec_chat_auth_token', data.token);
+        if (data.user) {
+            localStorage.setItem('undercodeec_chat_user', JSON.stringify(data.user));
+            setChatUser(data.user);
+        }
+        if (data.accessTier) setChatAccessTier(data.accessTier);
+        setShowChatAuth(false);
+        setShowLeadCapture(false);
+        setPendingVerifyEmail('');
+        setChatAuthForm(prev => ({ ...prev, password: '', code: '' }));
+        if (chatMode === 'ia') {
+            setChatModeSelected(true);
+            setShowSuggestions(false);
+            sendGreeting('ia');
+        } else {
+            appendAssistantMessage(data.message || 'Sesion activada.');
+        }
+    };
+
     const submitChatAuth = async () => {
+        if (chatAuthMode === 'verify') return submitChatVerify();
         if (!chatAuthForm.email.trim() || !chatAuthForm.password.trim() || (chatAuthMode === 'register' && !chatAuthForm.name.trim())) {
             appendAssistantMessage(chatAuthMode === 'register'
                 ? 'Para registrarte necesito nombre, email y clave.'
@@ -347,23 +372,49 @@ const AIAssistant = () => {
             });
             updateRemainingAIRequests(response);
             const data = await response.json().catch(() => ({}));
+            // Cuenta creada o login sin verificar: pasar al paso de codigo.
+            if (data.requiresVerification) {
+                setPendingVerifyEmail(data.email || chatAuthForm.email.trim());
+                setChatAuthMode('verify');
+                appendAssistantMessage(data.message || data.error || 'Te enviamos un codigo de 6 digitos a tu correo. Ingresalo para activar tu Asistente IA.');
+                return;
+            }
             if (!response.ok) {
                 appendAssistantMessage(data.error || 'No pude activar tu cuenta del asistente.');
                 return;
             }
-            if (data.token) localStorage.setItem('undercodeec_chat_auth_token', data.token);
-            if (data.user) {
-                localStorage.setItem('undercodeec_chat_user', JSON.stringify(data.user));
-                setChatUser(data.user);
-            }
-            if (data.accessTier) setChatAccessTier(data.accessTier);
-            if (Number.isFinite(Number(data.remainingToday))) setRemainingAIRequests(Number(data.remainingToday));
-            setShowChatAuth(false);
-            setShowLeadCapture(false);
-            appendAssistantMessage(data.message || 'Sesion activada. Ya puedes seguir usando el asistente con mas consultas.');
+            onChatAuthSuccess(data);
         } catch (error) {
             console.error('Error authenticating chat user:', error);
             appendAssistantMessage('No pude activar tu cuenta ahora. Puedes dejar tus datos o continuar por WhatsApp.');
+        } finally {
+            setIsSubmittingChatAuth(false);
+        }
+    };
+
+    const submitChatVerify = async () => {
+        const email = (pendingVerifyEmail || chatAuthForm.email).trim();
+        if (!email || !/^\d{6}$/.test(chatAuthForm.code.trim())) {
+            appendAssistantMessage('Ingresa el codigo de 6 digitos que enviamos a tu correo.');
+            return;
+        }
+        setIsSubmittingChatAuth(true);
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+            const response = await fetch(`${baseUrl}/api/chat/auth/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, code: chatAuthForm.code.trim(), sessionId: getChatSessionId() }),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                appendAssistantMessage(data.error || 'Codigo invalido o expirado. Solicita uno nuevo.');
+                return;
+            }
+            onChatAuthSuccess(data);
+        } catch (error) {
+            console.error('Error verifying chat user:', error);
+            appendAssistantMessage('No pude verificar el codigo ahora. Intenta de nuevo en un momento.');
         } finally {
             setIsSubmittingChatAuth(false);
         }
@@ -481,11 +532,9 @@ const AIAssistant = () => {
 
     const dismissHighlight = () => {};
 
-    const selectMode = async (useVoice) => {
-        setIsAudioEnabled(useVoice);
-        setChatModeSelected(true);
+    // Envia el saludo inicial del backend segun el modo elegido (ia | bot).
+    const sendGreeting = async (mode) => {
         setIsLoading(true);
-
         try {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
             const backendUrl = `${baseUrl}/api/chat`;
@@ -493,24 +542,20 @@ const AIAssistant = () => {
             const response = await fetch(backendUrl, {
                 method: 'POST',
                 headers: buildChatHeaders(),
-                body: JSON.stringify({ message: 'SALUDO_INICIAL', sessionId: getChatSessionId() }),
+                body: JSON.stringify({ message: 'SALUDO_INICIAL', sessionId: getChatSessionId(), mode }),
             });
             updateRemainingAIRequests(response);
 
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));
                 appendAssistantMessage(data.cta || data.error || 'No pude iniciar el asistente en este momento.');
-                if (response.status === 429) {
-                    setShowLeadCapture(true);
-                    setShowChatAuth(true);
-                }
                 return;
             }
 
             const fullText = await consumeChatStream(response);
 
             if (fullText) {
-                if (useVoice) {
+                if (isAudioEnabled && mode === 'ia') {
                     fetchAndPlayTTS(fullText);
                 } else {
                     playNotificationSound();
@@ -520,6 +565,26 @@ const AIAssistant = () => {
             console.error('Error sending init message:', error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    // El usuario elige entre Asistente IA (requiere registro + correo verificado)
+    // y ChatBot automatico (sin registro, sin modelo).
+    const selectChatMode = (mode) => {
+        setChatMode(mode);
+        setChatModeSelected(true);
+        if (mode === 'ia') {
+            if (chatUser && chatUser.emailVerified) {
+                setShowSuggestions(false);
+                sendGreeting('ia');
+            } else {
+                // Falta registrarse o verificar el correo antes de usar la IA.
+                setChatAuthMode(chatUser ? 'login' : 'register');
+                setShowChatAuth(true);
+            }
+        } else {
+            setShowSuggestions(true);
+            sendGreeting('bot');
         }
     };
 
@@ -549,6 +614,7 @@ const AIAssistant = () => {
                     sessionId: getChatSessionId(),
                     message: userMessage.content,
                     history: [...messages, userMessage],
+                    mode: chatMode,
                 }),
             });
             updateRemainingAIRequests(response);
@@ -556,8 +622,10 @@ const AIAssistant = () => {
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));
                 appendAssistantMessage(data.cta || data.error || 'No pude procesar tu mensaje. Intenta nuevamente.');
-                if (response.status === 429) {
-                    setShowLeadCapture(true);
+                // El Asistente IA requiere registro + correo verificado.
+                if (response.status === 401 || data.requiresAuth || data.requiresVerification) {
+                    setChatAuthMode(data.requiresVerification ? 'verify' : (chatUser ? 'login' : 'register'));
+                    if (data.email) setPendingVerifyEmail(data.email);
                     setShowChatAuth(true);
                 }
                 return;
@@ -806,7 +874,7 @@ const AIAssistant = () => {
                             />
                             <div>
                                 <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>Karen Asistente IA</h4>
-                                {remainingAIRequests !== null && (
+                                {chatMode !== 'ia' && remainingAIRequests !== null && (
                                     <span style={{
                                         display: 'inline-block',
                                         marginTop: '4px',
@@ -872,20 +940,20 @@ const AIAssistant = () => {
                         {!chatModeSelected ? (
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '15px', padding: '10px', textAlign: 'center' }}>
                                 <h3 style={{ margin: 0, color: '#333', fontSize: '18px', fontWeight: 'bold' }}>¡Hola!</h3>
-                                <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px', lineHeight: '1.4' }}>Para brindarte una mejor experiencia, elige tu modo de interacción:</p>
+                                <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px', lineHeight: '1.4' }}>Elige cómo quieres conversar. El Asistente IA es tu asesor personal (requiere registro); el ChatBot da respuestas rápidas al instante.</p>
                                 
                                 <button 
-                                    onClick={() => selectMode(true)}
+                                    onClick={() => selectChatMode('ia')}
                                     style={{ width: '100%', padding: '14px 15px', borderRadius: '12px', border: 'none', backgroundColor: '#4A00E1', color: 'white', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 10px rgba(74,0,225,0.2)' }}
                                 >
-                                    <RiVolumeUpFill size={20} /> Conversar por Voz
+                                    <RiRobot2Line size={20} /> Asistente IA (asesor personal)
                                 </button>
                                 
                                 <button 
-                                    onClick={() => selectMode(false)}
+                                    onClick={() => selectChatMode('bot')}
                                     style={{ width: '100%', padding: '14px 15px', borderRadius: '12px', border: '1px solid #ddd', backgroundColor: 'white', color: '#555', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                                 >
-                                    <RiRobot2Line size={20} /> Conversar por Chat
+                                    <RiChat3Line size={20} /> ChatBot automatico (respuestas rapidas)
                                 </button>
                             </div>
                         ) : (
@@ -938,7 +1006,7 @@ const AIAssistant = () => {
                                     );
                                 })}
                         
-                        {/* Cajas de sugerencias o "Quick Replies" */}                                {showSuggestions && messages.length <= 1 && (
+                        {/* Cajas de sugerencias o "Quick Replies" */}                                {chatMode === 'bot' && showSuggestions && messages.length <= 1 && (
                             <div style={{
                                 display: 'flex',
                                 flexDirection: 'column',
@@ -990,7 +1058,7 @@ const AIAssistant = () => {
                                 gap: '9px'
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'center' }}>
-                                    <strong style={{ fontSize: '14px' }}>Amplia tu cupo IA gratis</strong>
+                                    <strong style={{ fontSize: '14px' }}>{chatAuthMode === 'verify' ? 'Verifica tu correo' : chatAuthMode === 'register' ? 'Crea tu Asistente IA' : (chatAuthMode === 'forgot' || chatAuthMode === 'reset') ? 'Recupera tu acceso' : 'Inicia sesion en tu IA'}</strong>
                                     <button
                                         onClick={() => setChatAuthMode(prev => {
                                             if (prev === 'register') return 'login';
@@ -1012,8 +1080,10 @@ const AIAssistant = () => {
                                     </button>
                                 </div>
                                 <span style={{ color: 'rgba(255,255,255,0.72)', fontSize: '12px', lineHeight: 1.4 }}>
-                                    {chatAuthMode === 'register'
-                                        ? 'Registrate y subimos tu limite a 25 consultas IA hoy.'
+                                    {chatAuthMode === 'verify'
+                                        ? 'Ingresa el codigo de 6 digitos que enviamos a tu correo para activar tu Asistente IA.'
+                                        : chatAuthMode === 'register'
+                                        ? 'Registrate con tu correo para usar el Asistente IA sin limites como tu asesor personal.'
                                         : chatAuthMode === 'forgot'
                                         ? 'Escribe tu email y te enviamos un codigo de 6 digitos para restablecer tu clave.'
                                         : chatAuthMode === 'reset'
@@ -1033,9 +1103,9 @@ const AIAssistant = () => {
                                 <input
                                     type="email"
                                     placeholder="Email"
-                                    value={chatAuthForm.email}
+                                    value={chatAuthMode === 'verify' ? (pendingVerifyEmail || chatAuthForm.email) : chatAuthForm.email}
                                     onChange={(e) => setChatAuthForm(prev => ({ ...prev, email: e.target.value }))}
-                                    disabled={isSubmittingChatAuth}
+                                    disabled={isSubmittingChatAuth || chatAuthMode === 'verify'}
                                     style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
                                 />
                                 {chatAuthMode === 'register' && (
@@ -1048,7 +1118,7 @@ const AIAssistant = () => {
                                         style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
                                     />
                                 )}
-                                {chatAuthMode === 'reset' && (
+                                {(chatAuthMode === 'reset' || chatAuthMode === 'verify') && (
                                     <input
                                         type="text"
                                         inputMode="numeric"
@@ -1060,7 +1130,7 @@ const AIAssistant = () => {
                                         style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none', letterSpacing: '4px' }}
                                     />
                                 )}
-                                {chatAuthMode !== 'forgot' && (
+                                {chatAuthMode !== 'forgot' && chatAuthMode !== 'verify' && (
                                     <input
                                         type="password"
                                         placeholder={chatAuthMode === 'reset' ? 'Nueva clave' : 'Clave'}
@@ -1102,7 +1172,7 @@ const AIAssistant = () => {
                                         fontSize: '13px'
                                     }}
                                 >
-                                    {isSubmittingChatAuth ? 'Procesando...' : chatAuthMode === 'register' ? 'Registrarme gratis' : chatAuthMode === 'forgot' ? 'Enviar codigo' : chatAuthMode === 'reset' ? 'Guardar nueva clave' : 'Iniciar sesion'}
+                                    {isSubmittingChatAuth ? 'Procesando...' : chatAuthMode === 'verify' ? 'Activar mi Asistente IA' : chatAuthMode === 'register' ? 'Registrarme' : chatAuthMode === 'forgot' ? 'Enviar codigo' : chatAuthMode === 'reset' ? 'Guardar nueva clave' : 'Iniciar sesion'}
                                 </button>
                             </div>
                         )}
@@ -1248,7 +1318,7 @@ const AIAssistant = () => {
                          </button>
                          <button 
                             onClick={() => handleSendMessage()}
-                            disabled={isLoading || !inputValue.trim() || !chatModeSelected}
+                            disabled={isLoading || !inputValue.trim() || !chatModeSelected || (chatMode === 'ia' && !(chatUser && chatUser.emailVerified))}
                             style={{
                                 width: '40px',
                                 height: '40px',

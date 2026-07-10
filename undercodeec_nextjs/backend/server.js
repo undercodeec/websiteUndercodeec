@@ -56,6 +56,9 @@ const CHAT_CLIENT_AI_DAILY_MAX = 100;
 const CHAT_CLIENT_RATE_MAX = 10;
 const CHAT_LIMIT_CTA = 'Llegaste al limite gratuito de consultas IA por hoy. Para continuar, inicia sesion gratis o escribenos por WhatsApp y seguimos tu cotizacion con un asesor.\n\n[wa-button]Continuar por WhatsApp:(https://wa.me/593979046329?text=Hola,%20vengo%20del%20asistente%20IA%20y%20quiero%20continuar%20mi%20cotizacion)';
 
+// Fallback del ChatBot automatico cuando el texto libre no coincide con una plantilla.
+const CHAT_BOT_FALLBACK = 'Puedo ayudarte rapido con estos temas: cotizar un proyecto nuevo, modernizar tu web actual, mejorar tu SEO o aparecer en Google, o comunicarte con un asesor humano. Elige una opcion o, si quieres una asesoria personalizada y sin limites, activa el Asistente IA registrandote con tu correo.';
+
 const TTS_RATE_WINDOW_MS = 60 * 1000;
 const TTS_RATE_MAX = 2;
 const TTS_RATE_DAILY_MAX = 3;
@@ -174,11 +177,12 @@ async function ensureChatSession(req) {
   try {
     const ipHash = hashClientIp(getClientIp(req));
     const userAgent = String(req.headers?.['user-agent'] || '').slice(0, 255);
+    const mode = req.body?.mode === 'ia' ? 'ia' : (req.body?.mode === 'bot' ? 'bot' : null);
     await db.query(
-      `INSERT INTO chat_sessions (external_session_id, ip_hash, user_agent, status)
-       VALUES ($1, $2, $3, 'active')
-       ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP, ip_hash = VALUES(ip_hash), user_agent = VALUES(user_agent)`,
-      [externalSessionId, ipHash, userAgent]
+      `INSERT INTO chat_sessions (external_session_id, ip_hash, user_agent, status, mode)
+       VALUES ($1, $2, $3, 'active', $4)
+       ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP, ip_hash = VALUES(ip_hash), user_agent = VALUES(user_agent), mode = COALESCE(VALUES(mode), mode)`,
+      [externalSessionId, ipHash, userAgent, mode]
     );
     const result = await db.query(
       'SELECT id FROM chat_sessions WHERE external_session_id = $1 LIMIT 1',
@@ -304,34 +308,62 @@ function consumeRateLimit(map, key, { windowMs, max, dailyWindowMs, dailyMax }) 
   };
 }
 
+// Guard de rafaga anti-DoS para el Asistente IA (no es tope de producto).
+const CHAT_IA_BURST_MAX = Number(process.env.CHAT_IA_BURST_MAX) || 25; // mensajes/min por usuario
+const CHAT_IA_DAILY_UNLIMITED = Number.MAX_SAFE_INTEGER;
+
+// Confirma que el usuario del token existe, esta activo y verifico su correo.
+async function getVerifiedChatUser(req) {
+  const authUser = verifyChatUserToken(req);
+  if (!authUser?.id) return null;
+  try {
+    const result = await db.query(
+      'SELECT id, email, name, status, email_verified FROM chat_users WHERE id = $1 LIMIT 1',
+      [authUser.id]
+    );
+    const user = result.rows?.[0];
+    if (!user || user.status !== 'active' || Number(user.email_verified) !== 1) return null;
+    return user;
+  } catch (error) {
+    console.error('[CHAT_ACCESS] Error verificando usuario IA:', error.message);
+    return null;
+  }
+}
+
 async function chatRateLimit(req, res, next) {
   if (req.body?.message === 'SALUDO_INICIAL') return next();
-  if (getStaticChatReply(req.body?.message)) return next();
 
-  const access = await getChatAccessTier(req);
-  const quota = consumeRateLimit(chatRateMap, access.rateKey, {
+  const mode = req.body?.mode === 'ia' ? 'ia' : 'bot';
+
+  // Modo Bot: solo respuestas estaticas, nunca toca el modelo -> sin cuota.
+  if (mode !== 'ia') return next();
+
+  // Modo IA: requiere usuario con correo verificado.
+  const verifiedUser = await getVerifiedChatUser(req);
+  if (!verifiedUser) {
+    recordChatUsage(req, 'chat_ia_unauthorized', { metadata: { hasToken: !!verifyChatUserToken(req) } });
+    return res.status(401).json({
+      error: 'Para usar el Asistente IA necesitas registrarte y verificar tu correo.',
+      requiresAuth: true,
+    });
+  }
+  req.iaUser = verifiedUser;
+
+  // Sin tope diario. Solo un guard de rafaga por minuto contra abuso automatizado.
+  const quota = consumeRateLimit(chatRateMap, `ia:${verifiedUser.id}`, {
     windowMs: CHAT_RATE_WINDOW_MS,
-    max: access.minuteMax,
+    max: CHAT_IA_BURST_MAX,
     dailyWindowMs: CHAT_RATE_DAILY_WINDOW_MS,
-    dailyMax: access.dailyMax,
+    dailyMax: CHAT_IA_DAILY_UNLIMITED,
   });
-  res.setHeader('X-Chat-Remaining-Today', String(quota.remainingToday));
-  res.setHeader('X-Chat-Access-Tier', access.tier);
+  res.setHeader('X-Chat-Access-Tier', 'ia');
   if (quota.minuteLimited) {
-    console.warn(`[CHAT] Rate limit (min) key=${access.rateKey} tier=${access.tier} count=${quota.entry.count}`);
+    console.warn(`[CHAT] Rafaga IA key=ia:${verifiedUser.id} count=${quota.entry.count}`);
     recordChatUsage(req, 'chat_rate_limited_minute', {
       messageLength: req.body?.message?.length,
-      metadata: { remainingToday: quota.remainingToday, tier: access.tier },
+      metadata: { userId: verifiedUser.id, tier: 'ia' },
     });
-    return res.status(429).json({ error: 'Demasiadas solicitudes. Espera un momento.', cta: CHAT_LIMIT_CTA });
-  }
-  if (quota.dailyLimited) {
-    console.warn(`[CHAT] Rate limit (dia) key=${access.rateKey} tier=${access.tier} dayCount=${quota.entry.dayCount}`);
-    recordChatUsage(req, 'chat_rate_limited_daily', {
-      messageLength: req.body?.message?.length,
-      metadata: { remainingToday: quota.remainingToday, tier: access.tier },
-    });
-    return res.status(429).json({ error: 'Limite diario alcanzado.', cta: CHAT_LIMIT_CTA });
+    return res.status(429).json({ error: 'Vas muy rapido. Espera unos segundos y continua.' });
   }
   return next();
 }
@@ -1505,16 +1537,16 @@ function chatAuthResponse(res, user, token) {
     accessTier: tier,
     remainingToday: dailyMax,
     token,
+    emailVerified: true,
     user: {
       id: user.id,
       email: user.email,
       name: user.name || '',
       phone: user.phone || '',
       isClient,
+      emailVerified: true,
     },
-    message: isClient
-      ? 'Sesion iniciada. Como cliente activo tienes el limite ampliado de consultas IA.'
-      : 'Sesion iniciada. Activamos mas consultas IA y guardaremos mejor el contexto de tu cotizacion.',
+    message: 'Listo. Ya puedes conversar con el Asistente IA y hacer las consultas que necesites.',
   });
 }
 
@@ -1574,25 +1606,127 @@ app.post('/api/chat/auth/register', async (req, res) => {
   }
 
   try {
-    const existing = await db.query('SELECT id FROM chat_users WHERE email = $1 LIMIT 1', [email]);
-    if (existing.rows?.[0]) {
-      return res.status(409).json({ success: false, error: 'Este email ya esta registrado. Inicia sesion para ampliar tu cupo.' });
+    const existing = await db.query('SELECT id, email_verified FROM chat_users WHERE email = $1 LIMIT 1', [email]);
+    const existingUser = existing.rows?.[0];
+    if (existingUser && Number(existingUser.email_verified) === 1) {
+      return res.status(409).json({ success: false, error: 'Este email ya esta registrado. Inicia sesion.' });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const insertResult = await db.query(
-      'INSERT INTO chat_users (email, password_hash, name, phone, status) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [email, passwordHash, name, phone, 'active']
-    );
-    const user = { id: insertResult.rows?.[0]?.id, email, name, phone, is_client: 0 };
-    await attachChatUserToSession(req, user.id);
-    if (await ensureClientTierForEmail(email)) user.is_client = 1;
-    recordChatUsage(req, 'chat_user_registered', { metadata: { userId: user.id, hasPhone: !!phone } });
-    return chatAuthResponse(res, user, signChatUserToken(user));
+    let userId;
+    if (existingUser) {
+      // Registro previo sin verificar: actualizamos datos y reenviamos codigo.
+      await db.query(
+        'UPDATE chat_users SET password_hash = $1, name = $2, phone = $3 WHERE id = $4',
+        [passwordHash, name, phone, existingUser.id]
+      );
+      userId = existingUser.id;
+    } else {
+      const insertResult = await db.query(
+        'INSERT INTO chat_users (email, password_hash, name, phone, status, email_verified) VALUES ($1, $2, $3, $4, $5, 0) RETURNING id',
+        [email, passwordHash, name, phone, 'active']
+      );
+      userId = insertResult.rows?.[0]?.id;
+    }
+
+    await issueChatVerificationCode({ id: userId, email, name });
+    recordChatUsage(req, 'chat_user_register_requested', { metadata: { userId, hasPhone: !!phone } });
+    return res.json({
+      success: true,
+      requiresVerification: true,
+      email,
+      message: 'Te enviamos un codigo de 6 digitos a tu correo. Ingresalo para activar tu Asistente IA.',
+    });
   } catch (error) {
     console.error('[CHAT_AUTH] Error registrando usuario:', error.message);
     recordChatUsage(req, 'chat_user_auth_error', { metadata: { action: 'register', error: error.message } });
     return res.status(500).json({ success: false, error: 'No se pudo crear la cuenta del asistente.' });
+  }
+});
+
+// Verificacion de correo para habilitar el modo Asistente IA (codigo OTP).
+const CHAT_VERIFY_CODE_TTL_MS = 15 * 60 * 1000;
+const CHAT_VERIFY_COOLDOWN_MS = 60 * 1000;
+const chatVerifyCooldown = new Map(); // email -> timestamp ultima solicitud
+
+async function issueChatVerificationCode(user) {
+  const code = String(crypto.randomInt(100000, 1000000)); // 6 digitos
+  const codeHash = hashResetCode(code);
+  const expires = new Date(Date.now() + CHAT_VERIFY_CODE_TTL_MS);
+  await db.query('UPDATE chat_users SET verify_code_hash = $1, verify_expires = $2 WHERE id = $3', [codeHash, expires, user.id]);
+  chatVerifyCooldown.set(user.email, Date.now());
+  try {
+    await sendChatVerificationEmail({ to: user.email, name: user.name, code });
+  } catch (mailErr) {
+    console.error('[CHAT_AUTH] Error enviando codigo de verificacion:', mailErr.message);
+  }
+}
+
+async function sendChatVerificationEmail({ to, name, code }) {
+  const safeName = escapeHtml(name || '');
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"></head>
+<body style="font-family:'Segoe UI',Arial,sans-serif;background:#f5f5f5;margin:0;padding:20px;">
+  <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+    <div style="background:#0f172a;color:#fff;padding:24px 28px;">
+      <h2 style="margin:0;font-size:20px;">Activa tu Asistente IA</h2>
+    </div>
+    <div style="padding:28px;color:#1e293b;">
+      <p>Hola ${safeName},</p>
+      <p>Usa este codigo para activar tu Asistente IA de Undercodeec:</p>
+      <p style="font-size:32px;font-weight:700;letter-spacing:6px;text-align:center;background:#f1f5f9;border-radius:10px;padding:16px;margin:20px 0;">${code}</p>
+      <p style="color:#64748b;font-size:14px;">El codigo vence en 15 minutos. Si no creaste esta cuenta, ignora este correo.</p>
+    </div>
+  </div>
+</body></html>`;
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to,
+    subject: 'Codigo para activar tu Asistente IA - Undercodeec',
+    html,
+  });
+}
+
+// Paso 2 del registro: confirmar codigo y activar el Asistente IA.
+app.post('/api/chat/auth/verify', async (req, res) => {
+  const email = normalizeEmail(req.body?.email);
+  const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
+
+  if (!isValidEmail(email) || !/^\d{6}$/.test(code)) {
+    return res.status(400).json({ success: false, error: 'Email valido y codigo de 6 digitos son requeridos.' });
+  }
+
+  try {
+    const result = await db.query(
+      'SELECT id, email, name, phone, status, is_client, email_verified, verify_code_hash, verify_expires FROM chat_users WHERE email = $1 LIMIT 1',
+      [email]
+    );
+    const user = result.rows?.[0];
+    if (!user || user.status !== 'active') {
+      return res.status(400).json({ success: false, error: 'Codigo invalido o expirado. Solicita uno nuevo.' });
+    }
+    if (Number(user.email_verified) === 1) {
+      // Ya verificado: devolvemos sesion directamente.
+      await attachChatUserToSession(req, user.id);
+      if (await ensureClientTierForEmail(email)) user.is_client = 1;
+      return chatAuthResponse(res, user, signChatUserToken(user));
+    }
+    if (!user.verify_code_hash || !user.verify_expires
+      || new Date(user.verify_expires).getTime() < Date.now()
+      || hashResetCode(code) !== user.verify_code_hash) {
+      return res.status(400).json({ success: false, error: 'Codigo invalido o expirado. Solicita uno nuevo.' });
+    }
+
+    await db.query('UPDATE chat_users SET email_verified = 1, verify_code_hash = NULL, verify_expires = NULL, last_login_at = CURRENT_TIMESTAMP WHERE id = $1', [user.id]);
+    chatVerifyCooldown.delete(email);
+    await attachChatUserToSession(req, user.id);
+    if (await ensureClientTierForEmail(email)) user.is_client = 1;
+    recordChatUsage(req, 'chat_user_verified', { metadata: { userId: user.id } });
+    return chatAuthResponse(res, user, signChatUserToken(user));
+  } catch (error) {
+    console.error('[CHAT_AUTH] Error verificando correo:', error.message);
+    recordChatUsage(req, 'chat_user_auth_error', { metadata: { action: 'verify', error: error.message } });
+    return res.status(500).json({ success: false, error: 'No se pudo verificar el correo.' });
   }
 });
 
@@ -1605,7 +1739,7 @@ app.post('/api/chat/auth/login', async (req, res) => {
   }
 
   try {
-    const result = await db.query('SELECT id, email, password_hash, name, phone, status, is_client FROM chat_users WHERE email = $1 LIMIT 1', [email]);
+    const result = await db.query('SELECT id, email, password_hash, name, phone, status, is_client, email_verified FROM chat_users WHERE email = $1 LIMIT 1', [email]);
     const user = result.rows?.[0];
     if (!user || user.status !== 'active') {
       return res.status(401).json({ success: false, error: 'Credenciales invalidas.' });
@@ -1613,6 +1747,20 @@ app.post('/api/chat/auth/login', async (req, res) => {
     const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) {
       return res.status(401).json({ success: false, error: 'Credenciales invalidas.' });
+    }
+
+    if (Number(user.email_verified) !== 1) {
+      // Cuenta sin verificar: reenviamos codigo (respetando cooldown) y pedimos verificar.
+      const last = chatVerifyCooldown.get(email) || 0;
+      if (Date.now() - last >= CHAT_VERIFY_COOLDOWN_MS) {
+        await issueChatVerificationCode({ id: user.id, email, name: user.name });
+      }
+      return res.status(403).json({
+        success: false,
+        requiresVerification: true,
+        email,
+        error: 'Tu correo aun no esta verificado. Te enviamos un codigo para activarlo.',
+      });
     }
 
     await db.query('UPDATE chat_users SET last_login_at = CURRENT_TIMESTAMP WHERE id = $1', [user.id]);
@@ -1846,6 +1994,7 @@ app.get('/api/chat/my-sessions/:id/messages', chatUserAuth, async (req, res) => 
 // Endpoint para el Chatbot (Streaming SSE)
 app.post('/api/chat', chatRateLimit, async (req, res) => {
   const { message, history } = req.body;
+  const mode = req.body?.mode === 'ia' ? 'ia' : 'bot';
 
   setupSSE(res);
 
@@ -1859,7 +2008,9 @@ app.post('/api/chat', chatRateLimit, async (req, res) => {
   });
 
   if (message === 'SALUDO_INICIAL') {
-      const welcomeText = 'Hola, soy Karen, asistente virtual de Undercodeec. Puedo orientarte con una web, tienda online, software/app, rediseño, SEO o anuncios.\n\nPara empezar: quieres cotizar algo nuevo, mejorar una web actual, aparecer mejor en Google o hablar con ventas por WhatsApp?';
+      const welcomeText = mode === 'ia'
+        ? 'Hola, soy Karen, tu Asistente IA de Undercodeec. Ya tienes acceso completo, asi que puedes preguntarme lo que necesites: cotizar un proyecto, mejorar tu web, vender online, un software a medida, SEO o anuncios. Cuentame, en que estas pensando?'
+        : 'Hola, soy Karen, asistente virtual de Undercodeec. Puedo orientarte con una web, tienda online, software/app, rediseño, SEO o anuncios.\n\nPara empezar: quieres cotizar algo nuevo, mejorar una web actual, aparecer mejor en Google o hablar con ventas por WhatsApp?';
       sendSSE(res, { type: 'text', delta: welcomeText });
       recordChatMessage(req, 'assistant', welcomeText, { eventType: 'chat_welcome', usedAI: false });
       recordChatUsage(req, 'chat_welcome', {
@@ -1879,20 +2030,24 @@ app.post('/api/chat', chatRateLimit, async (req, res) => {
     return endSSE(res);
   }
 
-  const staticReply = getStaticChatReply(message);
-  if (staticReply) {
+  // Modo ChatBot automatico: nunca toca el modelo. Responde con las plantillas
+  // estaticas (sin historial, para que el gate de seguimiento no aplique) y, si
+  // no hay coincidencia, con un mensaje esencial que reorienta al usuario.
+  if (mode !== 'ia') {
+    const botReply = getStaticChatReply(message) || CHAT_BOT_FALLBACK;
     const commercialSnapshot = buildCommercialSnapshot(message);
-    sendSSE(res, { type: 'text', delta: staticReply });
-    recordChatMessage(req, 'user', message, { eventType: 'chat_static_reply', usedAI: false });
-    recordChatMessage(req, 'assistant', staticReply, { eventType: 'chat_static_reply', usedAI: false });
-    recordChatUsage(req, 'chat_static_reply', {
+    sendSSE(res, { type: 'text', delta: botReply });
+    recordChatMessage(req, 'user', message, { eventType: 'chat_bot_reply', usedAI: false });
+    recordChatMessage(req, 'assistant', botReply, { eventType: 'chat_bot_reply', usedAI: false });
+    recordChatUsage(req, 'chat_bot_reply', {
       messageLength: message.length,
-      responseLength: staticReply.length,
-      metadata: { commercial: commercialSnapshot, sessionId: getChatExternalSessionId(req) },
+      responseLength: botReply.length,
+      metadata: { mode: 'bot', commercial: commercialSnapshot, sessionId: getChatExternalSessionId(req) },
     });
     return endSSE(res);
   }
 
+  // Modo Asistente IA: siempre usa el modelo (asesor personal, sin atajo estatico).
   if (!process.env.GEMINI_API_KEY) {
     console.error('❌ Error: GEMINI_API_KEY no está definida en el entorno.');
     sendSSE(res, { type: 'error', message: 'Configuración del servidor incompleta.' });
@@ -2229,7 +2384,7 @@ app.post('/api/chat', chatRateLimit, async (req, res) => {
     recordChatUsage(req, 'chat_ai_response', {
       messageLength: message.length,
       responseLength: totalEmittedText.length,
-      metadata: { model: FAST_MODEL, usedTools: activeTools.map(t => t.name), commercial: commercialSnapshot, sessionId: getChatExternalSessionId(req) },
+      metadata: { mode: 'ia', model: FAST_MODEL, usedTools: activeTools.map(t => t.name), commercial: commercialSnapshot, sessionId: getChatExternalSessionId(req) },
     });
     endSSE(res);
   } catch (error) {
