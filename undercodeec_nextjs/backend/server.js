@@ -3922,6 +3922,7 @@ app.get('/api/admin/chat-usage', adminAuth, async (req, res) => {
       SELECT
         s.id,
         s.external_session_id,
+        s.mode,
         s.status,
         s.lead_id,
         s.user_id,
@@ -3934,7 +3935,7 @@ app.get('/api/admin/chat-usage', adminAuth, async (req, res) => {
       FROM chat_sessions s
       LEFT JOIN chat_messages m ON m.session_id = s.id
       LEFT JOIN chat_users u ON u.id = s.user_id
-      GROUP BY s.id, s.external_session_id, s.status, s.lead_id, s.user_id, u.email, u.name, s.created_at, s.updated_at
+      GROUP BY s.id, s.external_session_id, s.mode, s.status, s.lead_id, s.user_id, u.email, u.name, s.created_at, s.updated_at
       ORDER BY s.updated_at DESC
       LIMIT 50
     `);
@@ -3987,7 +3988,7 @@ app.get('/api/admin/chat-sessions/:id/messages', adminAuth, async (req, res) => 
   }
   try {
     const session = await db.query(
-      `SELECT s.id, s.external_session_id, s.status, s.lead_id, s.user_id, u.email AS user_email, u.name AS user_name, s.created_at, s.updated_at
+      `SELECT s.id, s.external_session_id, s.mode, s.status, s.lead_id, s.user_id, u.email AS user_email, u.name AS user_name, s.created_at, s.updated_at
        FROM chat_sessions s
        LEFT JOIN chat_users u ON u.id = s.user_id
        WHERE s.id = $1
@@ -4020,7 +4021,18 @@ app.get('/api/admin/chat-sessions/:id/messages', adminAuth, async (req, res) => 
         break;
       }
     }
-    return res.json({ success: true, session: { ...session.rows[0], commercial }, messages: messages.rows });
+    let lead = null;
+    if (session.rows[0].lead_id) {
+      const leadResult = await db.query(
+        `SELECT id, form_type, name, email, phone, data, created_at
+         FROM leads
+         WHERE id = $1
+         LIMIT 1`,
+        [session.rows[0].lead_id]
+      );
+      lead = leadResult.rows?.[0] || null;
+    }
+    return res.json({ success: true, session: { ...session.rows[0], commercial, lead }, messages: messages.rows });
   } catch (error) {
     console.error('Error fetching chat session messages:', error.message);
     return res.status(500).json({ success: false, error: 'Error fetching chat session messages' });

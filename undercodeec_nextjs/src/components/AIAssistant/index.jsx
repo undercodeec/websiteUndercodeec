@@ -840,22 +840,23 @@ const AIAssistant = () => {
                     width: '350px',
                     height: '450px',
                     backgroundColor: '#fff',
-                    borderRadius: '20px',
-                    boxShadow: '0 5px 40px rgba(0,0,0,0.16)',
+                    borderRadius: '0',
+                    boxShadow: 'none',
                     display: 'flex',
                     flexDirection: 'column',
                     overflow: 'hidden',
                     animation: 'slideUp 0.3s ease-out',
-                    border: '1px solid rgba(0,0,0,0.05)'
+                    border: '1px solid rgba(15, 23, 42, 0.08)'
                 }}>
                     {/* Header */}
                     <div style={{
                         padding: '20px',
-                        background: 'linear-gradient(135deg, #4A00E1 0%, #8E2DE2 100%)',
-                        color: '#fff',
+                        backgroundColor: '#fff',
+                        color: '#111827',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'space-between'
+                        justifyContent: 'space-between',
+                        borderBottom: '1px solid rgba(15, 23, 42, 0.08)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <VimeoFacade
@@ -864,8 +865,8 @@ const AIAssistant = () => {
                                 style={{
                                     width: '35px',
                                     height: '35px',
-                                    backgroundColor: 'rgba(255,255,255,0.2)',
-                                    borderRadius: '50%',
+                                    backgroundColor: '#f3f4f6',
+                                    borderRadius: '0',
                                     overflow: 'hidden',
                                     position: 'relative',
                                     flexShrink: 0,
@@ -879,8 +880,8 @@ const AIAssistant = () => {
                                         display: 'inline-block',
                                         marginTop: '4px',
                                         padding: '2px 7px',
-                                        borderRadius: '999px',
-                                        backgroundColor: remainingAIRequests > 0 ? 'rgba(255,255,255,0.18)' : 'rgba(255, 71, 87, 0.28)',
+                                        borderRadius: '0',
+                                        backgroundColor: remainingAIRequests > 0 ? '#f3f4f6' : '#fee2e2',
                                         fontSize: '10px',
                                         fontWeight: 600
                                     }}>
@@ -903,7 +904,7 @@ const AIAssistant = () => {
                                     }
                                 }}
                                 style={{
-                                    background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '5px'
+                                    background: 'transparent', border: 'none', color: '#111827', cursor: 'pointer', padding: '5px'
                                 }}
                                 title={isAudioEnabled ? "Silenciar Voz IA" : "Activar Voz IA"}
                             >
@@ -914,7 +915,7 @@ const AIAssistant = () => {
                                 style={{
                                     background: 'transparent',
                                     border: 'none',
-                                    color: '#fff',
+                                    color: '#111827',
                                     cursor: 'pointer',
                                     padding: '5px',
                                     display: 'flex',
@@ -970,13 +971,12 @@ const AIAssistant = () => {
                                     return (
                                     <div key={index} style={{
                                         alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                                        backgroundColor: msg.role === 'user' ? '#4A00E1' : '#fff',
-                                        color: msg.role === 'user' ? '#fff' : '#333',
+                                        backgroundColor: '#fff',
+                                        color: '#111827',
                                         padding: '12px 16px',
-                                        borderRadius: '15px',
-                                        borderTopLeftRadius: msg.role === 'user' ? '15px' : '2px',
-                                        borderTopRightRadius: msg.role === 'user' ? '2px' : '15px',
-                                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                                        borderRadius: '0',
+                                        boxShadow: '0 10px 24px rgba(15, 23, 42, 0.08)',
+                                        border: msg.role === 'user' ? '1px solid rgba(15, 23, 42, 0.12)' : '1px solid rgba(15, 23, 42, 0.08)',
                                         maxWidth: '85%',
                                         fontSize: '14px',
                                         lineHeight: '1.5',
@@ -1048,11 +1048,12 @@ const AIAssistant = () => {
                         {showChatAuth && (
                             <div style={{
                                 alignSelf: 'stretch',
-                                backgroundColor: '#101828',
-                                color: '#fff',
-                                borderRadius: '16px',
-                                padding: '14px',
-                                boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                                backgroundColor: '#ffffff',
+                                color: '#111827',
+                                borderRadius: '0',
+                                padding: '16px',
+                                boxShadow: '0 18px 40px rgba(15, 23, 42, 0.12)',
+                                border: '1px solid rgba(15, 23, 42, 0.08)',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 gap: '9px'
@@ -1067,10 +1068,10 @@ const AIAssistant = () => {
                                         })}
                                         disabled={isSubmittingChatAuth}
                                         style={{
-                                            border: '1px solid rgba(255,255,255,0.2)',
-                                            background: 'rgba(255,255,255,0.08)',
-                                            color: '#fff',
-                                            borderRadius: '999px',
+                                            border: '1px solid rgba(15, 23, 42, 0.12)',
+                                            background: '#f8fafc',
+                                            color: '#111827',
+                                            borderRadius: '0',
                                             padding: '5px 9px',
                                             fontSize: '11px',
                                             cursor: 'pointer'
@@ -1079,7 +1080,7 @@ const AIAssistant = () => {
                                         {chatAuthMode === 'register' ? 'Ya tengo cuenta' : chatAuthMode === 'login' ? 'Crear cuenta' : 'Volver a iniciar sesion'}
                                     </button>
                                 </div>
-                                <span style={{ color: 'rgba(255,255,255,0.72)', fontSize: '12px', lineHeight: 1.4 }}>
+                                <span style={{ color: '#475467', fontSize: '12px', lineHeight: 1.4 }}>
                                     {chatAuthMode === 'verify'
                                         ? 'Ingresa el codigo de 6 digitos que enviamos a tu correo para activar tu Asistente IA.'
                                         : chatAuthMode === 'register'
@@ -1097,7 +1098,7 @@ const AIAssistant = () => {
                                         value={chatAuthForm.name}
                                         onChange={(e) => setChatAuthForm(prev => ({ ...prev, name: e.target.value }))}
                                         disabled={isSubmittingChatAuth}
-                                        style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
+                                        style={{ border: '1px solid rgba(15, 23, 42, 0.12)', backgroundColor: '#fff', color: '#111827', borderRadius: '0', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
                                     />
                                 )}
                                 <input
@@ -1106,7 +1107,7 @@ const AIAssistant = () => {
                                     value={chatAuthMode === 'verify' ? (pendingVerifyEmail || chatAuthForm.email) : chatAuthForm.email}
                                     onChange={(e) => setChatAuthForm(prev => ({ ...prev, email: e.target.value }))}
                                     disabled={isSubmittingChatAuth || chatAuthMode === 'verify'}
-                                    style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
+                                    style={{ border: '1px solid rgba(15, 23, 42, 0.12)', backgroundColor: '#fff', color: '#111827', borderRadius: '0', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
                                 />
                                 {chatAuthMode === 'register' && (
                                     <input
@@ -1115,7 +1116,7 @@ const AIAssistant = () => {
                                         value={chatAuthForm.phone}
                                         onChange={(e) => setChatAuthForm(prev => ({ ...prev, phone: e.target.value }))}
                                         disabled={isSubmittingChatAuth}
-                                        style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
+                                        style={{ border: '1px solid rgba(15, 23, 42, 0.12)', backgroundColor: '#fff', color: '#111827', borderRadius: '0', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
                                     />
                                 )}
                                 {(chatAuthMode === 'reset' || chatAuthMode === 'verify') && (
@@ -1127,7 +1128,7 @@ const AIAssistant = () => {
                                         value={chatAuthForm.code}
                                         onChange={(e) => setChatAuthForm(prev => ({ ...prev, code: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
                                         disabled={isSubmittingChatAuth}
-                                        style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none', letterSpacing: '4px' }}
+                                        style={{ border: '1px solid rgba(15, 23, 42, 0.12)', backgroundColor: '#fff', color: '#111827', borderRadius: '0', padding: '9px 11px', fontSize: '12px', outline: 'none', letterSpacing: '4px' }}
                                     />
                                 )}
                                 {chatAuthMode !== 'forgot' && chatAuthMode !== 'verify' && (
@@ -1137,7 +1138,7 @@ const AIAssistant = () => {
                                         value={chatAuthForm.password}
                                         onChange={(e) => setChatAuthForm(prev => ({ ...prev, password: e.target.value }))}
                                         disabled={isSubmittingChatAuth}
-                                        style={{ border: '1px solid rgba(255,255,255,0.16)', borderRadius: '10px', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
+                                        style={{ border: '1px solid rgba(15, 23, 42, 0.12)', backgroundColor: '#fff', color: '#111827', borderRadius: '0', padding: '9px 11px', fontSize: '12px', outline: 'none' }}
                                     />
                                 )}
                                 {chatAuthMode === 'login' && (
@@ -1148,7 +1149,7 @@ const AIAssistant = () => {
                                             alignSelf: 'flex-start',
                                             background: 'none',
                                             border: 'none',
-                                            color: '#efa238',
+                                            color: '#b45309',
                                             fontSize: '11px',
                                             cursor: 'pointer',
                                             padding: 0,
@@ -1163,13 +1164,15 @@ const AIAssistant = () => {
                                     disabled={isSubmittingChatAuth}
                                     style={{
                                         border: 'none',
-                                        borderRadius: '999px',
+                                        borderRadius: '0',
                                         padding: '10px 14px',
-                                        backgroundColor: isSubmittingChatAuth ? '#667085' : '#efa238',
-                                        color: '#101828',
+                                        backgroundColor: isSubmittingChatAuth ? '#94a3b8' : '#ffffff',
+                                        color: '#111827',
                                         fontWeight: 'bold',
                                         cursor: isSubmittingChatAuth ? 'not-allowed' : 'pointer',
-                                        fontSize: '13px'
+                                        fontSize: '13px',
+                                        boxShadow: '0 10px 24px rgba(15, 23, 42, 0.12)',
+                                        border: '1px solid rgba(15, 23, 42, 0.12)'
                                     }}
                                 >
                                     {isSubmittingChatAuth ? 'Procesando...' : chatAuthMode === 'verify' ? 'Activar mi Asistente IA' : chatAuthMode === 'register' ? 'Registrarme' : chatAuthMode === 'forgot' ? 'Enviar codigo' : chatAuthMode === 'reset' ? 'Guardar nueva clave' : 'Iniciar sesion'}
