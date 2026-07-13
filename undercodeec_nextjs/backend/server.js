@@ -8,7 +8,8 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { GoogleAICacheManager } = require('@google/generative-ai/server');
 const cheerio = require('cheerio'); // Fallback scraping
 const puppeteer = require('puppeteer'); // Advanced scraping for design context
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const db = require('./db');
 const { emitInvoice, retryInvoice, listInvoices, getInvoice, formatInvoiceNumber } = require('./invoicing/invoiceService');
 const { getSriConfig, getMissingSriConfig, getMissingSigningConfig } = require('./invoicing/config');
