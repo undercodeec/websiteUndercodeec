@@ -94,8 +94,17 @@ function hashClientIp(ip) {
 }
 
 function getChatAuthSecret() {
-  return process.env.CHAT_AUTH_SECRET || process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET || 'undercodeec-chat-dev-secret-change-me';
+  const secret = process.env.CHAT_AUTH_SECRET || process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET;
+  if (secret) return secret;
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('CHAT_AUTH_SECRET, JWT_SECRET o ADMIN_JWT_SECRET es requerido en produccion.');
+  }
+  return 'undercodeec-chat-dev-secret-change-me';
 }
+
+const CHAT_AUTH_TOKEN_TTL_SECONDS = Number(process.env.CHAT_AUTH_TOKEN_TTL_SECONDS) || (30 * 24 * 60 * 60);
+const CHAT_AUTH_IDLE_TIMEOUT_MS = Number(process.env.CHAT_AUTH_IDLE_TIMEOUT_MS) || (30 * 60 * 1000);
+const CHAT_AUTH_COOKIE_NAME = process.env.CHAT_AUTH_COOKIE_NAME || 'undercodeec_chat_auth';
 
 function base64UrlEncode(value) {
   return Buffer.from(value).toString('base64url');
@@ -105,13 +114,54 @@ function base64UrlJson(value) {
   return base64UrlEncode(JSON.stringify(value));
 }
 
+function parseCookieHeader(cookieHeader) {
+  const cookies = {};
+  if (!cookieHeader || typeof cookieHeader !== 'string') return cookies;
+  cookieHeader.split(';').forEach((part) => {
+    const index = part.indexOf('=');
+    if (index === -1) return;
+    const key = part.slice(0, index).trim();
+    const value = part.slice(index + 1).trim();
+    if (!key) return;
+    try {
+      cookies[key] = decodeURIComponent(value);
+    } catch {
+      cookies[key] = value;
+    }
+  });
+  return cookies;
+}
+
+function getChatAuthCookieOptions() {
+  const options = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: CHAT_AUTH_TOKEN_TTL_SECONDS * 1000,
+  };
+  if (process.env.CHAT_AUTH_COOKIE_DOMAIN) {
+    options.domain = process.env.CHAT_AUTH_COOKIE_DOMAIN;
+  }
+  return options;
+}
+
+function setChatAuthCookie(res, token) {
+  res.cookie(CHAT_AUTH_COOKIE_NAME, token, getChatAuthCookieOptions());
+}
+
+function clearChatAuthCookie(res) {
+  const { maxAge, ...options } = getChatAuthCookieOptions();
+  res.clearCookie(CHAT_AUTH_COOKIE_NAME, options);
+}
+
 function signChatUserToken(user) {
   const header = base64UrlJson({ alg: 'HS256', typ: 'JWT' });
   const payload = base64UrlJson({
     uid: user.id,
     email: user.email,
     name: user.name || '',
-    exp: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60),
+    exp: Math.floor(Date.now() / 1000) + CHAT_AUTH_TOKEN_TTL_SECONDS,
   });
   const signature = crypto.createHmac('sha256', getChatAuthSecret()).update(`${header}.${payload}`).digest('base64url');
   return `${header}.${payload}.${signature}`;
@@ -120,6 +170,8 @@ function signChatUserToken(user) {
 function readChatAuthToken(req) {
   const header = req.headers?.authorization || '';
   if (header.toLowerCase().startsWith('bearer ')) return header.slice(7).trim();
+  const cookieToken = parseCookieHeader(req.headers?.cookie || '')[CHAT_AUTH_COOKIE_NAME];
+  if (cookieToken) return cookieToken;
   const bodyToken = req.body?.chatAuthToken;
   return typeof bodyToken === 'string' ? bodyToken.trim() : '';
 }
@@ -130,7 +182,13 @@ function verifyChatUserToken(req) {
   const parts = token.split('.');
   if (parts.length !== 3) return null;
   const [header, payload, signature] = parts;
-  const expected = crypto.createHmac('sha256', getChatAuthSecret()).update(`${header}.${payload}`).digest('base64url');
+  let expected;
+  try {
+    expected = crypto.createHmac('sha256', getChatAuthSecret()).update(`${header}.${payload}`).digest('base64url');
+  } catch (error) {
+    console.error('[CHAT_AUTH] Error validando secreto de token:', error.message);
+    return null;
+  }
   const signatureBuffer = Buffer.from(signature);
   const expectedBuffer = Buffer.from(expected);
   if (signatureBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(signatureBuffer, expectedBuffer)) return null;
@@ -141,6 +199,20 @@ function verifyChatUserToken(req) {
   } catch {
     return null;
   }
+}
+
+function isChatUserIdleExpired(user) {
+  if (!CHAT_AUTH_IDLE_TIMEOUT_MS || CHAT_AUTH_IDLE_TIMEOUT_MS <= 0) return false;
+  const rawLastActivity = user?.last_active_at || user?.last_login_at || user?.updated_at || user?.created_at;
+  if (!rawLastActivity) return false;
+  const lastActivityMs = new Date(rawLastActivity).getTime();
+  if (!Number.isFinite(lastActivityMs)) return false;
+  return Date.now() - lastActivityMs > CHAT_AUTH_IDLE_TIMEOUT_MS;
+}
+
+async function touchChatUserActivity(userId) {
+  if (!userId) return;
+  await db.query('UPDATE chat_users SET last_active_at = CURRENT_TIMESTAMP WHERE id = $1', [userId]);
 }
 
 async function recordChatUsage(req, eventType, details = {}) {
@@ -203,10 +275,12 @@ async function getChatAccessTier(req) {
     // Cliente con pago: maxima prioridad, gana sobre lead y registrado.
     if (authUser?.id) {
       const clientResult = await db.query(
-        'SELECT id FROM chat_users WHERE id = $1 AND status = $2 AND is_client = 1 LIMIT 1',
+        'SELECT id, last_active_at, last_login_at, created_at, updated_at FROM chat_users WHERE id = $1 AND status = $2 AND is_client = 1 LIMIT 1',
         [authUser.id, 'active']
       );
-      if (clientResult.rows?.[0]) {
+      const clientUser = clientResult.rows?.[0];
+      if (clientUser && !isChatUserIdleExpired(clientUser)) {
+        await touchChatUserActivity(authUser.id);
         if (externalSessionId) {
           await ensureChatSession(req);
           await db.query('UPDATE chat_sessions SET user_id = $1, status = $2 WHERE external_session_id = $3', [authUser.id, 'client', externalSessionId]);
@@ -227,24 +301,36 @@ async function getChatAccessTier(req) {
       );
       const session = result.rows?.[0];
       if (session?.lead_id) {
+        let leadAuthUserId = null;
         if (authUser?.id) {
-          await db.query('UPDATE chat_sessions SET user_id = $1 WHERE external_session_id = $2', [authUser.id, externalSessionId]);
+          const activeUserResult = await db.query(
+            'SELECT id, last_active_at, last_login_at, created_at, updated_at FROM chat_users WHERE id = $1 AND status = $2 LIMIT 1',
+            [authUser.id, 'active']
+          );
+          const activeUser = activeUserResult.rows?.[0];
+          if (activeUser && !isChatUserIdleExpired(activeUser)) {
+            leadAuthUserId = authUser.id;
+            await touchChatUserActivity(authUser.id);
+            await db.query('UPDATE chat_sessions SET user_id = $1 WHERE external_session_id = $2', [authUser.id, externalSessionId]);
+          }
         }
         return {
           tier: 'qualified_lead',
           rateKey: `session:${externalSessionId}`,
           dailyMax: CHAT_QUALIFIED_AI_DAILY_MAX,
           minuteMax: CHAT_QUALIFIED_RATE_MAX,
-          userId: authUser?.id || null,
+          userId: leadAuthUserId,
         };
       }
     }
     if (authUser?.id) {
       const userResult = await db.query(
-        'SELECT id, email, name, status FROM chat_users WHERE id = $1 AND status = $2 LIMIT 1',
+        'SELECT id, email, name, status, last_active_at, last_login_at, created_at, updated_at FROM chat_users WHERE id = $1 AND status = $2 LIMIT 1',
         [authUser.id, 'active']
       );
-      if (userResult.rows?.[0]) {
+      const registeredUser = userResult.rows?.[0];
+      if (registeredUser && !isChatUserIdleExpired(registeredUser)) {
+        await touchChatUserActivity(authUser.id);
         if (externalSessionId) {
           await ensureChatSession(req);
           await db.query('UPDATE chat_sessions SET user_id = $1, status = $2 WHERE external_session_id = $3', [authUser.id, 'registered', externalSessionId]);
@@ -319,11 +405,16 @@ async function getVerifiedChatUser(req) {
   if (!authUser?.id) return null;
   try {
     const result = await db.query(
-      'SELECT id, email, name, status, email_verified FROM chat_users WHERE id = $1 LIMIT 1',
+      'SELECT id, email, name, status, email_verified, last_active_at, last_login_at, created_at, updated_at FROM chat_users WHERE id = $1 LIMIT 1',
       [authUser.id]
     );
     const user = result.rows?.[0];
     if (!user || user.status !== 'active' || Number(user.email_verified) !== 1) return null;
+    if (isChatUserIdleExpired(user)) {
+      req.chatSessionExpired = true;
+      return null;
+    }
+    await touchChatUserActivity(user.id);
     return user;
   } catch (error) {
     console.error('[CHAT_ACCESS] Error verificando usuario IA:', error.message);
@@ -332,9 +423,8 @@ async function getVerifiedChatUser(req) {
 }
 
 async function chatRateLimit(req, res, next) {
-  if (req.body?.message === 'SALUDO_INICIAL') return next();
-
   const mode = req.body?.mode === 'ia' ? 'ia' : 'bot';
+  if (req.body?.message === 'SALUDO_INICIAL' && mode !== 'ia') return next();
 
   // Modo Bot: solo respuestas estaticas, nunca toca el modelo -> sin cuota.
   if (mode !== 'ia') return next();
@@ -344,8 +434,11 @@ async function chatRateLimit(req, res, next) {
   if (!verifiedUser) {
     recordChatUsage(req, 'chat_ia_unauthorized', { metadata: { hasToken: !!verifyChatUserToken(req) } });
     return res.status(401).json({
-      error: 'Para usar el Asistente IA necesitas registrarte y verificar tu correo.',
+      error: req.chatSessionExpired
+        ? 'Tu sesion expiro por inactividad. Inicia sesion nuevamente para continuar.'
+        : 'Para usar el Asistente IA necesitas registrarte y verificar tu correo.',
       requiresAuth: true,
+      sessionExpired: !!req.chatSessionExpired,
     });
   }
   req.iaUser = verifiedUser;
@@ -455,7 +548,7 @@ function runWithPuppeteer(task) {
 
 // Configuración de CORS mejorada
 const corsOptions = {
-  origin: ['https://undercodeec.com', 'https://www.undercodeec.com', 'https://api.undercodeec.com', process.env.FRONTEND_URL].filter(Boolean),
+  origin: ['https://undercodeec.com', 'https://www.undercodeec.com', 'https://api.undercodeec.com', 'http://localhost:3000', 'http://127.0.0.1:3000', process.env.FRONTEND_URL].filter(Boolean),
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['X-Chat-Remaining-Today', 'X-Chat-Access-Tier'],
@@ -649,7 +742,7 @@ const BCRYPT_SALT_ROUNDS = 12;
 
 // Obtiene el usuario admin desde la DB (modelo de admin único)
 async function getAdminUser() {
-  const result = await db.query('SELECT id, email, password_hash FROM admin_users ORDER BY id ASC LIMIT 1');
+  const result = await db.query('SELECT id, email, password_hash, reset_code_hash, reset_expires FROM admin_users ORDER BY id ASC LIMIT 1');
   return result.rows[0] || null;
 }
 
@@ -689,11 +782,14 @@ const ADMIN_SESSION_TTL_MS = 2 * 60 * 60 * 1000; // 2 horas
 // Intentos fallidos por email (login y verify)
 const adminLoginAttempts = new Map();   // email → { count, lockUntil }
 const adminVerifyAttempts = new Map();  // email → { count, lockUntil }
+const adminResetCooldown = new Map();   // email -> timestamp ultima solicitud
 
 const ADMIN_LOGIN_MAX_ATTEMPTS = 5;
 const ADMIN_LOGIN_LOCK_MS = 15 * 60 * 1000; // 15 min
 const ADMIN_VERIFY_MAX_ATTEMPTS = 5;
 const ADMIN_VERIFY_LOCK_MS = 15 * 60 * 1000;
+const ADMIN_RESET_CODE_TTL_MS = 15 * 60 * 1000;
+const ADMIN_RESET_COOLDOWN_MS = 60 * 1000;
 
 function isLocked(map, key) {
   const rec = map.get(key);
@@ -718,6 +814,26 @@ function registerAttempt(map, key, maxAttempts, lockMs) {
 
 function clearAttempts(map, key) {
   map.delete(key);
+}
+
+async function sendAdminPasswordResetEmail({ to, code }) {
+  await transporter.sendMail({
+    from: `"Undercodeec Admin Security" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: 'Recuperacion de acceso - Panel Admin',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <h2 style="color: #600b56; text-align: center; margin-bottom: 20px;">Recuperacion de acceso</h2>
+        <p>Recibimos una solicitud para restablecer la contrasena del panel de administracion.</p>
+        <p>Ingresa este codigo de 6 digitos para definir una nueva contrasena:</p>
+        <div style="background: #fdf2f8; border: 1.5px dashed #efa238; border-radius: 8px; padding: 15px; text-align: center; margin: 25px 0;">
+          <span style="font-size: 34px; font-weight: bold; color: #600b56; letter-spacing: 6px;">${escapeHtml(code)}</span>
+        </div>
+        <p style="font-size: 12px; color: #777; text-align: center;">El codigo vence en 15 minutos.</p>
+        <p style="font-size: 12px; color: #c0392b; text-align: center;">Si no solicitaste este cambio, ignora este correo.</p>
+      </div>
+    `
+  });
 }
 
 // Limpieza periódica de sesiones expiradas (cada 10 min)
@@ -1531,6 +1647,7 @@ function chatAuthResponse(res, user, token) {
   const isClient = Number(user.is_client) === 1;
   const tier = isClient ? 'client' : 'registered_user';
   const dailyMax = isClient ? CHAT_CLIENT_AI_DAILY_MAX : CHAT_REGISTERED_AI_DAILY_MAX;
+  setChatAuthCookie(res, token);
   res.setHeader('X-Chat-Access-Tier', tier);
   res.setHeader('X-Chat-Remaining-Today', String(dailyMax));
   return res.json({
@@ -1550,6 +1667,11 @@ function chatAuthResponse(res, user, token) {
     message: 'Listo. Ya puedes conversar con el Asistente IA y hacer las consultas que necesites.',
   });
 }
+
+app.post('/api/chat/auth/logout', (req, res) => {
+  clearChatAuthCookie(res);
+  return res.json({ success: true });
+});
 
 async function attachChatUserToSession(req, userId) {
   const sessionId = await ensureChatSession(req);
@@ -1708,6 +1830,7 @@ app.post('/api/chat/auth/verify', async (req, res) => {
     }
     if (Number(user.email_verified) === 1) {
       // Ya verificado: devolvemos sesion directamente.
+      await db.query('UPDATE chat_users SET last_login_at = CURRENT_TIMESTAMP, last_active_at = CURRENT_TIMESTAMP WHERE id = $1', [user.id]);
       await attachChatUserToSession(req, user.id);
       if (await ensureClientTierForEmail(email)) user.is_client = 1;
       return chatAuthResponse(res, user, signChatUserToken(user));
@@ -1718,7 +1841,7 @@ app.post('/api/chat/auth/verify', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Codigo invalido o expirado. Solicita uno nuevo.' });
     }
 
-    await db.query('UPDATE chat_users SET email_verified = 1, verify_code_hash = NULL, verify_expires = NULL, last_login_at = CURRENT_TIMESTAMP WHERE id = $1', [user.id]);
+    await db.query('UPDATE chat_users SET email_verified = 1, verify_code_hash = NULL, verify_expires = NULL, last_login_at = CURRENT_TIMESTAMP, last_active_at = CURRENT_TIMESTAMP WHERE id = $1', [user.id]);
     chatVerifyCooldown.delete(email);
     await attachChatUserToSession(req, user.id);
     if (await ensureClientTierForEmail(email)) user.is_client = 1;
@@ -1764,7 +1887,7 @@ app.post('/api/chat/auth/login', async (req, res) => {
       });
     }
 
-    await db.query('UPDATE chat_users SET last_login_at = CURRENT_TIMESTAMP WHERE id = $1', [user.id]);
+    await db.query('UPDATE chat_users SET last_login_at = CURRENT_TIMESTAMP, last_active_at = CURRENT_TIMESTAMP WHERE id = $1', [user.id]);
     await attachChatUserToSession(req, user.id);
     if (await ensureClientTierForEmail(email)) user.is_client = 1;
     recordChatUsage(req, 'chat_user_login', { metadata: { userId: user.id } });
@@ -1876,7 +1999,7 @@ app.post('/api/chat/auth/reset', async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
     await db.query(
-      'UPDATE chat_users SET password_hash = $1, reset_code_hash = NULL, reset_expires = NULL, last_login_at = CURRENT_TIMESTAMP WHERE id = $2',
+      'UPDATE chat_users SET password_hash = $1, reset_code_hash = NULL, reset_expires = NULL, last_login_at = CURRENT_TIMESTAMP, last_active_at = CURRENT_TIMESTAMP WHERE id = $2',
       [passwordHash, user.id]
     );
     chatResetCooldown.delete(email);
@@ -1900,13 +2023,21 @@ async function chatUserAuth(req, res, next) {
   }
   try {
     const result = await db.query(
-      'SELECT id, email, name, phone, status, is_client, client_since, created_at, last_login_at FROM chat_users WHERE id = $1 LIMIT 1',
+      'SELECT id, email, name, phone, status, is_client, client_since, created_at, updated_at, last_login_at, last_active_at FROM chat_users WHERE id = $1 LIMIT 1',
       [authUser.id]
     );
     const user = result.rows?.[0];
     if (!user || user.status !== 'active') {
       return res.status(401).json({ success: false, error: 'Cuenta no disponible.' });
     }
+    if (isChatUserIdleExpired(user)) {
+      return res.status(401).json({
+        success: false,
+        error: 'Tu sesion expiro por inactividad. Inicia sesion nuevamente.',
+        sessionExpired: true,
+      });
+    }
+    await touchChatUserActivity(user.id);
     req.chatUser = user;
     next();
   } catch (error) {
@@ -3764,6 +3895,110 @@ app.post('/api/admin/verify', async (req, res) => {
 });
 
 // Admin Logout — invalida la sesión activa
+app.post('/api/admin/forgot', async (req, res) => {
+  const email = normalizeEmail(req.body?.email);
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ success: false, error: 'Email valido requerido.' });
+  }
+
+  const now = Date.now();
+  const last = adminResetCooldown.get(email) || 0;
+  if (now - last < ADMIN_RESET_COOLDOWN_MS) {
+    return res.json({ success: true, message: 'Si el email existe, enviamos un codigo de recuperacion.' });
+  }
+  adminResetCooldown.set(email, now);
+
+  try {
+    const adminUser = await getAdminUser();
+    if (adminUser && safeStringEqual(email, (adminUser.email || '').toLowerCase())) {
+      const code = String(crypto.randomInt(100000, 1000000));
+      const codeHash = hashResetCode(code);
+      const expires = new Date(now + ADMIN_RESET_CODE_TTL_MS);
+
+      await db.query(
+        'UPDATE admin_users SET reset_code_hash = $1, reset_expires = $2 WHERE id = $3',
+        [codeHash, expires, adminUser.id]
+      );
+
+      try {
+        await sendAdminPasswordResetEmail({ to: adminUser.email, code });
+      } catch (mailErr) {
+        console.error('[ADMIN_AUTH] Error enviando codigo de reset:', mailErr.message);
+      }
+    }
+
+    return res.json({ success: true, message: 'Si el email existe, enviamos un codigo de recuperacion.' });
+  } catch (error) {
+    console.error('[ADMIN_AUTH] Error en forgot password:', error.message);
+    return res.status(500).json({ success: false, error: 'No se pudo procesar la solicitud.' });
+  }
+});
+
+app.post('/api/admin/reset', async (req, res) => {
+  const email = normalizeEmail(req.body?.email);
+  const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
+  const newPassword = typeof req.body?.password === 'string' ? req.body.password : '';
+
+  if (!isValidEmail(email) || !/^\d{6}$/.test(code)) {
+    return res.status(400).json({ success: false, error: 'Email valido y codigo de 6 digitos son requeridos.' });
+  }
+
+  const validation = validateNewPassword(newPassword);
+  if (!validation.ok) {
+    return res.status(400).json({ success: false, error: validation.error });
+  }
+
+  try {
+    const adminUser = await getAdminUser();
+    const adminEmail = (adminUser?.email || '').toLowerCase();
+
+    if (!adminUser || !safeStringEqual(email, adminEmail) || !adminUser.reset_code_hash || !adminUser.reset_expires) {
+      return res.status(400).json({ success: false, error: 'Codigo invalido o expirado. Solicita uno nuevo.' });
+    }
+    if (new Date(adminUser.reset_expires).getTime() < Date.now()) {
+      return res.status(400).json({ success: false, error: 'Codigo invalido o expirado. Solicita uno nuevo.' });
+    }
+    if (hashResetCode(code) !== adminUser.reset_code_hash) {
+      return res.status(400).json({ success: false, error: 'Codigo invalido o expirado. Solicita uno nuevo.' });
+    }
+
+    const sameAsCurrent = await bcrypt.compare(newPassword, adminUser.password_hash);
+    if (sameAsCurrent) {
+      return res.status(400).json({ success: false, error: 'La nueva contrasena debe ser diferente a la actual' });
+    }
+
+    const newHash = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+    await db.query(
+      'UPDATE admin_users SET password_hash = $1, reset_code_hash = NULL, reset_expires = NULL WHERE id = $2',
+      [newHash, adminUser.id]
+    );
+
+    adminResetCooldown.delete(adminEmail);
+    delete activeVerificationCodes[adminEmail];
+    adminSessions.clear();
+    clearAttempts(adminLoginAttempts, adminEmail);
+    clearAttempts(adminVerifyAttempts, adminEmail);
+
+    transporter.sendMail({
+      from: `"Undercodeec Admin Security" <${process.env.EMAIL_USER}>`,
+      to: adminUser.email,
+      subject: 'Tu contrasena del panel admin fue restablecida',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px;">
+          <h2 style="color: #600b56;">Contrasena restablecida</h2>
+          <p>La contrasena del panel de administracion fue restablecida el ${escapeHtml(new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' }))}.</p>
+          <p style="color: #c0392b;"><strong>Si no fuiste tu</strong>, contacta inmediatamente al equipo tecnico.</p>
+        </div>
+      `
+    }).catch((err) => console.error('Error notificando reset de password admin:', err.message));
+
+    return res.json({ success: true, message: 'Contrasena actualizada correctamente. Ya puedes iniciar sesion.' });
+  } catch (error) {
+    console.error('[ADMIN_AUTH] Error en reset password:', error.message);
+    return res.status(500).json({ success: false, error: 'No se pudo restablecer la contrasena.' });
+  }
+});
+
 app.post('/api/admin/logout', adminAuth, (req, res) => {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.split(' ')[1];

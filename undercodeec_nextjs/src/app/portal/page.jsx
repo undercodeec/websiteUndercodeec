@@ -45,13 +45,18 @@ export default function PortalClientes() {
   const [sessionMessages, setSessionMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
 
-  const getToken = () => (typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null);
+  const getToken = useCallback(() => (typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null), []);
+  const getAuthHeaders = useCallback(() => {
+    const token = getToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }, [getToken]);
 
   const loadMe = useCallback(async () => {
-    const token = getToken();
-    if (!token) { setBooting(false); return; }
     try {
-      const res = await fetch(`${API_URL}/api/chat/me`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_URL}/api/chat/me`, {
+        credentials: 'include',
+        headers: getAuthHeaders(),
+      });
       if (!res.ok) { localStorage.removeItem(TOKEN_KEY); setMe(null); }
       else { const data = await res.json(); setMe(data); }
     } catch {
@@ -59,18 +64,17 @@ export default function PortalClientes() {
     } finally {
       setBooting(false);
     }
-  }, []);
+  }, [getAuthHeaders]);
 
   useEffect(() => { loadMe(); }, [loadMe]);
 
   const loadDashboardData = useCallback(async () => {
-    const token = getToken();
-    if (!token) return;
     setLoadingData(true);
     try {
+      const requestOptions = { credentials: 'include', headers: getAuthHeaders() };
       const [ordersRes, sessionsRes] = await Promise.all([
-        fetch(`${API_URL}/api/chat/my-orders`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${API_URL}/api/chat/my-sessions`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_URL}/api/chat/my-orders`, requestOptions),
+        fetch(`${API_URL}/api/chat/my-sessions`, requestOptions),
       ]);
       if (ordersRes.ok) setOrders((await ordersRes.json()).orders || []);
       if (sessionsRes.ok) setSessions((await sessionsRes.json()).sessions || []);
@@ -79,11 +83,15 @@ export default function PortalClientes() {
     } finally {
       setLoadingData(false);
     }
-  }, []);
+  }, [getAuthHeaders]);
 
   useEffect(() => { if (me) loadDashboardData(); }, [me, loadDashboardData]);
 
   const handleLogout = () => {
+    fetch(`${API_URL}/api/chat/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    }).catch(() => {});
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem('undercodeec_chat_user');
     setMe(null);
@@ -92,7 +100,7 @@ export default function PortalClientes() {
   };
 
   const applyAuthSuccess = (data) => {
-    if (data.token) localStorage.setItem(TOKEN_KEY, data.token);
+    if (data.token) localStorage.removeItem(TOKEN_KEY);
     if (data.user) localStorage.setItem('undercodeec_chat_user', JSON.stringify(data.user));
     setForm({ name: '', email: '', phone: '', password: '', code: '' });
     setAuthError('');
@@ -109,7 +117,7 @@ export default function PortalClientes() {
       setSubmitting(true);
       try {
         const res = await fetch(`${API_URL}/api/chat/auth/forgot`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: form.email }),
         });
         const data = await res.json().catch(() => ({}));
@@ -128,7 +136,7 @@ export default function PortalClientes() {
       setSubmitting(true);
       try {
         const res = await fetch(`${API_URL}/api/chat/auth/reset`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: form.email, code: form.code.trim(), password: form.password }),
         });
         const data = await res.json().catch(() => ({}));
@@ -150,7 +158,7 @@ export default function PortalClientes() {
         ? { name: form.name, email: form.email, phone: form.phone, password: form.password }
         : { email: form.email, password: form.password };
       const res = await fetch(`${API_URL}/api/chat/auth/${endpoint}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
@@ -164,10 +172,10 @@ export default function PortalClientes() {
     setSelectedSession(session);
     setSessionMessages([]);
     setLoadingMessages(true);
-    const token = getToken();
     try {
       const res = await fetch(`${API_URL}/api/chat/my-sessions/${session.id}/messages`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
+        headers: getAuthHeaders(),
       });
       if (res.ok) setSessionMessages((await res.json()).messages || []);
     } catch { /* silencioso */ }

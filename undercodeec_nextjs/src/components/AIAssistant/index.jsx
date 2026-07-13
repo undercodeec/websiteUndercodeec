@@ -5,6 +5,12 @@ import { usePathname } from 'next/navigation';
 import { RiRobot2Line, RiCloseLine, RiSendPlaneFill, RiMicFill, RiMicOffFill, RiVolumeUpFill, RiVolumeMuteFill, RiChat3Line } from 'react-icons/ri';
 import VimeoFacade from '@/components/Vimeo/VimeoFacade';
 
+const CHAT_AUTH_TOKEN_KEY = 'undercodeec_chat_auth_token';
+const CHAT_USER_KEY = 'undercodeec_chat_user';
+const CHAT_LAST_ACTIVITY_KEY = 'undercodeec_chat_last_activity';
+const CHAT_SESSION_ID_KEY = 'undercodeec_chat_session_id';
+const CHAT_IDLE_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_CHAT_IDLE_TIMEOUT_MS) || (30 * 60 * 1000);
+
 const AIAssistant = () => {
     const pathname = usePathname();
     const isHiddenPath = pathname?.startsWith('/admin') || pathname?.startsWith('/contratos') || pathname?.startsWith('/recursos-humanos');
@@ -28,18 +34,64 @@ const AIAssistant = () => {
     const [chatAccessTier, setChatAccessTier] = useState('public');
     const chatSessionIdRef = useRef(null);
 
-    const appendAssistantMessage = (content) => {
+    const appendAssistantMessage = useCallback((content) => {
         setMessages(prev => [...prev, { role: 'assistant', content, streaming: false }]);
+    }, []);
+
+    const getApiBaseUrl = () => process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+
+    const markChatActivity = useCallback(() => {
+        if (typeof window === 'undefined') return;
+        localStorage.setItem(CHAT_LAST_ACTIVITY_KEY, String(Date.now()));
+    }, []);
+
+    const isStoredChatSessionIdle = useCallback(() => {
+        if (typeof window === 'undefined' || !CHAT_IDLE_TIMEOUT_MS || CHAT_IDLE_TIMEOUT_MS <= 0) return false;
+        const hasSession = !!(localStorage.getItem(CHAT_AUTH_TOKEN_KEY) || localStorage.getItem(CHAT_USER_KEY));
+        if (!hasSession) return false;
+        const lastActivity = Number(localStorage.getItem(CHAT_LAST_ACTIVITY_KEY) || 0);
+        if (!Number.isFinite(lastActivity) || lastActivity <= 0) return false;
+        return Date.now() - lastActivity > CHAT_IDLE_TIMEOUT_MS;
+    }, []);
+
+    const clearChatAuthSession = useCallback((message) => {
+        if (typeof window !== 'undefined') {
+            fetch(`${getApiBaseUrl()}/api/chat/auth/logout`, {
+                method: 'POST',
+                credentials: 'include',
+            }).catch(() => {});
+            localStorage.removeItem(CHAT_AUTH_TOKEN_KEY);
+            localStorage.removeItem(CHAT_USER_KEY);
+            localStorage.removeItem(CHAT_LAST_ACTIVITY_KEY);
+        }
+        setChatUser(null);
+        setChatAccessTier('public');
+        setRemainingAIRequests(null);
+        if (chatMode === 'ia') {
+            setShowChatAuth(true);
+            setChatAuthMode('login');
+            setChatModeSelected(false);
+        }
+        if (message) appendAssistantMessage(message);
+    }, [appendAssistantMessage, chatMode]);
+
+    const createSecureChatSessionId = () => {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return `chat_${crypto.randomUUID().replace(/-/g, '')}`;
+        }
+        if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+            const values = crypto.getRandomValues(new Uint32Array(4));
+            return `chat_${Array.from(values, value => value.toString(36)).join('')}`;
+        }
+        return `chat_${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`;
     };
 
     const getChatSessionId = () => {
         if (chatSessionIdRef.current) return chatSessionIdRef.current;
-        const key = 'undercodeec_chat_session_id';
-        let sessionId = localStorage.getItem(key);
+        let sessionId = localStorage.getItem(CHAT_SESSION_ID_KEY);
         if (!sessionId) {
-            const randomPart = Math.random().toString(36).slice(2);
-            sessionId = `chat_${Date.now().toString(36)}_${randomPart}`;
-            localStorage.setItem(key, sessionId);
+            sessionId = createSecureChatSessionId();
+            localStorage.setItem(CHAT_SESSION_ID_KEY, sessionId);
         }
         chatSessionIdRef.current = sessionId;
         return sessionId;
@@ -57,11 +109,16 @@ const AIAssistant = () => {
 
     const getChatAuthToken = () => {
         if (typeof window === 'undefined') return '';
-        return localStorage.getItem('undercodeec_chat_auth_token') || '';
+        if (isStoredChatSessionIdle()) {
+            clearChatAuthSession('Tu sesion del Asistente IA se cerro por inactividad. Inicia sesion nuevamente para continuar.');
+            return '';
+        }
+        return localStorage.getItem(CHAT_AUTH_TOKEN_KEY) || '';
     };
 
     const buildChatHeaders = () => {
         const headers = { 'Content-Type': 'application/json' };
+        // Compatibilidad temporal para sesiones antiguas; las sesiones nuevas usan cookie HttpOnly.
         const token = getChatAuthToken();
         if (token) headers.Authorization = `Bearer ${token}`;
         return headers;
@@ -116,16 +173,44 @@ const AIAssistant = () => {
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
-        const storedUser = localStorage.getItem('undercodeec_chat_user');
+        if (isStoredChatSessionIdle()) {
+            clearChatAuthSession();
+            return;
+        }
+        const storedUser = localStorage.getItem(CHAT_USER_KEY);
         if (storedUser) {
             try {
                 setChatUser(JSON.parse(storedUser));
                 setChatAccessTier('registered_user');
             } catch {
-                localStorage.removeItem('undercodeec_chat_user');
+                localStorage.removeItem(CHAT_USER_KEY);
             }
         }
-    }, []);
+    }, [clearChatAuthSession, isStoredChatSessionIdle]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined' || !chatUser) return;
+
+        const expireIfIdle = () => {
+            if (isStoredChatSessionIdle()) {
+                clearChatAuthSession('Tu sesion del Asistente IA se cerro por inactividad. Inicia sesion nuevamente para continuar.');
+            }
+        };
+
+        const intervalId = window.setInterval(expireIfIdle, 30000);
+        const handleStorage = (event) => {
+            if ([CHAT_AUTH_TOKEN_KEY, CHAT_USER_KEY, CHAT_LAST_ACTIVITY_KEY].includes(event.key)) {
+                expireIfIdle();
+            }
+        };
+        window.addEventListener('storage', handleStorage);
+        expireIfIdle();
+
+        return () => {
+            window.clearInterval(intervalId);
+            window.removeEventListener('storage', handleStorage);
+        };
+    }, [chatUser, chatMode, clearChatAuthSession, isStoredChatSessionIdle]);
 
     const toggleListening = () => {
         if (isListening) {
@@ -331,9 +416,12 @@ const AIAssistant = () => {
     // Al autenticar/verificar con exito: guarda sesion y, si el usuario eligio IA,
     // arranca la conversacion con el asesor personal.
     const onChatAuthSuccess = (data) => {
-        if (data.token) localStorage.setItem('undercodeec_chat_auth_token', data.token);
+        if (data.token) {
+            localStorage.removeItem(CHAT_AUTH_TOKEN_KEY);
+            markChatActivity();
+        }
         if (data.user) {
-            localStorage.setItem('undercodeec_chat_user', JSON.stringify(data.user));
+            localStorage.setItem(CHAT_USER_KEY, JSON.stringify(data.user));
             setChatUser(data.user);
         }
         if (data.accessTier) setChatAccessTier(data.accessTier);
@@ -364,6 +452,7 @@ const AIAssistant = () => {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
             const response = await fetch(`${baseUrl}/api/chat/auth/${chatAuthMode}`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...chatAuthForm,
@@ -403,6 +492,7 @@ const AIAssistant = () => {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
             const response = await fetch(`${baseUrl}/api/chat/auth/verify`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, code: chatAuthForm.code.trim(), sessionId: getChatSessionId() }),
             });
@@ -430,6 +520,7 @@ const AIAssistant = () => {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
             const response = await fetch(`${baseUrl}/api/chat/auth/forgot`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: chatAuthForm.email }),
             });
@@ -458,6 +549,7 @@ const AIAssistant = () => {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
             const response = await fetch(`${baseUrl}/api/chat/auth/reset`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: chatAuthForm.email,
@@ -472,9 +564,12 @@ const AIAssistant = () => {
                 appendAssistantMessage(data.error || 'No pude restablecer tu contrasena.');
                 return;
             }
-            if (data.token) localStorage.setItem('undercodeec_chat_auth_token', data.token);
+            if (data.token) {
+                localStorage.removeItem(CHAT_AUTH_TOKEN_KEY);
+                markChatActivity();
+            }
             if (data.user) {
-                localStorage.setItem('undercodeec_chat_user', JSON.stringify(data.user));
+                localStorage.setItem(CHAT_USER_KEY, JSON.stringify(data.user));
                 setChatUser(data.user);
             }
             if (data.accessTier) setChatAccessTier(data.accessTier);
@@ -502,6 +597,7 @@ const AIAssistant = () => {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
             const response = await fetch(`${baseUrl}/api/chat/lead`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: buildChatHeaders(),
                 body: JSON.stringify({
                     ...leadForm,
@@ -536,11 +632,13 @@ const AIAssistant = () => {
     const sendGreeting = async (mode) => {
         setIsLoading(true);
         try {
+            if (mode === 'ia') markChatActivity();
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
             const backendUrl = `${baseUrl}/api/chat`;
 
             const response = await fetch(backendUrl, {
                 method: 'POST',
+                credentials: 'include',
                 headers: buildChatHeaders(),
                 body: JSON.stringify({ message: 'SALUDO_INICIAL', sessionId: getChatSessionId(), mode }),
             });
@@ -548,9 +646,14 @@ const AIAssistant = () => {
 
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));
+                if (response.status === 401 && data.sessionExpired) {
+                    clearChatAuthSession(data.error || 'Tu sesion del Asistente IA se cerro por inactividad. Inicia sesion nuevamente para continuar.');
+                    return;
+                }
                 appendAssistantMessage(data.cta || data.error || 'No pude iniciar el asistente en este momento.');
                 return;
             }
+            if (mode === 'ia') markChatActivity();
 
             const fullText = await consumeChatStream(response);
 
@@ -575,6 +678,7 @@ const AIAssistant = () => {
         setChatModeSelected(true);
         if (mode === 'ia') {
             if (chatUser && chatUser.emailVerified) {
+                markChatActivity();
                 setShowSuggestions(false);
                 sendGreeting('ia');
             } else {
@@ -596,6 +700,7 @@ const AIAssistant = () => {
     const handleSendMessage = async (customMessage = null) => {
         const textToSend = customMessage || inputValue;
         if (!textToSend.trim()) return;
+        if (chatMode === 'ia') markChatActivity();
 
         const userMessage = { role: 'user', content: textToSend };
         setMessages(prev => [...prev, userMessage]);
@@ -609,6 +714,7 @@ const AIAssistant = () => {
 
             const response = await fetch(backendUrl, {
                 method: 'POST',
+                credentials: 'include',
                 headers: buildChatHeaders(),
                 body: JSON.stringify({
                     sessionId: getChatSessionId(),
@@ -621,6 +727,10 @@ const AIAssistant = () => {
 
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));
+                if (response.status === 401 && data.sessionExpired) {
+                    clearChatAuthSession(data.error || 'Tu sesion del Asistente IA se cerro por inactividad. Inicia sesion nuevamente para continuar.');
+                    return;
+                }
                 appendAssistantMessage(data.cta || data.error || 'No pude procesar tu mensaje. Intenta nuevamente.');
                 // El Asistente IA requiere registro + correo verificado.
                 if (response.status === 401 || data.requiresAuth || data.requiresVerification) {
@@ -632,6 +742,7 @@ const AIAssistant = () => {
             }
 
             const fullText = await consumeChatStream(response);
+            if (chatMode === 'ia') markChatActivity();
 
             if (fullText) {
                 if (isAudioEnabled) {

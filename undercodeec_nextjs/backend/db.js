@@ -160,6 +160,7 @@ async function initDatabase() {
     await ensureIndex('chat_sessions', 'idx_chat_sessions_user_id', 'user_id');
     await ensureColumn('chat_users', 'is_client', 'TINYINT NOT NULL DEFAULT 0');
     await ensureColumn('chat_users', 'client_since', 'DATETIME NULL');
+    await ensureColumn('chat_users', 'last_active_at', 'DATETIME NULL');
     await ensureIndex('chat_users', 'idx_chat_users_is_client', 'is_client');
     await ensureColumn('chat_users', 'reset_code_hash', 'VARCHAR(255) NULL');
     await ensureColumn('chat_users', 'reset_expires', 'DATETIME NULL');
@@ -167,6 +168,8 @@ async function initDatabase() {
     const addedEmailVerified = await ensureColumn('chat_users', 'email_verified', 'TINYINT NOT NULL DEFAULT 0');
     await ensureColumn('chat_users', 'verify_code_hash', 'VARCHAR(255) NULL');
     await ensureColumn('chat_users', 'verify_expires', 'DATETIME NULL');
+    await ensureColumn('admin_users', 'reset_code_hash', 'VARCHAR(255) NULL');
+    await ensureColumn('admin_users', 'reset_expires', 'DATETIME NULL');
     // Backfill: al agregar la columna por primera vez, los usuarios existentes
     // quedan verificados para no bloquearlos con el nuevo requisito de IA.
     if (addedEmailVerified) {
