@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test:commercial": "node test_chat_commercial_playbook.js"
+    "test:commercial": "node test_chat_commercial_playbook.js",
+    "test:crm-auth": "node --test crmOtp.test.js"
   },
   "keywords": [
     "payphone",
