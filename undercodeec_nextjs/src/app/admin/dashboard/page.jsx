@@ -441,6 +441,13 @@ export default function AdminDashboard() {
           >
             Configuraciones
           </button>
+          <button
+            onClick={() => router.push('/admin/crm')}
+            className="tw-px-6 tw-py-3 tw-rounded-xl tw-text-sm tw-font-semibold tw-transition-all tw-duration-300 tw-flex tw-items-center tw-gap-3 tw-text-purple-200 tw-bg-purple-500/10 hover:tw-bg-purple-500/20 tw-border tw-border-purple-500/20"
+          >
+            Hermes CRM
+            <span aria-hidden="true">↗</span>
+          </button>
         </div>
 
         {error && (
