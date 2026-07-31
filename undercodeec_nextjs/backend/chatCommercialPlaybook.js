@@ -54,7 +54,7 @@ function classifyCommercialIntent(input = {}) {
     return { intent: 'human_handoff', stage: 'handoff', leadScoreDelta: 25, shouldAskForLead: true, shouldOfferPayment: false };
   }
 
-  if (/\b(precio|precios|cuanto cuesta|cuanto vale|planes|tarifa|costo|costos|presupuesto|cotizar|cotizacion)\b/.test(text)) {
+  if (/\b(precio|precios|cuanto cuesta|cuanto vale|planes|tarifa|costo|costos|presupuesto)\b/.test(text)) {
     return { intent: 'faq_price', stage: 'exploration', leadScoreDelta: 10, shouldAskForLead: false, shouldOfferPayment: false };
   }
 
@@ -131,12 +131,28 @@ function buildCommercialSnapshot(message, extra = {}) {
   };
 }
 
-function getStaticChatReply(message) {
+function getStaticChatReply(message, history = []) {
   const text = normalizeChatText(message);
   if (!text || text === 'saludo_inicial') return null;
+
+  // Cuenta los turnos del usuario (incluye el mensaje actual). En el primer
+  // toque respondemos con plantillas para ahorrar tokens; en seguimiento
+  // (>1) delegamos las intenciones consultivas al modelo, que si conoce el
+  // historial y evita repetir bloques o ignorar el contexto ya entregado.
+  const userTurns = Array.isArray(history)
+    ? history.filter((m) => m && m.role === 'user').length
+    : 0;
+  const isFollowUp = userTurns > 1;
+
   const commercial = classifyCommercialIntent(text);
 
   if (commercial.intent === 'purchase_ready') {
+    return null;
+  }
+
+  // En seguimiento, lo conversacional (precio, SEO/marketing, handoff) lo
+  // maneja el modelo con contexto. Evita el volcado repetido de rangos.
+  if (isFollowUp && ['faq_price', 'seo_marketing', 'human_handoff'].includes(commercial.intent)) {
     return null;
   }
 
@@ -149,7 +165,7 @@ function getStaticChatReply(message) {
   }
 
   if (commercial.intent === 'faq_price') {
-    return `${WEB_SEASONAL_DISCOUNTS_TEXT}\n\nComo referencia rapida: landing desde $${DISCOUNTED_WEB_PRICE_SUMMARY.landing.from}, sitio web desde $${DISCOUNTED_WEB_PRICE_SUMMARY.website.from} y tienda online desde $${DISCOUNTED_WEB_PRICE_SUMMARY.ecommerce.from}. Software, apps y sistemas a medida requieren levantamiento.\n\nPara no recomendarte algo que no necesitas: buscas captar contactos por WhatsApp, presentar tu negocio con varias secciones, vender productos online o mejorar tu posicionamiento en Google?\n\n[wa-button]Cotizar por WhatsApp:(${buildWhatsAppUrl('general')})`;
+    return `Depende de lo que quieras lograr, por eso no te lanzo toda la lista de una vez. Como referencia, ahora hay descuentos de temporada y una landing puede iniciar desde $${DISCOUNTED_WEB_PRICE_SUMMARY.landing.from}.\n\nPara no recomendarte algo que no necesitas: buscas captar contactos por WhatsApp, presentar tu negocio con varias secciones, vender productos online o mejorar tu posicionamiento en Google?\n\n[wa-button]Cotizar por WhatsApp:(${buildWhatsAppUrl('general')})`;
   }
 
   if (/\b(portafolio|trabajos|ejemplos|proyectos|casos)\b/.test(text)) {

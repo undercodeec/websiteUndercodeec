@@ -15,12 +15,28 @@ const METHOD_STYLES = {
   transferencia: { label: 'Transferencia', badge: 'tw-bg-orange-500/10 tw-text-orange-400 tw-border-orange-500/20' }
 };
 
+const COMMERCIAL_TEMP_STYLES = {
+  hot: { label: 'Caliente', badge: 'tw-bg-red-500/10 tw-text-red-300 tw-border-red-500/20' },
+  qualified: { label: 'Calificado', badge: 'tw-bg-green-500/10 tw-text-green-300 tw-border-green-500/20' },
+  interested: { label: 'Interesado', badge: 'tw-bg-blue-500/10 tw-text-blue-300 tw-border-blue-500/20' },
+  cold: { label: 'Frio', badge: 'tw-bg-gray-700/50 tw-text-gray-300 tw-border-gray-600' }
+};
+
 const parseJsonField = (value) => {
   if (value && typeof value === 'object') return value;
   if (typeof value === 'string') {
     try { return JSON.parse(value); } catch { return {}; }
   }
   return {};
+};
+
+const getLeadSummary = (lead) => {
+  const payload = parseJsonField(lead?.data);
+  return {
+    source: payload.source || lead?.form_type || '-',
+    projectType: payload.projectType || payload.tipoProyecto || payload.project_type || '-',
+    message: payload.message || payload.mensaje || '-',
+  };
 };
 
 export default function AdminDashboard() {
@@ -304,6 +320,15 @@ export default function AdminDashboard() {
     };
   }, [chatUsage]);
 
+  const registeredChatUsers = useMemo(() => {
+    const uniqueUsers = new Set(
+      (chatUsage.sessions || [])
+        .map((session) => session.user_id)
+        .filter(Boolean)
+    );
+    return uniqueUsers.size;
+  }, [chatUsage.sessions]);
+
   const renderStatusBadge = (status) => {
     const s = STATUS_STYLES[status] || STATUS_STYLES.pending;
     return (
@@ -415,6 +440,13 @@ export default function AdminDashboard() {
             }`}
           >
             Configuraciones
+          </button>
+          <button
+            onClick={() => router.push('/admin/crm')}
+            className="tw-px-6 tw-py-3 tw-rounded-xl tw-text-sm tw-font-semibold tw-transition-all tw-duration-300 tw-flex tw-items-center tw-gap-3 tw-text-purple-200 tw-bg-purple-500/10 hover:tw-bg-purple-500/20 tw-border tw-border-purple-500/20"
+          >
+            Hermes CRM
+            <span aria-hidden="true">↗</span>
           </button>
         </div>
 
@@ -718,6 +750,59 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
+                <div className="tw-grid tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-4">
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-border tw-border-gray-700/50 tw-p-5">
+                    <p className="tw-text-xs tw-text-gray-400 tw-uppercase tw-tracking-wider tw-font-bold">Sesiones guardadas</p>
+                    <p className="tw-text-2xl tw-font-bold tw-text-white tw-mt-2">{chatUsage.sessions?.length || 0}</p>
+                    <p className="tw-text-[11px] tw-text-gray-500 tw-mt-1">Últimas 50 sesiones</p>
+                  </div>
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-border tw-border-gray-700/50 tw-p-5">
+                    <p className="tw-text-xs tw-text-gray-400 tw-uppercase tw-tracking-wider tw-font-bold">Usuarios IA</p>
+                    <p className="tw-text-2xl tw-font-bold tw-text-blue-300 tw-mt-2">{registeredChatUsers}</p>
+                    <p className="tw-text-[11px] tw-text-gray-500 tw-mt-1">Con sesión autenticada</p>
+                  </div>
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-border tw-border-gray-700/50 tw-p-5">
+                    <p className="tw-text-xs tw-text-gray-400 tw-uppercase tw-tracking-wider tw-font-bold">Leads ligados</p>
+                    <p className="tw-text-2xl tw-font-bold tw-text-green-300 tw-mt-2">{(chatUsage.sessions || []).filter((session) => session.lead_id).length}</p>
+                    <p className="tw-text-[11px] tw-text-gray-500 tw-mt-1">Sesiones con lead en BD</p>
+                  </div>
+                  <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-border tw-border-gray-700/50 tw-p-5">
+                    <p className="tw-text-xs tw-text-gray-400 tw-uppercase tw-tracking-wider tw-font-bold">Modo IA</p>
+                    <p className="tw-text-2xl tw-font-bold tw-text-purple-300 tw-mt-2">{(chatUsage.sessions || []).filter((session) => session.mode === 'ia').length}</p>
+                    <p className="tw-text-[11px] tw-text-gray-500 tw-mt-1">Vs bot automático</p>
+                  </div>
+                </div>
+
+                <div className="tw-grid md:tw-grid-cols-3 tw-gap-4">
+                  {[
+                    ['Temperatura', chatUsage.commercialSummary?.byTemperature || {}],
+                    ['Intencion', chatUsage.commercialSummary?.byIntent || {}],
+                    ['Servicio probable', chatUsage.commercialSummary?.byService || {}],
+                  ].map(([title, rows]) => (
+                    <div key={title} className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-border tw-border-gray-700/50 tw-p-5">
+                      <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-mb-4">
+                        <p className="tw-text-xs tw-text-gray-400 tw-uppercase tw-tracking-wider tw-font-bold">{title}</p>
+                        <span className="tw-text-[11px] tw-text-gray-500">{chatUsage.commercialSummary?.snapshots || 0} sesiones</span>
+                      </div>
+                      <div className="tw-space-y-2">
+                        {Object.entries(rows).length === 0 ? (
+                          <p className="tw-text-xs tw-text-gray-500">Sin datos comerciales aun.</p>
+                        ) : (
+                          Object.entries(rows)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 5)
+                            .map(([label, count]) => (
+                              <div key={label} className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-text-xs">
+                                <span className="tw-text-gray-300 tw-truncate">{label}</span>
+                                <span className="tw-font-bold tw-text-white">{count}</span>
+                              </div>
+                            ))
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 <div className="tw-grid lg:tw-grid-cols-2 tw-gap-6">
                   <div className="tw-bg-gray-900/60 tw-backdrop-blur-md tw-rounded-2xl tw-shadow-2xl tw-border tw-border-gray-700/50 tw-overflow-hidden">
                     <div className="tw-p-5 tw-border-b tw-border-gray-800">
@@ -759,18 +844,37 @@ export default function AdminDashboard() {
                       {(chatUsage.recent || []).length === 0 ? (
                         <div className="tw-px-5 tw-py-10 tw-text-center tw-text-gray-500 tw-text-sm">Sin eventos recientes.</div>
                       ) : (
-                        chatUsage.recent.map((event) => (
-                          <div key={event.id} className="tw-p-4 hover:tw-bg-gray-800/40 tw-transition-colors">
-                            <div className="tw-flex tw-items-center tw-justify-between tw-gap-3">
-                              <span className="tw-font-mono tw-text-xs tw-text-purple-300">{event.event_type}</span>
-                              <span className="tw-text-[11px] tw-text-gray-500 tw-whitespace-nowrap">{formatDate(event.created_at)}</span>
+                        chatUsage.recent.map((event) => {
+                          const metadata = parseJsonField(event.metadata);
+                          const commercial = metadata.commercial || null;
+                          return (
+                            <div key={event.id} className="tw-p-4 hover:tw-bg-gray-800/40 tw-transition-colors">
+                              <div className="tw-flex tw-items-center tw-justify-between tw-gap-3">
+                                <span className="tw-font-mono tw-text-xs tw-text-purple-300">{event.event_type}</span>
+                                <span className="tw-text-[11px] tw-text-gray-500 tw-whitespace-nowrap">{formatDate(event.created_at)}</span>
+                              </div>
+                              <div className="tw-mt-2 tw-flex tw-flex-wrap tw-gap-2 tw-text-[11px] tw-text-gray-400">
+                                <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-2 tw-py-1">msg {event.message_length || 0}</span>
+                                <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-2 tw-py-1">resp {event.response_length || 0}</span>
+                                {metadata.sessionId && <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-2 tw-py-1">sesión {metadata.sessionId}</span>}
+                                {metadata.leadId && <span className="tw-bg-gray-800 tw-border tw-border-green-500/20 tw-text-green-300 tw-rounded-lg tw-px-2 tw-py-1">lead #{metadata.leadId}</span>}
+                                {metadata.projectType && <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-2 tw-py-1">{metadata.projectType}</span>}
+                                {commercial?.intent && <span className="tw-bg-gray-800 tw-border tw-border-purple-500/20 tw-text-purple-300 tw-rounded-lg tw-px-2 tw-py-1">{commercial.intent}</span>}
+                                {commercial?.temperature && <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-2 tw-py-1">{commercial.temperature}</span>}
+                              </div>
+                              {metadata.error && (
+                                <div className="tw-mt-2 tw-text-[11px] tw-text-red-300 tw-leading-relaxed">
+                                  {metadata.error}
+                                </div>
+                              )}
+                              {commercial?.nextAction && (
+                                <div className="tw-mt-2 tw-text-[11px] tw-text-gray-500 tw-leading-relaxed">
+                                  Siguiente acción: {commercial.nextAction}
+                                </div>
+                              )}
                             </div>
-                            <div className="tw-mt-2 tw-flex tw-flex-wrap tw-gap-2 tw-text-[11px] tw-text-gray-400">
-                              <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-2 tw-py-1">msg {event.message_length || 0}</span>
-                              <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-2 tw-py-1">resp {event.response_length || 0}</span>
-                            </div>
-                          </div>
-                        ))
+                          );
+                        })
                       )}
                     </div>
                   </div>
@@ -786,7 +890,10 @@ export default function AdminDashboard() {
                       <thead className="tw-uppercase tw-tracking-wider tw-border-b tw-border-gray-700 tw-bg-gray-800/80 tw-text-gray-400 tw-text-xs tw-font-bold">
                         <tr>
                           <th className="tw-px-5 tw-py-4">Sesión</th>
+                          <th className="tw-px-5 tw-py-4">Modo</th>
                           <th className="tw-px-5 tw-py-4">Estado</th>
+                          <th className="tw-px-5 tw-py-4">Temperatura</th>
+                          <th className="tw-px-5 tw-py-4">Servicio</th>
                           <th className="tw-px-5 tw-py-4 tw-text-right">Mensajes</th>
                           <th className="tw-px-5 tw-py-4">Lead</th>
                           <th className="tw-px-5 tw-py-4">Usuario</th>
@@ -796,11 +903,20 @@ export default function AdminDashboard() {
                       </thead>
                       <tbody className="tw-divide-y tw-divide-gray-700/50">
                         {(chatUsage.sessions || []).length === 0 ? (
-                          <tr><td colSpan="7" className="tw-px-5 tw-py-10 tw-text-center tw-text-gray-500">Aún no hay sesiones guardadas.</td></tr>
+                          <tr><td colSpan="10" className="tw-px-5 tw-py-10 tw-text-center tw-text-gray-500">Aún no hay sesiones guardadas.</td></tr>
                         ) : (
                           chatUsage.sessions.map((session) => (
                             <tr key={session.id} className="hover:tw-bg-gray-800/50">
                               <td className="tw-px-5 tw-py-4 tw-font-mono tw-text-xs tw-text-purple-300">{session.external_session_id}</td>
+                              <td className="tw-px-5 tw-py-4">
+                                <span className={`tw-inline-flex tw-px-2.5 tw-py-1 tw-rounded-lg tw-text-[11px] tw-font-bold tw-border ${
+                                  session.mode === 'ia'
+                                    ? 'tw-bg-purple-500/10 tw-text-purple-300 tw-border-purple-500/20'
+                                    : 'tw-bg-cyan-500/10 tw-text-cyan-300 tw-border-cyan-500/20'
+                                }`}>
+                                  {session.mode === 'ia' ? 'IA' : 'Bot'}
+                                </span>
+                              </td>
                               <td className="tw-px-5 tw-py-4">
                                 <span className={`tw-inline-flex tw-px-2.5 tw-py-1 tw-rounded-lg tw-text-[11px] tw-font-bold tw-border ${
                                   session.status === 'client'
@@ -813,6 +929,19 @@ export default function AdminDashboard() {
                                 }`}>
                                   {session.status || 'active'}
                                 </span>
+                              </td>
+                              <td className="tw-px-5 tw-py-4">
+                                {(() => {
+                                  const temp = COMMERCIAL_TEMP_STYLES[session.commercial?.temperature] || COMMERCIAL_TEMP_STYLES.cold;
+                                  return (
+                                    <span className={`tw-inline-flex tw-px-2.5 tw-py-1 tw-rounded-lg tw-text-[11px] tw-font-bold tw-border ${temp.badge}`}>
+                                      {temp.label}{session.commercial?.leadScore !== undefined ? ` ${session.commercial.leadScore}` : ''}
+                                    </span>
+                                  );
+                                })()}
+                              </td>
+                              <td className="tw-px-5 tw-py-4 tw-text-gray-300 tw-max-w-[180px] tw-truncate" title={session.commercial?.likelyService || ''}>
+                                {session.commercial?.likelyService || '-'}
                               </td>
                               <td className="tw-px-5 tw-py-4 tw-text-right tw-font-bold tw-text-white">{session.message_count || 0}</td>
                               <td className="tw-px-5 tw-py-4 tw-text-gray-300">{session.lead_id ? `#${session.lead_id}` : '-'}</td>
@@ -941,6 +1070,9 @@ export default function AdminDashboard() {
 
             <div className="tw-p-5 tw-border-b tw-border-gray-800 tw-flex tw-flex-wrap tw-gap-3 tw-text-xs">
               <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-3 tw-py-1.5 tw-text-gray-300">
+                Modo: {selectedChatSession.mode === 'ia' ? 'Asistente IA' : 'ChatBot'}
+              </span>
+              <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-3 tw-py-1.5 tw-text-gray-300">
                 Estado: {selectedChatSession.status || 'active'}
               </span>
               <span className="tw-bg-gray-800 tw-border tw-border-gray-700 tw-rounded-lg tw-px-3 tw-py-1.5 tw-text-gray-300">
@@ -953,6 +1085,60 @@ export default function AdminDashboard() {
                 Inicio: {formatDate(selectedChatSession.created_at)}
               </span>
             </div>
+
+            {selectedChatSession.commercial && (
+              <div className="tw-p-5 tw-border-b tw-border-gray-800 tw-bg-gray-950/40">
+                {(() => {
+                  const temp = COMMERCIAL_TEMP_STYLES[selectedChatSession.commercial.temperature] || COMMERCIAL_TEMP_STYLES.cold;
+                  return (
+                    <div className="tw-grid md:tw-grid-cols-4 tw-gap-3 tw-text-xs">
+                      <div className="tw-bg-gray-800/70 tw-border tw-border-gray-700 tw-rounded-xl tw-p-3">
+                        <div className="tw-text-gray-500 tw-font-bold tw-uppercase tw-tracking-wider tw-mb-1">Temperatura</div>
+                        <span className={`tw-inline-flex tw-px-2.5 tw-py-1 tw-rounded-lg tw-text-[11px] tw-font-bold tw-border ${temp.badge}`}>
+                          {temp.label} {selectedChatSession.commercial.leadScore ?? 0}
+                        </span>
+                      </div>
+                      <div className="tw-bg-gray-800/70 tw-border tw-border-gray-700 tw-rounded-xl tw-p-3">
+                        <div className="tw-text-gray-500 tw-font-bold tw-uppercase tw-tracking-wider tw-mb-1">Intencion</div>
+                        <div className="tw-text-gray-200">{selectedChatSession.commercial.intent || '-'}</div>
+                      </div>
+                      <div className="tw-bg-gray-800/70 tw-border tw-border-gray-700 tw-rounded-xl tw-p-3">
+                        <div className="tw-text-gray-500 tw-font-bold tw-uppercase tw-tracking-wider tw-mb-1">Servicio</div>
+                        <div className="tw-text-gray-200">{selectedChatSession.commercial.likelyService || '-'}</div>
+                      </div>
+                      <div className="tw-bg-gray-800/70 tw-border tw-border-gray-700 tw-rounded-xl tw-p-3">
+                        <div className="tw-text-gray-500 tw-font-bold tw-uppercase tw-tracking-wider tw-mb-1">Siguiente accion</div>
+                        <div className="tw-text-gray-200 tw-leading-relaxed">{selectedChatSession.commercial.nextAction || '-'}</div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+
+            {selectedChatSession.lead && (
+              <div className="tw-p-5 tw-border-b tw-border-gray-800 tw-bg-green-500/5">
+                {(() => {
+                  const leadSummary = getLeadSummary(selectedChatSession.lead);
+                  return (
+                    <div className="tw-grid md:tw-grid-cols-2 tw-gap-3 tw-text-xs">
+                      <div className="tw-bg-gray-800/70 tw-border tw-border-gray-700 tw-rounded-xl tw-p-3">
+                        <div className="tw-text-gray-500 tw-font-bold tw-uppercase tw-tracking-wider tw-mb-1">Lead capturado</div>
+                        <div className="tw-text-gray-100 tw-font-semibold">{selectedChatSession.lead.name || '-'}</div>
+                        <div className="tw-text-gray-400 tw-mt-1">{selectedChatSession.lead.email || 'Sin email'}</div>
+                        <div className="tw-text-gray-400">{selectedChatSession.lead.phone || 'Sin teléfono'}</div>
+                      </div>
+                      <div className="tw-bg-gray-800/70 tw-border tw-border-gray-700 tw-rounded-xl tw-p-3">
+                        <div className="tw-text-gray-500 tw-font-bold tw-uppercase tw-tracking-wider tw-mb-1">Proyecto y origen</div>
+                        <div className="tw-text-gray-200">Origen: {leadSummary.source}</div>
+                        <div className="tw-text-gray-200 tw-mt-1">Proyecto: {leadSummary.projectType}</div>
+                        <div className="tw-text-gray-400 tw-mt-2 tw-leading-relaxed">{leadSummary.message}</div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
 
             <div className="tw-p-6 tw-overflow-y-auto custom-scrollbar tw-space-y-4">
               {loadingChatSession ? (

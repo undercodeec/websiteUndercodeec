@@ -1,5 +1,5 @@
-require('dotenv').config();
 const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 // Endpoints SOAP oficiales del SRI por ambiente
 const SRI_URLS = {

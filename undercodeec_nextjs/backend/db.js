@@ -1,5 +1,6 @@
+const path = require('path');
 const mysql = require('mysql2/promise');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
@@ -159,9 +160,23 @@ async function initDatabase() {
     await ensureIndex('chat_sessions', 'idx_chat_sessions_user_id', 'user_id');
     await ensureColumn('chat_users', 'is_client', 'TINYINT NOT NULL DEFAULT 0');
     await ensureColumn('chat_users', 'client_since', 'DATETIME NULL');
+    await ensureColumn('chat_users', 'last_active_at', 'DATETIME NULL');
     await ensureIndex('chat_users', 'idx_chat_users_is_client', 'is_client');
     await ensureColumn('chat_users', 'reset_code_hash', 'VARCHAR(255) NULL');
     await ensureColumn('chat_users', 'reset_expires', 'DATETIME NULL');
+    // Verificacion de correo para el modo Asistente IA.
+    const addedEmailVerified = await ensureColumn('chat_users', 'email_verified', 'TINYINT NOT NULL DEFAULT 0');
+    await ensureColumn('chat_users', 'verify_code_hash', 'VARCHAR(255) NULL');
+    await ensureColumn('chat_users', 'verify_expires', 'DATETIME NULL');
+    await ensureColumn('admin_users', 'reset_code_hash', 'VARCHAR(255) NULL');
+    await ensureColumn('admin_users', 'reset_expires', 'DATETIME NULL');
+    // Backfill: al agregar la columna por primera vez, los usuarios existentes
+    // quedan verificados para no bloquearlos con el nuevo requisito de IA.
+    if (addedEmailVerified) {
+      await pool.query('UPDATE chat_users SET email_verified = 1');
+    }
+    // Separar IA vs Bot en el analisis de campanas.
+    await ensureColumn('chat_sessions', 'mode', 'VARCHAR(20) NULL');
     console.log('✅ Database tables checked/created successfully');
   } catch (error) {
     console.error('❌ Error initializing database tables:', error.message);
@@ -176,7 +191,9 @@ async function ensureColumn(tableName, columnName, definition) {
   );
   if (rows.length === 0) {
     await pool.query(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+    return true;
   }
+  return false;
 }
 
 async function ensureIndex(tableName, indexName, columnName) {

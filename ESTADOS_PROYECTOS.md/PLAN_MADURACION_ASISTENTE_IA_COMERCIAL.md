@@ -64,7 +64,8 @@ Actualizado: 2026-07-09
 - [x] Fase 11: Instrumentar medicion comercial por intencion, temperatura y servicio en admin IA.
 - [ ] Fase 12: Ajustar prompts con datos reales cuando exista volumen suficiente de conversaciones.
   - Preparado: se agrego prueba automatizada del playbook comercial para proteger los escenarios de aceptacion mientras se recopilan conversaciones reales.
-  - Pendiente: revisar conversaciones reales desde admin IA y ajustar prompt/intenciones con evidencia de usuarios.
+  - Avance 2026-07-10: primer ajuste con una conversacion real de WhatsApp (ver mas abajo).
+  - Pendiente: revisar mas conversaciones reales desde admin IA y ajustar prompt/intenciones con evidencia de usuarios.
 
 Verificacion realizada:
 
@@ -80,6 +81,79 @@ Continuacion 2026-07-09:
 - Ampliado `buildCommercialSnapshot` con senales comerciales de URL, presupuesto, urgencia y captacion de clientes.
 - Actualizado el saludo inicial del backend para orientar al usuario por cotizacion nueva, mejora web, SEO/Google o WhatsApp.
 - Agregado script `test:commercial` en `backend/package.json`.
+
+Continuacion 2026-07-10 (ajuste Fase 12 con conversacion real):
+
+Evidencia: en una conversacion real reproducida desde WhatsApp, el asistente presento dos fallas:
+
+1. Volcado prematuro. Al primer mensaje "Quiero cotizar un proyecto nuevo" respondio con los tres planes web (landing $80, sitio $120, tienda $248) de golpe, sin diagnosticar.
+2. Respuesta repetida. Cuando el usuario entrego un lead de alta intencion (ya compro hosting, tiene 3 dominios, quiere migrar 2 webs y crear una 3era, y pidio costo total y tiempo), el asistente repitio el mismo bloque de precios palabra por palabra, ignorando todo el contexto.
+
+Causa raiz: `getStaticChatReply` era ciega al historial (solo veia el mensaje actual) y el regex de `faq_price` era demasiado amplio (incluia `cotizar`/`cotizacion`). La capa de ahorro de tokens cortocircuitaba al modelo incluso en turnos que ya tenian contexto conversacional, sacrificando naturalidad.
+
+Cambios aplicados:
+
+- `backend/chatCommercialPlaybook.js`:
+  - `getStaticChatReply(message, history)` ahora es consciente del historial. Cuenta turnos del usuario; en seguimiento (mas de un turno) delega `faq_price`, `seo_marketing` y `human_handoff` al modelo, que si conoce el historial. Asi se elimina la repeticion del bloque y el ignorar contexto. El primer toque en frio conserva la plantilla barata.
+  - Se saco `cotizar`/`cotizacion` del regex de `faq_price` en `classifyCommercialIntent`, para que "quiero cotizar un proyecto nuevo" pase a diagnostico en lugar de disparar el volcado de precios.
+  - Se adelgazo la respuesta estatica de `faq_price`: de listar landing + sitio + tienda a un solo rango gancho (landing desde $80) mas la pregunta clasificadora.
+- `backend/server.js`: se pasa `history` a `getStaticChatReply` en el handler de `/api/chat` y en el middleware `chatRateLimit`, para que los seguimientos que ahora van al modelo cuenten contra la cuota.
+- `backend/test_chat_commercial_playbook.js`: se actualizo la asercion de precio y se agrego cobertura para los tres arreglos (no volcar todos los planes en el primer toque, `cotizar` no clasifica como `faq_price`, y el gate por seguimiento devuelve null).
+
+Verificacion 2026-07-10:
+
+- `node --check` OK en `backend/server.js` y `backend/chatCommercialPlaybook.js`.
+- `backend/test_chat_commercial_playbook.js`: prueba ejecutada y aprobada.
+- Simulacion de la conversacion real: turnos 1, 2 y 3 pasan al modelo; una consulta de precio suelta como primer mensaje devuelve el rango gancho (sin volcar todos los planes).
+
+## Cambio de arquitectura 2026-07-10: dos modos (Asistente IA vs ChatBot automatico)
+
+Decision del negocio: reemplazar el modelo de cuotas por tier por dos productos que el usuario elige al abrir el chat. El objetivo es medir conversaciones en campanas y usarlas para entrenar: primero para mejorar los prompts del backend y despues para mejorar el modelo del asistente.
+
+### Modo A: Asistente IA (asesor personal)
+
+- Requiere registro con correo y contrasena, y verificacion del correo por codigo OTP.
+- Usa el modelo de IA sin limites de uso (sin tope diario). La barrera anti-abuso es la verificacion de correo.
+- Al entrar (ya verificado) no muestra los botones de seleccion: lanza un mensaje de bienvenida invitando a consultar libremente.
+- La voz (microfono + TTS) se conserva como toggle dentro de este modo.
+
+### Modo B: ChatBot automatico (sin IA)
+
+- No pide registro y no usa el modelo.
+- Muestra los 4 botones como interfaz principal: cotizar proyecto nuevo, modernizar web actual, mejorar SEO/Google, hablar con asesor humano.
+- Texto libre se responde con las plantillas estaticas existentes (`getStaticChatReply`); si no hay coincidencia, se entrega un mensaje esencial de fallback que reorienta a los botones o a activar el Asistente IA.
+- En este modo `getStaticChatReply` se llama sin historial, para que el gate de seguimiento no aplique (no hay modelo al cual delegar) y siempre devuelva respuesta.
+
+### Cambios realizados (2026-07-10)
+
+Backend (`backend/server.js`, `backend/db.js`):
+
+- [x] Migracion: `chat_users.email_verified`, `chat_users.verify_code_hash`, `chat_users.verify_expires` (idempotente via `ensureColumn`, que ahora devuelve si creo la columna). Backfill: al crear `email_verified` por primera vez, los usuarios existentes quedan verificados para no bloquearlos. Se agrego tambien `chat_sessions.mode`.
+- [x] Registro (`/api/chat/auth/register`): crea el usuario sin verificar y envia codigo OTP por correo (`sendChatVerificationEmail`, reusa el transporter del reset). Si el correo existe sin verificar, actualiza datos y reenvia codigo. Devuelve `requiresVerification` en vez de token.
+- [x] Nuevo endpoint `/api/chat/auth/verify`: valida el codigo, marca `email_verified = 1` y devuelve el token de sesion via `chatAuthResponse`.
+- [x] Login: incluye `email_verified`; si no esta verificado responde 403 `requiresVerification` y reenvia codigo (respetando cooldown).
+- [x] `/api/chat`: nuevo campo `mode` (`ia` | `bot`). En `bot` solo estaticos (sin historial) + `CHAT_BOT_FALLBACK`, nunca modelo. En `ia` exige usuario verificado (401 `requiresAuth` si no) y usa el modelo sin tope diario, sin atajo estatico. Saludo inicial distinto por modo.
+- [x] `chatRateLimit`: consciente de `mode`; `bot` pasa sin cuota; IA verificada sin tope diario, solo un guard de rafaga por minuto (`CHAT_IA_BURST_MAX`) como proteccion anti-DoS. Nuevo helper `getVerifiedChatUser`.
+- [x] Persistencia: se registra `mode` en `chat_sessions` (via `ensureChatSession`) y en `chat_usage.metadata` para separar IA vs Bot en el analisis de campanas.
+
+Frontend (`src/components/AIAssistant/index.jsx`):
+
+- [x] Reemplazada la pantalla de seleccion voz/texto por la seleccion de modo (Asistente IA vs ChatBot automatico) con `selectChatMode`.
+- [x] Se envia `mode` en `/api/chat`; se maneja 401 `requiresAuth`/`requiresVerification` mostrando el panel de registro y el paso de codigo (`submitChatVerify`).
+- [x] Modo IA: oculta los botones tras verificar, muestra bienvenida + input libre; la voz queda como toggle interno (mic + TTS ya existentes).
+- [x] Modo Bot: muestra los 4 botones; el texto libre mapea a estaticos.
+- [x] Se oculta el badge de consultas restantes en modo IA (ya no hay limite).
+
+Verificacion 2026-07-10:
+
+- `node --check` OK en `backend/server.js` y `backend/db.js`.
+- `backend/test_chat_commercial_playbook.js`: prueba ejecutada y aprobada.
+- ESLint sobre `src/components/AIAssistant/index.jsx`: 0 errores (solo 2 warnings de hooks preexistentes).
+- Comprobacion del modo Bot: una consulta que coincide con plantilla responde estatico; una sin coincidencia devuelve null y el handler usa `CHAT_BOT_FALLBACK`.
+
+Nota de infraestructura confirmada: la DB es MySQL/MariaDB con un shim de compatibilidad pg en `backend/db.js`; las columnas nuevas se agregan idempotentemente en el arranque con `ensureColumn`.
+
+Pendiente de prueba manual (requiere entorno con DB y correo configurados): flujo completo de registro -> codigo por correo -> verificacion -> conversacion IA, y el flujo del ChatBot con los 4 botones.
 
 ## Hallazgos principales en `server.js`
 

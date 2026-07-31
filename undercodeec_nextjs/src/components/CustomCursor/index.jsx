@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { animate } from "animejs";
 
 const CURSOR_WIDTH = 52;
@@ -123,6 +124,7 @@ function extractColorsFromCssValue(value) {
 }
 
 export default function CustomCursor() {
+  const pathname = usePathname();
   const cursorRef = useRef(null);
   const shellRef = useRef(null);
   const lineRefs = useRef([]);
@@ -140,6 +142,7 @@ export default function CustomCursor() {
       typeof window !== "undefined" &&
       window.matchMedia("(pointer: coarse)").matches
   );
+  const isAdminRoute = pathname?.startsWith("/admin");
 
   const updateGeometry = () => {
     CODE_TO_ARROW_SEGMENTS.forEach((segment, index) => {
@@ -336,7 +339,7 @@ export default function CustomCursor() {
     };
   }, [isTouchDevice, isVisible]);
 
-  if (isTouchDevice) return null;
+  if (isTouchDevice || isAdminRoute) return null;
 
   return (
     <>
