@@ -33,12 +33,23 @@ const AIAssistant = () => {
     const [remainingAIRequests, setRemainingAIRequests] = useState(null);
     const [chatAccessTier, setChatAccessTier] = useState('public');
     const chatSessionIdRef = useRef(null);
+    const hasTrackedAIConversationStartRef = useRef(false);
 
     const appendAssistantMessage = useCallback((content) => {
         setMessages(prev => [...prev, { role: 'assistant', content, streaming: false }]);
     }, []);
 
     const getApiBaseUrl = () => process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
+
+    const trackPixelEvent = (eventName, parameters = {}) => {
+        if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+            window.fbq('trackCustom', eventName, {
+                source: 'ai_assistant',
+                page_path: pathname || '/',
+                ...parameters,
+            });
+        }
+    };
 
     const markChatActivity = useCallback(() => {
         if (typeof window === 'undefined') return;
@@ -416,6 +427,7 @@ const AIAssistant = () => {
     // Al autenticar/verificar con exito: guarda sesion y, si el usuario eligio IA,
     // arranca la conversacion con el asesor personal.
     const onChatAuthSuccess = (data) => {
+        trackPixelEvent('FormularioAsistenteIAEnviado', { form_type: 'chat_access' });
         if (data.token) {
             localStorage.removeItem(CHAT_AUTH_TOKEN_KEY);
             markChatActivity();
@@ -612,6 +624,7 @@ const AIAssistant = () => {
             if (Number.isFinite(Number(data.remainingToday))) setRemainingAIRequests(Number(data.remainingToday));
             appendAssistantMessage(data.message || data.error || 'Recibimos tus datos. Un asesor continuara contigo.');
             if (response.ok) {
+                trackPixelEvent('FormularioAsistenteIAEnviado', { form_type: 'lead_capture' });
                 setShowLeadCapture(false);
                 setLeadForm({ name: '', phone: '', email: '', projectType: '' });
             }
@@ -653,7 +666,13 @@ const AIAssistant = () => {
                 appendAssistantMessage(data.cta || data.error || 'No pude iniciar el asistente en este momento.');
                 return;
             }
-            if (mode === 'ia') markChatActivity();
+            if (mode === 'ia') {
+                markChatActivity();
+                if (!hasTrackedAIConversationStartRef.current) {
+                    trackPixelEvent('InicioConversacionAsistenteIA');
+                    hasTrackedAIConversationStartRef.current = true;
+                }
+            }
 
             const fullText = await consumeChatStream(response);
 
@@ -694,6 +713,9 @@ const AIAssistant = () => {
 
     const toggleChat = () => {
         dismissHighlight();
+        if (!isOpen) {
+            trackPixelEvent('ClickAsistenteIA');
+        }
         setIsOpen(!isOpen);
     };
 

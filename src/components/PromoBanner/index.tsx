@@ -3,6 +3,12 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
+declare global {
+  interface Window {
+    fbq?: (...args: unknown[]) => void;
+  }
+}
+
 export default function PromoBanner() {
   const bannerRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
@@ -13,6 +19,14 @@ export default function PromoBanner() {
   const handleSaberMas = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (typeof window.fbq === "function") {
+      window.fbq("trackCustom", "ClickSaberMas", {
+        source: "promo_banner",
+        destination: isBudgetLanding ? "budget_modal" : "plans",
+        page_path: pathname || "/",
+      });
+    }
 
     if (!isBudgetLanding) {
       window.location.assign("/#planes");
