@@ -67,7 +67,7 @@ const localBusinessJsonLd = {
   image: `${SITE_URL}/assets/img/undercode-logo.png`,
   logo: `${SITE_URL}/assets/img/undercode-logo.png`,
   url: `${SITE_URL}/contacto/`,
-  telephone: "+593-979-046-329",
+  telephone: "+593-999-739-534",
   email: "gerencia@undercodeec.com",
   priceRange: "$$",
   currenciesAccepted: "USD",
@@ -108,7 +108,7 @@ const localBusinessJsonLd = {
     {
       "@type": "ContactPoint",
       contactType: "sales",
-      telephone: "+593-979-046-329",
+      telephone: "+593-999-739-534",
       email: "gerencia@undercodeec.com",
       availableLanguage: ["es"],
       areaServed: "EC",

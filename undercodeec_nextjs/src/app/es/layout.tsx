@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Agencia de Desarrollo Web, Apps Móviles y SEO en España | Undercodeec",
+  title: "Haz crecer tu negocio online | Web, Apps y SEO en España | Undercodeec",
   description:
-    "Agencia digital para empresas en España. Diseño web a medida, aplicaciones móviles para Android e iOS, posicionamiento web (SEO), software empresarial y campañas en Google Ads. Presupuesto sin compromiso en euros.",
+    "Convierte visitas en clientes con una web que vende. En Undercodeec creamos webs, apps y soluciones SEO a medida para empresas españolas que quieren crecer, destacar y obtener resultados reales. Pide tu presupuesto sin compromiso.",
   keywords: [
     "diseño web España",
     "desarrollo web Madrid",
@@ -46,9 +46,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Agencia de Desarrollo Web, Apps Móviles y SEO en España | Undercodeec",
+    title: "Haz crecer tu negocio online | Web, Apps y SEO en España",
     description:
-      "Diseño web, aplicaciones móviles, posicionamiento SEO y software a medida para empresas y pymes en España. Hablamos claro y trabajamos con presupuestos transparentes en euros.",
+      "Diseño web que convierte, apps a medida y SEO para que tu empresa gane visibilidad y clientes. Estrategia digital clara, resultados medibles y presupuesto a la medida de tu negocio.",
     url: "https://undercodeec.com/es/",
     siteName: "Undercodeec",
     type: "website",

@@ -265,7 +265,7 @@ const Blog = ({}) => {
               style={{ position: "relative" }}
             >
               <a
-                href="https://wa.me/593979046329?text=¡Hola!%20Estoy%20interesado%20en%20obtener%20más%20información%20sobre%20los%20planes%20de%20marketing%20para%20mi%20negocio."
+                href="https://wa.me/593999739534?text=¡Hola!%20Estoy%20interesado%20en%20obtener%20más%20información%20sobre%20los%20planes%20de%20marketing%20para%20mi%20negocio."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="whatsapp"

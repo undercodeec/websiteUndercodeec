@@ -138,7 +138,7 @@ const faqJsonLd = {
       name: "¿Cómo solicito un presupuesto?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Para solicitar un presupuesto puedes (1) escribir a gerencia@undercodeec.com, (2) llamar al +593-979-046-329 o (3) llenar el formulario en /contacto. Respondemos en menos de 24 horas con una propuesta personalizada y una videollamada de descubrimiento sin costo.",
+      text: "Para solicitar un presupuesto puedes (1) escribir a gerencia@undercodeec.com, (2) llamar al +593-999-739-534 o (3) llenar el formulario en /contacto. Respondemos en menos de 24 horas con una propuesta personalizada y una videollamada de descubrimiento sin costo.",
       },
     },
   ],

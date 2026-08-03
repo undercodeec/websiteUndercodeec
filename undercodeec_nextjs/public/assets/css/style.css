@@ -4766,6 +4766,13 @@ section.clients.style-5 {
   transform: scale(0.8);
 }
 
+.projects.style-8 .projects-slider8 .swiper-slide-active .project-card {
+  opacity: 1;
+  -webkit-transform: scale(1);
+  -ms-transform: scale(1);
+  transform: scale(1);
+}
+
 .projects.style-8 .img {
   border-radius: 10px;
   position: relative;

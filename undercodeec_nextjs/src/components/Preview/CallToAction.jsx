@@ -23,7 +23,7 @@ const Blog = () => {
           <div className="col-lg-5">
             <div className="bttns text-end">
               <a
-                href="https://wa.me/593979046329?text=Hola%20Undercodeec%2C%20me%20gustar%C3%ADa%20obtener%20informaci%C3%B3n%20sobre%20sus%20servicios.%20%C2%BFMe%20pueden%20ayudar%20con%20alguna%20de%20estas%20opciones%3F%0A%0A1.%20Quiero%20saber%20m%C3%A1s%20sobre%20p%C3%A1ginas%20web%0A2.%20Quiero%20cotizar%20un%20proyecto%0A3.%20Quiero%20ver%20el%20portafolio%20de%20trabajos%20web%0A4.%20Quiero%20ver%20el%20portafolio%20de%20aplicaciones%20m%C3%B3viles%0A5.%20Quiero%20hablar%20con%20un%20asesor"
+                href="https://wa.me/593999739534?text=Hola%20Undercodeec%2C%20me%20gustar%C3%ADa%20obtener%20informaci%C3%B3n%20sobre%20sus%20servicios.%20%C2%BFMe%20pueden%20ayudar%20con%20alguna%20de%20estas%20opciones%3F%0A%0A1.%20Quiero%20saber%20m%C3%A1s%20sobre%20p%C3%A1ginas%20web%0A2.%20Quiero%20cotizar%20un%20proyecto%0A3.%20Quiero%20ver%20el%20portafolio%20de%20trabajos%20web%0A4.%20Quiero%20ver%20el%20portafolio%20de%20aplicaciones%20m%C3%B3viles%0A5.%20Quiero%20hablar%20con%20un%20asesor"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn rounded-pill bg-white border-1 border-white text-dark sm-butn me-2 hover-lift"

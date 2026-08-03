@@ -326,7 +326,7 @@ const PlanCard = ({ plan, index }) => {
           ))}
         </ul>
         <a
-          href={`https://wa.me/593979046329?text=${encodeURIComponent(
+          href={`https://wa.me/593999739534?text=${encodeURIComponent(
             `Hola, me interesa contratar el *${plan.name}* de hosting con dominio .com incluido por $${plan.price}/${plan.period}.\n\n¿Podrían darme más información?`
           )}`}
           target="_blank"
@@ -537,7 +537,7 @@ const LandingHosting = () => {
                     Ver planes
                   </a>
                   <a
-                    href="https://wa.me/593979046329?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20los%20planes%20de%20hosting"
+                    href="https://wa.me/593999739534?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20los%20planes%20de%20hosting"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-lg fw-bold px-4 py-3"
@@ -958,7 +958,7 @@ const LandingHosting = () => {
                 Ver planes
               </a>
               <a
-                href="https://wa.me/593979046329?text=Hola%2C%20quiero%20contratar%20un%20plan%20de%20hosting%20con%20dominio%20incluido"
+                href="https://wa.me/593999739534?text=Hola%2C%20quiero%20contratar%20un%20plan%20de%20hosting%20con%20dominio%20incluido"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-outline-light btn-lg px-4 py-3"

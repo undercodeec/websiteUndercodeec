@@ -32,7 +32,7 @@ const organizationJsonLd = {
     "@type": "ContactPoint",
     "contactType": "sales",
     "email": "gerencia@undercodeec.com",
-    "telephone": "+593-979-046-329",
+    "telephone": "+593-999-739-534",
     "availableLanguage": ["es"],
     "areaServed": "EC",
   },
@@ -44,7 +44,7 @@ const localBusinessJsonLd = {
   "name": "UNDER CODEEC",
   "image": "https://undercodeec.com/assets/img/undercode-logo.png",
   "url": "https://undercodeec.com/ec",
-  "telephone": "+593-979-046-329",
+  "telephone": "+593-999-739-534",
   "email": "gerencia@undercodeec.com",
   "priceRange": "$$",
   "currenciesAccepted": "USD",
@@ -602,7 +602,7 @@ const PlanCard = ({ plan, index }) => {
         ))}
       </ul>
       <a
-        href={`https://wa.me/593979046329?text=${encodeURIComponent(`Hola, quisiera solicitar un presupuesto del plan *${plan.name}*.\n\nDescripción del plan: ${plan.description}`)}`}
+        href={`https://wa.me/593999739534?text=${encodeURIComponent(`Hola, quisiera solicitar un presupuesto del plan *${plan.name}*.\n\nDescripción del plan: ${plan.description}`)}`}
         target="_blank"
         rel="noopener noreferrer"
         className={`btn ${plan.featured ? "btn-light" : "btn-outline-primary"} fw-bold w-100 py-2`}
@@ -1893,7 +1893,7 @@ const LandingEcuador = () => {
             </p>
             <div className="d-flex flex-wrap gap-3 justify-content-center animate-scaleUp" style={{ transitionDelay: '250ms' }}>
               <a
-                href="https://wa.me/5930979046329?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20desarrollo%20de%20p%C3%A1ginas%20web%20y%20los%20servicios%20que%20ofrecen.%20%C2%BFPodr%C3%ADan%20ayudarme%3F"
+                href="https://wa.me/593999739534?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20desarrollo%20de%20p%C3%A1ginas%20web%20y%20los%20servicios%20que%20ofrecen.%20%C2%BFPodr%C3%ADan%20ayudarme%3F"
                 className="btn btn-light btn-lg fw-bold px-4 py-3"
                 style={{ borderRadius: "50px", color: "#600b56" }}
                 target="_blank"
@@ -1911,7 +1911,7 @@ const LandingEcuador = () => {
                 Chatear por WhatsApp
               </a>
               <a
-                href="tel:+593979046329"
+                href="tel:+593999739534"
                 className="btn btn-outline-light btn-lg px-4 py-3"
                 style={{ borderRadius: "50px" }}
                 onClick={() => {
@@ -1924,7 +1924,7 @@ const LandingEcuador = () => {
                 }}
               >
                 <i className="bi bi-telephone-fill me-2"></i>
-                +593 979 046 329
+                    +593 999 739 534
               </a>
             </div>
             <p className="mt-4 small" style={{ opacity: 0.8 }}>

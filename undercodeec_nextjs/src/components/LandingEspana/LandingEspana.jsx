@@ -19,7 +19,7 @@ const organizationJsonLd = {
   "url": "https://undercodeec.com/es",
   "logo": "https://undercodeec.com/assets/img/undercode-logo.png",
   "description":
-    "Agencia digital especializada en diseño web, desarrollo de aplicaciones móviles, posicionamiento SEO y software empresarial a medida para empresas en España.",
+    "Agencia digital especializada en diseño web, desarrollo de aplicaciones móviles, posicionamiento SEO y software empresarial a medida para empresas, negocios o marcas en España.",
   "areaServed": {
     "@type": "Country",
     "name": "España",
@@ -42,7 +42,7 @@ const serviceJsonLd = {
   "@type": "Service",
   "name": "Desarrollo Web, Apps Móviles y Posicionamiento SEO en España",
   "description":
-    "Servicios profesionales de diseño y desarrollo web a medida, aplicaciones móviles para Android e iOS, posicionamiento en Google (SEO), Google Ads y software empresarial (CRM, facturación electrónica, e-commerce) para pymes y empresas en España.",
+    "Servicios profesionales de diseño y desarrollo web a medida, aplicaciones móviles para Android e iOS, posicionamiento en Google (SEO), Google Ads y software empresarial (CRM, facturación electrónica, e-commerce) para pymes y empresas, negocios o marcas en España.",
   "provider": {
     "@type": "Organization",
     "name": "Undercodeec",
@@ -87,7 +87,7 @@ const faqJsonLd = {
       "acceptedAnswer": {
         "@type": "Answer",
         "text":
-          "El presupuesto de una página web profesional en España suele ir desde 250€ para una web corporativa autogestionable, hasta 8.000€ o más para tiendas online avanzadas o portales con funcionalidades personalizadas. Trabajamos siempre con presupuestos cerrados, sin letra pequeña.",
+          "El presupuesto de una página web profesional en España suele ir desde 250€ para una web corporativa autogestionable, hasta 8.000€ o más para tiendas online avanzadas o portales con funcionalidades personalizadas. Trabajamos siempre con presupuestos claros.",
       },
     },
     {
@@ -288,7 +288,7 @@ const pricingPlans = [
 const faqs = [
   {
     q: "¿Cuánto cuesta una página web profesional en España?",
-    a: "El presupuesto de una página web profesional en España suele ir desde 250€ para una web corporativa autogestionable, hasta 8.000€ o más para tiendas online avanzadas o portales con funcionalidades personalizadas. Trabajamos siempre con presupuestos cerrados, sin letra pequeña.",
+    a: "El presupuesto de una página web profesional en España suele ir desde 250€ para una web corporativa autogestionable, hasta 8.000€ o más para tiendas online avanzadas o portales con funcionalidades personalizadas. Trabajamos siempre con presupuestos claros.",
   },
   {
     q: "¿Trabajáis con empresas de toda España?",
@@ -304,7 +304,7 @@ const faqs = [
   },
   {
     q: "¿Podemos pedir un presupuesto sin compromiso?",
-    a: "Por supuesto. Cuéntanos tu proyecto y en 24-48 h te enviamos un presupuesto detallado en euros, sin compromiso y sin letra pequeña. Si te encaja, seguimos. Si no, sin problema.",
+    a: "Por supuesto. Cuéntanos tu proyecto y en 24-48 h te enviamos un presupuesto detallado , sin compromiso. Si te encaja, seguimos. Si no, sin problema.",
   },
 ];
 
@@ -530,7 +530,7 @@ const PlanCard = ({ plan, index }) => {
           ))}
         </ul>
         <a
-          href={`https://wa.me/593979046329?text=${encodeURIComponent(`Hola, quisiera solicitar un presupuesto del plan *${plan.name}*.\n\nDescripción del plan: ${plan.description}`)}`}
+          href={`https://wa.me/593999739534?text=${encodeURIComponent(`Hola, quisiera solicitar un presupuesto del plan *${plan.name}*.\n\nDescripción del plan: ${plan.description}`)}`}
           target="_blank"
           rel="noopener noreferrer"
           className={`btn ${plan.featured ? "btn-light" : "btn-outline-primary"} fw-bold w-100 py-2`}
@@ -606,7 +606,7 @@ const BudgetModal = ({ open, onClose }) => {
 
         <div className="text-center mb-5">
           <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
-            Tarifas en euros
+            Tarifas competitivas
           </span>
           <h2 id="budget-modal-title" className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
             Presupuestos transparentes, sin letra pequeña
@@ -1247,10 +1247,10 @@ const LandingEspana = () => {
                   className="gradient-title mb-4"
                   style={{ fontSize: "clamp(32px, 5vw, 56px)", fontWeight: 700, lineHeight: 1.1 }}
                 >
-                  Hacemos webs, apps móviles y SEO que venden en España.
+                  Convierte tu presencia digital en nuevos clientes.
                 </h1>
                 <p className="mb-4" style={{ fontSize: "18px", color: "#333", maxWidth: "600px", lineHeight: 1.7 }}>
-                  Sin postureo, sin letra pequeña y con presupuestos que se ajustan a tu billetera. Diseñamos páginas web, desarrollamos aplicaciones móviles para Android e iOS y posicionamos tu negocio en Google para que te encuentren tus clientes en Madrid, Barcelona, Valencia y toda España.
+                  Diseñamos webs que convierten, desarrollamos apps móviles y trabajamos el SEO para que tu empresa gane visibilidad, oportunidades y ventas. Estrategia a medida, plazos claros y presupuesto a la medida para tu negocio.
                 </p>
                 <div className="d-flex flex-wrap gap-3 mt-4">
                   <button
@@ -1296,7 +1296,7 @@ const LandingEspana = () => {
               <div className="col-lg-5 d-none d-lg-block text-center animate-fadeLeft" style={{ transitionDelay: '150ms' }}>
                 <img
                   src="/assets/img/header/Animation3DSoftware.webp"
-                  alt="Agencia digital de desarrollo web y aplicaciones móviles para empresas en España"
+                  alt="Agencia digital de desarrollo web y aplicaciones móviles para empresas, negocios o marcas en España"
                   style={{ maxWidth: "100%", height: "auto", filter: "drop-shadow(0 20px 40px rgba(96, 11, 86, 0.25))" }}
                 />
               </div>
@@ -1347,7 +1347,7 @@ const LandingEspana = () => {
                 Qué hacemos
               </span>
               <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700, marginTop: "8px", marginBottom: "12px" }}>
-                Servicios digitales para empresas en España
+                Servicios digitales para empresas, negocios o marcas en España
               </h2>
               <p style={{ color: "#6b7280", maxWidth: "700px", fontSize: "17px", margin: "0 auto" }}>
                 Todo lo que tu empresa necesita para crecer online, con un único equipo y sin intermediarios. Hablamos claro y trabajamos con plazos reales.
@@ -1444,7 +1444,7 @@ const LandingEspana = () => {
           <div className="container">
             <div className="text-center mb-5 animate-fadeUp">
               <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
-                Tarifas en euros
+                Tarifas competitivas
               </span>
               <h2 className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
                 Presupuestos transparentes, sin letra pequeña
@@ -1543,7 +1543,7 @@ const LandingEspana = () => {
               ¿Hablamos de tu proyecto?
             </h2>
             <p className="mb-4 mx-auto animate-fadeUp" style={{ fontSize: "18px", opacity: 0.95, maxWidth: "650px", transitionDelay: '100ms' }}>
-              Cuéntanos qué necesitas y en 24-48 h tienes un presupuesto cerrado en euros, sin compromiso. Si encaja, empezamos. Si no, te damos consejo gratis igualmente.
+              Cuéntanos qué necesitas y en 24-48 h tienes un presupuesto sin compromisos, sin compromiso. Si encaja, empezamos. Si no, te damos consejo gratis igualmente.
             </p>
             <div className="d-flex flex-wrap gap-3 justify-content-center animate-scaleUp" style={{ transitionDelay: '250ms' }}>
               <a

@@ -2407,11 +2407,11 @@ const AffiliationSection = () => {
                 </div>
                 <div className="bank-info-item">
                   <span className="label">Celular:</span>
-                  <span className="value">0979046329</span>
+                  <span className="value">0999739534</span>
                 </div>
               </div>
               <div className="whatsapp-notice">
-                <span>Por favor enviar el comprobante al WhatsApp: <strong>0979046329</strong></span>
+                <span>Por favor enviar el comprobante al WhatsApp: <strong>0999739534</strong></span>
               </div>
             </div>
 
@@ -2992,11 +2992,11 @@ const AffiliationSection = () => {
                 </div>
                 <div className="bank-info-item">
                   <span className="label">Celular:</span>
-                  <span className="value">0979046329</span>
+                  <span className="value">0999739534</span>
                 </div>
               </div>
               <div className="whatsapp-notice">
-                <span>Por favor enviar el comprobante al WhatsApp: <strong>0979046329</strong></span>
+                <span>Por favor enviar el comprobante al WhatsApp: <strong>0999739534</strong></span>
               </div>
             </div>
 
@@ -3588,11 +3588,11 @@ const AffiliationSection = () => {
                 </div>
                 <div className="bank-info-item">
                   <span className="label">Celular:</span>
-                  <span className="value">0979046329</span>
+                  <span className="value">0999739534</span>
                 </div>
               </div>
               <div className="whatsapp-notice">
-                <span>Por favor enviar el comprobante al WhatsApp: <strong>0979046329</strong></span>
+                <span>Por favor enviar el comprobante al WhatsApp: <strong>0999739534</strong></span>
               </div>
             </div>
 
