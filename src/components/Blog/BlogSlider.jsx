@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore, { Navigation, Pagination, Autoplay, EffectFade } from 'swiper';
+import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper';
 import slides from '@/data/Blog/slides.json';
 
 
@@ -11,8 +11,6 @@ import 'swiper/css/autoplay';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
-
-SwiperCore.use([Navigation, Pagination, Autoplay, EffectFade]);
 
 const BlogSlider = ({ style = "4" }) => {
   const data = slides;
@@ -44,6 +42,7 @@ const renderMedia = (media) => {
         </div>
         <div className="blog-details-slider">
           <Swiper
+            modules={[Navigation, Pagination, Autoplay, EffectFade]}
             className="swiper-container"
             slidesPerView={1}
             spaceBetween={0}

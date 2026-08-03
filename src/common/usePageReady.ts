@@ -19,17 +19,22 @@ export function usePageReady(): boolean {
 
   useEffect(() => {
     const path = window.location.pathname;
+    let readyTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const markReady = () => {
+      readyTimer = setTimeout(() => setIsReady(true), 0);
+    };
 
     // Pages without preloader → ready immediately
     if (!PRELOADER_PATHS.includes(path)) {
-      setIsReady(true);
-      return;
+      markReady();
+      return () => clearTimeout(readyTimer);
     }
 
     // Preloader already dismissed in this session → ready immediately
     if (sessionStorage.getItem(getPreloaderKey(path))) {
-      setIsReady(true);
-      return;
+      markReady();
+      return () => clearTimeout(readyTimer);
     }
 
     // Wait for the preloader to dispatch "preloaderDone"

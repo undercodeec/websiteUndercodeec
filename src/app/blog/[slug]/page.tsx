@@ -3,9 +3,11 @@ import blogData from "@/data/Blog/blog-grid.json";
 import BlogDetailClient from "./BlogDetailClient";
 
 const SITE_URL = "https://undercodeec.com";
+type BlogPostData = (typeof blogData)[number];
+type BlogContentBlock = BlogPostData["content"][number];
 
 export function generateStaticParams() {
-  return blogData.map((post: any) => ({
+  return blogData.map((post) => ({
     slug: post.slug,
   }));
 }
@@ -16,7 +18,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = blogData.find((p: any) => p.slug === slug);
+  const post = blogData.find((p) => p.slug === slug);
 
   if (!post) {
     return {
@@ -81,7 +83,7 @@ export async function generateMetadata({
   };
 }
 
-function buildBreadcrumbJsonLd(post: any) {
+function buildBreadcrumbJsonLd(post: BlogPostData) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -108,7 +110,7 @@ function buildBreadcrumbJsonLd(post: any) {
   };
 }
 
-function buildBlogPostingJsonLd(post: any) {
+function buildBlogPostingJsonLd(post: BlogPostData) {
   const canonical = `${SITE_URL}/blog/${post.slug}/`;
   const imageUrl = post.heroImage || post.image || "/assets/img/undercode-logo.png";
   const absoluteImage = imageUrl.startsWith("http") ? imageUrl : `${SITE_URL}${imageUrl}`;
@@ -116,8 +118,8 @@ function buildBlogPostingJsonLd(post: any) {
 
   const bodyText = Array.isArray(post.content)
     ? post.content
-        .filter((b: any) => b.type === "paragraph" || b.type === "heading")
-        .map((b: any) => b.text)
+        .filter((block: BlogContentBlock) => block.type === "paragraph" || block.type === "heading")
+        .map((block: BlogContentBlock) => block.text)
         .join(" ")
     : "";
   const wordCount = bodyText ? bodyText.trim().split(/\s+/).length : undefined;
@@ -154,7 +156,7 @@ function buildBlogPostingJsonLd(post: any) {
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = blogData.find((p: any) => p.slug === slug);
+  const post = blogData.find((p) => p.slug === slug);
 
   return (
     <>

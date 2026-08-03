@@ -1,20 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore, { Navigation, Autoplay } from 'swiper';
-
-import "swiper/css";
-import 'swiper/css/autoplay';
-import 'swiper/css/navigation';
-
-SwiperCore.use([Navigation, Autoplay]);
+import React from 'react';
 
 const Testimonials = ({}) => {
-  const [load, setLoad] = useState(false);
-
-  useEffect(() => {
-    setLoad(true);
-  }, []);
-
   return (
     <div className="testimonials style-6" data-scroll-index="5">
       

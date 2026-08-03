@@ -5138,7 +5138,7 @@ const AffiliationSection = () => {
            
            return (
             <div className="wizard-step-content plan-section-full">
-                <h2>Paquete "Instalación Básica"</h2>
+                <h2>Paquete &quot;Instalación Básica&quot;</h2>
                 <p className="wizard-subtitle">Tu configuración encaja en nuestro plan estándar.</p>
     
                 <div className="budget-slider-container">

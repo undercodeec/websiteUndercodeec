@@ -19,6 +19,7 @@ const {
 } = require('./crmOtp');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const db = require('./db');
+const { createPaymentStateStore } = require('./paymentStateStore');
 const { emitInvoice, retryInvoice, listInvoices, getInvoice, formatInvoiceNumber } = require('./invoicing/invoiceService');
 const { getSriConfig, getMissingSriConfig, getMissingSigningConfig } = require('./invoicing/config');
 const { generateRidePdf } = require('./invoicing/ride');
@@ -30,23 +31,17 @@ const {
 } = require('./chatCommercialPlaybook');
 
 const app = express();
-const pendingOrders = new Map(); // Store pending orders from Chatbot
+const paymentState = createPaymentStateStore({ db });
 
-// TTL para pendingOrders: si el cliente abandona el popup de PayPhone sin
+// TTL para pedidos pendientes: si el cliente abandona el popup de PayPhone sin
 // pagar, la entrada se purga a los 30 min para no acumular memoria. Las
 // entradas confirmadas se borran explicitamente en el webhook.
 const PENDING_ORDER_TTL_MS = 30 * 60 * 1000;
 const PENDING_ORDER_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 setInterval(() => {
-  const cutoff = Date.now() - PENDING_ORDER_TTL_MS;
-  let removed = 0;
-  for (const [k, v] of pendingOrders) {
-    if (v && typeof v.__createdAt === 'number' && v.__createdAt < cutoff) {
-      pendingOrders.delete(k);
-      removed++;
-    }
-  }
-  if (removed > 0) console.log(`🧹 pendingOrders cleanup: ${removed} entrada(s) expirada(s)`);
+  paymentState.cleanup(PENDING_ORDER_TTL_MS).catch((error) => {
+    console.error('Error limpiando estados de pago:', error.message);
+  });
 }, PENDING_ORDER_CLEANUP_INTERVAL_MS);
 
 // ============================================================================
@@ -1117,27 +1112,14 @@ function FORBIDDEN_HOSTNAMES_SUFFIX_LIST() {
 // ============================================================================
 // Emitido al crear el pago, validado en /api/check-payment-status para evitar
 // IDOR (cualquiera que conozca un clientTxId podía leer PII y forzar la captura).
-const paymentSessions = new Map(); // clientTransactionId → { token, expiresAt }
 const PAYMENT_SESSION_TTL_MS = 60 * 60 * 1000; // 1 hora
 
-function issuePaymentSessionToken(clientTransactionId) {
-  const token = crypto.randomBytes(32).toString('hex');
-  paymentSessions.set(clientTransactionId, {
-    token,
-    expiresAt: Date.now() + PAYMENT_SESSION_TTL_MS
-  });
-  return token;
+async function issuePaymentSessionToken(clientTransactionId) {
+  return paymentState.issueSession(clientTransactionId, PAYMENT_SESSION_TTL_MS);
 }
 
-function validatePaymentSessionToken(clientTransactionId, providedToken) {
-  if (typeof providedToken !== 'string' || providedToken.length !== 64) return false;
-  const rec = paymentSessions.get(clientTransactionId);
-  if (!rec) return false;
-  if (rec.expiresAt <= Date.now()) {
-    paymentSessions.delete(clientTransactionId);
-    return false;
-  }
-  return safeStringEqual(rec.token, providedToken);
+async function validatePaymentSessionToken(clientTransactionId, providedToken) {
+  return paymentState.validateSession(clientTransactionId, providedToken);
 }
 
 // ============================================================================
@@ -1148,19 +1130,10 @@ function validatePaymentSessionToken(clientTransactionId, providedToken) {
 // webhook si recibe el TransactionId numerico y confirma Approved — guardamos
 // el resultado aqui para que el polling del frontend (check-payment-status)
 // cierre el popup sin depender del endpoint roto de PayPhone.
-const webhookApprovedPayments = new Map();
 const WEBHOOK_APPROVAL_TTL_MS = 10 * 60 * 1000; // 10 min
 
-function rememberWebhookApproval(clientTransactionId, payload) {
-  if (!clientTransactionId) return;
-  webhookApprovedPayments.set(clientTransactionId, {
-    ...payload,
-    approvedAt: Date.now()
-  });
-  const cutoff = Date.now() - WEBHOOK_APPROVAL_TTL_MS;
-  for (const [k, v] of webhookApprovedPayments) {
-    if (v.approvedAt < cutoff) webhookApprovedPayments.delete(k);
-  }
+async function rememberWebhookApproval(clientTransactionId, payload) {
+  return paymentState.rememberApproval(clientTransactionId, payload);
 }
 
 // Health check endpoint
@@ -1237,7 +1210,7 @@ app.post('/api/create-payment', async (req, res) => {
     // Guardar datos de la orden pendiente en memoria para cuando paguen (Webhook/Confirm)
     if (orderData) {
       console.log('💾 Guardando orderData para ClientTxId:', clientTransactionId);
-      pendingOrders.set(clientTransactionId, {
+      await paymentState.saveOrder(clientTransactionId, {
         ...orderData,
         fromPricingPage: true,
         transactionId: null, // Se llenará al confirmar
@@ -1247,7 +1220,7 @@ app.post('/api/create-payment', async (req, res) => {
 
     // SECURITY: emitir token de sesión de pago — el cliente lo debe enviar en
     // /api/check-payment-status para que el endpoint deje de ser un IDOR público.
-    const paymentSessionToken = issuePaymentSessionToken(clientTransactionId);
+    const paymentSessionToken = await issuePaymentSessionToken(clientTransactionId);
 
     res.json({
       paymentUrl: paymentLink,
@@ -1286,15 +1259,15 @@ app.get('/api/check-payment-status/:clientTxId', async (req, res) => {
     ? req.headers.authorization.split(' ')[1]
     : null;
   const providedToken = req.query.token || headerToken;
-  if (!validatePaymentSessionToken(clientTxId, providedToken)) {
+  if (!await validatePaymentSessionToken(clientTxId, providedToken)) {
     return res.status(401).json({ error: 'Token de sesión de pago inválido o expirado' });
   }
 
   // FAST PATH: si el webhook ya confirmo Approved para este clientTxId, devolvemos
   // inmediatamente sin consultar a PayPhone (su endpoint Sale/ClientTransactionId
   // devuelve 404 incluso para transacciones aprobadas).
-  if (webhookApprovedPayments.has(clientTxId)) {
-    const approved = webhookApprovedPayments.get(clientTxId);
+  const approved = await paymentState.getApproval(clientTxId, WEBHOOK_APPROVAL_TTL_MS);
+  if (approved) {
     console.log(`✅ check-payment-status: fast-path webhook-approved para ${clientTxId}`);
     return res.json({
       success: true,
@@ -1419,8 +1392,8 @@ app.post('/api/payphone-webhook', async (req, res) => {
       console.log(`🎉 Pago APROBADO confirmado por Webhook! TxId: ${data.transactionId}`);
 
       // Cache para que el polling del frontend (check-payment-status) lo recoja
-      // y cierre el popup. Antes del pendingOrders.delete() para no perder el dato.
-      rememberWebhookApproval(data.clientTransactionId, {
+      // y cierre el popup. Se guarda antes de completar el pedido.
+      await rememberWebhookApproval(data.clientTransactionId, {
         transactionId: data.transactionId,
         amount: data.amount
       });
@@ -1431,16 +1404,13 @@ app.post('/api/payphone-webhook', async (req, res) => {
       // So technically, if PayPhone marks it as Approved, the frontend polling will also see it as Approved.
       // However, the Webhook is the GUARANTEED way to send emails if the frontend disconnects.
 
-      // Recover pending order data to send emails
-      let orderData = null;
-      if (pendingOrders.has(data.clientTransactionId)) {
-        orderData = pendingOrders.get(data.clientTransactionId);
-        console.log('✅ RECUPERADO orderData de la memoria para webhook:', data.clientTransactionId);
-        // We mark it as processing but wait for success before deleting
-        orderData.webhookProcessed = true; 
-        pendingOrders.set(data.clientTransactionId, orderData);
+      // Reclamo atómico: evita que webhook, confirmación y fallback envíen
+      // correos duplicados cuando llegan en paralelo o desde varias instancias.
+      const orderData = await paymentState.claimOrder(data.clientTransactionId);
+      if (orderData) {
+        console.log('✅ Pedido persistido reclamado para webhook:', data.clientTransactionId);
       } else {
-        console.log('⚠️ No pendingOrderData found in memory. Emails must be sent directly by frontend or retrieved from DB.');
+        console.log('⏭️ Pedido inexistente, procesado o reclamado por otra instancia.');
       }
 
       if (orderData) {
@@ -1449,6 +1419,7 @@ app.post('/api/payphone-webhook', async (req, res) => {
         
         // Trigger emails
         try {
+          await saveOrderToSupabase(orderData);
           await sendOrderEmailsInternal(orderData);
           console.log('✅ Correos de confirmación enviados desde Webhook');
           
@@ -1465,9 +1436,10 @@ app.post('/api/payphone-webhook', async (req, res) => {
              }).catch(e => console.error("Error Google Script en Webhook:", e.message));
           }
            // Now we can safe delete
-           pendingOrders.delete(data.clientTransactionId);
+           await paymentState.deleteOrder(data.clientTransactionId);
         } catch(emailError) {
           console.error('❌ Error enviando correos desde webhook:', emailError);
+          await paymentState.releaseOrder(data.clientTransactionId);
         }
       }
       
@@ -1490,7 +1462,7 @@ app.post('/api/confirm-payment', async (req, res) => {
   console.log('Timestamp:', new Date().toISOString());
 
   // SEGURIDAD: ignorar `orderData` del cliente. Solo usar el almacenado server-side
-  // por /api/create-payment en pendingOrders. Previene phishing-by-confirm donde
+  // por /api/create-payment en el estado persistente. Previene phishing-by-confirm donde
   // un atacante que conoce un (id, clientTransactionId) válido podría disparar emails
   // de confirmación a direcciones arbitrarias con contenido elegido.
   const { id, clientTransactionId } = req.body || {};
@@ -1507,32 +1479,11 @@ app.post('/api/confirm-payment', async (req, res) => {
     return res.status(400).json({ error: 'id de transacción inválido' });
   }
 
-  let orderData = null;
-  if (pendingOrders.has(clientTransactionId)) {
-    orderData = pendingOrders.get(clientTransactionId);
-    console.log('✅ RECUPERADO orderData de la memoria para confirmación:', clientTransactionId);
-
-    // Webhook Deduplication: If webhook already processed this, don't send emails again.
-    // Devolvemos el mismo shape que el path Approved (transactionStatus: 3 + details)
-    // para que payment-result.html pueda cerrar la ventana automaticamente.
-    if (orderData.webhookProcessed) {
-      console.log('⏭️ Webhook ya procesó este pedido. Devolviendo confirmación al cliente.');
-      return res.json({
-        success: true,
-        transactionStatus: 3,
-        message: 'Pago confirmado (procesado por Webhook)',
-        alreadyProcessed: true,
-        details: {
-          transactionId: orderData.transactionId || null,
-          amount: orderData.amountPaid || null,
-          clientTransactionId
-        }
-      });
-    }
-
-    pendingOrders.delete(clientTransactionId);
+  const orderData = await paymentState.claimOrder(clientTransactionId);
+  if (orderData) {
+    console.log('✅ Pedido persistido reclamado para confirmación:', clientTransactionId);
   } else {
-    console.log('⚠️ Sin orderData en pendingOrders. El webhook se encargará de los emails.');
+    console.log('⏭️ Pedido inexistente, procesado o reclamado por webhook.');
   }
 
   try {
@@ -1587,18 +1538,21 @@ app.post('/api/confirm-payment', async (req, res) => {
 
           if (orderData.fromChatbot || orderData.fromPricingPage) {
              console.log('📁 Ejecutando Google Drive Script desde confirm-payment...');
-             axios.post('https://script.google.com/macros/s/AKfycbwJJ91bFrS7VwdksBOfZluJZ6pLmwhdVw4TTOBsSWPtX2B91YqEa8OUXUPEHBFnCLmrvg/exec', {
+           axios.post('https://script.google.com/macros/s/AKfycbwJJ91bFrS7VwdksBOfZluJZ6pLmwhdVw4TTOBsSWPtX2B91YqEa8OUXUPEHBFnCLmrvg/exec', {
                  businessName: orderData.razonSocial || orderData.businessName,
                  email: orderData.email,
                  phone: orderData.telefono,
                  ruc: orderData.rucCedula,
                  plan: orderData.planName,
                  price: orderData.planPrice
-             }).catch(e => console.error("Error Google Script:", e.message));
-          }
+              }).catch(e => console.error("Error Google Script:", e.message));
+           }
+
+           await paymentState.deleteOrder(clientTransactionId);
 
         } catch (emailError) {
           console.error('❌ Error enviando correos:', emailError);
+          await paymentState.releaseOrder(clientTransactionId);
           // Don't fail the payment confirmation if email fails
         }
       } else {
@@ -1617,6 +1571,7 @@ app.post('/api/confirm-payment', async (req, res) => {
         }
       });
     } else if (transactionStatus === 2) {
+      if (orderData) await paymentState.releaseOrder(clientTransactionId);
       console.log('❌ Payment cancelled/rejected');
       res.json({
         success: false,
@@ -1624,6 +1579,7 @@ app.post('/api/confirm-payment', async (req, res) => {
         message: 'El pago fue cancelado o rechazado'
       });
     } else {
+      if (orderData) await paymentState.releaseOrder(clientTransactionId);
       console.log('⚠️ Unknown transaction status:', transactionStatus);
       res.json({
         success: false,
@@ -1633,6 +1589,7 @@ app.post('/api/confirm-payment', async (req, res) => {
     }
 
   } catch (error) {
+    if (orderData) await paymentState.releaseOrder(clientTransactionId);
     console.error('❌ Error confirmando pago:');
     console.error('  - Error message:', error.message);
     console.error('  - Error code:', error.code);
@@ -2641,7 +2598,7 @@ app.post('/api/chat', chatRateLimit, async (req, res) => {
                 const paymentLink = typeof payphoneRes.data === 'string' ? payphoneRes.data : payphoneRes.data.paymentUrl;
 
                 // 2. Guardar datos de la orden pendiente en memoria para cuando paguen
-                pendingOrders.set(clientTransactionId, {
+                await paymentState.saveOrder(clientTransactionId, {
                   ...args,
                   fromChatbot: true,
                   planPrice: args.precioTotal,
@@ -2657,7 +2614,11 @@ app.post('/api/chat', chatRateLimit, async (req, res) => {
                   __createdAt: Date.now(),
                 });
 
-                const finalReply = `¡Todo listo! 🚀\n\nAcabo de generar tu pedido. He pre-configurado todo para tu plan **${args.planName}**.\n\nPor favor, ingresa al siguiente enlace seguro para pagar el anticipo del 50% ($ ${montoAnticipo} USD):\n\n[wa-button]Pagar Anticipo Aquí:(${paymentLink})\n\nUna vez realizado el pago, el sistema **automáticamente** te enviará por correo el recibo y el acceso a tu carpeta de Google Drive para subir tu logo e ideas.`;
+                // El fragmento no se envía a PayPhone. Transporta al frontend el
+                // contexto opaco requerido para consultar el estado sin exponer PII.
+                const paymentSessionToken = await issuePaymentSessionToken(clientTransactionId);
+                const paymentLinkWithContext = `${paymentLink}#uctx=${encodeURIComponent(clientTransactionId)}&utoken=${encodeURIComponent(paymentSessionToken)}`;
+                const finalReply = `¡Todo listo! 🚀\n\nAcabo de generar tu pedido. He pre-configurado todo para tu plan **${args.planName}**.\n\nPor favor, ingresa al siguiente enlace seguro para pagar el anticipo del 50% ($ ${montoAnticipo} USD):\n\n[wa-button]Pagar Anticipo Aquí:(${paymentLinkWithContext})\n\nUna vez realizado el pago, el sistema **automáticamente** te enviará por correo el recibo y el acceso a tu carpeta de Google Drive para subir tu logo e ideas.`;
                 sendSSE(res, { type: 'text', delta: finalReply });
                 return endSSE(res);
 
@@ -3116,7 +3077,7 @@ async function saveOrderToSupabase(orderData) {
 // Endpoint para enviar correos de confirmación de pedido.
 // SEGURIDAD: soporta dos modos:
 //   1) PayPhone: body { clientTransactionId, recaptchaToken } — el backend
-//      recupera orderData de pendingOrders y verifica con PayPhone que el
+//      recupera orderData del estado persistente y verifica con PayPhone que el
 //      pago está Approved. Cierra el vector phishing donde un atacante
 //      enviaba orderData arbitrario para disparar emails branded.
 //   2) Transferencia bancaria: body { orderData, recaptchaToken } con
@@ -3140,13 +3101,10 @@ app.post('/api/send-order-emails', async (req, res) => {
     if (typeof clientTransactionId !== 'string' || !/^[A-Za-z0-9]{1,32}$/.test(clientTransactionId)) {
       return res.status(400).json({ error: 'clientTransactionId inválido' });
     }
-    if (!pendingOrders.has(clientTransactionId)) {
-      console.log('⏭️ send-order-emails: pendingOrders ya consumido para', clientTransactionId);
+    const orderData = await paymentState.claimOrder(clientTransactionId);
+    if (!orderData) {
+      console.log('⏭️ send-order-emails: pedido ya consumido o en proceso para', clientTransactionId);
       return res.json({ success: true, alreadyProcessed: true, message: 'Pedido ya procesado' });
-    }
-    const orderData = pendingOrders.get(clientTransactionId);
-    if (orderData.webhookProcessed) {
-      return res.json({ success: true, alreadyProcessed: true, message: 'Pedido ya procesado por webhook' });
     }
     // Verificar con PayPhone que el pago está Approved
     try {
@@ -3160,6 +3118,7 @@ app.post('/api/send-order-emails', async (req, res) => {
       const txStatus = payphoneResp.data && payphoneResp.data.transactionStatus;
       if (txStatus !== 'Approved') {
         console.warn('⚠️ send-order-emails: pago no aprobado para', clientTransactionId, 'status:', txStatus);
+        await paymentState.releaseOrder(clientTransactionId);
         return res.status(403).json({ error: 'El pago no está confirmado por la pasarela' });
       }
       orderData.transactionId = payphoneResp.data.transactionId || orderData.transactionId;
@@ -3168,15 +3127,17 @@ app.post('/api/send-order-emails', async (req, res) => {
       }
     } catch (err) {
       console.error('Error verificando pago con PayPhone:', err.message);
+      await paymentState.releaseOrder(clientTransactionId);
       return res.status(502).json({ error: 'No se pudo verificar el pago con la pasarela' });
     }
     try {
       await saveOrderToSupabase(orderData);
       await sendOrderEmailsInternal(orderData);
-      pendingOrders.delete(clientTransactionId);
+      await paymentState.deleteOrder(clientTransactionId);
       return res.json({ success: true, message: 'Correos enviados exitosamente' });
     } catch (error) {
       console.error('Error enviando correos:', error.message);
+      await paymentState.releaseOrder(clientTransactionId);
       return res.status(500).json({ error: 'Error al enviar correos' });
     }
   }

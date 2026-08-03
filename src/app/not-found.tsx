@@ -18,12 +18,9 @@ export default function NotFoundPage() {
 
   return (
     <MainLayout>
-      {/* @ts-ignore */}
       <TopNav style="5" />
-      {/* @ts-ignore */}
-      <Navbar navbarRef={navbarRef} />
+      <Navbar navbarRef={navbarRef} bgTransparent={false} />
       <main className="erorr-404-page style-5">
-        {/* @ts-ignore */}
         <NotFound />
       </main>
     </MainLayout>

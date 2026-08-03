@@ -27,7 +27,7 @@ const PreLoader = () => {
     if (typeof window === 'undefined') return;
 
     const isMuted = localStorage.getItem('isGlobalMuted') === 'true';
-    if (isMuted) setSoundEnabled(false);
+    const soundStateTimer = isMuted ? setTimeout(() => setSoundEnabled(false), 0) : null;
 
     const handleStorageChange = () => {
       setSoundEnabled(localStorage.getItem('isGlobalMuted') !== 'true');
@@ -47,6 +47,7 @@ const PreLoader = () => {
     const preloaderPaths = ['/', '/ec', '/es'];
 
     const clearAllTimers = () => {
+      if (soundStateTimer) clearTimeout(soundStateTimer);
       if (timer1Ref.current) clearTimeout(timer1Ref.current);
       if (timer2Ref.current) clearTimeout(timer2Ref.current);
       if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);

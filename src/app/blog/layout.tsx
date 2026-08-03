@@ -66,7 +66,7 @@ const blogJsonLd = {
       url: `${SITE_URL}/assets/img/undercode-logo.png`,
     },
   },
-  blogPost: blogData.map((post: any) => ({
+  blogPost: blogData.map((post) => ({
     "@type": "BlogPosting",
     headline: post.title,
     url: `${SITE_URL}/blog/${post.slug}/`,

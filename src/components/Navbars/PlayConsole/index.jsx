@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 const PoliticaContenido = () => {
     // Estado para manejar la sección seleccionada
@@ -272,7 +273,7 @@ const PoliticaContenido = () => {
                 <div className="politica-header">
                     <img src="/landing-preview/img/politicas-seguridad.webp" alt="Política de Privacidad" className="politica-header-img" />
                     <div className="textplayconsole">
-                        <a href="/">INICIO {'\u00A0'}</a>
+                        <Link href="/">INICIO {'\u00A0'}</Link>
                         <p>|{'\u00A0'}{'\u00A0'}Políticas Play Console</p>
                     </div>
                     <div className="politica-header-overlay">

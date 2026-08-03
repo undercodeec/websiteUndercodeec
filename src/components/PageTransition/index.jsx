@@ -90,7 +90,8 @@ export default function PageTransition({ children }) {
     const normTarget = targetPathname.replace(/\/$/, '') || '/';
 
     if (transitionState === "rising" && normPath === normTarget) {
-       setTransitionState("revealing");
+       const revealTimer = setTimeout(() => setTransitionState("revealing"), 0);
+       return () => clearTimeout(revealTimer);
     }
   }, [pathname, targetPathname, transitionState]);
 

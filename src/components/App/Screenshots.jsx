@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore, { Autoplay } from 'swiper';
+import { Autoplay } from 'swiper';
 import screenshots from '@/data/App/screenshots.json';
 
 import "swiper/css";
 import 'swiper/css/autoplay';
-
-SwiperCore.use([Autoplay]);
 
 const Screenshots = ({}) => {
   const [loadSwiper, setLoadSwiper] = useState(false);
@@ -23,6 +21,7 @@ const Screenshots = ({}) => {
         {
           loadSwiper && (
             <Swiper
+              modules={[Autoplay]}
               dir={'ltr'}
               className="swiper-container"
               spaceBetween={0}

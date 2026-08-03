@@ -316,6 +316,7 @@ const AIAssistant = () => {
 
     // Watch for new assistant messages and trigger typewriter
     useEffect(() => {
+        const activeTimers = typewriterTimers.current;
         messages.forEach((msg, idx) => {
             if (msg.role === 'assistant' && msg.content) {
                 const revealed = revealedChars[idx] || 0;
@@ -326,9 +327,9 @@ const AIAssistant = () => {
         });
         // Cleanup on unmount
         return () => {
-            Object.values(typewriterTimers.current).forEach(clearInterval);
+            Object.values(activeTimers).forEach(clearInterval);
         };
-    }, [messages, startTypewriter]);
+    }, [messages, revealedChars, startTypewriter]);
 
     // Consume el stream SSE de /api/chat. Inserta el mensaje del asistente al
     // primer delta (no antes — para que el indicador "Pensando..." no conviva
@@ -786,6 +787,102 @@ const AIAssistant = () => {
         }
     };
 
+    const openPayPhoneCheckout = (paymentUrlWithContext) => {
+        const parsedUrl = new URL(paymentUrlWithContext);
+        const context = new URLSearchParams(parsedUrl.hash.slice(1));
+        const clientTransactionId = context.get('uctx');
+        const paymentSessionToken = context.get('utoken');
+        parsedUrl.hash = '';
+
+        const width = 500;
+        const height = 700;
+        const left = (window.innerWidth - width) / 2;
+        const top = (window.innerHeight - height) / 2;
+        const paymentWindow = window.open(
+            parsedUrl.toString(),
+            'PayPhoneCheckout',
+            `width=${width},height=${height},left=${left},top=${top},status=yes,scrollbars=yes`
+        );
+
+        if (!paymentWindow) {
+            appendAssistantMessage('No pude abrir la ventana de pago. Habilita las ventanas emergentes e inténtalo nuevamente.');
+            return;
+        }
+
+        const allowedOrigins = [
+            'https://pay.payphonetodoesposible.com',
+            'https://api.undercodeec.com',
+            window.location.origin,
+        ];
+        let pollingTimer = null;
+        let pollingTicks = 0;
+        let requestInFlight = false;
+        let finished = false;
+
+        const cleanup = () => {
+            window.removeEventListener('message', handlePaymentMessage);
+            if (pollingTimer) clearInterval(pollingTimer);
+        };
+
+        const markApproved = () => {
+            if (finished) return;
+            finished = true;
+            cleanup();
+            if (!paymentWindow.closed) paymentWindow.close();
+            appendAssistantMessage('✅ ¡He confirmado tu pago exitosamente! En breve recibirás los correos con tu recibo y acceso a Google Drive.');
+        };
+
+        const checkPaymentStatus = async () => {
+            if (finished || requestInFlight || !clientTransactionId || !paymentSessionToken) return false;
+            requestInFlight = true;
+            try {
+                const response = await fetch(
+                    `${getApiBaseUrl()}/api/check-payment-status/${encodeURIComponent(clientTransactionId)}`,
+                    { headers: { Authorization: `Bearer ${paymentSessionToken}` } }
+                );
+                if (!response.ok) return false;
+                const status = await response.json();
+                if (status.success && status.status === 'Approved') {
+                    markApproved();
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error consultando el estado de PayPhone:', error);
+            } finally {
+                requestInFlight = false;
+            }
+            return false;
+        };
+
+        async function handlePaymentMessage(event) {
+            if (event.source !== paymentWindow || !allowedOrigins.includes(event.origin)) return;
+            if (event.data?.type === 'PAYMENT_COMPLETED') await checkPaymentStatus();
+        }
+
+        window.addEventListener('message', handlePaymentMessage);
+        void checkPaymentStatus();
+        pollingTimer = setInterval(async () => {
+            if (requestInFlight || finished) return;
+            pollingTicks += 1;
+
+            if (pollingTicks >= 300) {
+                finished = true;
+                cleanup();
+                appendAssistantMessage('La verificación del pago agotó el tiempo de espera. Si completaste el pago, revisa tu correo o contáctanos para validarlo.');
+                return;
+            }
+
+            const approved = await checkPaymentStatus();
+            if (approved || finished) return;
+
+            if (paymentWindow.closed) {
+                finished = true;
+                cleanup();
+                appendAssistantMessage('La ventana de pago se cerró. Si el pago fue aprobado, recibirás la confirmación por correo; de lo contrario puedes intentarlo nuevamente.');
+            }
+        }, 2000);
+    };
+
     // Custom text parser for WhatsApp Buttons, Bold text, and PayPhone Links.
     // Durante streaming, los patrones [wa-button]... incompletos se ocultan
     // para que el lector no vea código a medio escribir.
@@ -858,42 +955,7 @@ const AIAssistant = () => {
             
             payphoneButton = (
                 <button 
-                    onClick={() => {
-                        const width = 500;
-                        const height = 700;
-                        const left = (window.innerWidth - width) / 2;
-                        const top = (window.innerHeight - height) / 2;
-                        
-                        const paymentWindow = window.open(
-                            btnUrl,
-                            'PayPhoneCheckout',
-                            `width=${width},height=${height},left=${left},top=${top},status=yes,scrollbars=yes`
-                        );
-                        
-                        // Listen for payment completion from payment-result.html
-                        // SECURITY: Orígenes permitidos para postMessage de pagos
-                        const allowedOrigins = [
-                            'https://pay.payphonetodoesposible.com',
-                            'https://api.undercodeec.com',
-                            window.location.origin
-                        ];
-                        const handlePaymentMessage = (event) => {
-                            // SECURITY: Verificar que el mensaje viene de un origen permitido
-                            if (!allowedOrigins.includes(event.origin)) {
-                                return;
-                            }
-                            if (event.data && event.data.type === 'PAYMENT_COMPLETED') {
-                                if (paymentWindow && !paymentWindow.closed) {
-                                    paymentWindow.close();
-                                }
-                                window.removeEventListener('message', handlePaymentMessage);
-                                
-                                setMessages(prev => [...prev, { role: 'assistant', content: '✅ ¡He confirmado tu pago exitosamente! En breve recibirás los correos con tu recibo y acceso a Google Drive.' }]);
-                            }
-                        };
-                        
-                        window.addEventListener('message', handlePaymentMessage);
-                    }}
+                    onClick={() => openPayPhoneCheckout(btnUrl)}
                     style={{
                         display: 'inline-flex',
                         alignItems: 'center',

@@ -31,7 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   // Rutas dinámicas basadas en los posts del blog
-  const blogSitemaps = blogData.map((post: any) => {
+  const blogSitemaps = blogData.map((post) => {
     let parsedDate = new Date();
 
     // Preferir el campo ISO datePublished/dateModified si existe

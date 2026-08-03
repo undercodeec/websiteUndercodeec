@@ -9,7 +9,9 @@ import BlogPost from "@/components/Blog/BlogPost";
 import Footer from "@/components/Saas/Footer";
 import "@/components/Blog/blog-post.css";
 
-export default function BlogDetailClient({ post }: { post: any }) {
+type BlogPostData = (typeof import("@/data/Blog/blog-grid.json"))[number];
+
+export default function BlogDetailClient({ post }: { post?: BlogPostData }) {
   const navbarRef = useRef<HTMLElement>(null);
 
   useEffect(() => {

@@ -7,6 +7,12 @@ import {
 } from 'react-icons/fa';
 import ReactGA from 'react-ga4';
 import { playSoundWithFade } from '@/utils/audio';
+
+const BUBBLE_STYLES = Array.from({ length: 10 }, (_, index) => ({
+    left: `${(index * 37 + 11) % 100}%`,
+    animationDelay: `${((index * 17) % 50) / 10}s`,
+}));
+
 const UnderCodeec = () => {
     return (
         <div className="undercodeec-container">
@@ -17,8 +23,8 @@ const UnderCodeec = () => {
                 {/* Header Visual */}
                 <div className="undercodeec-header">
                     <div className="lava-bubbles2">
-                        {[...Array(10)].map((_, i) => (
-                            <span key={i} className="bubble2" style={{ left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 5}s` }} />
+                        {BUBBLE_STYLES.map((style, i) => (
+                            <span key={i} className="bubble2" style={style} />
                         ))}
                     </div>
 

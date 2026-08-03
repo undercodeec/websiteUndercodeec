@@ -79,10 +79,13 @@ export default function ScrollPinShowcase() {
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
+    const initialMotionTimer = setTimeout(() => setReducedMotion(mq.matches), 0);
     const onChange = (e) => setReducedMotion(e.matches);
     mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
+    return () => {
+      clearTimeout(initialMotionTimer);
+      mq.removeEventListener("change", onChange);
+    };
   }, []);
 
   useEffect(() => {

@@ -35,14 +35,14 @@ const PreviewNavbar = ({ navbarRef }) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light style-1 nav-preview py-0" ref={navbarRef}>
       <div className="container-xxl">
-        <a
+        <Link
           className="navbar-brand"
           href="/"
           data-force-preloader="true"
           onClick={handleLogoClick}
         >
           <Image src="/assets/img/undercode-logo.png" alt="Undercodeec" width={55} height={55} priority className="preview-logo" style={{ width: '55px', height: '55px' }} />
-        </a>
+        </Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
           data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
           aria-label="Toggle navigation">
@@ -99,9 +99,9 @@ const PreviewNavbar = ({ navbarRef }) => {
               </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-links dropLink" href='/contacto'>
+              <Link className="nav-links dropLink" href='/contacto'>
               Contáctanos
-              </a>
+              </Link>
             </li>
             
             
@@ -109,9 +109,9 @@ const PreviewNavbar = ({ navbarRef }) => {
           </ul>
           <div className="nav-side flex-shrink-0">
             <div className="qoute-nav">
-              <a href="/#reserva_agenda" className="btn sm-butn butn-gard border-0 text-white">
+              <Link href="/#reserva_agenda" className="btn sm-butn butn-gard border-0 text-white">
                 <span>Agendar Reunión</span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

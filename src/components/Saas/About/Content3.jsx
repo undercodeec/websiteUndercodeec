@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 const Content = ({ texts, webLinks, number }) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -51,7 +52,7 @@ const Content = ({ texts, webLinks, number }) => {
               }
             </div>
 
-            <a className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold mt-40" href="/"><span>Saber Más</span></a>
+            <Link className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold mt-40" href="/"><span>Saber Más</span></Link>
 
           </div>
           

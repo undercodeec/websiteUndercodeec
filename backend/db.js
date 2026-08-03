@@ -148,6 +148,21 @@ async function initDatabase() {
         UNIQUE KEY uniq_serie_secuencial (ambiente, estab, pto_emi, secuencial)
       )
     `;
+    const createPaymentStatesTable = `
+      CREATE TABLE IF NOT EXISTS payment_states (
+        client_transaction_id VARCHAR(32) PRIMARY KEY,
+        order_data JSON NULL,
+        session_token_hash VARCHAR(64) NULL,
+        session_expires_at DATETIME NULL,
+        approval_data JSON NULL,
+        approved_at DATETIME NULL,
+        processing_at DATETIME NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_payment_states_session_expires (session_expires_at),
+        INDEX idx_payment_states_approved_at (approved_at)
+      )
+    `;
     await pool.query(createOrdersTable);
     await pool.query(createLeadsTable);
     await pool.query(createChatUsageTable);
@@ -156,6 +171,8 @@ async function initDatabase() {
     await pool.query(createChatMessagesTable);
     await pool.query(createAdminUsersTable);
     await pool.query(createInvoicesTable);
+    await pool.query(createPaymentStatesTable);
+    await ensureColumn('payment_states', 'processing_at', 'DATETIME NULL');
     await ensureColumn('chat_sessions', 'user_id', 'INT NULL');
     await ensureIndex('chat_sessions', 'idx_chat_sessions_user_id', 'user_id');
     await ensureColumn('chat_users', 'is_client', 'TINYINT NOT NULL DEFAULT 0');
@@ -234,6 +251,7 @@ module.exports = {
 
     return {
       rows: rowsArray,
+      rowCount: result && typeof result.affectedRows === 'number' ? result.affectedRows : rowsArray.length,
       [Symbol.iterator]: function* () {
         yield this.rows;
         yield undefined;

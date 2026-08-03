@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import testimonials from '@/data/Preview/testimonials.json';
-import SwiperCore, { Autoplay } from "swiper"; // ✅ esta línea
+import { Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import "swiper/css";
-
-SwiperCore.use([Autoplay]);
-
 
 const Testimonials = () => {
   const [load, setLoad] = useState(false);
 
   useEffect(() => {
-    setLoad(true);
+    const loadTimer = setTimeout(() => setLoad(true), 0);
+    return () => clearTimeout(loadTimer);
   }, []);
 
   return (
@@ -35,6 +33,7 @@ const Testimonials = () => {
               <div className="swiper-container">
                 {load && (
                   <Swiper
+                    modules={[Autoplay]}
                     className="swiper-wrapper"
                     slidesPerView={3}
                     spaceBetween={30}

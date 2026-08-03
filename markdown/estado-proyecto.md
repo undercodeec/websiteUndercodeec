@@ -1,174 +1,147 @@
 # Estado del proyecto Undercodeec
 
-**Última auditoría:** 2026-08-02 (America/Guayaquil)
-**Estado global:** operativo parcial; desarrollo avanzado, pero no todo el sistema está validado para producción.
+**Última actualización:** 2026-08-03 (America/Guayaquil)
+**Estado global:** desarrollo local validado; despliegue y pruebas con servicios reales pendientes.
 
 ## Veredicto ejecutivo
 
-El sitio público y la API principal están en línea, y el frontend actual genera correctamente su build de producción. El repositorio contiene implementaciones amplias para pagos PayPhone, administración, asistente comercial con IA, CRM Hermes y facturación electrónica SRI.
+El repositorio compila para producción, TypeScript pasa y ESLint no reporta errores. Se corrigieron los 43 errores de lint que bloqueaban la línea base de calidad, se añadieron pruebas y CI, se documentó la operación, se incorporó el proxy de Hermes y se reforzó PayPhone con polling autenticado y estado persistente.
 
-No es correcto declarar el proyecto completo o totalmente certificado. Persisten cuatro brechas principales:
+No se declara el sistema completamente certificado. PayPhone, correo, Google Drive, Gemini/TTS, base de datos y Hermes todavía necesitan pruebas end-to-end en un entorno con credenciales reales. Los cambios de esta actualización aún deben desplegarse para corregir la divergencia observada en producción.
 
-1. El frontend tiene 43 errores y 232 advertencias de ESLint.
-2. Las integraciones críticas no tienen pruebas automatizadas ni una validación end-to-end reciente: PayPhone, SRI, correo, base de datos, Google Drive y Gemini/TTS.
-3. La facturación SRI no puede operar con la configuración local auditada: faltan datos del emisor, contraseña y archivo `.p12`.
-4. Producción no coincide por completo con este repositorio: la ruta local `/admin/crm/` compila, pero en producción devuelve 404.
+La facturación electrónica SRI queda fuera del alcance operativo actual y se mantiene como mejora futura. No forma parte del criterio de salida de esta etapa.
 
-## Evidencia de la auditoría
+## Cambios completados el 2026-08-03
 
-Se revisaron el código frontend y backend, la configuración, las rutas, los documentos históricos de estado, las variables requeridas y los scripts de prueba. No se realizaron pagos, emisiones SRI, envíos de correo ni cambios sobre bases de datos externas.
+### Calidad y automatización
 
-### Validaciones ejecutadas
+- Se corrigieron los 43 errores de ESLint: tipado del blog, reglas de Hooks, enlaces internos, render puro y configuración moderna de Swiper.
+- El lint termina con **0 errores y 210 advertencias**. Las advertencias restantes son principalmente 138 usos heredados de `<img>`, 66 símbolos no utilizados, 4 dependencias de Hooks y 2 hojas de estilo globales.
+- Se corrigió una dependencia implícita de `prop-types` que impedía un build limpio y una fuga de listener en `CountTo`.
+- Se preparó `config/github-ci.yml.example` para ejecutar instalación reproducible, lint, build, sintaxis y pruebas. Su activación requiere credenciales de GitHub con permiso `workflow`.
+- El script raíz de lint ahora revisa únicamente `src` y `next.config.ts`, sin recorrer artefactos generados.
 
-| Validación | Resultado | Lectura correcta |
+### PayPhone
+
+- El asistente comercial ya no depende únicamente de `postMessage`: consulta el estado cada dos segundos, valida origen y ventana emisora, limita el polling a diez minutos y maneja cierre, timeout y popup bloqueado.
+- El backend emite al asistente un token opaco ligado al `clientTransactionId`; el fragmento que lo transporta se elimina antes de abrir PayPhone.
+- Órdenes pendientes, hashes de tokens de sesión y aprobaciones de webhook se guardan en la tabla `payment_states` de MySQL/MariaDB, además del fallback en memoria.
+- Un reclamo atómico con arrendamiento evita que webhook, confirmación y fallback procesen a la vez el mismo pedido en una o varias instancias.
+- Se añadieron pruebas de autorización, expiración, orden pendiente, aprobación y reclamo exclusivo.
+
+**Estado:** implementación local reforzada y probada de forma unitaria; falta certificar pagos reales de éxito, cancelación, webhook duplicado y reinicio.
+
+### CRM Hermes
+
+- Se implementó `/api/hermes/[...path]` como proxy dinámico del mismo origen.
+- El proxy usa la variable privada `HERMES_API_URL`, reenvía solo cabeceras necesarias, aplica timeout, no almacena respuestas y valida los segmentos de ruta.
+- El frontend puede conservar `NEXT_PUBLIC_HERMES_API_URL=/api/hermes` sin depender de una regla de proxy externa.
+
+**Estado:** solución local compilada; falta configurar Hermes y desplegar esta revisión. La última observación pública, realizada el 2026-08-02, devolvía 404 en `/admin/crm/`.
+
+### Documentación y configuración
+
+- `README.md` documenta arquitectura, desarrollo, validación, despliegue y rollback.
+- `config/frontend.env.example` y `config/backend.env.example` contienen el inventario canónico de variables sin secretos.
+- La configuración SRI está separada y comentada como trabajo futuro.
+
+## Evidencia local actual
+
+| Validación | Resultado | Evidencia |
 |---|---:|---|
-| Build Next.js 16.1.2 | Aprobado | Compiló, validó TypeScript y generó 33 rutas sin error. |
-| ESLint sobre `src` y `next.config.ts` | Falló | 43 errores y 232 advertencias. |
-| Sintaxis JavaScript del backend | Aprobada | Todos los `.js` propios de `backend/` pasan `node --check`. |
-| Playbook comercial | Aprobado | El script `test_chat_commercial_playbook.js` pasa. |
-| Autenticación OTP del CRM | Aprobada | 3 de 3 pruebas pasan. |
-| Pruebas frontend | Inexistentes | No hay suite unitaria, de componentes ni E2E. |
-| Pruebas de PayPhone | Inexistentes | Solo hay bitácora manual histórica. |
-| Pruebas de facturación SRI | Inexistentes | No hay prueba contra `celcer` ni pruebas unitarias del XML/firma. |
-| CI/CD | Inexistente | No hay workflow de CI ni manifiesto de despliegue versionado. |
+| Build Next.js 16.1.2 | Aprobado | Compilación, TypeScript y generación de 33 páginas completadas; proxy Hermes incluido como ruta dinámica. |
+| ESLint | Aprobado con deuda | 0 errores y 210 advertencias. |
+| Sintaxis backend | Aprobada | 22 archivos JavaScript propios pasan `node --check`. |
+| Pruebas unitarias backend | Aprobadas | 7 de 7 pruebas pasan: OTP Hermes y estado PayPhone. |
+| Playbook comercial | Aprobado | `test_chat_commercial_playbook.js` pasa. |
+| CI | Preparado | Plantilla versionada; activación remota pendiente por permiso `workflow`. |
+| PayPhone real | Pendiente | No se realizó ningún cobro durante esta actualización. |
+| Servicios externos | Pendiente | No se enviaron correos ni se invocaron Drive, Gemini/TTS o Hermes reales. |
 
-### Comprobación pública realizada
+## Estado por área
 
-| Recurso | Resultado observado |
-|---|---:|
-| `https://undercodeec.com/` | HTTP 200 |
-| Rutas públicas principales | HTTP 200 |
-| `https://undercodeec.com/sitemap.xml` | HTTP 200 |
-| `https://api.undercodeec.com/api/health` | HTTP 200, estado `ok` |
-| Endpoints protegidos de chat y facturas sin token | HTTP 401, protección activa |
-| `https://undercodeec.com/admin/crm/` | HTTP 404 |
+### Sitio público y SEO
 
-La comprobación HTTP solo demuestra disponibilidad básica; no certifica flujos autenticados ni operaciones externas.
+El build es estable y las rutas públicas, metadatos, sitemap y contenido estático siguen presentes. La deuda principal son las advertencias de imágenes heredadas y los activos grandes de `public/`. Las mediciones de rendimiento guardadas son antiguas y deben repetirse después del despliegue.
 
-## Estado real por área
+**Estado:** implementado y compilado; rendimiento actual no certificado.
 
-### 1. Sitio público y SEO — operativo con deuda técnica
+### Backend y datos
 
-- Hay 26 archivos de página y el build produce 33 rutas, incluidas home, servicios, blog, páginas regionales Ecuador/España, contacto, hosting, portal y paneles administrativos.
-- Existen `robots.txt`, sitemap, metadatos, datos estructurados y cuatro artículos de blog generados estáticamente.
-- Las rutas públicas principales responden en producción.
-- El `README.md` sigue siendo el texto genérico de Create Next App; no documenta la arquitectura real ni la operación.
-- El lint falla en tipado, reglas de React Hooks, navegación y otros puntos. El build pasa porque estos errores no lo bloquean.
-- No hay pruebas frontend automatizadas.
+La API Express mantiene más de cuarenta endpoints. El estado crítico de PayPhone ya puede sobrevivir reinicios y compartirse entre instancias mediante MySQL/MariaDB. Las sesiones administrativas, OTP y límites de frecuencia todavía usan memoria local. `backend/server.js` continúa siendo un monolito grande.
 
-**Estado:** funcional y desplegado, no limpio ni suficientemente cubierto.
+**Estado:** operativo en código y mejorado; aún requiere pruebas de arranque e integración contra una base real.
 
-### 2. Rendimiento — optimizaciones aplicadas, resultado actual no certificado
+### Administración
 
-- Sí están aplicados `next/dynamic`, carga diferida con `IntersectionObserver`, fachada de Calendly y estrategias diferidas para scripts.
-- Las mediciones guardadas de Unlighthouse corresponden a junio de 2026 y no validan el código actual.
-- Continúan activos muy pesados en `public/`: un video de aproximadamente 112 MB, modelos GLB de aproximadamente 91 MB y 31 MB, y un WAV de aproximadamente 25 MB.
-- El layout global aún carga CSS legacy y varios scripts de terceros.
+Login, recuperación, dashboard, pagos, leads, chat y pantallas de facturas compilan. No se hizo login real ni consulta a la base desplegada en esta actualización.
 
-**Estado:** trabajo de optimización parcial; hace falta una medición limpia y actual de producción.
+**Estado:** implementado; validación end-to-end pendiente.
 
-### 3. Backend/API — operativo, monolítico y con cobertura mínima
+### Asistente comercial
 
-- Backend Express 5 separado, con MySQL/MariaDB y más de cuarenta endpoints para pagos, chat, formularios, administración, CRM y facturas.
-- La API pública responde `ok` y los endpoints protegidos auditados rechazan accesos sin token.
-- La mayor parte de la lógica vive en `backend/server.js`, un archivo de más de cuatro mil líneas.
-- Sesiones administrativas, OTP, límites, órdenes pendientes y confirmaciones PayPhone usan `Map` en memoria. Un reinicio pierde ese estado y varias instancias no lo comparten.
-- No hay prueba de integración del arranque con la base de datos ni migraciones versionadas. El archivo `database_schema.sql` mencionado en documentos antiguos no existe.
-- `backend/.env.example` solo documenta variables del OTP CRM y omite la mayoría de variables requeridas por pagos, DB, correo, chat y SRI.
+Los modos ChatBot e IA, autenticación, persistencia, captura de leads, playbook, Gemini, análisis de URL, TTS y generación de cobros siguen implementados. El cierre de PayPhone ahora dispone del mismo tipo de polling autenticado del flujo principal.
 
-**Estado:** API viva y con controles básicos, pero con riesgo operativo por estado en memoria, documentación incompleta y baja cobertura.
+**Estado:** lógica principal implementada y playbook probado; servicios externos y conversión real pendientes.
 
-### 4. Administración clásica — implementada, no validada end-to-end
+### Facturación electrónica SRI — mejora futura
 
-- Existe acceso admin con código de verificación, recuperación/cambio de contraseña y sesiones protegidas.
-- El dashboard contiene pagos, leads, consumo/conversaciones del chat y facturación.
-- La UI de facturas incluye emisión manual o desde un pago, listado, detalle, reintento, XML, RIDE y reenvío por email.
-- El build valida estas pantallas, pero no se probó un login real ni consultas contra la base de producción.
+El código existente de XML, firma, SOAP, estados, RIDE, correo y administración se conserva, pero no se habilita como operación actual. Faltan datos definitivos del emisor, contraseña, certificado `.p12` y evidencia en `celcer`.
 
-**Estado:** implementado en código; validación operativa pendiente.
+Cuando se retome esta mejora se deberá:
 
-### 5. Asistente IA comercial — mayormente implementado
+1. Completar los datos del emisor y custodiar el `.p12` fuera de Git.
+2. Mantener `SRI_AMBIENTE=1` durante toda la certificación.
+3. Añadir pruebas unitarias de clave de acceso, XML, firma y totales.
+4. Obtener autorizaciones reales en `celcer` y comparar XML, RIDE y correo.
+5. Diseñar migración, monitoreo y rollback antes de evaluar producción.
 
-- Hay modos ChatBot e IA, registro, verificación de correo, login, recuperación, cierre por inactividad y niveles de uso.
-- Se implementaron persistencia de sesiones/mensajes, captura de leads, intención comercial, puntuación, temperatura, próxima acción y WhatsApp dinámico por servicio.
-- Incluye respuestas estáticas para reducir consumo, Gemini, análisis de URLs, TTS y generación de enlaces PayPhone cuando el usuario está listo para comprar.
-- El playbook comercial tiene pruebas y estas pasan.
-- No existen pruebas del endpoint `/api/chat`, streaming, autenticación completa, Gemini, TTS, scraping, captura de lead o pago desde el asistente.
+**Estado:** implementación en desarrollo, operación aplazada. No habilitar en producción.
 
-**Estado:** funcionalidad principal presente; integración y conversión real no certificadas.
+## Pendientes priorizados del alcance actual
 
-### 6. PayPhone — flujo principal reforzado, cierre incompleto en el asistente
+### P0 — despliegue y validación real
 
-- El flujo de planes implementa token de sesión, webhook verificado, caché temporal de aprobaciones, polling, cierre del popup, deduplicación y TTL de órdenes pendientes.
-- El polling del flujo principal tiene un límite aproximado de diez minutos.
-- `AIAssistant/index.jsx` todavía depende únicamente de `postMessage` para cerrar su popup PayPhone; no replica el polling/fast-path del flujo de planes.
-- No hay prueba automatizada ni evidencia reciente de dos casos indispensables: pago aprobado con un solo email/carpeta y cierre sin pagar sin efectos secundarios.
-- Las órdenes pendientes y aprobaciones viven en memoria; un reinicio entre creación y webhook puede romper la correlación.
+1. Desplegar frontend y backend desde la misma revisión y configurar `HERMES_API_URL`.
+2. Ejecutar PayPhone end-to-end: éxito, cancelación, webhook duplicado y reinicio entre creación y confirmación.
+3. Validar que cada pago aprobado produzca una sola orden, un solo correo y una sola carpeta; verificar también que cancelar no produzca efectos secundarios.
+4. Probar CRM Hermes y administración con usuarios y base del entorno desplegado.
 
-**Estado:** implementado parcialmente y pendiente de validación real; el flujo del asistente conserva una brecha conocida.
+### P1 — cobertura y operación
 
-### 7. Facturación electrónica SRI — código construido, operación bloqueada
-
-- Existen tabla `invoices`, builder, firma XAdES-BES, cliente SOAP, servicio de estados, RIDE, correo, endpoints admin e interfaz.
-- La dependencia `open-factura` está instalada.
-- La configuración local auditada tiene vacíos en `SRI_RUC`, `SRI_RAZON_SOCIAL`, `SRI_DIR_MATRIZ` y `SRI_P12_PASSWORD`.
-- `backend/secrets/` no contiene un certificado `.p12`; solo contiene su `.gitignore`.
-- No se ha demostrado una factura autorizada en `celcer`, comparación de XML/RIDE ni emisión real en producción.
-
-**Estado:** fases de construcción completadas, pero no está listo para emitir. Mantener `SRI_AMBIENTE=1` hasta certificar todo el flujo.
-
-### 8. CRM Hermes — frontend local presente, despliegue pendiente
-
-- Existen dashboard, leads, detalle, inbox, handoff y login passwordless.
-- La prueba unitaria del OTP/proof pasa.
-- El CRM depende de una API Hermes separada y de secretos compartidos.
-- La configuración frontend local auditada no define `NEXT_PUBLIC_HERMES_API_URL`; el fallback `/api/hermes` requiere un proxy que no forma parte de Next.js.
-- La ruta `/admin/crm/` existe en el build local, pero devuelve 404 en producción.
-
-**Estado:** integración desarrollada localmente; no desplegada o no enrutada en producción.
-
-## Prioridades reales
-
-### P0 — bloqueos de operación
-
-1. Completar datos y certificado SRI, crear pruebas unitarias y certificar primero en `celcer`.
-2. Validar PayPhone end-to-end y añadir al asistente el mismo fallback de polling del flujo principal.
-3. Desplegar o retirar temporalmente el CRM Hermes; hoy el repositorio y producción divergen.
-4. Persistir órdenes pendientes, aprobaciones y sesiones críticas fuera de memoria si habrá reinicios o más de una instancia.
-
-### P1 — calidad antes de ampliar funciones
-
-1. Corregir los 43 errores de ESLint.
-2. Añadir pruebas de API e integraciones críticas, más una prueba E2E del recorrido comercial.
-3. Completar `.env.example` de frontend y backend sin secretos.
-4. Reemplazar el README genérico por instrucciones reales de desarrollo, despliegue, rollback y operación.
-5. Crear CI que ejecute build, lint y pruebas en cada cambio.
+1. Añadir pruebas de API para chat, autenticación, formularios y endpoints administrativos.
+2. Crear una prueba E2E del recorrido comercial completo.
+3. Persistir o externalizar sesiones administrativas, OTP y rate limits si habrá más de una instancia.
+4. Añadir monitoreo de errores, alertas y comprobación automática posterior al despliegue.
 
 ### P2 — rendimiento y mantenibilidad
 
-1. Repetir Lighthouse/Unlighthouse sobre el despliegue actual y registrar un nuevo baseline.
-2. Comprimir o eliminar los activos de 25–112 MB y confirmar que ninguno se precarga innecesariamente.
-3. Dividir `backend/server.js` por dominios y versionar migraciones de base de datos.
-4. Reducir logs temporales de PayPhone y eliminar código/CSS residual.
+1. Migrar gradualmente las 138 imágenes señaladas por ESLint a `next/image` donde sea apropiado.
+2. Eliminar símbolos y componentes residuales para reducir las advertencias restantes.
+3. Comprimir o retirar los activos de aproximadamente 25–112 MB.
+4. Repetir Lighthouse/Unlighthouse sobre la revisión desplegada.
+5. Dividir `backend/server.js` por dominios y formalizar migraciones versionadas.
 
-## Criterio para declarar el proyecto listo
+## Criterio de salida de esta etapa
 
-El proyecto podrá considerarse listo cuando, como mínimo:
+El alcance actual podrá considerarse listo cuando:
 
-- build, lint y pruebas terminen sin errores;
-- PayPhone pase pruebas reales de éxito, cancelación, webhook duplicado y reinicio;
-- SRI autorice el set de certificación y se valide XML, RIDE y email;
-- CRM y panel admin funcionen en el entorno desplegado;
-- exista monitoreo de errores y un procedimiento de rollback;
-- la configuración necesaria esté documentada sin incluir secretos.
+- build, lint sin errores y pruebas se mantengan aprobados en CI;
+- la misma revisión esté desplegada en frontend y backend;
+- PayPhone pase los cuatro escenarios reales definidos en P0;
+- CRM y panel administrativo funcionen en el entorno desplegado;
+- exista monitoreo y un rollback ensayado;
+- la configuración requerida esté cargada de forma segura.
+
+SRI no bloquea este criterio: se gestionará como iniciativa futura independiente.
 
 ## Regla documental
 
-Este es el único archivo de estado del proyecto. Debe actualizarse con evidencia y fecha. Para evitar volver a mezclar intención con realidad, usar siempre estas categorías:
+Este es el único archivo de estado del proyecto. Debe actualizarse con fecha y evidencia usando estas categorías:
 
 - **Implementado:** existe en el código.
 - **Probado:** tiene una validación repetible que pasa.
 - **Desplegado:** está presente en el entorno público.
-- **Certificado:** la integración externa fue validada de extremo a extremo.
+- **Certificado:** una integración externa fue validada de extremo a extremo.
 
-Los archivos `KEYWORDS.md`, `contenido-pagina-es.md` e `implementation_plan.md` son documentación temática o planes, no fuentes del estado actual.
+`KEYWORDS.md`, `contenido-pagina-es.md` e `implementation_plan.md` son documentación temática o planes, no fuentes del estado actual.

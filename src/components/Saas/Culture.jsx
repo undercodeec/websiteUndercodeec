@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore, { Pagination, Autoplay } from 'swiper';
+import { Pagination, Autoplay } from 'swiper';
 import slides from '@/data/Saas/culture.json';
 
 import "swiper/css";
@@ -12,19 +12,18 @@ import LightGallery from 'lightgallery/react';
 // import styles
 import 'lightgallery/css/lightgallery.css';
 
-SwiperCore.use([Pagination, Autoplay]);
-
 const Culture = ({}) => {
   const [loadSwiper, setLoadSwiper] = useState(false);
-  let lgGallery = useMemo(() => null, []);
+  const lgGalleryRef = useRef(null);
 
   useEffect(() => {
-    setLoadSwiper(true);
+    const loadTimer = setTimeout(() => setLoadSwiper(true), 0);
+    return () => clearTimeout(loadTimer);
   }, [])
 
   const showFancybox = (e, index) => {
     e.preventDefault();
-    lgGallery.instance.el.children[index].click()
+    lgGalleryRef.current?.instance?.el?.children[index]?.click()
   }
   
 
@@ -38,6 +37,7 @@ const Culture = ({}) => {
           {
             loadSwiper &&
             <Swiper
+              modules={[Pagination, Autoplay]}
               className="swiper-container"
               dir={'ltr'}
               slidesPerView={4}
@@ -87,7 +87,7 @@ const Culture = ({}) => {
           }
           <div className="swiper-pagination"></div>
         </div>
-        <LightGallery speed={500} backdropDuration={500} onInit={(lg) => lgGallery = lg}>
+        <LightGallery speed={500} backdropDuration={500} onInit={(lg) => { lgGalleryRef.current = lg; }}>
           {
             slides.map((slide, index) => (
               <a href={slide} className="culture-card d-block" onClick={(e) => e.preventDefault()} key={index}>

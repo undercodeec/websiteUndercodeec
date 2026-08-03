@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore, { Autoplay } from 'swiper';
+import { Autoplay } from 'swiper';
 import services from '@/data/DataAnalysis/services.json';
 
 import "swiper/css";
 import 'swiper/css/autoplay';
-
-SwiperCore.use([Autoplay]);
 
 import { Cpu, Users, Boxes, ShoppingBag, ReceiptText } from 'lucide-react';
 
@@ -38,6 +36,7 @@ const Services = () => {
         <div className="services-slider8 pb-60">
           {load && (
             <Swiper
+              modules={[Autoplay]}
               spaceBetween={50}
               speed={10000}
               autoplay={{ delay: 1 }}

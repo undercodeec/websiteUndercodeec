@@ -1,14 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore, { Autoplay } from 'swiper';
+import { Autoplay } from 'swiper';
 import { motion } from 'framer-motion';
 import clients from '@/data/Saas/clients.json';
 
 import "swiper/css";
 import 'swiper/css/autoplay';
-
-SwiperCore.use([Autoplay]);
 
 const Clients = ({ padding }) => {
   const [loadSwiper, setLoadSwiper] = useState(false);
@@ -57,6 +55,7 @@ const Clients = ({ padding }) => {
         >
           {loadSwiper && (
             <Swiper
+              modules={[Autoplay]}
               className="swiper-container"
               dir={'ltr'}
               spaceBetween={0}
@@ -96,6 +95,7 @@ const Clients = ({ padding }) => {
         >
           {loadSwiper && (
             <Swiper
+              modules={[Autoplay]}
               className="swiper-container"
               spaceBetween={0}
               centeredSlides={true}

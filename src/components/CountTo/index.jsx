@@ -1,22 +1,4 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-
-const propTypes = {
-  from: PropTypes.number,
-  to: PropTypes.number.isRequired,
-  speed: PropTypes.number.isRequired,
-  delay: PropTypes.number,
-  onComplete: PropTypes.func,
-  digits: PropTypes.number,
-  className: PropTypes.string,
-  tagName: PropTypes.string,
-  children: PropTypes.func,
-  easing: PropTypes.func,
-  position: PropTypes.shape({
-    height: PropTypes.number,
-    startY: PropTypes.number,
-  }),
-};
 
 const defaultProps = {
   from: 0,
@@ -41,27 +23,31 @@ class CountTo extends PureComponent {
     this.clear = this.clear.bind(this);
     this.next = this.next.bind(this);
     this.updateCounter = this.updateCounter.bind(this);
+    this.handleScroll = this.handleScroll.bind(this);
   }
 
   componentDidMount() {
     this.start();
-    window.addEventListener('scroll', () => {
-      if (!this.props.position) return;
+    window.addEventListener('scroll', this.handleScroll);
+  }
 
-      const { from, to } = this.props.position;
+  handleScroll() {
+    if (!this.props.position) return;
 
-      if (window.scrollY > from && window.scrollY < to && this.state.restart) {
-        this.start();
-        this.setState({ restart: false });
-      }
+    const { from, to } = this.props.position;
 
-      if (window.scrollY < from && !this.state.restart) {
-        this.setState({ restart: true });
-      }
-    });
+    if (window.scrollY > from && window.scrollY < to && this.state.restart) {
+      this.start();
+      this.setState({ restart: false });
+    }
+
+    if (window.scrollY < from && !this.state.restart) {
+      this.setState({ restart: true });
+    }
   }
 
   componentWillUnmount() {
+    window.removeEventListener('scroll', this.handleScroll);
     this.clear();
   }
 
@@ -130,7 +116,6 @@ class CountTo extends PureComponent {
   }
 }
 
-CountTo.propTypes = propTypes;
 CountTo.defaultProps = defaultProps;
 
 export default CountTo;

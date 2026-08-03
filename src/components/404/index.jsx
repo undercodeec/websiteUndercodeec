@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 
 const NotFound = () => {
   return (
@@ -13,9 +14,9 @@ const NotFound = () => {
                 </div>
                 <h2 className="mb-30"> ¡Ups! Parece que aquí no hay nada. </h2>
                 <p className="color-777"> No se encuentra la página que buscas. Te sugerimos volver a la página principal. Es fácil... </p>
-                <a href="/" className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold mt-40">
+                <Link href="/" className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold mt-40">
                   <span> <i className="fas fa-long-arrow-left me-2"></i> Regresar al Inicio </span>
-                </a>
+                </Link>
               </div>
             </div>
             <div className="col-lg-8 text-lg-end">

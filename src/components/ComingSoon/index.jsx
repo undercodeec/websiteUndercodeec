@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 const ComingSoon = () => {
   return (
@@ -16,9 +17,9 @@ const ComingSoon = () => {
                   Esta sección se encuentra en etapa de desarrollo. 
                   Estamos trabajando para brindarte la mejor experiencia.
                 </p>
-                <a href="/" className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold">
+                <Link href="/" className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold">
                   <span> <i className="fas fa-long-arrow-left me-2"></i> Regresar al Inicio </span>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
