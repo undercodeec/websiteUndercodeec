@@ -1,0 +1,30 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>body{font:12px monospace;white-space:pre-wrap;margin:8px}</style></head>
+<body><div id="log"></div>
+<script type="importmap">{ "imports": { "three":"/node-three/three.module.js", "three/addons/":"/node-three/jsm/" }}</script>
+<script type="module">
+const log=(m)=>{document.getElementById('log').textContent+=m+"\n";};
+try{
+  const THREE=await import("three");
+  const {GLTFLoader}=await import("three/addons/loaders/GLTFLoader.js");
+  const {DRACOLoader}=await import("three/addons/loaders/DRACOLoader.js");
+  const draco=new DRACOLoader(); draco.setDecoderPath("/landing-espana/stack-timeline/draco/gltf/");
+  const gl=new GLTFLoader(); gl.setDRACOLoader(draco);
+  gl.load("/landing-espana/stack-timeline/scope.glb",(g)=>{
+    g.scene.traverse(o=>{
+      if(!o.isMesh) return;
+      const c=o.geometry.attributes.color;
+      if(!c){log("no color attr");return;}
+      log("mesh verts="+c.count+" itemSize="+c.itemSize);
+      const counts={};
+      for(let i=0;i<c.count;i++){
+        const r=Math.round(c.getX(i)*255),gg=Math.round(c.getY(i)*255),b=Math.round(c.getZ(i)*255);
+        const k=r+","+gg+","+b; counts[k]=(counts[k]||0)+1;
+      }
+      const arr=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+      log("unique colors: "+arr.length);
+      arr.forEach(([k,n])=>log("  rgb("+k+")  x"+n));
+    });
+  });
+}catch(e){log("FATAL "+(e.stack||e));}
+</script></body></html>

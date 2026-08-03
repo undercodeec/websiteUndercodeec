@@ -1,75 +1,50 @@
-# Keywords del Proyecto Undercodeec
+# Keywords del Proyecto UnderCodeec
 
-Listado completo de keywords SEO extraídas de todas las páginas y artículos del proyecto.
-
-Fuente: `undercodeec_nextjs/src/app/**/layout.tsx` y `undercodeec_nextjs/src/data/Blog/blog-grid.json`.
+Listado completo de palabras clave encontradas en el proyecto, agrupadas por origen y categoría.
 
 ---
 
-## Página principal (`/`)
+## Por archivo fuente
 
-Archivo: `src/app/layout.tsx`
-
- diseño de páginas web
- desarrollo de páginas web
- desarrollo web profesional
- agencia de desarrollo web
- creación de páginas web profesionales
- programación y diseño web
- diseño de página web profesional
- desarrollo de aplicaciones web
- desarrollo y diseño web a medida
- desarrollo de aplicaciones móviles
- posicionamiento SEO
- agencia ecommerce
- agencia de diseño web
- agencia digital
- transformación digital
- soluciones digitales para empresas
+### `src/app/layout.tsx` — Root / General
+- diseño de páginas web
+- desarrollo web profesional
+- agencia de desarrollo web
+- creación de páginas web profesionales
+- programación y diseño web
+- diseño de página web profesional
+- desarrollo de aplicaciones web
+- desarrollo y diseño web a medida
+- desarrollo de aplicaciones móviles
+- posicionamiento SEO
+- agencia ecommerce
+- agencia de diseño web
+- agencia digital
+- transformación digital
+- soluciones digitales para empresas
 
 ---
 
-## Marca / Brand (`/undercodeec/`)
-
-Archivo: `src/app/undercodeec/layout.tsx`
-
-- under codeec
-- undercodeec
-- agencia digital under codeec
-- agencia desarrollo web Ecuador
-- agencia desarrollo web Quito
-- agencia desarrollo de apps
-- agencia SEO Ecuador
-
----
-
-## Ecuador (`/ec/`)
-
-Archivo: `src/app/ec/layout.tsx`
-
- paginas web en ecuador
- desarrollo de páginas web
- pagina web quito
- diseño de paginas web en quito
- diseño de paginas web quito
- paginas web en guayaquil
- creacion de paginas web profesionales
- creación programación y diseño de páginas web
- diseño de pagina web profesional
- Desarrollo de Aplicaciones Web
- Desarrollo y diseño web
- diseño web Quito
- desarrollo de apps Quito
- seo para páginas web Quito
- ecommerce Quito
- agencia de diseño web Quito
+### `src/app/ec/layout.tsx` — Landing Ecuador
+- paginas web en ecuador
+- pagina web quito
+- diseño de paginas web en quito
+- diseño de paginas web quito
+- paginas web en guayaquil
+- creacion de paginas web profesionales
+- creación programación y diseño de páginas web
+- diseño de pagina web profesional
+- Desarrollo de Aplicaciones Web
+- Desarrollo y diseño web
+- diseño web Quito
+- desarrollo de apps Quito
+- seo para páginas web Quito
+- ecommerce Quito
+- agencia de diseño web Quito
 
 ---
 
-## España (`/es/`)
-
-Archivo: `src/app/es/layout.tsx`
-
+### `src/app/es/layout.tsx` — Landing España
 - diseño web España
 - desarrollo web Madrid
 - desarrollo web Barcelona
@@ -93,10 +68,7 @@ Archivo: `src/app/es/layout.tsx`
 
 ---
 
-## Servicios (`/servicios/`)
-
-Archivo: `src/app/servicios/layout.tsx`
-
+### `src/app/servicios/layout.tsx` — Servicios
 - servicios de desarrollo web
 - servicios agencia digital
 - servicios desarrollo de aplicaciones móviles
@@ -112,10 +84,7 @@ Archivo: `src/app/servicios/layout.tsx`
 
 ---
 
-## Aplicaciones móviles (`/aplicaciones-moviles/`)
-
-Archivo: `src/app/aplicaciones-moviles/layout.tsx`
-
+### `src/app/aplicaciones-moviles/layout.tsx` — Apps Móviles
 - desarrollo de aplicaciones móviles
 - desarrollo de apps Android e iOS
 - empresa de desarrollo de apps
@@ -139,10 +108,7 @@ Archivo: `src/app/aplicaciones-moviles/layout.tsx`
 
 ---
 
-## Software empresarial (`/software-para-tu-negocio/`)
-
-Archivo: `src/app/software-para-tu-negocio/layout.tsx`
-
+### `src/app/software-para-tu-negocio/layout.tsx` — Software Empresarial
 - software empresarial
 - software para pequeñas y medianas empresas
 - sistema de gestión empresarial
@@ -166,10 +132,7 @@ Archivo: `src/app/software-para-tu-negocio/layout.tsx`
 
 ---
 
-## Marketing digital (`/marketing-para-tu-negocio/`)
-
-Archivo: `src/app/marketing-para-tu-negocio/layout.tsx`
-
+### `src/app/marketing-para-tu-negocio/layout.tsx` — Marketing Digital
 - marketing digital
 - agencia de marketing digital
 - SEO
@@ -193,44 +156,7 @@ Archivo: `src/app/marketing-para-tu-negocio/layout.tsx`
 
 ---
 
-## Hosting (`/hosting/`)
-
-Archivo: `src/app/hosting/layout.tsx`
-
-- hosting con dominio incluido
-- hosting ecuador
-- planes de hosting
-- hosting con dominio .com
-- hosting barato ecuador
-- hosting profesional
-- plan de hosting basic
-- plan de hosting modern
-- plan de hosting enterprise
-- hosting cPanel ecuador
-- correos corporativos hosting
-- hosting wordpress ecuador
-
----
-
-## Contacto (`/contacto/`)
-
-Archivo: `src/app/contacto/layout.tsx`
-
-- contacto undercodeec
-- agencia desarrollo web Quito
-- contacto desarrollo de software Ecuador
-- presupuesto pagina web Quito
-- contactar agencia digital Ecuador
-- diseño web Sangolqui Valle de los Chillos
-- telefono agencia web Quito
-- ventas undercodeec
-
----
-
-## Nuestra trayectoria (`/nuestra-trayectoria/`)
-
-Archivo: `src/app/nuestra-trayectoria/layout.tsx`
-
+### `src/app/nuestra-trayectoria/layout.tsx` — Trayectoria
 - sobre undercodeec
 - agencia digital Ecuador
 - historia agencia desarrollo web
@@ -243,21 +169,30 @@ Archivo: `src/app/nuestra-trayectoria/layout.tsx`
 
 ---
 
-## Políticas Play Console (`/politicas-playconsole/`)
-
-Archivo: `src/app/politicas-playconsole/layout.tsx`
-
-- política de contenido play console
-- política de privacidad apps undercodeec
-- play console undercodeec
-- política de aplicaciones móviles
+### `src/app/contacto/layout.tsx` — Contacto
+- contacto undercodeec
+- agencia desarrollo web Quito
+- contacto desarrollo de software Ecuador
+- presupuesto pagina web Quito
+- contactar agencia digital Ecuador
+- diseño web Sangolqui Valle de los Chillos
+- telefono agencia web Quito
+- ventas undercodeec
 
 ---
 
-## Blog — índice (`/blog/`)
+### `src/app/undercodeec/layout.tsx` — Marca
+- under codeec
+- undercodeec
+- agencia digital under codeec
+- agencia desarrollo web Ecuador
+- agencia desarrollo web Quito
+- agencia desarrollo de apps
+- agencia SEO Ecuador
 
-Archivo: `src/app/blog/layout.tsx`
+---
 
+### `src/app/blog/layout.tsx` — Blog
 - blog undercodeec
 - blog desarrollo de software
 - blog inteligencia artificial
@@ -269,12 +204,15 @@ Archivo: `src/app/blog/layout.tsx`
 
 ---
 
-## Blog — artículos individuales
+### `src/app/politicas-playconsole/layout.tsx` — Políticas
+- política de contenido play console
+- política de privacidad apps undercodeec
+- play console undercodeec
+- política de aplicaciones móviles
 
-Archivo: `src/data/Blog/blog-grid.json`
+---
 
-### El Futuro del Desarrollo de Software y las Aplicaciones Móviles
-
+### `src/data/Blog/blog-grid.json` — Post 1: Desarrollo de Software y Apps Móviles
 - desarrollo de software ecuador
 - desarrollo de software trabajo
 - carrera desarrollo de software
@@ -283,8 +221,9 @@ Archivo: `src/data/Blog/blog-grid.json`
 - aplicaciones moviles a medida
 - desarrollo apps android ios
 
-### Guía 2026: El Impacto de la Inteligencia Artificial en el Marketing Digital
+---
 
+### `src/data/Blog/blog-grid.json` — Post 2: IA en Marketing Digital
 - marketing digital y ventas
 - impacto de la ia
 - impacto de la inteligencia artificial en la educación
@@ -294,8 +233,9 @@ Archivo: `src/data/Blog/blog-grid.json`
 - lead nurturing con IA
 - microcomunidades marketing
 
-### El Impacto de la Inteligencia Artificial en el Desarrollo de Software
+---
 
+### `src/data/Blog/blog-grid.json` — Post 3: IA en Desarrollo de Software
 - inteligencia artificial desarrollo de software
 - IA en programacion
 - GitHub Copilot
@@ -306,8 +246,9 @@ Archivo: `src/data/Blog/blog-grid.json`
 - futuro del desarrollo de software
 - GEO optimizacion motores generativos
 
-### WhatsApp Marketing y Ventas B2B / E-commerce
+---
 
+### `src/data/Blog/blog-grid.json` — Post 4: WhatsApp Marketing y Ventas
 - WhatsApp Marketing
 - Ventas B2B
 - E-commerce
@@ -321,210 +262,173 @@ Archivo: `src/data/Blog/blog-grid.json`
 
 ---
 
-## Resumen / Master list (deduplicado, orden alfabético)
+## Por categoría temática
 
-> Vista consolidada de todas las keywords únicas del proyecto.
-
-- agencia de desarrollo web
-- agencia de diseño web
-- agencia de diseño web Quito
-- agencia de marketing digital
-- agencia de transformación digital
-- agencia desarrollo de apps
-- agencia desarrollo web Ecuador
-- agencia desarrollo web Quito
-- agencia digital
-- agencia digital con experiencia
-- agencia digital Ecuador
-- agencia digital España
+### Marca y empresa
+- undercodeec
+- under codeec
 - agencia digital under codeec
-- agencia ecommerce
-- agencia SEO
-- agencia SEO Ecuador
-- agencia SEO España
-- agencia transformación digital
-- agencia de desarrollo de apps profesionales
-- alucinaciones IA codigo
-- análisis SEO para negocios
+- agencia digital Ecuador
+- agencia digital con experiencia
+
+### Desarrollo Web
+- diseño de páginas web
+- desarrollo web profesional
+- agencia de desarrollo web
+- creación de páginas web profesionales
+- programación y diseño web
+- diseño de página web profesional
+- desarrollo de aplicaciones web
+- desarrollo y diseño web a medida
+- agencia de diseño web
+
+### Aplicaciones Móviles
+- desarrollo de aplicaciones móviles
+- desarrollo de apps Android e iOS
+- empresa de desarrollo de apps
+- crear aplicación móvil para empresa
+- programadores de aplicaciones móviles
+- desarrollo de apps nativas
+- desarrollo de apps multiplataforma
+- desarrollo de apps Flutter React Native
 - aplicaciones móviles para empresas
-- aplicaciones moviles a medida
-- aplicaciones móviles seguras y de alto rendimiento
+- diseño de apps móviles
+- desarrollo de apps e-commerce móvil
 - apps de delivery y logística
 - apps de gestión empresarial Android iOS
-- apps para Android e iOS España
-- Asistentes IA
-- automatización de procesos empresariales
-- blog aplicaciones móviles
-- blog desarrollo de software
-- blog inteligencia artificial
-- blog marketing digital
-- blog SEO Ecuador
-- blog undercodeec
-- blog WhatsApp Business
-- Bot WhatsApp
-- branding digital
-- campañas publicitarias digitales
-- carrera desarrollo de software
-- casos de éxito desarrollo web
-- chatbot whatsapp ventas
-- comercio conversacional
-- community manager
-- consultoría de desarrollo de apps
-- consultoría de marketing digital
-- consultoría tecnológica
-- contactar agencia digital Ecuador
-- contacto desarrollo de software Ecuador
-- contacto undercodeec
-- correos corporativos hosting
-- crear aplicación móvil para empresa
-- creación de páginas web profesionales
-- creación programación y diseño de páginas web
-- creacion de paginas web profesionales
-- crecimiento digital para empresas
-- CRM para gestión de ventas y clientes
-- desarrollo apps android ios
-- desarrollo de aplicaciones móviles
-- desarrollo de aplicaciones móviles Madrid
-- desarrollo de aplicaciones web
-- Desarrollo de Aplicaciones Web
-- desarrollo de apps Android e iOS
-- desarrollo de apps Flutter React Native
-- desarrollo de apps móviles España
-- desarrollo de apps multiplataforma
-- desarrollo de apps nativas
-- desarrollo de apps Quito
-- desarrollo de apps e-commerce móvil
-- desarrollo de software
-- desarrollo de software a medida
-- desarrollo de software ecuador
 - desarrollo de software móvil
-- desarrollo de software personalizado
-- desarrollo de software trabajo
-- desarrollo web Barcelona
-- desarrollo web Madrid
-- desarrollo web profesional
-- desarrollo y diseño web a medida
-- Desarrollo y diseño web
-- DevSecOps con IA
-- diseño de apps móviles
-- diseño de pagina web profesional
-- diseño de página web profesional
-- diseño de paginas web en quito
-- diseño de paginas web quito
-- diseño de páginas web
-- diseño UX UI aplicaciones móviles
-- diseño web España
-- diseño web Quito
-- diseño web Sangolqui Valle de los Chillos
-- diseño web Valencia
-- ecommerce España
-- ecommerce Quito
-- e-commerce
-- E-commerce
-- e-commerce para negocios
-- empresa de desarrollo de apps
-- equipo desarrollo web Quito
-- estrategias de marketing digital
-- facturación electrónica
-- facturación electrónica España
-- filosofía agencia tecnológica
-- futuro del desarrollo de software
-- GEO optimizacion motores generativos
-- gestión de redes sociales
-- GitHub Copilot
-- Google Ads España
-- historia agencia desarrollo web
-- hosting barato ecuador
-- hosting con dominio .com
-- hosting con dominio incluido
-- hosting cPanel ecuador
-- hosting ecuador
-- hosting profesional
-- hosting wordpress ecuador
-- human in the loop desarrollo
-- IA en programacion
-- impacto de la ia
-- impacto de la inteligencia artificial en la educación
-- inbound marketing
-- integracion whatsapp CRM ERP
-- inteligencia artificial desarrollo de software
-- inteligencia artificial marketing 2026
-- lead nurturing con IA
-- marketing de contenidos
-- marketing digital
-- marketing digital y ventas
-- microcomunidades marketing
-- MLOps LLMOps
-- optimización para motores de búsqueda
-- pagina web quito
-- paginas web en ecuador
-- paginas web en guayaquil
-- plan de hosting basic
-- plan de hosting enterprise
-- plan de hosting modern
-- planes de hosting
-- play console undercodeec
-- política de aplicaciones móviles
-- política de contenido play console
-- política de privacidad apps undercodeec
-- posicionamiento en Google
-- posicionamiento en Google España
-- posicionamiento SEO
-- posicionamiento web
-- posicionamiento web España
-- presupuesto desarrollo de aplicaciones móviles
-- presupuesto desarrollo web España
-- presupuesto pagina web Quito
-- programación y diseño web
-- programadores de aplicaciones móviles
 - publicar app en Play Store y App Store
+- diseño UX UI aplicaciones móviles
+
+### Software Empresarial
+- software empresarial
+- software para pequeñas y medianas empresas
+- sistema de gestión empresarial
+- software CRM
+- CRM para gestión de ventas y clientes
+- sistema de control de inventarios
+- software de inventarios en la nube
+- software ERP
+- sistema contable y administrativo
+- desarrollo de software a medida
+- automatización de procesos empresariales
+- desarrollo de software personalizado
+- software de facturación electrónica
+- facturación electrónica
+
+### Marketing Digital y SEO
+- marketing digital
+- agencia de marketing digital
+- SEO
+- posicionamiento web
+- posicionamiento en Google
+- gestión de redes sociales
 - publicidad en Google Ads
 - publicidad en Meta Ads
+- inbound marketing
+- estrategias de marketing digital
+- análisis SEO para negocios
+- community manager
+- marketing de contenidos
+- branding digital
+- agencia SEO
+- optimización para motores de búsqueda
 - publicidad online
-- recuperacion carritos abandonados
-- revenue operations RevOps
-- seguridad en aplicaciones moviles
-- SEO
-- seo para páginas web Quito
-- servicios agencia digital
-- servicios CRM y ERP
-- servicios de desarrollo web
-- servicios desarrollo de aplicaciones móviles
+- campañas publicitarias digitales
+
+### E-commerce
+- agencia ecommerce
 - servicios e-commerce
-- servicios facturación electrónica
-- servicios marketing digital
-- servicios posicionamiento SEO
-- servicios software empresarial a medida
-- sistema contable y administrativo
-- sistema de control de inventarios
-- sistema de gestión empresarial
-- sistema de ventas y punto de venta
-- sobre undercodeec
-- software a medida España
-- software CRM
-- software de facturación electrónica
-- software de gestión empresarial
-- software de inventarios en la nube
-- software empresarial
-- software empresarial España
-- software ERP
-- software para pequeñas y medianas empresas
-- soluciones digitales empresas
-- soluciones digitales para empresas
-- soluciones tecnológicas para empresas
-- telefono agencia web Quito
-- tendencias marketing digital 2026
-- tendencias tecnología 2026
+- e-commerce para negocios
 - tienda online
+- sistema de ventas y punto de venta
+- ecommerce Quito
+- ecommerce España
 - tienda online España
+
+### Inteligencia Artificial
+- inteligencia artificial marketing 2026
+- inteligencia artificial desarrollo de software
+- IA en programacion
+- impacto de la ia
+- GitHub Copilot
+- alucinaciones IA codigo
+- MLOps LLMOps
+- human in the loop desarrollo
+- DevSecOps con IA
+- GEO optimizacion motores generativos
+- lead nurturing con IA
+- tendencias marketing digital 2026
+
+### WhatsApp y Comercio Conversacional
+- WhatsApp Marketing
+- Bot WhatsApp
+- WhatsApp Business API
+- chatbot whatsapp ventas
+- comercio conversacional
+- recuperacion carritos abandonados
+- integracion whatsapp CRM ERP
+
+### Transformación Digital
 - transformación digital
 - transformación digital empresarial
 - transformación digital pymes España
-- trayectoria agencia digital
-- under codeec
-- undercodeec
-- ventas undercodeec
-- Ventas B2B
+- agencia de transformación digital
+- agencia transformación digital
+- soluciones digitales para empresas
+- soluciones tecnológicas para empresas
+- consultoría tecnológica
+
+### Geolocalización — Ecuador
+- paginas web en ecuador
+- pagina web quito
+- diseño de paginas web en quito
+- diseño de paginas web quito
+- paginas web en guayaquil
+- diseño web Quito
+- desarrollo de apps Quito
+- seo para páginas web Quito
+- agencia de diseño web Quito
+- agencia desarrollo web Quito
+- agencia desarrollo web Ecuador
+- presupuesto pagina web Quito
+- contactar agencia digital Ecuador
+- diseño web Sangolqui Valle de los Chillos
+
+### Geolocalización — España
+- diseño web España
+- desarrollo web Madrid
+- desarrollo web Barcelona
+- diseño web Valencia
+- agencia digital España
+- agencia SEO España
+- posicionamiento web España
+- posicionamiento en Google España
+- desarrollo de apps móviles España
+- desarrollo de aplicaciones móviles Madrid
+- apps para Android e iOS España
+- software empresarial España
+- software a medida España
+- facturación electrónica España
 - Verifactu
-- WhatsApp Business API
-- WhatsApp Marketing
+- Google Ads España
+- presupuesto desarrollo web España
+
+---
+
+## Estadísticas
+
+| Categoría | Cantidad |
+|---|---|
+| Desarrollo Web | 9 |
+| Aplicaciones Móviles | 16 |
+| Software Empresarial | 14 |
+| Marketing Digital y SEO | 18 |
+| E-commerce | 8 |
+| Inteligencia Artificial | 12 |
+| WhatsApp y Comercio Conversacional | 7 |
+| Transformación Digital | 8 |
+| Geolocalización Ecuador | 14 |
+| Geolocalización España | 17 |
+| Marca y empresa | 5 |
+| **Total único aproximado** | **~200** |

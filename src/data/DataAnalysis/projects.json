@@ -1,0 +1,35 @@
+[
+  {
+    "image": "/assets/img/about/artocamello.png",
+    "iframeUrl": "",
+    "tag": "Marketplace de Servicios",
+    "title": "",
+    "text": "ArtoCamello es un marketplace de servicios profesionales, donde los usuarios pueden encontrar y contratar servicios de calidad.",
+    "logo": "/assets/img/undercode-logo.png",
+    "button": {
+      "link": "https://artocamello.com/"
+    }
+  },
+  {
+    "image": "/assets/img/about/figarosdemo.png",
+    "iframeUrl": "",
+    "tag": "Sistema Agendamiento de Turnos",
+    "title": "Sistema de Inventario Personalizado para Figaros Barber Shop",
+    "text": "Figaros Barber Shop tiene su sistema de agendamiento de turnos personalizado, diseñado para optimizar la gestión de citas de sus clientes, asegurando que cada transacción se registre de manera eficiente y precisa.",
+    "logo": "/assets/img/undercode-logo.png",
+    "button": {
+      "link": "#"
+    }
+  },
+  {
+    "image": "/assets/img/about/DemoDermas-OS.png",
+    "iframeUrl": "",
+    "tag": "Gestión Médica",
+    "title": "Sistema de Gestión de Historial Clínico Dermatológico",
+    "text": "Aplicativo web especializado para clínicas dermatológicas, permitiendo un seguimiento detallado del historial clínico, análisis de piel y gestión de citas de pacientes.",
+    "logo": "/assets/img/projects/medical_logo.png",
+    "button": {
+      "link": "https://dermas-os.com/"
+    }
+  }
+]

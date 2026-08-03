@@ -1,7 +1,0 @@
-node_modules/
-.env
-npm-debug.log*
-pnpm-debug.log*
-
-# Certificado de firma electrónica SRI (.p12) — NUNCA subir al repo
-secrets/
