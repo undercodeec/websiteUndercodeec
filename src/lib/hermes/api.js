@@ -9,6 +9,7 @@ const ADMIN_API_BASE_URL = (
 
 export const HERMES_TOKEN_KEY = "hermesCrmToken";
 export const HERMES_USER_KEY = "hermesCrmUser";
+export const ADMIN_TOKEN_KEY = "adminToken";
 export const HERMES_SESSION_EXPIRED_EVENT = "hermes:session-expired";
 
 function readStoredValue(key) {
@@ -35,6 +36,11 @@ export function getHermesToken() {
   return readStoredValue(HERMES_TOKEN_KEY);
 }
 
+export function getAdminToken() {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(ADMIN_TOKEN_KEY);
+}
+
 export function getStoredHermesUser() {
   const stored = readStoredValue(HERMES_USER_KEY);
   if (!stored) return null;
@@ -45,15 +51,17 @@ export function getStoredHermesUser() {
   }
 }
 
-export function saveHermesSession(accessToken, user) {
+export function saveHermesSession(accessToken, user, adminToken) {
   window.sessionStorage.setItem(HERMES_TOKEN_KEY, accessToken);
   window.sessionStorage.setItem(HERMES_USER_KEY, JSON.stringify(user));
+  window.localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
 }
 
 export function clearHermesSession() {
   if (typeof window === "undefined") return;
   window.sessionStorage.removeItem(HERMES_TOKEN_KEY);
   window.sessionStorage.removeItem(HERMES_USER_KEY);
+  window.localStorage.removeItem(ADMIN_TOKEN_KEY);
 }
 
 export function toQueryString(params = {}) {
@@ -137,6 +145,44 @@ async function requestAdminCrmAuth(path, body) {
   return payload;
 }
 
+async function requestAdmin(path, options = {}) {
+  const {
+    body,
+    broadcastUnauthorized = true,
+    headers: customHeaders,
+    ...fetchOptions
+  } = options;
+  const headers = new Headers(customHeaders);
+  const token = getAdminToken();
+
+  if (body !== undefined) headers.set("Content-Type", "application/json");
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  let response;
+  try {
+    response = await fetch(`${ADMIN_API_BASE_URL}${path}`, {
+      ...fetchOptions,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    throw new HermesApiError("No se pudo conectar con el servicio administrativo.");
+  }
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    if (response.status === 401 && broadcastUnauthorized) {
+      clearHermesSession();
+      window.dispatchEvent(new CustomEvent(HERMES_SESSION_EXPIRED_EVENT));
+    }
+    throw new HermesApiError(
+      errorMessage(payload, `Administración respondió con estado ${response.status}.`),
+      { status: response.status, code: payload?.code || "", payload },
+    );
+  }
+  return payload;
+}
+
 export const hermesApi = {
   requestAccessCode(email) {
     return requestAdminCrmAuth("/api/crm/auth/request-code", { email });
@@ -146,14 +192,15 @@ export const hermesApi = {
       email,
       code,
     });
-    if (!verification?.proof) {
+    if (!verification?.proof || !verification?.adminToken) {
       throw new HermesApiError("No se pudo completar la verificacion del codigo.");
     }
-    return request("/auth/crm-proof", {
+    const session = await request("/auth/crm-proof", {
       method: "POST",
       auth: false,
       body: { proof: verification.proof },
     });
+    return { ...session, adminToken: verification.adminToken };
   },
   profile() {
     return request("/auth/profile");
@@ -209,6 +256,18 @@ export const hermesApi = {
     return request(`/handoff/${encodeURIComponent(id)}/resolve`, {
       method: "PUT",
       body: { resolution, action },
+    });
+  },
+};
+
+export const adminApi = {
+  profile() {
+    return requestAdmin("/api/admin/profile");
+  },
+  logout() {
+    return requestAdmin("/api/admin/logout", {
+      method: "POST",
+      broadcastUnauthorized: false,
     });
   },
 };

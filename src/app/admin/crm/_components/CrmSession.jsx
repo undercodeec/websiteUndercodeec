@@ -10,7 +10,9 @@ import {
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  adminApi,
   clearHermesSession,
+  getAdminToken,
   getHermesToken,
   getStoredHermesUser,
   HERMES_SESSION_EXPIRED_EVENT,
@@ -23,12 +25,14 @@ const CrmSessionContext = createContext(null);
 export function CrmSessionProvider({ children }) {
   const pathname = usePathname();
   const router = useRouter();
-  const isLoginRoute = pathname === "/admin/crm/login";
+  const normalizedPathname = pathname?.replace(/\/+$/, "") || "/";
+  const isLoginRoute = normalizedPathname === "/admin/crm/login";
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState("checking");
 
   const logout = useCallback(
     (reason = "") => {
+      if (getAdminToken()) adminApi.logout().catch(() => {});
       clearHermesSession();
       setUser(null);
       setStatus("guest");
@@ -39,8 +43,9 @@ export function CrmSessionProvider({ children }) {
   );
 
   const refreshProfile = useCallback(async () => {
-    const token = getHermesToken();
-    if (!token) {
+    const hermesToken = getHermesToken();
+    const adminToken = getAdminToken();
+    if (!hermesToken || !adminToken) {
       setUser(null);
       setStatus("guest");
       if (!isLoginRoute) router.replace("/admin/crm/login");
@@ -49,7 +54,10 @@ export function CrmSessionProvider({ children }) {
 
     setStatus("checking");
     try {
-      const profile = await hermesApi.profile();
+      const [profile] = await Promise.all([
+        hermesApi.profile(),
+        adminApi.profile(),
+      ]);
       window.sessionStorage.setItem("hermesCrmUser", JSON.stringify(profile));
       setUser(profile);
       setStatus("authenticated");
@@ -83,7 +91,7 @@ export function CrmSessionProvider({ children }) {
   const loginWithCode = useCallback(
     async (credentials) => {
       const session = await hermesApi.loginWithCode(credentials);
-      saveHermesSession(session.accessToken, session.user);
+      saveHermesSession(session.accessToken, session.user, session.adminToken);
       setUser(session.user);
       setStatus("authenticated");
       router.replace("/admin/crm");

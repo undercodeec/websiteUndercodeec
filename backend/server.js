@@ -782,6 +782,16 @@ setTimeout(() => { ensureAdminUser(); }, 3000);
 const adminSessions = new Map();
 const ADMIN_SESSION_TTL_MS = 2 * 60 * 60 * 1000; // 2 horas
 
+function createAdminSession(email) {
+  const token = crypto.randomBytes(32).toString('hex');
+  adminSessions.set(token, {
+    email,
+    expiresAt: Date.now() + ADMIN_SESSION_TTL_MS,
+    createdAt: Date.now()
+  });
+  return token;
+}
+
 // Intentos fallidos por email (login y verify)
 const adminLoginAttempts = new Map();   // email → { count, lockUntil }
 const adminVerifyAttempts = new Map();  // email → { count, lockUntil }
@@ -822,8 +832,8 @@ function clearAttempts(map, key) {
 // ============================================================================
 // HERMES CRM PASSWORDLESS AUTH
 // Admin owns the OTP and signs a short-lived proof; Hermes consumes that proof
-// and issues its own CRM JWT. Neither admin sessions nor admin passwords cross
-// this boundary.
+// and issues its own CRM JWT. The same successful OTP also creates an admin
+// session so the unified panel can query payments, forms, invoices and usage.
 // ============================================================================
 const crmOtpRecords = new Map(); // email -> { hash, expiresAt, attempts }
 const crmOtpRequestCooldown = new Map(); // email -> timestamp
@@ -954,7 +964,8 @@ app.post('/api/crm/auth/verify-code', (req, res) => {
       jti: crypto.randomUUID(),
       secret: getCrmHermesProofSecret(),
     });
-    return res.json({ success: true, proof });
+    const adminToken = createAdminSession(email);
+    return res.json({ success: true, proof, adminToken });
   } catch (error) {
     console.error('[CRM_AUTH] Error firmando prueba Hermes:', error.message);
     return res.status(500).json({ success: false, error: 'No se pudo completar el acceso.' });
@@ -4004,12 +4015,7 @@ app.post('/api/admin/verify', async (req, res) => {
   clearAttempts(adminVerifyAttempts, lockKey);
   clearAttempts(adminLoginAttempts, lockKey);
 
-  const sessionToken = crypto.randomBytes(32).toString('hex');
-  adminSessions.set(sessionToken, {
-    email: adminEmail,
-    expiresAt: Date.now() + ADMIN_SESSION_TTL_MS,
-    createdAt: Date.now()
-  });
+  const sessionToken = createAdminSession(adminEmail);
 
   return res.json({ success: true, token: sessionToken });
 });
@@ -4124,6 +4130,16 @@ app.post('/api/admin/logout', adminAuth, (req, res) => {
   const token = authHeader.split(' ')[1];
   if (token) adminSessions.delete(token);
   return res.json({ success: true });
+});
+
+app.get('/api/admin/profile', adminAuth, (req, res) => {
+  return res.json({
+    success: true,
+    user: {
+      email: req.adminSession.email,
+      role: 'ADMIN'
+    }
+  });
 });
 
 // Admin Change Password (Settings Tab) — el hash bcrypt se guarda en la DB, nunca en el .env

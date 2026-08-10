@@ -12,13 +12,22 @@ const getPageTitle = (path) => {
   return lastSegment.replace(/-/g, " ").toUpperCase();
 };
 
+const isAdminRoute = (path) => {
+  const normalized = (path || "").replace(/\/$/, "") || "/";
+  return normalized === "/admin" || normalized.startsWith("/admin/");
+};
+
 export default function PageTransition({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   
   const preloaderRoutes = ['/', '/ec', '/es'];
   const normInit = pathname.replace(/\/$/, '') || '/';
-  const [transitionState, setTransitionState] = useState(preloaderRoutes.includes(normInit) ? "hidden" : "initial_reveal");
+  const [transitionState, setTransitionState] = useState(
+    preloaderRoutes.includes(normInit) || isAdminRoute(normInit)
+      ? "hidden"
+      : "initial_reveal",
+  );
   const [targetPathname, setTargetPathname] = useState(pathname);
   
   const title = getPageTitle(transitionState === "rising" ? targetPathname : pathname);
@@ -37,6 +46,13 @@ export default function PageTransition({ children }) {
 
              e.preventDefault();
              e.stopPropagation();
+
+             // El panel administrativo usa su propia experiencia de navegacion.
+             // Evitar el telon global al entrar, salir o moverse dentro de /admin.
+             if (isAdminRoute(normCurrent) || isAdminRoute(normTarget)) {
+               router.push(url.href);
+               return;
+             }
 
              // Logo con preloader: limpiar sesión home y navegar sin cortina
              if (link.dataset.forcePreloader) {
@@ -76,7 +92,7 @@ export default function PageTransition({ children }) {
                }, 800);
              }, 50);
            }
-        } catch(err) {}
+        } catch {}
       }
     };
 
@@ -152,7 +168,8 @@ export default function PageTransition({ children }) {
   // En rutas con preloader de bienvenida, no renderizar el telón si está oculto
   // (evita que SSR/hidratación muestre brevemente el nombre de la página)
   const normPathname = pathname.replace(/\/$/, '') || '/';
-  const hideCurtain = preloaderRoutes.includes(normPathname) && transitionState === "hidden";
+  const hideCurtain = isAdminRoute(normPathname)
+    || (preloaderRoutes.includes(normPathname) && transitionState === "hidden");
 
   return (
     <>
@@ -165,7 +182,7 @@ export default function PageTransition({ children }) {
            width: "100%", height: "100vh",
            zIndex: 999999, pointerEvents: "none"
          }}
-         initial={{ y: preloaderRoutes.includes(pathname) ? "100%" : "0%" }}
+         initial={{ y: preloaderRoutes.includes(normPathname) ? "100%" : "0%" }}
          animate={transitionState}
          variants={curtainVariants}
       >

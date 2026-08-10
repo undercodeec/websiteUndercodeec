@@ -15,6 +15,7 @@ export default function PromoBanner() {
   const pathname = usePathname();
   const isBudgetLanding = /^\/(es|ec)(\/)?$/.test(pathname || "");
   const isStandaloneStackPage = /^\/recursos-humanos(\/)?$/.test(pathname || "");
+  const isAdminRoute = /^\/admin(?:\/|$)/.test(pathname || "");
 
   const handleSaberMas = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -38,16 +39,16 @@ export default function PromoBanner() {
 
   useEffect(() => {
     const update = () => {
-      const h = bannerRef.current?.offsetHeight ?? 0;
+      const h = isAdminRoute ? 0 : (bannerRef.current?.offsetHeight ?? 0);
       if (spacerRef.current) spacerRef.current.style.height = h + "px";
       document.documentElement.style.setProperty("--promo-banner-height", h + "px");
     };
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, []);
+  }, [isAdminRoute]);
 
-  if (isStandaloneStackPage) return null;
+  if (isStandaloneStackPage || isAdminRoute) return null;
 
   return (
     <>

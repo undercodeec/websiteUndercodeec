@@ -39,7 +39,7 @@ const getLeadSummary = (lead) => {
   };
 };
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ embedded = false }) {
   const [activeTab, setActiveTab] = useState('payments');
   const [payments, setPayments] = useState([]);
   const [leads, setLeads] = useState([]);
@@ -74,13 +74,15 @@ export default function AdminDashboard() {
 
   const handleSessionExpired = useCallback(() => {
     localStorage.removeItem('adminToken');
-    router.push('/admin');
+    sessionStorage.removeItem('hermesCrmToken');
+    sessionStorage.removeItem('hermesCrmUser');
+    router.push('/admin/crm/login');
   }, [router]);
 
   const fetchData = useCallback(async (isRefresh = false) => {
     const token = localStorage.getItem('adminToken');
     if (!token) {
-      router.push('/admin');
+      router.push('/admin/crm/login');
       return;
     }
     if (isRefresh) setRefreshing(true); else setLoading(true);
@@ -208,7 +210,9 @@ export default function AdminDashboard() {
       } catch { /* best-effort */ }
     }
     localStorage.removeItem('adminToken');
-    router.push('/admin');
+    sessionStorage.removeItem('hermesCrmToken');
+    sessionStorage.removeItem('hermesCrmUser');
+    router.push('/admin/crm/login');
   };
 
   const openChatSession = async (session) => {
@@ -349,13 +353,13 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="tw-min-h-screen tw-bg-[#0f172a] tw-text-gray-100 tw-font-sans tw-relative">
+    <div className={embedded ? "crm-admin-legacy" : "tw-min-h-screen tw-bg-[#0f172a] tw-text-gray-100 tw-font-sans tw-relative"}>
 
       {/* Background ambient light */}
-      <div className="tw-absolute tw-top-0 tw-left-1/2 tw--translate-x-1/2 tw-w-full tw-max-w-4xl tw-h-[400px] tw-bg-purple-600/10 tw-blur-[150px] tw-rounded-full tw-pointer-events-none"></div>
+      {!embedded && <div className="tw-absolute tw-top-0 tw-left-1/2 tw--translate-x-1/2 tw-w-full tw-max-w-4xl tw-h-[400px] tw-bg-purple-600/10 tw-blur-[150px] tw-rounded-full tw-pointer-events-none"></div>}
 
       {/* Header */}
-      <header className="tw-bg-gray-900/80 tw-backdrop-blur-md tw-border-b tw-border-gray-800 tw-sticky tw-top-0 tw-z-50">
+      {!embedded && <header className="tw-bg-gray-900/80 tw-backdrop-blur-md tw-border-b tw-border-gray-800 tw-sticky tw-top-0 tw-z-50">
         <div className="tw-max-w-7xl tw-mx-auto tw-px-4 sm:tw-px-6 lg:tw-px-8 tw-py-4 tw-flex tw-justify-between tw-items-center">
           <div className="tw-flex tw-items-center tw-space-x-3">
             <div className="tw-w-10 tw-h-10 tw-bg-gradient-to-br tw-from-purple-600 tw-to-orange-500 tw-rounded-xl tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-white tw-shadow-lg tw-shadow-purple-500/20">
@@ -375,10 +379,10 @@ export default function AdminDashboard() {
             Cerrar Sesión
           </button>
         </div>
-      </header>
+      </header>}
 
       {/* Main Content */}
-      <main className="tw-max-w-7xl tw-mx-auto tw-px-4 sm:tw-px-6 lg:tw-px-8 tw-py-8 tw-relative tw-z-10">
+      <main className={embedded ? "tw-relative tw-z-10" : "tw-max-w-7xl tw-mx-auto tw-px-4 sm:tw-px-6 lg:tw-px-8 tw-py-8 tw-relative tw-z-10"}>
 
         {/* Tabs */}
         <div className="tw-flex tw-flex-wrap tw-gap-2 tw-bg-gray-800/60 tw-p-1.5 tw-rounded-2xl tw-w-max tw-max-w-full tw-mb-8 tw-border tw-border-gray-700/50 tw-backdrop-blur-sm">
@@ -441,13 +445,13 @@ export default function AdminDashboard() {
           >
             Configuraciones
           </button>
-          <button
+          {!embedded && <button
             onClick={() => router.push('/admin/crm')}
             className="tw-px-6 tw-py-3 tw-rounded-xl tw-text-sm tw-font-semibold tw-transition-all tw-duration-300 tw-flex tw-items-center tw-gap-3 tw-text-purple-200 tw-bg-purple-500/10 hover:tw-bg-purple-500/20 tw-border tw-border-purple-500/20"
           >
             Hermes CRM
             <span aria-hidden="true">↗</span>
-          </button>
+          </button>}
         </div>
 
         {error && (
@@ -1297,16 +1301,6 @@ export default function AdminDashboard() {
       )}
 
       <style dangerouslySetInnerHTML={{__html: `
-        header {
-          min-height: auto !important;
-          height: auto !important;
-          overflow: visible !important;
-        }
-        header::before,
-        header::after {
-          display: none !important;
-          content: none !important;
-        }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(88, 28, 135, 0.5); border-radius: 4px; }

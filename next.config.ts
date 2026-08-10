@@ -13,6 +13,15 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: import.meta.dirname,
   },
+  async redirects() {
+    return [
+      {
+        source: "/admin/dashboard",
+        destination: "/admin/crm/administracion/",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

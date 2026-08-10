@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useSyncExternalStore } from "react";
 import { ArrowRight, Bot, KeyRound, Mail } from "lucide-react";
 import { useCrmSession } from "../_components/CrmSession";
 import { apiErrorMessage } from "../_components/format";
@@ -9,14 +8,26 @@ import { hermesApi } from "@/lib/hermes/api";
 
 const CRM_OPERATOR_EMAIL = "gerencia@undercodeec.com";
 
+function subscribeToLocationChange(callback) {
+  window.addEventListener("popstate", callback);
+  return () => window.removeEventListener("popstate", callback);
+}
+
+function getExpiredSessionSnapshot() {
+  return new URLSearchParams(window.location.search).get("reason") === "expired";
+}
+
 export default function CrmLoginPage() {
   const { loginWithCode } = useCrmSession();
-  const searchParams = useSearchParams();
+  const expired = useSyncExternalStore(
+    subscribeToLocationChange,
+    getExpiredSessionSnapshot,
+    () => false,
+  );
   const [step, setStep] = useState("request");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const expired = searchParams.get("reason") === "expired";
 
   const requestCode = async (event) => {
     event.preventDefault();
@@ -95,7 +106,7 @@ export default function CrmLoginPage() {
             </form>
           )}
 
-          <small>Esta sesion usa exclusivamente un JWT emitido por Hermes CRM.</small>
+          <small>El acceso unificado valida las sesiones de Hermes CRM y Administracion.</small>
         </div>
       </section>
     </main>

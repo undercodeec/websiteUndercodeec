@@ -1,6 +1,6 @@
 # Estado del proyecto Undercodeec
 
-**Última actualización:** 2026-08-03 (America/Guayaquil)
+**Última actualización:** 2026-08-10 (America/Guayaquil)
 **Estado global:** desarrollo local validado; despliegue y pruebas con servicios reales pendientes.
 
 ## Veredicto ejecutivo
@@ -11,7 +11,7 @@ No se declara el sistema completamente certificado. PayPhone, correo, Google Dri
 
 La facturación electrónica SRI queda fuera del alcance operativo actual y se mantiene como mejora futura. No forma parte del criterio de salida de esta etapa.
 
-## Cambios completados el 2026-08-03
+## Cambios completados hasta el 2026-08-10
 
 ### Calidad y automatización
 
@@ -36,8 +36,14 @@ La facturación electrónica SRI queda fuera del alcance operativo actual y se m
 - Se implementó `/api/hermes/[...path]` como proxy dinámico del mismo origen.
 - El proxy usa la variable privada `HERMES_API_URL`, reenvía solo cabeceras necesarias, aplica timeout, no almacena respuestas y valida los segmentos de ruta.
 - El frontend puede conservar `NEXT_PUBLIC_HERMES_API_URL=/api/hermes` sin depender de una regla de proxy externa.
+- Se centralizó el acceso administrativo en `/admin/crm/login/`: un único OTP crea la sesión Hermes y la sesión administrativa, manteniendo tokens separados para cada API.
+- Las rutas `/admin` quedaron excluidas del telón de transición global, por lo que el login CRM abre sin preload.
+- El dashboard solo carga datos reales después de validar ambas sesiones. La barra superior incluye notificaciones de handoffs pendientes, actualización cada 60 segundos y avisos opcionales del navegador para nuevas prioridades.
+- Se retiraron el acceso temporal y los datos de demostración: no existe una ruta de vista previa que omita el OTP y los módulos operativos conservan la protección de sesión.
+- `/admin` redirige al login central y `/admin/dashboard` redirige al módulo `/admin/crm/administracion/`.
+- El shell CRM integra Resumen, Pipeline, Inbox y Administración; este último conserva pagos, formularios, facturas, uso de IA y configuración del panel anterior.
 
-**Estado:** solución local compilada; falta configurar Hermes y desplegar esta revisión. La última observación pública, realizada el 2026-08-02, devolvía 404 en `/admin/crm/`.
+**Estado:** solución unificada implementada, compilada y validada localmente; falta configurar Hermes, probar el OTP contra servicios reales y desplegar esta revisión. La última observación pública, realizada el 2026-08-02, devolvía 404 en `/admin/crm/`.
 
 ### Documentación y configuración
 
@@ -49,7 +55,8 @@ La facturación electrónica SRI queda fuera del alcance operativo actual y se m
 
 | Validación | Resultado | Evidencia |
 |---|---:|---|
-| Build Next.js 16.1.2 | Aprobado | Compilación, TypeScript y generación de 33 páginas completadas; proxy Hermes incluido como ruta dinámica. |
+| Build Next.js 16.1.2 | Aprobado | Compilación, TypeScript y generación de 34 páginas completadas; login y administración CRM centralizados, proxy Hermes incluido como ruta dinámica. |
+| Acceso CRM local | Aprobado | `/admin/crm/login/` responde HTTP 200, conserva el OTP unificado, abre sin preload y no muestra accesos temporales. |
 | ESLint | Aprobado con deuda | 0 errores y 210 advertencias. |
 | Sintaxis backend | Aprobada | 22 archivos JavaScript propios pasan `node --check`. |
 | Pruebas unitarias backend | Aprobadas | 7 de 7 pruebas pasan: OTP Hermes y estado PayPhone. |
@@ -74,9 +81,9 @@ La API Express mantiene más de cuarenta endpoints. El estado crítico de PayPho
 
 ### Administración
 
-Login, recuperación, dashboard, pagos, leads, chat y pantallas de facturas compilan. No se hizo login real ni consulta a la base desplegada en esta actualización.
+El login visible está centralizado en `/admin/crm/login/`. El dashboard anterior se integra como módulo Administración dentro del shell CRM e incluye pagos, formularios, facturación, métricas de IA y configuración. El acceso temporal fue retirado y el panel solo solicita datos reales tras validar la sesión. No se hizo login real ni consulta a la base desplegada en esta actualización.
 
-**Estado:** implementado; validación end-to-end pendiente.
+**Estado:** centralización implementada y build local aprobado; validación end-to-end con correo, Hermes y base real pendiente.
 
 ### Asistente comercial
 
