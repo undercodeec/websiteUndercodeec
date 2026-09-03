@@ -1,4 +1,6 @@
-﻿allowBuilds:
+﻿packages: []
+
+allowBuilds:
   core-js: true
   sharp: true
   swiper: true
