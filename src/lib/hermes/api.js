@@ -258,6 +258,38 @@ export const hermesApi = {
       body: { resolution, action },
     });
   },
+  campaigns(params) {
+    return request(`/campaigns${toQueryString(params)}`);
+  },
+  campaign(id) {
+    return request(`/campaigns/${encodeURIComponent(id)}`);
+  },
+  campaignRecipients(id, params) {
+    return request(`/campaigns/${encodeURIComponent(id)}/recipients${toQueryString(params)}`);
+  },
+  campaignTemplates() {
+    return request("/campaigns/templates");
+  },
+  createCampaign(data) {
+    return request("/campaigns", { method: "POST", body: data });
+  },
+  importCampaignContacts(id, contacts) {
+    return request(`/campaigns/${encodeURIComponent(id)}/contacts`, {
+      method: "POST", body: { contacts },
+    });
+  },
+  startCampaign(id) {
+    return request(`/campaigns/${encodeURIComponent(id)}/start`, { method: "POST", body: {} });
+  },
+  pauseCampaign(id) {
+    return request(`/campaigns/${encodeURIComponent(id)}/pause`, { method: "POST", body: {} });
+  },
+  resumeCampaign(id) {
+    return request(`/campaigns/${encodeURIComponent(id)}/resume`, { method: "POST", body: {} });
+  },
+  cancelCampaign(id) {
+    return request(`/campaigns/${encodeURIComponent(id)}/cancel`, { method: "POST", body: {} });
+  },
 };
 
 export const adminApi = {

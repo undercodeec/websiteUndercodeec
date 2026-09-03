@@ -10,6 +10,7 @@ import {
   ChevronRight,
   DatabaseZap,
   Inbox,
+  Send,
   LayoutDashboard,
   LogOut,
   PanelLeftClose,
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
   { href: "/admin/crm", label: "Resumen", icon: LayoutDashboard, exact: true },
   { href: "/admin/crm/leads", label: "Pipeline", icon: Rows3 },
   { href: "/admin/crm/inbox", label: "Inbox", icon: Inbox },
+  { href: "/admin/crm/campanas", label: "CampaÃ±as", icon: Send },
   { href: "/admin/crm/administracion", label: "Administración", icon: BriefcaseBusiness },
 ];
 

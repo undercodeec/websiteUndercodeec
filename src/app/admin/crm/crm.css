@@ -100,6 +100,21 @@ body:has(.crm-login-page) > div:has(+ [data-promo-banner]) { display: none !impo
 }
 .crm-content { width: 100%; max-width: 1600px; margin: 0 auto; padding: 30px 30px 48px; }
 
+/* Official WhatsApp campaigns */
+.crm-campaign-form { margin-bottom: 22px; padding: 22px; }
+.crm-campaign-form h2, .crm-campaign-table-wrap h2 { margin: 0 0 16px; font-size: 17px; }
+.crm-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.crm-form-grid label { display: flex; flex-direction: column; gap: 6px; color: var(--crm-muted); font-size: 12px; font-weight: 700; }
+.crm-form-grid input, .crm-form-grid select { min-height: 39px; padding: 8px 10px; color: var(--crm-ink); border: 1px solid var(--crm-line); border-radius: 8px; background: #fff; }
+.crm-campaign-form .crm-page-actions { margin-top: 18px; display: flex; justify-content: flex-end; gap: 10px; }
+.crm-csv-preview, .crm-feedback { margin: 16px 0 0; padding: 12px; display: flex; flex-direction: column; gap: 3px; border-radius: 9px; background: var(--crm-brand-soft); color: #4d469e; font-size: 12px; }
+.crm-feedback.is-error { background: #fff0f2; color: #a3344d; }.crm-feedback.is-success { background: #eefbf4; color: #22704d; }
+.crm-campaign-table-wrap { overflow-x: auto; padding: 20px; }.crm-table { width: 100%; border-collapse: collapse; font-size: 12px; }.crm-table th, .crm-table td { padding: 12px 10px; border-bottom: 1px solid var(--crm-line); text-align: left; white-space: nowrap; }.crm-table th { color: var(--crm-muted); font-size: 10px; text-transform: uppercase; }.crm-table a { color: var(--crm-brand-dark); font-weight: 700; text-decoration: none; }
+.crm-inline-actions { display: flex; gap: 8px; align-items: center; }.crm-inline-actions button { padding: 0; border: 0; color: var(--crm-brand-dark); background: transparent; cursor: pointer; font: inherit; font-weight: 700; }.crm-inline-actions button:last-child { color: #b1354e; }
+.crm-status { display: inline-flex; padding: 3px 7px; border-radius: 999px; background: #eef1f5; color: #546070; font-size: 10px; font-weight: 800; }.crm-status-running { background: #e9f8ef; color: #197244; }.crm-status-paused { background: #fff5df; color: #946400; }.crm-status-failed, .crm-status-cancelled { background: #fff0f2; color: #b1354e; }
+.crm-campaign-metrics { margin-bottom: 22px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }.crm-campaign-metrics .crm-metric-card { min-height: 100px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }.crm-campaign-metrics .crm-metric-card span { color: var(--crm-muted); font-size: 11px; }.crm-campaign-metrics .crm-metric-card strong { font-size: 27px; }
+@media (max-width: 760px) { .crm-form-grid, .crm-campaign-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
 /* Shared UI */
 .crm-page-header {
   margin-bottom: 24px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
