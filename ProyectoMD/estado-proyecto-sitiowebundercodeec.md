@@ -1,7 +1,9 @@
 # Estado del proyecto Undercodeec
 
-**Última actualización:** 2026-08-10 (America/Guayaquil)
-**Estado global:** desarrollo local validado; despliegue y pruebas con servicios reales pendientes.
+> Actualización de producción: 2026-09-03 (America/Guayaquil). La actualización final de este documento prevalece sobre afirmaciones anteriores que indicaban que el CRM, proxy o despliegue seguían pendientes.
+
+**Última actualización:** 2026-09-03 (America/Guayaquil)
+**Estado global:** frontend, API Express y proxy Hermes desplegados desde la ruta correcta; las certificaciones E2E externas siguen pendientes.
 
 ## Veredicto ejecutivo
 
@@ -161,6 +163,53 @@ Commit de implementación: `e755780 feat(crm): add WhatsApp campaign operator wo
 - No está desplegado ni certificado con Hermes/Meta reales. Pendiente: configurar Hermes, aplicar su migración y realizar una prueba con un solo destinatario OPTED_IN.
 
 ## Regla documental
+
+## Actualización de producción — 2026-09-03 (America/Guayaquil)
+
+### Estado y niveles de evidencia
+
+| Área | Implementado | Probado | Desplegado | Certificado E2E |
+|---|---|---|---|---|
+| Frontend Next.js y CRM | Sí | Build, TypeScript y 35/35 rutas | Sí, revisión `09f50f5` reportada | No integral |
+| API Express | Sí | Sintaxis y pruebas backend | Sí, revisión `09f50f5` reportada | No integral |
+| Proxy Hermes | Sí | `GET /api/hermes/docs/` HTTP 200 | Sí | Sólo HTTP; no flujo CRM integral |
+| Corrección PayPhone | Sí | 9 pruebas backend en VPS | Sí, `09f50f5` | No pago real |
+| Privacidad del login CRM | Sí, `4e4e454` | 10 pruebas backend, lint y build local | No confirmado | No |
+| Campañas oficiales | Sí, `e755780` | Lint y build local | Código incluido en la revisión desplegada `09f50f5`; operación no confirmada | No |
+
+El repositorio productivo informado es `/var/www/html/undercodeec` en `main`. La revisión `09f50f5` es la última confirmada como desplegada durante esta evidencia. Los commits posteriores publicados requieren su propio despliegue y verificación antes de declararse productivos.
+
+### Recuperación de rutas de despliegue y assets — resuelto
+
+- La copia histórica `/var/www/html/undercodeec/undercodeec_nextjs` causaba divergencia: PM2 y Nginx apuntaban a ella mientras el repositorio activo era `/var/www/html/undercodeec`.
+- La configuración reportada como correcta usa `web-undercodeec` desde el directorio raíz en puerto 3000 y `api-undercodeec` desde `backend/server.js` con `cwd=/var/www/html/undercodeec/backend` en puerto 3002.
+- Nginx fue alineado con `.next/static` y `public` del directorio raíz; los chunks, Bootstrap y assets volvieron a responder. Regla permanente: PM2 y los alias/root de Nginx deben apuntar al mismo deployment.
+- El proxy interno requiere `HERMES_API_URL=https://hermes.undercodeec.com/api` mientras el Route Handler concatene el path recibido. La evidencia reporta `https://undercodeec.com/api/hermes/docs/` con HTTP 200.
+
+Los errores `MODULE_NOT_FOUND` de la copia antigua, `ChunkLoadError`, 404 de assets y proxy sin `/api` son históricos/resueltos; no son incidencias actuales sin una observación nueva con timestamp.
+
+### PayPhone — corrección desplegada
+
+El reinicio por `paymentSessions is not defined` fue un cleanup legado dejado tras la migración a `paymentStateStore`. El commit `09f50f5` retiró sólo esa referencia y conserva `paymentState.cleanup(PENDING_ORDER_TTL_MS)` como único cleanup de pagos. En VPS se reportaron `node --check backend/server.js` correcto y 9 pruebas aprobadas; no quedaron referencias activas a `paymentSessions`.
+
+La persistencia MySQL/MariaDB y los métodos de sesión, reclamo y liberación no cambiaron en ese fix. Los escenarios PayPhone reales — pago exitoso, cancelación, webhook duplicado y reinicio entre creación y confirmación — continúan pendientes de certificación E2E.
+
+### CRM y OTP
+
+- `/admin/` redirige a `/admin/crm/login/`; el acceso CRM no debe depender de una ruta de preview.
+- La solicitud de OTP fue validada en producción: devuelve una respuesta genérica y no expone el correo autorizado. La configuración de secretos está reportada como presente, sin valores documentados.
+- El commit `4e4e454` elimina del frontend el correo autorizado fijo: el operador ingresa su correo y el servidor decide silenciosamente si está autorizado. También homogeniza la respuesta durante cooldown para reducir enumeración. Está publicado y probado localmente, pero su despliegue no está confirmado en esta fecha.
+- El flujo completo OTP → prueba Hermes → sesión CRM no tiene una certificación E2E nueva registrada aquí; no inferirla sólo por la validación de `request-code`.
+
+### Runbook de despliegue vigente
+
+1. Trabajar sólo desde `/var/www/html/undercodeec`; no usar la copia histórica salvo rollback explícito.
+2. Confirmar commit, `.env`, `pm2 describe` y que Nginx no contenga referencias activas a `undercodeec_nextjs` antes de reiniciar.
+3. Instalar dependencias con el gestor y lockfile del directorio correspondiente; ejecutar `node --check backend/server.js`, pruebas backend y build Next.js cuando aplique.
+4. Reiniciar únicamente el proceso afectado, guardar PM2 y validar las rutas públicas y assets.
+5. Al interpretar logs PM2, comparar timestamp, uptime y reinicios; los archivos pueden contener errores históricos de procesos eliminados.
+
+Pendientes reales: certificación E2E de PayPhone; verificación integral OTP/Hermes/CRM; campañas con una prueba controlada y consentimiento; y validaciones de servicios externos no ejecutadas específicamente. `ADMIN_PASSWORD` permanece como deuda P1: comprobar consumidores y retirarlo de forma controlada, sin mezclarlo con despliegues.
 
 Este es el único archivo de estado del proyecto. Debe actualizarse con fecha y evidencia usando estas categorías:
 
