@@ -6,8 +6,6 @@ import { useCrmSession } from "../_components/CrmSession";
 import { apiErrorMessage } from "../_components/format";
 import { hermesApi } from "@/lib/hermes/api";
 
-const CRM_OPERATOR_EMAIL = "gerencia@undercodeec.com";
-
 function subscribeToLocationChange(callback) {
   window.addEventListener("popstate", callback);
   return () => window.removeEventListener("popstate", callback);
@@ -25,6 +23,7 @@ export default function CrmLoginPage() {
     () => false,
   );
   const [step, setStep] = useState("request");
+  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -34,7 +33,7 @@ export default function CrmLoginPage() {
     setError("");
     setLoading(true);
     try {
-      await hermesApi.requestAccessCode(CRM_OPERATOR_EMAIL);
+      await hermesApi.requestAccessCode(email.trim());
       setStep("verify");
     } catch (requestError) {
       setError(apiErrorMessage(requestError, "No se pudo solicitar el codigo. Intentalo nuevamente."));
@@ -48,7 +47,7 @@ export default function CrmLoginPage() {
     setError("");
     setLoading(true);
     try {
-      await loginWithCode({ email: CRM_OPERATOR_EMAIL, code: code.trim() });
+      await loginWithCode({ email: email.trim(), code: code.trim() });
     } catch (requestError) {
       setError(apiErrorMessage(requestError, "Codigo invalido o expirado. Solicita uno nuevo."));
     } finally {
@@ -81,8 +80,8 @@ export default function CrmLoginPage() {
           {step === "request" ? (
             <form onSubmit={requestCode} className="crm-login-form">
               <label>
-                <span>Correo autorizado</span>
-                <div className="crm-input-with-icon"><Mail size={18} aria-hidden="true" /><input type="email" value={CRM_OPERATOR_EMAIL} readOnly aria-readonly="true" /></div>
+                <span>Correo de acceso</span>
+                <div className="crm-input-with-icon"><Mail size={18} aria-hidden="true" /><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" placeholder="tu@empresa.com" required disabled={loading} /></div>
               </label>
               <button type="submit" className="crm-button is-primary is-large" disabled={loading}>
                 {loading ? "Enviando codigo..." : "Enviar codigo de acceso"}{!loading && <ArrowRight size={18} />}
@@ -106,7 +105,7 @@ export default function CrmLoginPage() {
             </form>
           )}
 
-          <small>El acceso unificado valida las sesiones de Hermes CRM y Administracion.</small>
+          <small>Por seguridad, solo los correos autorizados reciben un código de acceso.</small>
         </div>
       </section>
     </main>

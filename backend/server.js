@@ -899,7 +899,9 @@ app.post('/api/crm/auth/request-code', async (req, res) => {
 
   const now = Date.now();
   if (now - (crmOtpRequestCooldown.get(email) || 0) < CRM_OTP_COOLDOWN_MS) {
-    return res.status(429).json({ success: false, error: 'Espera un minuto antes de solicitar otro codigo.' });
+    // Keep the response identical so repeated requests cannot reveal which
+    // email address is the configured CRM operator.
+    return res.json(genericResponse);
   }
 
   let code;
