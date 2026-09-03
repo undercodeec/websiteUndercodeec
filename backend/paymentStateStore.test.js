@@ -20,6 +20,25 @@ test('payment session expires deterministically', async () => {
   assert.equal(await store.validateSession('tx-expiring', token), false);
 });
 
+test('cleanup removes expired payment sessions and abandoned pending orders', async () => {
+  let clock = 1_000;
+  const store = createPaymentStateStore({
+    now: () => clock,
+    randomBytes: () => Buffer.alloc(32, 2),
+  });
+  const token = await store.issueSession('tx-cleanup', 500);
+  await store.saveOrder('tx-cleanup', {
+    email: 'cliente@example.com',
+    __createdAt: clock,
+  });
+
+  clock = 1_600;
+  await store.cleanup(500);
+
+  assert.equal(await store.validateSession('tx-cleanup', token), false);
+  assert.equal(await store.getOrder('tx-cleanup'), null);
+});
+
 test('pending order and webhook approval survive the in-memory workflow', async () => {
   const store = createPaymentStateStore();
   await store.saveOrder('tx-order', { email: 'cliente@example.com', __createdAt: Date.now() });

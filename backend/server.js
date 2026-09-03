@@ -998,9 +998,6 @@ setInterval(() => {
   for (const [token, rec] of adminSessions.entries()) {
     if (rec.expiresAt <= now) adminSessions.delete(token);
   }
-  for (const [txId, rec] of paymentSessions.entries()) {
-    if (rec.expiresAt <= now) paymentSessions.delete(txId);
-  }
   for (const [email, rec] of crmOtpRecords.entries()) {
     if (rec.expiresAt <= now) crmOtpRecords.delete(email);
   }
