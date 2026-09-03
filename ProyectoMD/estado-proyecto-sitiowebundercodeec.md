@@ -142,6 +142,24 @@ El alcance actual podrá considerarse listo cuando:
 
 SRI no bloquea este criterio: se gestionará como iniciativa futura independiente.
 
+## Actualización 2026-09-03 — campañas Hermes (America/Guayaquil)
+
+Commit de implementación: `e755780 feat(crm): add WhatsApp campaign operator workspace`.
+
+### Implementado localmente
+
+- Nueva sección protegida `/admin/crm/campanas` y detalle de campaña dentro del shell CRM.
+- Cliente centralizado ampliado mediante `/api/hermes/*`; no hay acceso directo a Meta, PostgreSQL, Gemini ni secretos.
+- Selector de plantillas aprobadas, CSV local con preview de válidos, inválidos, duplicados, consentimiento y aptos; importación JSON en lotes máximos de 500.
+- Acciones explícitas de iniciar, pausar, reanudar y cancelar. La UI no inicia campañas al importar.
+- Teléfonos parcialmente enmascarados en detalle de destinatarios.
+
+### Probado y pendiente
+
+- `pnpm lint`: 0 errores y 210 advertencias heredadas, sin errores nuevos de campañas.
+- `pnpm build`: compilación, TypeScript y generación estática completadas localmente.
+- No está desplegado ni certificado con Hermes/Meta reales. Pendiente: configurar Hermes, aplicar su migración y realizar una prueba con un solo destinatario OPTED_IN.
+
 ## Regla documental
 
 Este es el único archivo de estado del proyecto. Debe actualizarse con fecha y evidencia usando estas categorías:
