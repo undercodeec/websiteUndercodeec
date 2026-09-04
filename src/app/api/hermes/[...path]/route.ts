@@ -41,6 +41,7 @@ async function proxyHermes(
   const basePath = target.pathname.replace(/\/+$/, "");
   target.pathname = `${basePath}/${path.map(encodeURIComponent).join("/")}`;
   target.search = request.nextUrl.search;
+  const isMediaUpload = path.length === 2 && path[0] === "campaigns" && path[1] === "media" && request.method === "POST";
 
   const headers = new Headers();
   const authorization = request.headers.get("authorization");
@@ -55,7 +56,7 @@ async function proxyHermes(
       headers,
       body: request.method === "GET" ? undefined : await request.arrayBuffer(),
       cache: "no-store",
-      signal: AbortSignal.timeout(15_000),
+      signal: AbortSignal.timeout(isMediaUpload ? 60_000 : 15_000),
     });
     const responseHeaders = new Headers();
     const upstreamContentType = upstream.headers.get("content-type");

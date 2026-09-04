@@ -83,8 +83,9 @@ async function request(path, options = {}) {
   } = options;
   const token = getHermesToken();
   const headers = new Headers(customHeaders);
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
 
-  if (body !== undefined) headers.set("Content-Type", "application/json");
+  if (body !== undefined && !isFormData) headers.set("Content-Type", "application/json");
   if (auth && token) headers.set("Authorization", `Bearer ${token}`);
 
   let response;
@@ -92,7 +93,7 @@ async function request(path, options = {}) {
     response = await fetch(`${API_BASE_URL}${path}`, {
       ...fetchOptions,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
     });
   } catch {
     throw new HermesApiError(
@@ -269,6 +270,18 @@ export const hermesApi = {
   },
   campaignTemplates() {
     return request("/campaigns/templates");
+  },
+  campaignMedia() {
+    return request("/campaigns/media");
+  },
+  uploadCampaignMedia(file, name) {
+    const body = new FormData();
+    body.append("file", file);
+    if (name) body.append("name", name);
+    return request("/campaigns/media", { method: "POST", body });
+  },
+  registerCampaignMedia(data) {
+    return request("/campaigns/media/register", { method: "POST", body: data });
   },
   createCampaign(data) {
     return request("/campaigns", { method: "POST", body: data });

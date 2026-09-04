@@ -5,17 +5,21 @@ import { useEffect, useMemo, useState } from "react";
 import { hermesApi } from "@/lib/hermes/api";
 import { parseCampaignCsv } from "@/lib/hermes/csv";
 
-const EMPTY_FORM = { name: "", templateName: "", templateLanguage: "es", templateCategory: "", headerVideoMediaId: "", headerVideoUrl: "" };
+const EMPTY_FORM = { name: "", templateName: "", templateLanguage: "es", templateCategory: "", headerVideoAssetId: "", headerVideoMediaId: "", headerVideoUrl: "" };
 const metric = (campaign, key) => campaign?.metrics?.[key] || 0;
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [media, setMedia] = useState([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [preview, setPreview] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [registering, setRegistering] = useState(false);
+  const [existingMediaId, setExistingMediaId] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -24,8 +28,8 @@ export default function CampaignsPage() {
   const load = async () => {
     setLoading(true); setError("");
     try {
-      const [campaignResult, templateResult] = await Promise.all([hermesApi.campaigns({ page: 1, limit: 100 }), hermesApi.campaignTemplates()]);
-      setCampaigns(campaignResult?.data || []); setTemplates(templateResult || []);
+      const [campaignResult, templateResult, mediaResult] = await Promise.all([hermesApi.campaigns({ page: 1, limit: 100 }), hermesApi.campaignTemplates(), hermesApi.campaignMedia()]);
+      setCampaigns(campaignResult?.data || []); setTemplates(templateResult || []); setMedia(mediaResult || []);
     } catch (requestError) { setError(requestError.message || "No se pudieron cargar las campaÃ±as."); }
     finally { setLoading(false); }
   };
@@ -41,10 +45,37 @@ export default function CampaignsPage() {
     try { setPreview(parseCampaignCsv(await file.text())); setError(""); }
     catch (parseError) { setPreview(null); setError(parseError.message); }
   };
+  const uploadVideo = async (event) => {
+    const file = event.target.files?.[0]; if (!file) return;
+    setError(""); setNotice("");
+    if (file.type !== "video/mp4") { setError("Selecciona un video MP4."); event.target.value = ""; return; }
+    if (file.size > 16 * 1024 * 1024) { setError("El video debe pesar como máximo 16 MB."); event.target.value = ""; return; }
+    setUploading(true);
+    try {
+      const asset = await hermesApi.uploadCampaignMedia(file, file.name.replace(/\.mp4$/i, ""));
+      setMedia((current) => [asset, ...current.filter((item) => item.id !== asset.id)]);
+      setForm((current) => ({ ...current, headerVideoAssetId: asset.id, headerVideoMediaId: "", headerVideoUrl: "" }));
+      setNotice(`Video “${asset.name}” cargado en Meta y seleccionado para esta campaña.`);
+    } catch (requestError) { setError(requestError.message || "No se pudo cargar el video en Meta."); }
+    finally { setUploading(false); event.target.value = ""; }
+  };
+  const registerExistingVideo = async () => {
+    const metaMediaId = existingMediaId.trim();
+    if (!metaMediaId) return setError("Ingresa el Media ID existente para guardarlo una sola vez.");
+    setRegistering(true); setError(""); setNotice("");
+    try {
+      const asset = await hermesApi.registerCampaignMedia({ name: `Video Meta ${metaMediaId.slice(-6)}`, metaMediaId });
+      setMedia((current) => [asset, ...current.filter((item) => item.id !== asset.id)]);
+      setForm((current) => ({ ...current, headerVideoAssetId: asset.id, headerVideoMediaId: "", headerVideoUrl: "" }));
+      setExistingMediaId("");
+      setNotice(`Video “${asset.name}” verificado en Meta y guardado en la biblioteca.`);
+    } catch (requestError) { setError(requestError.message || "No se pudo verificar el Media ID en Meta."); }
+    finally { setRegistering(false); }
+  };
   const create = async (event) => {
     event.preventDefault(); setError(""); setNotice("");
     if (!preview?.summary?.eligible) return setError("Carga un CSV con al menos un destinatario apto y consentimiento explÃ­cito.");
-    if (requiresVideo && !form.headerVideoMediaId && !form.headerVideoUrl) return setError("La plantilla requiere un encabezado de video: usa preferentemente un Media ID de Meta.");
+    if (requiresVideo && !form.headerVideoAssetId && !form.headerVideoMediaId && !form.headerVideoUrl) return setError("La plantilla requiere un video: súbelo o selecciónalo desde la biblioteca.");
     setSaving(true);
     try {
       const campaign = await hermesApi.createCampaign(Object.fromEntries(Object.entries(form).filter(([, value]) => value)));
@@ -68,7 +99,7 @@ export default function CampaignsPage() {
       <h2>Nueva campaña</h2><div className="crm-form-grid">
         <label>Nombre<input required maxLength="160" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></label>
         <label>Plantilla aprobada<select required value={templates.findIndex((template) => template.name === form.templateName && template.language === form.templateLanguage)} onChange={selectTemplate}><option value="">Selecciona una plantilla</option>{templates.map((template, index) => <option key={`${template.name}-${template.language}`} value={index}>{template.name} · {template.language} · {template.category}</option>)}</select></label>
-        {requiresVideo && <><label>Media ID del video Meta<input value={form.headerVideoMediaId} onChange={(event) => setForm({ ...form, headerVideoMediaId: event.target.value, headerVideoUrl: "" })} placeholder="Preferido" /></label><label>o URL HTTPS permitida<input type="url" value={form.headerVideoUrl} onChange={(event) => setForm({ ...form, headerVideoUrl: event.target.value, headerVideoMediaId: "" })} /></label></>}
+        {requiresVideo && <><label>Video para el encabezado<select value={form.headerVideoAssetId} onChange={(event) => setForm({ ...form, headerVideoAssetId: event.target.value, headerVideoMediaId: "", headerVideoUrl: "" })}><option value="">Selecciona un video ya cargado</option>{media.map((asset) => <option key={asset.id} value={asset.id}>{asset.name} · {(asset.sizeBytes / (1024 * 1024)).toFixed(1)} MB</option>)}</select></label><label>Subir video MP4 a Meta<input type="file" accept="video/mp4" onChange={uploadVideo} disabled={uploading} />{uploading && <small>Cargando el video de forma segura…</small>}</label><label>Registrar Media ID existente<input value={existingMediaId} onChange={(event) => setExistingMediaId(event.target.value)} placeholder="Se guarda una sola vez" /><button className="crm-text-link" type="button" onClick={registerExistingVideo} disabled={registering}>{registering ? "Verificando…" : "Verificar y guardar"}</button></label><label>o URL HTTPS permitida<input type="url" value={form.headerVideoUrl} onChange={(event) => setForm({ ...form, headerVideoUrl: event.target.value, headerVideoAssetId: "" })} /></label></>}
         <label>Archivo CSV<input required type="file" accept=".csv,text/csv" onChange={readCsv} /></label>
       </div>
       {preview && <div className="crm-csv-preview"><strong>Vista previa local</strong><span>Total {preview.summary.total} · Válidos {preview.summary.valid} · Inválidos {preview.summary.invalid} · Duplicados {preview.summary.duplicates} · Sin consentimiento {preview.summary.withoutConsent} · Aptos {preview.summary.eligible}</span></div>}
