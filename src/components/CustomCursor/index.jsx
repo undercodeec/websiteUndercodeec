@@ -143,6 +143,7 @@ export default function CustomCursor() {
       window.matchMedia("(pointer: coarse)").matches
   );
   const isAdminRoute = pathname?.startsWith("/admin");
+  const isEditorialRoute = pathname?.startsWith("/demos");
 
   const updateGeometry = () => {
     CODE_TO_ARROW_SEGMENTS.forEach((segment, index) => {
@@ -339,7 +340,7 @@ export default function CustomCursor() {
     };
   }, [isTouchDevice, isVisible]);
 
-  if (isTouchDevice || isAdminRoute) return null;
+  if (isTouchDevice || isAdminRoute || isEditorialRoute) return null;
 
   return (
     <>
