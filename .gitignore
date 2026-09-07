@@ -41,5 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Local isolated worktrees
+/.worktrees/
+
 # Videos grandes — manejar directamente en VPS, no en git
 public/assets/img/video/
