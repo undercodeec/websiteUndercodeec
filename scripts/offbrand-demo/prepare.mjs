@@ -30,7 +30,6 @@ await mkdir(join(outputDir, "js"), { recursive: true });
 for (const filename of [
   "jquery-3.5.1.min.dc5e7f18c8.js",
   "offbrand-2023.b9e4a10f.df426058a60187e3.js",
-  "ob.2026.index.23.js",
 ]) {
   await cp(join(sourceDir, "js", filename), join(outputDir, "js", filename));
 }
@@ -40,7 +39,7 @@ await cp(join(helperDir, "demo-local.js"), join(outputDir, "js", "demo-local.js"
 
 let html = await readFile(join(sourceDir, "index.html"), "utf8");
 
-const blockedScript = /intellimize|117825735|86cn3bq|google_tags_first_party|\bgtag\s*\(|cloudflarestream|\bhls\b|assets\.itsoffbrand\.io|offbrand-orb/i;
+const blockedScript = /intellimize|117825735|86cn3bq|google_tags_first_party|\bgtag\s*\(|cloudflarestream|\bhls\b|assets\.itsoffbrand\.io|offbrand-orb|ob\.2026\.index\.23\.js/i;
 html = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, (script) =>
   blockedScript.test(script) ? "" : script,
 );

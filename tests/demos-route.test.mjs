@@ -65,6 +65,7 @@ test("serves the supplied OFF+BRAND export as an isolated static demo", async (t
     "googletagmanager",
     "cloudflarestream.com",
     "assets.itsoffbrand.io",
+    "ob.2026.index.23.js",
     "w-webflow-badge",
   ]) {
     assert.doesNotMatch(page, new RegExp(forbidden, "i"));
@@ -89,4 +90,9 @@ test("serves the supplied OFF+BRAND export as an isolated static demo", async (t
     assert.equal(assetResponse.status, 200, pathname);
     assert.match(assetResponse.headers.get("content-type") ?? "", contentTypePattern);
   }
+
+  const safetyScriptResponse = await fetch(`${baseUrl}/demos-offbrand/js/demo-local.js`);
+  const safetyScript = await safetyScriptResponse.text();
+  assert.match(safetyScript, /removeAttribute\("data-start"\)/);
+  assert.match(safetyScript, /classList\.remove\("anti-flicker", "lenis-stopped"\)/);
 });
