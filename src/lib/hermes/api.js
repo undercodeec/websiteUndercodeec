@@ -271,6 +271,9 @@ export const hermesApi = {
   campaignTemplates() {
     return request("/campaigns/templates");
   },
+  configureCampaignTemplateMedia(data) {
+    return request("/campaigns/templates/media", { method: "PUT", body: data });
+  },
   campaignMedia() {
     return request("/campaigns/media");
   },

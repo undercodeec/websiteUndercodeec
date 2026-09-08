@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isMediaUploadPath } from "@/lib/hermes/campaign-template-media.mjs";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ async function proxyHermes(
   const basePath = target.pathname.replace(/\/+$/, "");
   target.pathname = `${basePath}/${path.map(encodeURIComponent).join("/")}`;
   target.search = request.nextUrl.search;
-  const isMediaUpload = path.length === 2 && path[0] === "campaigns" && path[1] === "media" && request.method === "POST";
+  const isMediaUpload = isMediaUploadPath(path, request.method);
 
   const headers = new Headers();
   const authorization = request.headers.get("authorization");
@@ -51,13 +52,15 @@ async function proxyHermes(
   headers.set("accept", request.headers.get("accept") || "application/json");
 
   try {
-    const upstream = await fetch(target, {
+    const init: RequestInit & { duplex?: "half" } = {
       method: request.method,
       headers,
-      body: request.method === "GET" ? undefined : await request.arrayBuffer(),
+      body: request.method === "GET" ? undefined : isMediaUpload ? request.body : await request.arrayBuffer(),
       cache: "no-store",
       signal: AbortSignal.timeout(isMediaUpload ? 60_000 : 15_000),
-    });
+    };
+    if (isMediaUpload) init.duplex = "half";
+    const upstream = await fetch(target, init);
     const responseHeaders = new Headers();
     const upstreamContentType = upstream.headers.get("content-type");
     if (upstreamContentType) responseHeaders.set("content-type", upstreamContentType);

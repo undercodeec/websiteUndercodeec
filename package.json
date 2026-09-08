@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint src next.config.ts",
+    "test:crm": "node --test tests/campaign-template-media.test.mjs",
     "purge:legacy-css": "node run-purge.cjs"
   },
   "dependencies": {
