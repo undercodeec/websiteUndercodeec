@@ -34,12 +34,37 @@ for (const filename of [
   await cp(join(sourceDir, "js", filename), join(outputDir, "js", filename));
 }
 
+const animationFilename = "ob.2026.index.23.js";
+let animationScript = await readFile(join(sourceDir, "js", animationFilename), "utf8");
+animationScript = animationScript
+  .replaceAll(
+    "https://assets.itsoffbrand.io/ob/textures/ob_texture-old.webp",
+    "/demos-offbrand/images/ob_texture-old.webp",
+  )
+  .replaceAll(
+    "https://assets.itsoffbrand.io/ob/textures/ob_texture-old-2.jpg",
+    "/demos-offbrand/images/ob_texture-old-2.jpg",
+  )
+  .replaceAll(
+    "https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.light.min.js",
+    "/demos-offbrand/js/hls.light.min.js",
+  );
+await writeFile(join(outputDir, "js", animationFilename), animationScript, "utf8");
+await cp(
+  join(helperDir, "assets", "hls.light.min.js"),
+  join(outputDir, "js", "hls.light.min.js"),
+);
+
+for (const filename of ["ob_texture-old.webp", "ob_texture-old-2.jpg"]) {
+  await cp(join(helperDir, "assets", filename), join(outputDir, "images", filename));
+}
+
 await cp(join(helperDir, "demo-local.css"), join(outputDir, "css", "demo-local.css"));
 await cp(join(helperDir, "demo-local.js"), join(outputDir, "js", "demo-local.js"));
 
 let html = await readFile(join(sourceDir, "index.html"), "utf8");
 
-const blockedScript = /intellimize|117825735|86cn3bq|google_tags_first_party|\bgtag\s*\(|cloudflarestream|\bhls\b|assets\.itsoffbrand\.io|offbrand-orb|ob\.2026\.index\.23\.js/i;
+const blockedScript = /intellimize|117825735|86cn3bq|google_tags_first_party|\bgtag\s*\(|cloudflarestream|\bhls\b|assets\.itsoffbrand\.io|offbrand-orb/i;
 html = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, (script) =>
   blockedScript.test(script) ? "" : script,
 );

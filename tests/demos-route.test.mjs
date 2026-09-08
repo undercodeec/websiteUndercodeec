@@ -4,7 +4,8 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const port = 3227;
-const baseUrl = `http://127.0.0.1:${port}`;
+const externalBaseUrl = process.env.DEMO_BASE_URL;
+const baseUrl = externalBaseUrl ?? `http://127.0.0.1:${port}`;
 
 function startServer() {
   const nextCli = fileURLToPath(
@@ -32,8 +33,8 @@ async function waitForServer() {
 }
 
 test("serves the supplied OFF+BRAND export as an isolated static demo", async (t) => {
-  const server = startServer();
-  t.after(() => server.kill());
+  const server = externalBaseUrl ? null : startServer();
+  if (server) t.after(() => server.kill());
   await waitForServer();
 
   const response = await fetch(`${baseUrl}/demos/`);
@@ -54,6 +55,7 @@ test("serves the supplied OFF+BRAND export as an isolated static demo", async (t
   assert.match(page, /<base href="\/demos-offbrand\/">/);
   assert.match(page, /\/demos-offbrand\/css\/offbrand-2023\.shared\.0746f2a75\.min\.css/);
   assert.match(page, /\/demos-offbrand\/media\/OFF_siteclips_13\.mp4/);
+  assert.match(page, /\/demos-offbrand\/js\/ob\.2026\.index\.23\.js/);
 
   for (const forbidden of [
     "data-promo-banner",
@@ -65,7 +67,6 @@ test("serves the supplied OFF+BRAND export as an isolated static demo", async (t
     "googletagmanager",
     "cloudflarestream.com",
     "assets.itsoffbrand.io",
-    "ob.2026.index.23.js",
     "w-webflow-badge",
   ]) {
     assert.doesNotMatch(page, new RegExp(forbidden, "i"));
@@ -81,7 +82,11 @@ test("serves the supplied OFF+BRAND export as an isolated static demo", async (t
     ["/demos-offbrand/images/64ce56bd39c2f116181f1aa5_ob-2023-logomark-svg.svg", /^image\/svg\+xml/],
     ["/demos-offbrand/images/6a54f691c4624186bbeb1157_cs-trevor-main-image.webp", /^image\/webp/],
     ["/demos-offbrand/images/68ece3e91ef2f1125c5b57eb_lando-cs-hero-img.jpg", /^image\/jpeg/],
+    ["/demos-offbrand/images/ob_texture-old.webp", /^image\/webp/],
+    ["/demos-offbrand/images/ob_texture-old-2.jpg", /^image\/jpeg/],
     ["/demos-offbrand/media/OFF_siteclips_13.mp4", /^video\/mp4/],
+    ["/demos-offbrand/js/ob.2026.index.23.js", /^(?:text|application)\/javascript/],
+    ["/demos-offbrand/js/hls.light.min.js", /^(?:text|application)\/javascript/],
     ["/demos-offbrand/js/demo-local.js", /^(?:text|application)\/javascript/],
   ];
 
@@ -95,4 +100,16 @@ test("serves the supplied OFF+BRAND export as an isolated static demo", async (t
   const safetyScript = await safetyScriptResponse.text();
   assert.match(safetyScript, /removeAttribute\("data-start"\)/);
   assert.match(safetyScript, /classList\.remove\("anti-flicker", "lenis-stopped"\)/);
+  assert.match(safetyScript, /animationRuntimeReady/);
+  assert.doesNotMatch(safetyScript, /setTimeout\(releasePage,\s*1400\)/);
+
+  const animationScriptResponse = await fetch(
+    `${baseUrl}/demos-offbrand/js/ob.2026.index.23.js`,
+  );
+  const animationScript = await animationScriptResponse.text();
+  assert.match(animationScript, /\/demos-offbrand\/images\/ob_texture-old\.webp/);
+  assert.match(animationScript, /\/demos-offbrand\/images\/ob_texture-old-2\.jpg/);
+  assert.match(animationScript, /\/demos-offbrand\/js\/hls\.light\.min\.js/);
+  assert.doesNotMatch(animationScript, /https:\/\/assets\.itsoffbrand\.io/i);
+  assert.doesNotMatch(animationScript, /https:\/\/cdn\.jsdelivr\.net/i);
 });
