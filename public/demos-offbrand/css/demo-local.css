@@ -1,0 +1,31 @@
+html,
+body {
+  overscroll-behavior-x: none;
+}
+
+.demo-disabled-form {
+  display: none !important;
+}
+
+[data-orb-wrap] {
+  pointer-events: none !important;
+}
+
+[data-orb] {
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, #ffffff 0 4%, transparent 28%),
+    radial-gradient(circle at 62% 62%, #ff603d 0 15%, #7d32ff 48%, #101010 78%);
+  box-shadow: 0 0 3rem rgb(125 50 255 / 35%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

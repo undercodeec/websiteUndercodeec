@@ -13,6 +13,18 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: import.meta.dirname,
   },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/demos",
+          destination: "/demos-offbrand/index.html",
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
   async redirects() {
     return [
       {

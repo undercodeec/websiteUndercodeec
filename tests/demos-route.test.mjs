@@ -75,18 +75,18 @@ test("serves the supplied OFF+BRAND export as an isolated static demo", async (t
   assert.doesNotMatch(page, /<form\b/i);
 
   const assets = [
-    ["/demos-offbrand/css/offbrand-2023.shared.0746f2a75.min.css", "text/css"],
-    ["/demos-offbrand/fonts/64ff29f82f284681edeb53a9_AtAero-Retina-dot-edit.woff2", "font/woff2"],
-    ["/demos-offbrand/images/64ce56bd39c2f116181f1aa5_ob-2023-logomark-svg.svg", "image/svg+xml"],
-    ["/demos-offbrand/images/6a54f691c4624186bbeb1157_cs-trevor-main-image.webp", "image/webp"],
-    ["/demos-offbrand/images/68ece3e91ef2f1125c5b57eb_lando-cs-hero-img.jpg", "image/jpeg"],
-    ["/demos-offbrand/media/OFF_siteclips_13.mp4", "video/mp4"],
-    ["/demos-offbrand/js/demo-local.js", "(?:text|application)/javascript"],
+    ["/demos-offbrand/css/offbrand-2023.shared.0746f2a75.min.css", /^text\/css/],
+    ["/demos-offbrand/fonts/64ff29f82f284681edeb53a9_AtAero-Retina-dot-edit.woff2", /^font\/woff2/],
+    ["/demos-offbrand/images/64ce56bd39c2f116181f1aa5_ob-2023-logomark-svg.svg", /^image\/svg\+xml/],
+    ["/demos-offbrand/images/6a54f691c4624186bbeb1157_cs-trevor-main-image.webp", /^image\/webp/],
+    ["/demos-offbrand/images/68ece3e91ef2f1125c5b57eb_lando-cs-hero-img.jpg", /^image\/jpeg/],
+    ["/demos-offbrand/media/OFF_siteclips_13.mp4", /^video\/mp4/],
+    ["/demos-offbrand/js/demo-local.js", /^(?:text|application)\/javascript/],
   ];
 
-  for (const [pathname, contentType] of assets) {
+  for (const [pathname, contentTypePattern] of assets) {
     const assetResponse = await fetch(`${baseUrl}${pathname}`);
     assert.equal(assetResponse.status, 200, pathname);
-    assert.match(assetResponse.headers.get("content-type") ?? "", new RegExp(contentType));
+    assert.match(assetResponse.headers.get("content-type") ?? "", contentTypePattern);
   }
 });
