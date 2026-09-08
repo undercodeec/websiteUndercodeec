@@ -13,7 +13,7 @@ const CHAT_IDLE_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_CHAT_IDLE_TIMEOUT_MS
 
 const AIAssistant = () => {
     const pathname = usePathname();
-    const isHiddenPath = pathname?.startsWith('/admin') || pathname?.startsWith('/contratos') || pathname?.startsWith('/recursos-humanos') || pathname?.startsWith('/demos');
+    const isHiddenPath = pathname?.startsWith('/admin') || pathname?.startsWith('/contratos') || pathname?.startsWith('/recursos-humanos');
     const [isOpen, setIsOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [chatModeSelected, setChatModeSelected] = useState(false);

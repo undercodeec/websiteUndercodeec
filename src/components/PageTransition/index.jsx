@@ -17,11 +17,6 @@ const isAdminRoute = (path) => {
   return normalized === "/admin" || normalized.startsWith("/admin/");
 };
 
-const isEditorialDemosRoute = (path) => {
-  const normalized = (path || "").replace(/\/$/, "") || "/";
-  return normalized === "/demos";
-};
-
 export default function PageTransition({ children }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -54,7 +49,7 @@ export default function PageTransition({ children }) {
 
              // El panel administrativo usa su propia experiencia de navegacion.
              // Evitar el telon global al entrar, salir o moverse dentro de /admin.
-             if (isAdminRoute(normCurrent) || isAdminRoute(normTarget) || isEditorialDemosRoute(normCurrent) || isEditorialDemosRoute(normTarget)) {
+             if (isAdminRoute(normCurrent) || isAdminRoute(normTarget)) {
                router.push(url.href);
                return;
              }
@@ -174,7 +169,6 @@ export default function PageTransition({ children }) {
   // (evita que SSR/hidratación muestre brevemente el nombre de la página)
   const normPathname = pathname.replace(/\/$/, '') || '/';
   const hideCurtain = isAdminRoute(normPathname)
-    || isEditorialDemosRoute(normPathname)
     || (preloaderRoutes.includes(normPathname) && transitionState === "hidden");
 
   return (
