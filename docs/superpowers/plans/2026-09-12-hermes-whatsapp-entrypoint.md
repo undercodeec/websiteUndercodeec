@@ -26,31 +26,36 @@
 **Files:**
 
 - Create: `src/components/HermesWhatsAppButton/index.jsx`
+- Create: `src/components/HermesWhatsAppButton/config.mjs`
 - Create: `tests/hermes-whatsapp-button.test.mjs`
 
 **Interfaces:**
 
-- Consumes: `usePathname` from `next/navigation`; `FaWhatsapp` from `react-icons/fa`.
+- Consumes: `usePathname` from `next/navigation`; `FaWhatsapp` from `react-icons/fa`; `buildHermesWhatsAppUrl` and `isHermesWhatsAppHiddenPath` from the local config module.
 - Produces: default `HermesWhatsAppButton` React component with no props.
 
-- [ ] **Step 1: Write the failing static component test**
+- [ ] **Step 1: Write the failing behavior test for the link configuration**
 
 ```js
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
+import {
+  buildHermesWhatsAppUrl,
+  isHermesWhatsAppHiddenPath,
+} from "../src/components/HermesWhatsAppButton/config.mjs";
 
-test("Hermes WhatsApp button uses the approved destination and safe link attributes", async () => {
-  const component = await readFile("src/components/HermesWhatsAppButton/index.jsx", "utf8");
+test("builds the approved WhatsApp conversation URL", () => {
+  assert.equal(
+    buildHermesWhatsAppUrl(),
+    "https://wa.me/593999739534?text=Hola%2C%20quisiera%20obtener%20informaci%C3%B3n%20sobre%20los%20servicios%20de%20Undercodeec.",
+  );
+});
 
-  assert.match(component, /const WHATSAPP_NUMBER = "593999739534"/);
-  assert.match(component, /https:\/\/wa\.me\/\$\{WHATSAPP_NUMBER\}\?text=\$\{encodeURIComponent\(WHATSAPP_MESSAGE\)\}/);
-  assert.match(component, /target="_blank"/);
-  assert.match(component, /rel="noopener noreferrer"/);
-  assert.match(component, /WhatsAppHermesClick/);
-  assert.match(component, /pathname\?\.startsWith\("\/admin"\)/);
-  assert.match(component, /pathname\?\.startsWith\("\/contratos"\)/);
-  assert.match(component, /pathname\?\.startsWith\("\/recursos-humanos"\)/);
+test("hides the Hermes entrypoint on internal route prefixes", () => {
+  for (const pathname of ["/admin", "/admin/crm", "/contratos/123", "/recursos-humanos/solicitudes"]) {
+    assert.equal(isHermesWhatsAppHiddenPath(pathname), true, pathname);
+  }
+  assert.equal(isHermesWhatsAppHiddenPath("/servicios"), false);
 });
 ```
 
@@ -58,7 +63,7 @@ test("Hermes WhatsApp button uses the approved destination and safe link attribu
 
 Run: `node --test tests/hermes-whatsapp-button.test.mjs`
 
-Expected: FAIL with `ENOENT` for `src/components/HermesWhatsAppButton/index.jsx`.
+Expected: FAIL with `ERR_MODULE_NOT_FOUND` for `src/components/HermesWhatsAppButton/config.mjs`.
 
 - [ ] **Step 3: Implement the minimal, self-contained component**
 
@@ -67,15 +72,12 @@ Expected: FAIL with `ENOENT` for `src/components/HermesWhatsAppButton/index.jsx`
 
 import { usePathname } from "next/navigation";
 import { FaWhatsapp } from "react-icons/fa";
-
-const WHATSAPP_NUMBER = "593999739534";
-const WHATSAPP_MESSAGE = "Hola, quisiera obtener información sobre los servicios de Undercodeec.";
-const HIDDEN_PATH_PREFIXES = ["/admin", "/contratos", "/recursos-humanos"];
+import { buildHermesWhatsAppUrl, isHermesWhatsAppHiddenPath } from "./config.mjs";
 
 export default function HermesWhatsAppButton() {
   const pathname = usePathname();
-  const isHiddenPath = HIDDEN_PATH_PREFIXES.some((prefix) => pathname?.startsWith(prefix));
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+  const isHiddenPath = isHermesWhatsAppHiddenPath(pathname);
+  const whatsappUrl = buildHermesWhatsAppUrl();
 
   if (isHiddenPath) return null;
 
@@ -94,13 +96,27 @@ export default function HermesWhatsAppButton() {
 }
 ```
 
+Create `config.mjs` with this executable interface:
+
+```js
+const WHATSAPP_NUMBER = "593999739534";
+const WHATSAPP_MESSAGE = "Hola, quisiera obtener información sobre los servicios de Undercodeec.";
+const HIDDEN_PATH_PREFIXES = ["/admin", "/contratos", "/recursos-humanos"];
+
+export const buildHermesWhatsAppUrl = () =>
+  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+
+export const isHermesWhatsAppHiddenPath = (pathname) =>
+  HIDDEN_PATH_PREFIXES.some((prefix) => pathname?.startsWith(prefix));
+```
+
 Add fixed bottom-right visual styles to the link: green WhatsApp color, circular icon treatment, focus-visible outline, hover motion, and a responsive label. Keep the link as the only navigation mechanism; do not call `window.open` or any API.
 
 - [ ] **Step 4: Run the component test to verify it passes**
 
 Run: `node --test tests/hermes-whatsapp-button.test.mjs`
 
-Expected: PASS with one successful subtest.
+Expected: PASS with four successful subtests.
 
 - [ ] **Step 5: Commit the independently verified component**
 
@@ -125,7 +141,7 @@ git commit -m "feat: add Hermes WhatsApp button"
 - [ ] **Step 1: Extend the failing test with the root-layout integration contract**
 
 ```js
-test("root layout mounts Hermes WhatsApp and no longer mounts the AI assistant", async () => {
+test("root layout mounts Hermes instead of the web AI assistant", async () => {
   const layout = await readFile("src/app/layout.tsx", "utf8");
 
   assert.match(layout, /import HermesWhatsAppButton from "@\/components\/HermesWhatsAppButton"/);

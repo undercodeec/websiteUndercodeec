@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import AIAssistant from "@/components/AIAssistant";
+import HermesWhatsAppButton from "@/components/HermesWhatsAppButton";
 import CustomCursor from "@/components/CustomCursor";
 import AudioMuteButton from "@/components/AudioMuteButton";
 import PageTransition from "@/components/PageTransition";
@@ -297,7 +297,7 @@ fbq('track', 'PageView');`}
 
         <PromoBanner />
         <CustomCursor />
-        <AIAssistant />
+        <HermesWhatsAppButton />
         <AudioMuteButton />
         <PageTransition>
           {children}
