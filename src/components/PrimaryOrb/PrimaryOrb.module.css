@@ -1,0 +1,75 @@
+.viewport {
+  overflow: hidden;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 50% 4%, rgba(235, 28, 116, .92) 0%, rgba(235, 28, 116, .62) 7%, rgba(235, 28, 116, .25) 14%, transparent 24%),
+    radial-gradient(circle at 51% 24%, rgba(174, 36, 162, .4) 0%, rgba(161, 15, 121, .22) 28%, transparent 54%),
+    radial-gradient(circle at 88% 44%, rgba(235, 28, 116, .35) 0%, rgba(235, 28, 116, .16) 31%, transparent 60%),
+    radial-gradient(circle at 27% 87%, rgba(183, 190, 247, .6) 0%, rgba(174, 36, 162, .25) 36%, transparent 64%),
+    radial-gradient(circle at 54% 98%, rgba(115, 105, 229, .48) 0%, rgba(77, 0, 127, .16) 34%, transparent 62%),
+    radial-gradient(circle at 52% 48%, #f8c6dd 0%, #f1aed2 35%, #e99ac8 63%, #d979bd 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .32),
+    inset 14px 12px 34px rgba(255, 255, 255, .16),
+    inset -18px -24px 42px rgba(73, 48, 180, .1),
+    0 0 24px rgba(174, 36, 162, .08);
+}
+
+.viewport:has(> canvas) {
+  background: conic-gradient(
+    from 315deg at 50% 50%,
+    var(--primary-orb-navy) 0deg,
+    var(--primary-orb-navy) 40deg,
+    #35105e 68deg,
+    var(--primary-orb-purple) 82deg,
+    var(--primary-orb-magenta) 106deg,
+    var(--primary-orb-fuchsia) 132deg,
+    #f0207a 172deg,
+    var(--primary-orb-fuchsia) 192deg,
+    var(--primary-orb-magenta) 210deg,
+    var(--primary-orb-wine) 225deg,
+    var(--primary-orb-purple) 285deg,
+    var(--primary-orb-navy) 345deg,
+    var(--primary-orb-navy) 360deg
+  );
+  box-shadow: none;
+}
+
+.viewport > canvas {
+  position: absolute;
+  top: 53%;
+  left: 50%;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50%;
+  background: transparent !important;
+  transform: translate(-50%, -50%);
+}
+
+.viewport::before,
+.viewport::after {
+  position: absolute;
+  z-index: 2;
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+
+.viewport::before {
+  top: 15%;
+  left: 50%;
+  width: 26%;
+  height: 7%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, .96) 0%, rgba(255, 220, 241, .82) 22%, rgba(235, 28, 116, .68) 48%, rgba(235, 28, 116, .18) 66%, transparent 78%);
+  filter: blur(7px);
+  opacity: .95;
+  transform: translateX(-50%);
+}
+
+.viewport::after {
+  inset: 14% 11% 8%;
+  background:
+    radial-gradient(ellipse at 12% 47%, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, .16) 10%, transparent 25%),
+    radial-gradient(ellipse at 91% 49%, rgba(255, 255, 255, .28) 0%, rgba(255, 255, 255, .1) 10%, transparent 22%);
+  filter: blur(4px);
+}

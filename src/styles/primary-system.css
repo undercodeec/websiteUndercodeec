@@ -1,0 +1,108 @@
+@font-face {
+  font-family: "Ataero Retina OB Edition";
+  src: url("/landing-primary/fonts/64ff29f82f284681edeb53a9_AtAero-Retina-dot-edit.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --primary-font-family: "Ataero Retina OB Edition", Arial, sans-serif;
+  --primary-main-light: #e5e4e0;
+  --primary-main-dark: #1d1d1d;
+  --primary-light-grey: rgba(111, 111, 111, .2);
+  --primary-dark-grey: rgba(218, 218, 218, .2);
+  --primary-gainsboro: #dadada;
+  --primary-white-smoke: #f4f4f4;
+  --primary-yellow: #facb0e;
+  --primary-pink: #f06ba8;
+  --primary-cyan: #78bae6;
+  --primary-orb-navy: #02003f;
+  --primary-orb-purple: #4d007f;
+  --primary-orb-wine: #700047;
+  --primary-orb-magenta: #a10f79;
+  --primary-orb-light-magenta: #ae24a2;
+  --primary-orb-fuchsia: #eb1c74;
+  --primary-page-gutter: 2vw;
+  --primary-radius-medium: .625rem;
+  --primary-body-size: 1vw;
+  --primary-text-regular-size: 1em;
+  --primary-text-small-size: 1em;
+  --primary-nav-text-size: .8rem;
+  --primary-meta-text-size: .7rem;
+  --primary-heading-a-size: 6.75em;
+  --primary-heading-b-size: 5em;
+  --primary-hero-heading-size: clamp(2.8rem, 7vw, 7.5rem);
+  --primary-heading-line-height: 1;
+  --primary-hero-line-height: .95;
+  --primary-hero-letter-spacing: -.045em;
+}
+
+/* Base compartida solo para bloques ya migrados al lenguaje de landing-primary. */
+.primary-surface {
+  color: var(--primary-main-dark);
+  background: var(--primary-main-light);
+  font-family: var(--primary-font-family);
+  font-size: var(--primary-body-size);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.primary-heading-a,
+.primary-heading-b,
+.primary-hero-heading {
+  margin: 0;
+  font-family: var(--primary-font-family);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.primary-heading-a {
+  font-size: var(--primary-heading-a-size);
+  line-height: var(--primary-heading-line-height);
+}
+
+.primary-heading-b {
+  font-size: var(--primary-heading-b-size);
+  line-height: var(--primary-heading-line-height);
+}
+
+.primary-hero-heading {
+  font-size: var(--primary-hero-heading-size);
+  line-height: var(--primary-hero-line-height);
+  letter-spacing: var(--primary-hero-letter-spacing);
+  text-wrap: balance;
+}
+
+.primary-text-regular { font-size: var(--primary-text-regular-size); }
+
+.primary-text-small {
+  font-size: var(--primary-text-small-size);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+@media (max-width: 991px) {
+  :root {
+    --primary-page-gutter: 3vw;
+    --primary-body-size: 13px;
+    --primary-heading-a-size: 6rem;
+    --primary-heading-b-size: 4rem;
+    --primary-text-regular-size: 1rem;
+    --primary-text-small-size: .85rem;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --primary-body-size: 1rem;
+    --primary-heading-a-size: 4rem;
+    --primary-hero-heading-size: clamp(2.35rem, 13vw, 4rem);
+  }
+}
+
+@media (max-width: 479px) {
+  :root {
+    --primary-heading-b-size: 3rem;
+  }
+}

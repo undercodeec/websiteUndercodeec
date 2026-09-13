@@ -92,6 +92,9 @@ importers:
       tailwind-merge:
         specifier: ^3.4.1
         version: 3.4.1
+      three:
+        specifier: 0.170.0
+        version: 0.170.0
     devDependencies:
       '@types/node':
         specifier: ^20

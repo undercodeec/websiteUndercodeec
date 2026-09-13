@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import HermesWhatsAppButton from "@/components/HermesWhatsAppButton";
-import CustomCursor from "@/components/CustomCursor";
-import PrimaryPreloader from "@/components/PrimaryPreloader";
+import { PrimaryCursor, PrimaryPreloader } from "@/components/Primary";
 import PromoBanner from "@/components/PromoBanner";
 import "@/styles/globals.css";
-import "@/styles/primary-preloader.css";
+import "@/styles/primary-system.css";
 import "@/styles/trading-card.css";
 
 export const metadata: Metadata = {
@@ -289,7 +288,7 @@ fbq('track', 'PageView');`}
         {/* End Meta Pixel Code (noscript) */}
 
         <PromoBanner />
-        <CustomCursor />
+        <PrimaryCursor />
         <HermesWhatsAppButton />
         {children}
 

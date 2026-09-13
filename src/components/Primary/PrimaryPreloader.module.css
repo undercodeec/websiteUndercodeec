@@ -1,0 +1,206 @@
+.preloader {
+  position: fixed;
+  z-index: 10000000;
+  inset: 0;
+  display: grid;
+  overflow: hidden;
+  place-items: center;
+  color: var(--primary-main-dark);
+  background: var(--primary-main-light);
+  font-family: var(--primary-font-family);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 350ms ease, visibility 350ms ease;
+}
+
+:global(body.primary-preloading) {
+  overflow: hidden;
+  cursor: progress;
+}
+
+.leaving {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.markStage {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition: opacity .8s cubic-bezier(.4, 0, .2, 1), transform .8s cubic-bezier(.4, 0, .2, 1);
+}
+
+.markWrap {
+  position: relative;
+  width: 20em;
+  height: 20em;
+}
+
+.markOutline {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+}
+
+.markOutline svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.markStroke {
+  fill: none;
+  stroke: var(--primary-main-dark);
+  stroke-width: .5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-miterlimit: 10;
+  animation: drawMark 1s .05s ease-in-out forwards;
+}
+
+.fillMask {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  mask: url("/landing-primary/images/64ce56bd39c2f116181f1aa5_ob-2023-logomark-svg.svg") center / cover no-repeat;
+  -webkit-mask: url("/landing-primary/images/64ce56bd39c2f116181f1aa5_ob-2023-logomark-svg.svg") center / cover no-repeat;
+  transition: clip-path .8s cubic-bezier(.4, 0, .2, 1);
+}
+
+.fill {
+  position: absolute;
+  inset: auto 0 0;
+  height: 100%;
+  background: linear-gradient(to right, #600b56 0%, #270f31 30%, #270f31 30%, #efa238 73%, #efa238 100%);
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.info {
+  position: absolute;
+  inset: auto 0 -3em;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.infoInner {
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+  overflow: hidden;
+}
+
+.loadingText,
+.percentage {
+  display: flex;
+  font-size: .75em;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.loadingText > span {
+  display: block;
+  animation: revealPreText .8s cubic-bezier(.76, 0, .24, 1) both;
+  animation-delay: calc(.45s + var(--pre-char) * 25ms);
+}
+
+.percentage {
+  min-width: 1.5rem;
+  animation: revealPreText .8s .5s cubic-bezier(.76, 0, .24, 1) both;
+}
+
+.orbStage {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.orb,
+.orbRing {
+  position: absolute;
+  opacity: 0;
+}
+
+.orb {
+  width: 4.3em;
+  height: 4.3em;
+  overflow: hidden;
+  border-radius: 50%;
+  transform: translate(8em, 8.1em);
+}
+
+.orbRing {
+  border: 1px solid var(--primary-light-grey);
+  border-radius: 50%;
+  transform: scale(0);
+}
+
+.orbRingInner { width: min(80vh, 78vw); aspect-ratio: 1; }
+.orbRingOuter { width: min(100vh, 98vw); aspect-ratio: 1; }
+
+.orbReveal .markStage {
+  opacity: 0;
+  transform: scale(.96);
+}
+
+.orbReveal .fillMask { clip-path: inset(0 0 100%); }
+
+.orbReveal .markStroke {
+  animation: eraseMark 1s ease-in-out forwards;
+}
+
+.orbReveal .orb {
+  animation: revealOrb 1s cubic-bezier(.4, 0, .2, 1) forwards;
+}
+
+.orbReveal .orbRingInner {
+  animation: revealRing 2s cubic-bezier(.4, 0, .2, 1) forwards;
+}
+
+.orbReveal .orbRingOuter {
+  animation: revealRing 2s .12s cubic-bezier(.4, 0, .2, 1) forwards;
+}
+
+@keyframes drawMark { to { stroke-dashoffset: 0; } }
+@keyframes eraseMark { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 1; } }
+@keyframes revealPreText { from { opacity: 0; transform: translateY(101%); } }
+
+@keyframes revealOrb {
+  0% { width: 4.3em; height: 4.3em; opacity: 0; transform: translate(8em, 8.1em); }
+  10% { opacity: 1; }
+  100% { width: 80vh; height: 80vh; opacity: 1; transform: translate(0, 0); }
+}
+
+@keyframes revealRing {
+  from { opacity: 0; transform: scale(0); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 991px) {
+  .markWrap { width: 50vw; height: 50vw; }
+
+  @keyframes revealOrb {
+    0% { width: 4.3em; height: 4.3em; opacity: 0; transform: translate(8em, 8.1em); }
+    10% { opacity: 1; }
+    100% { width: 90vw; height: 90vw; opacity: 1; transform: translate(0, 0); }
+  }
+}
+
+@media (max-width: 767px) {
+  .markWrap { width: 60vw; height: 60vw; }
+  .loadingText, .percentage { font-size: .7rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader, .markStage, .fillMask { transition-duration: .01ms; }
+  .markStroke, .loadingText > span, .percentage, .orb, .orbRing { animation-duration: .01ms !important; }
+}
