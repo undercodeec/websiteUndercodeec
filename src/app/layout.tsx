@@ -3,9 +3,10 @@ import Script from "next/script";
 import HermesWhatsAppButton from "@/components/HermesWhatsAppButton";
 import CustomCursor from "@/components/CustomCursor";
 import PageTransition from "@/components/PageTransition";
+import PrimaryPreloader from "@/components/PrimaryPreloader";
 import PromoBanner from "@/components/PromoBanner";
 import "@/styles/globals.css";
-import "@/styles/preloader.css";
+import "@/styles/primary-preloader.css";
 import "@/styles/trading-card.css";
 
 export const metadata: Metadata = {
@@ -271,6 +272,7 @@ fbq('track', 'PageView');`}
         />
       </head>
       <body suppressHydrationWarning={true}>
+        <PrimaryPreloader />
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe

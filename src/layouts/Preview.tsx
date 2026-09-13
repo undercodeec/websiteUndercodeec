@@ -3,7 +3,6 @@
 import { useEffect, useRef, ReactNode } from "react";
 import navbarScrollEffect from "@/common/navbarScrollEffect";
 import initScrollAnimations from "@/common/initScrollAnimations";
-import PreLoader from "@/components/PreLoader";
 import Navbar from "@/components/Navbars/PreviewNav";
 
 interface PreviewLayoutProps {
@@ -25,7 +24,6 @@ const PreviewLayout = ({ children }: PreviewLayoutProps) => {
 
   return (
     <>
-      <PreLoader />
       <Navbar navbarRef={navbarRef} />
       <main>{children}</main>
     </>

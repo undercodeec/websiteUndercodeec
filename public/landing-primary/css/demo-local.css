@@ -16,14 +16,6 @@ body {
   display: none !important;
 }
 
-/* Disable the loader shipped with the original OFF+BRAND export. */
-.pre-w[preloader],
-[preloader] {
-  display: none !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
 [data-orb-wrap] {
   pointer-events: none !important;
 }
