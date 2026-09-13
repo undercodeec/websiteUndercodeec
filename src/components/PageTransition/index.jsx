@@ -20,13 +20,7 @@ export default function PageTransition({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   
-  const preloaderRoutes = ['/', '/ec', '/es'];
-  const normInit = pathname.replace(/\/$/, '') || '/';
-  const [transitionState, setTransitionState] = useState(
-    preloaderRoutes.includes(normInit) || isAdminRoute(normInit)
-      ? "hidden"
-      : "initial_reveal",
-  );
+  const [transitionState, setTransitionState] = useState("hidden");
   const [targetPathname, setTargetPathname] = useState(pathname);
   
   const title = getPageTitle(transitionState === "rising" ? targetPathname : pathname);
@@ -55,27 +49,13 @@ export default function PageTransition({ children }) {
 
              // Logo con preloader: limpiar sesión home y navegar sin cortina
              if (link.dataset.forcePreloader) {
-               sessionStorage.removeItem('preloaderShown_home');
                router.push(url.href);
                return;
              }
 
              // Rutas con preloader de bienvenida: navegar sin cortina
-             if (['/ec', '/es'].includes(normTarget)) {
-               router.push(url.href);
-               return;
-             }
-
              // Raíz /: si el preloader aún no se ha visto, navegar directo sin telón
              // para que solo se muestre el preloader de bienvenida (no ambas animaciones)
-             if (normTarget === '/') {
-               const preloaderSeen = sessionStorage.getItem('preloaderShown_home');
-               if (!preloaderSeen) {
-                 router.push(url.href);
-                 return;
-               }
-             }
-
              setTargetPathname(url.pathname);
              // 1. Forzamos el telón a la parte inferior (hidden) de forma instantánea
              setTransitionState("hidden");
@@ -166,8 +146,7 @@ export default function PageTransition({ children }) {
   // En rutas con preloader de bienvenida, no renderizar el telón si está oculto
   // (evita que SSR/hidratación muestre brevemente el nombre de la página)
   const normPathname = pathname.replace(/\/$/, '') || '/';
-  const hideCurtain = isAdminRoute(normPathname)
-    || (preloaderRoutes.includes(normPathname) && transitionState === "hidden");
+  const hideCurtain = isAdminRoute(normPathname) || transitionState === "hidden";
 
   return (
     <>
@@ -180,7 +159,7 @@ export default function PageTransition({ children }) {
            width: "100%", height: "100vh",
            zIndex: 999999, pointerEvents: "none"
          }}
-         initial={{ y: preloaderRoutes.includes(normPathname) ? "100%" : "0%" }}
+         initial={{ y: "100%" }}
          animate={transitionState}
          variants={curtainVariants}
       >

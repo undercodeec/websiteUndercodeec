@@ -1,10 +1,4 @@
-const PRELOADER_PATHS = ['/', '/ec', '/es'];
-
-function getPreloaderKey(path) {
-  if (path === '/ec') return 'preloaderShown_ec';
-  if (path === '/es') return 'preloaderShown_es';
-  return 'preloaderShown_home';
-}
+const PRELOADER_KEY = 'landingPrimaryPreloaderSeen';
 
 const initScrollAnimations = () => {
   if (typeof window === 'undefined') return;
@@ -53,11 +47,8 @@ const initScrollAnimations = () => {
     });
   };
 
-  const path = window.location.pathname;
-  const hasPreloader = PRELOADER_PATHS.includes(path);
-
   // Pages without preloader, or preloader already dismissed: start after short delay
-  if (!hasPreloader || sessionStorage.getItem(getPreloaderKey(path))) {
+  if (sessionStorage.getItem(PRELOADER_KEY)) {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => setTimeout(startAnimations, 200));
     } else {

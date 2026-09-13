@@ -204,13 +204,6 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning={true}>
       <head>
-        {/* Pre-hydration backdrop: prevents page flash before the preloader mounts */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var p=location.pathname.replace(/\\/$/,'');if(!p)p='/';var ps=['/','/ec','/es'];if(ps.indexOf(p)===-1)return;var k=p==='/ec'?'preloaderShown_ec':p==='/es'?'preloaderShown_es':'preloaderShown_home';if(sessionStorage.getItem(k))return;document.documentElement.classList.add('preloader-pending');}catch(e){}})();`,
-          }}
-        />
-
         {/* Google Tag Manager */}
         <Script id="gtm-init" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':

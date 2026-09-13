@@ -1,13 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 
-const PRELOADER_PATHS = ['/', '/ec', '/es'];
-
-function getPreloaderKey(path: string): string {
-  if (path === '/ec') return 'preloaderShown_ec';
-  if (path === '/es') return 'preloaderShown_es';
-  return 'preloaderShown_home';
-}
+const PRELOADER_KEY = 'landingPrimaryPreloaderSeen';
 
 /**
  * Returns true when the page is ready to start entrance animations.
@@ -18,7 +12,6 @@ export function usePageReady(): boolean {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const path = window.location.pathname;
     let readyTimer: ReturnType<typeof setTimeout> | undefined;
 
     const markReady = () => {
@@ -26,13 +19,8 @@ export function usePageReady(): boolean {
     };
 
     // Pages without preloader → ready immediately
-    if (!PRELOADER_PATHS.includes(path)) {
-      markReady();
-      return () => clearTimeout(readyTimer);
-    }
-
     // Preloader already dismissed in this session → ready immediately
-    if (sessionStorage.getItem(getPreloaderKey(path))) {
+    if (sessionStorage.getItem(PRELOADER_KEY)) {
       markReady();
       return () => clearTimeout(readyTimer);
     }

@@ -2,31 +2,14 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
 
 const PreviewNavbar = ({ navbarRef }) => {
-  const pathname = usePathname();
-
-  const handleLogoClick = (e) => {
-    e.preventDefault();
-    if (typeof window === 'undefined') return;
-    sessionStorage.removeItem('preloaderShown_home');
-    if (pathname === '/') {
-      // Ya en inicio: scroll al tope y mostrar preloader
-      window.scrollTo({ top: 0, behavior: 'instant' });
-      window.dispatchEvent(new Event('resetPreloader'));
-    }
-    // Si está en otra página: PageTransition lo maneja vía data-force-preloader
-  };
-
   return (
     <nav className="navbar navbar-expand-lg navbar-light style-1 nav-preview py-0" ref={navbarRef}>
       <div className="container-xxl">
         <Link
           className="navbar-brand"
           href="/"
-          data-force-preloader="true"
-          onClick={handleLogoClick}
         >
           <Image src="/assets/img/undercode-logo.png" alt="Undercodeec" width={55} height={55} priority className="preview-logo" style={{ width: '55px', height: '55px' }} />
         </Link>

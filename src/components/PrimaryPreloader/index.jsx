@@ -15,7 +15,6 @@ export default function PrimaryPreloader() {
     const alreadySeen = sessionStorage.getItem(STORAGE_KEY) === "true";
 
     if (isPrivateRoute || alreadySeen) {
-      document.documentElement.classList.remove("preloader-pending");
       return;
     }
 
@@ -29,7 +28,6 @@ export default function PrimaryPreloader() {
       leaveTimer = window.setTimeout(() => setLeaving(true), 900);
       finishTimer = window.setTimeout(() => {
         setVisible(false);
-        document.documentElement.classList.remove("preloader-pending");
         window.dispatchEvent(new CustomEvent("preloaderDone"));
       }, 1250);
     }, 0);

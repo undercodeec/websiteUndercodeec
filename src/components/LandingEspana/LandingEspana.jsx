@@ -1237,7 +1237,7 @@ const LandingEspana = () => {
                       e.preventDefault();
                       e.stopPropagation();
                       sessionStorage.setItem("scrollToDemos", "true");
-                      sessionStorage.setItem("preloaderShown_home", "true");
+                      sessionStorage.setItem("landingPrimaryPreloaderSeen", "true");
                       router.push("/");
                     }}
                     className="btn btn-lg fw-bold px-4 py-3"
