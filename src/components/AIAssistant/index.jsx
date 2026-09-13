@@ -250,26 +250,9 @@ const AIAssistant = () => {
         }
     };
 
-    // Sincronizar con el botón de mute global (AudioMuteButton)
-    useEffect(() => {
-        const handleGlobalMuteChange = () => {
-            const isMuted = localStorage.getItem('isGlobalMuted') === 'true';
-            if (isMuted) {
-                setIsAudioEnabled(false);
-                if (currentTTSAudioRef.current && !currentTTSAudioRef.current.paused) {
-                    currentTTSAudioRef.current.pause();
-                    currentTTSAudioRef.current.currentTime = 0;
-                }
-            }
-        };
-        window.addEventListener('storage', handleGlobalMuteChange);
-        return () => window.removeEventListener('storage', handleGlobalMuteChange);
-    }, []);
-
     // PERF: fetch TTS en paralelo después de mostrar el texto.
     // El backend ya no bloquea la respuesta del chat con la síntesis de voz.
     const fetchAndPlayTTS = async (text) => {
-        if (localStorage.getItem('isGlobalMuted') === 'true') return;
         try {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.undercodeec.com';
             const ttsRes = await fetch(`${baseUrl}/api/chat/tts`, {

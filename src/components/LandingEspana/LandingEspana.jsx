@@ -863,41 +863,6 @@ const VideoShowcase = () => {
   };
 
   const videoRef = useRef(null);
-  const wasMutedBeforeRef = useRef(false);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handlePlay = () => {
-      if (typeof window === "undefined") return;
-      wasMutedBeforeRef.current = localStorage.getItem("isGlobalMuted") === "true";
-      if (!wasMutedBeforeRef.current) {
-        localStorage.setItem("isGlobalMuted", "true");
-        window.dispatchEvent(new Event("storage"));
-        if (window.currentAudio) window.currentAudio.pause();
-        if (window.preloaderAudio) window.preloaderAudio.pause();
-      }
-    };
-
-    const handlePause = () => {
-      if (typeof window === "undefined") return;
-      if (!wasMutedBeforeRef.current) {
-        localStorage.setItem("isGlobalMuted", "false");
-        window.dispatchEvent(new Event("storage"));
-      }
-    };
-
-    video.addEventListener("play", handlePlay);
-    video.addEventListener("pause", handlePause);
-    video.addEventListener("ended", handlePause);
-
-    return () => {
-      video.removeEventListener("play", handlePlay);
-      video.removeEventListener("pause", handlePause);
-      video.removeEventListener("ended", handlePause);
-    };
-  }, []);
 
   useEffect(() => {
     const video = videoRef.current;

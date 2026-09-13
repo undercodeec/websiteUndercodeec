@@ -1015,45 +1015,6 @@ const VideoShowcase = () => {
   };
 
   const videoRef = useRef(null);
-  const wasMutedBeforeRef = useRef(false);
-
-  // Mute global audio when video plays, restore when paused
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handlePlay = () => {
-      if (typeof window === "undefined") return;
-      // Remember if audio was already muted before we touched it
-      wasMutedBeforeRef.current = localStorage.getItem("isGlobalMuted") === "true";
-      if (!wasMutedBeforeRef.current) {
-        localStorage.setItem("isGlobalMuted", "true");
-        window.dispatchEvent(new Event("storage"));
-        // Pause any playing audio
-        if (window.currentAudio) window.currentAudio.pause();
-        if (window.preloaderAudio) window.preloaderAudio.pause();
-      }
-    };
-
-    const handlePause = () => {
-      if (typeof window === "undefined") return;
-      // Only restore if we were the ones who muted it
-      if (!wasMutedBeforeRef.current) {
-        localStorage.setItem("isGlobalMuted", "false");
-        window.dispatchEvent(new Event("storage"));
-      }
-    };
-
-    video.addEventListener("play", handlePlay);
-    video.addEventListener("pause", handlePause);
-    video.addEventListener("ended", handlePause);
-
-    return () => {
-      video.removeEventListener("play", handlePlay);
-      video.removeEventListener("pause", handlePause);
-      video.removeEventListener("ended", handlePause);
-    };
-  }, []);
 
   // Intersection Observer to mute/unmute video based on visibility
   useEffect(() => {

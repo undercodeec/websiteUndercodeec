@@ -6,7 +6,6 @@ import {
     FaWhatsapp,
 } from 'react-icons/fa';
 import ReactGA from 'react-ga4';
-import { playSoundWithFade } from '@/utils/audio';
 
 const BUBBLE_STYLES = Array.from({ length: 10 }, (_, index) => ({
     left: `${(index * 37 + 11) % 100}%`,
@@ -69,9 +68,6 @@ const UnderCodeec = () => {
                                     location: 'UnderCodeec'
                                 });
                             }
-                            
-                            // Reproducir sonido
-                            playSoundWithFade();
                         }}
                     >
                         <FaGlobe /> Nuestra Página Web & Galería de Proyectos

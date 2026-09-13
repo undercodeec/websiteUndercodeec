@@ -2,7 +2,7 @@
 
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF, OrbitControls, Environment, Center, Bounds } from "@react-three/drei";
+import { useGLTF, OrbitControls, Center, Bounds } from "@react-three/drei";
 
 const MOON_URL = "/modelo-3D/luna-3d.glb";
 
@@ -57,6 +57,7 @@ const MoonMini = () => {
       >
         <ambientLight intensity={0.6} />
         <directionalLight position={[5, 5, 5]} intensity={1.4} />
+        <hemisphereLight args={["#c7d2fe", "#172554", 0.7]} />
         <Suspense fallback={null}>
           {/* Center + Bounds auto-frame the model regardless of its native scale */}
           <Bounds fit clip margin={1.1}>
@@ -64,7 +65,6 @@ const MoonMini = () => {
               <MoonModel />
             </Center>
           </Bounds>
-          <Environment preset="night" resolution={64} />
         </Suspense>
         <OrbitControls enableZoom={false} enablePan={false} makeDefault />
       </Canvas>

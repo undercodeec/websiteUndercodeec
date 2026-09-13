@@ -77,7 +77,7 @@ export default function PromoBanner() {
         }}
       >
         <span style={{ fontWeight: 600, letterSpacing: "0.2px" }}>
-          🔥 <strong>Descuentos Junio &amp; Julio</strong> - hasta el{" "}
+          🔥 <strong>Descuentos Septiembre</strong> - hasta el{" "}
           <span
             style={{
               display: "inline-block",

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { playSoundWithFade } from '@/utils/audio';
 
 const getPreloaderKey = (path) => {
   const norm = path.replace(/\/$/, '') || '/';
@@ -15,7 +14,6 @@ const PreLoader = () => {
   const [isEntered, setIsEntered] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
   const [shouldShow, setShouldShow] = useState(false);
   const pathname = usePathname();
   const hideTimeoutRef = useRef(null);
@@ -25,14 +23,6 @@ const PreLoader = () => {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
-    const isMuted = localStorage.getItem('isGlobalMuted') === 'true';
-    const soundStateTimer = isMuted ? setTimeout(() => setSoundEnabled(false), 0) : null;
-
-    const handleStorageChange = () => {
-      setSoundEnabled(localStorage.getItem('isGlobalMuted') !== 'true');
-    };
-    window.addEventListener('storage', handleStorageChange);
 
     const startPreloaderSequence = () => {
       timer1Ref.current = setTimeout(() => {
@@ -47,7 +37,6 @@ const PreLoader = () => {
     const preloaderPaths = ['/', '/ec', '/es'];
 
     const clearAllTimers = () => {
-      if (soundStateTimer) clearTimeout(soundStateTimer);
       if (timer1Ref.current) clearTimeout(timer1Ref.current);
       if (timer2Ref.current) clearTimeout(timer2Ref.current);
       if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
@@ -90,7 +79,6 @@ const PreLoader = () => {
 
     return () => {
       window.removeEventListener('resetPreloader', handleReset);
-      window.removeEventListener('storage', handleStorageChange);
       clearAllTimers();
     };
   }, [pathname]);
@@ -114,16 +102,6 @@ const PreLoader = () => {
     if (typeof document !== 'undefined') {
       document.documentElement.classList.remove('preloader-pending');
     }
-    const isMuted = typeof window !== 'undefined' && localStorage.getItem('isGlobalMuted') === 'true';
-    if (!isMuted) {
-      playSoundWithFade();
-      if (typeof window !== 'undefined') {
-        if (window.preloaderAudio) window.preloaderAudio.pause();
-        window.preloaderAudio = new Audio('/assets/sonic/ComputInterfa GFX045201.wav');
-        window.preloaderAudio.play().catch(e => console.log("Audio play failed:", e));
-      }
-    }
-
     setIsEntered(true);
     // Fire preloaderDone early so the hero animations begin while the preloader fades out
     if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
@@ -153,7 +131,9 @@ const PreLoader = () => {
           <defs>
             <linearGradient id="solid-grad" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#600b56" />
-              <stop offset="100%" stopColor="#150E23" />
+              <stop offset="30%" stopColor="#270f31" />
+              <stop offset="73%" stopColor="#efa238" />
+              <stop offset="100%" stopColor="#efa238" />
             </linearGradient>
             
             <mask id="native-hole" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
@@ -306,70 +286,6 @@ const PreLoader = () => {
                   : 'all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s'
             }}
           >
-            <style>{`
-              @keyframes audioWave {
-                0% { height: 4px; }
-                50% { height: 24px; }
-                100% { height: 4px; }
-              }
-              @keyframes audioWaveIntense {
-                0% { height: 2px; }
-                50% { height: 32px; }
-                100% { height: 2px; }
-              }
-              .audio-bar-preloader {
-                animation: audioWave 1s ease-in-out infinite;
-                will-change: height;
-              }
-              .audio-bar-intense {
-                animation: audioWaveIntense 0.4s ease-in-out infinite;
-                will-change: height;
-              }
-              .audio-bar-preloader:nth-child(1) { animation-delay: 0.1s; animation-duration: 0.8s; }
-              .audio-bar-preloader:nth-child(2) { animation-delay: 0.3s; animation-duration: 1.2s; }
-              .audio-bar-preloader:nth-child(3) { animation-delay: 0.0s; animation-duration: 0.9s; }
-              .audio-bar-preloader:nth-child(4) { animation-delay: 0.4s; animation-duration: 1.1s; }
-              .audio-bar-preloader:nth-child(5) { animation-delay: 0.2s; animation-duration: 0.7s; }
-              .audio-bar-preloader:nth-child(6) { animation-delay: 0.5s; animation-duration: 1.0s; }
-            `}</style>
-            
-            <button 
-              onClick={() => {
-                const newState = !soundEnabled;
-                setSoundEnabled(newState);
-                localStorage.setItem('isGlobalMuted', newState ? 'false' : 'true');
-                window.dispatchEvent(new Event('storage'));
-
-                if (typeof window !== 'undefined') {
-                  if (!newState) {
-                    // Mute: pausar audios
-                    if (window.currentAudio) window.currentAudio.pause();
-                    if (window.preloaderAudio) window.preloaderAudio.pause();
-                  } else {
-                    // Unmute: reanudar audios desde donde quedaron
-                    if (window.currentAudio && window.currentAudio.paused && !window.currentAudio.ended) {
-                      window.currentAudio.play().catch(() => {});
-                    }
-                    if (window.preloaderAudio && window.preloaderAudio.paused && !window.preloaderAudio.ended) {
-                      window.preloaderAudio.play().catch(() => {});
-                    }
-                  }
-                }
-              }}
-              className="tw-flex tw-items-center tw-bg-black/20 tw-backdrop-blur-md tw-rounded-full tw-py-2 tw-px-5 tw-border tw-border-white/5 hover:tw-bg-white/10 tw-transition-colors"
-            >
-              <div className="tw-flex tw-items-center tw-space-x-[3px] lg:tw-space-x-1.5 tw-h-8 tw-mr-4">
-                {[...Array(6)].map((_, i) => (
-                  <div 
-                    key={i} 
-                    className={`tw-rounded-full tw-bg-white/80 tw-w-1 lg:tw-w-1.5 ${!soundEnabled ? 'tw-h-1' : (isEntered ? 'audio-bar-intense' : 'audio-bar-preloader')}`}
-                  ></div>
-                ))}
-              </div>
-              <span className="tw-text-[10px] tw-text-white/60 tw-font-bold tw-tracking-[0.2em] tw-uppercase">
-                {soundEnabled ? 'Audio Ready' : 'Muted'}
-              </span>
-            </button>
           </div>
           
         </div>

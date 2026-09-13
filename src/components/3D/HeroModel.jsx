@@ -1,7 +1,7 @@
 
 import React, { Suspense, useEffect, useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, OrbitControls, Environment } from '@react-three/drei';
+import { useGLTF, OrbitControls } from '@react-three/drei';
 
 const Model = ({ url }) => {
   const { scene } = useGLTF(url);
@@ -65,9 +65,9 @@ const HeroModel = ({ isActive = true }) => {
       >
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 10]} intensity={1} />
+        <hemisphereLight args={["#dbeafe", "#1e293b", 0.8]} />
         <Suspense fallback={null}>
             <Model url="/modelo-3D/Model3D-1.glb" />
-            <Environment preset="city" resolution={64} />
         </Suspense>
         {/* Disable pan to avoid interfering with page interactions */}
         <OrbitControls enableZoom={false} enablePan={false} makeDefault />

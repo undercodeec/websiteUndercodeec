@@ -3,6 +3,7 @@ import { FaCreditCard, FaExchangeAlt, FaUpload, FaCheck, FaArrowLeft, FaArrowRig
 import ReactGA from 'react-ga4';
 import { AnimatePresence, motion } from 'framer-motion';
 import wizardConfig from '@/data/Preview/wizard-config.json';
+import { isTrustedPaymentMessage } from '@/lib/payment-message.mjs';
 // import { supabase } from '@/lib/supabaseClient'; // Supabase is paused, moving to local backend
 
 // SVG Icons for project types
@@ -549,7 +550,7 @@ const AffiliationSection = () => {
       }
       
       // SECURITY: Verificar que el mensaje viene de un origen permitido
-      if (!ALLOWED_PAYMENT_ORIGINS.includes(event.origin)) {
+      if (!isTrustedPaymentMessage(event, paymentWindowRef.current, ALLOWED_PAYMENT_ORIGINS)) {
         return; // Ignorar mensajes de orígenes desconocidos
       }
       
@@ -963,7 +964,7 @@ const AffiliationSection = () => {
 
         const handlePaymentMessage = (event) => {
             // SECURITY: Verificar origen del mensaje
-            if (!ALLOWED_PAYMENT_ORIGINS.includes(event.origin)) {
+            if (!isTrustedPaymentMessage(event, paymentWindow, ALLOWED_PAYMENT_ORIGINS)) {
                 return;
             }
             if (event.data && event.data.type === 'PAYMENT_COMPLETED') {

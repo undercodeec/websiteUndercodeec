@@ -44,5 +44,8 @@ next-env.d.ts
 # Local isolated worktrees
 /.worktrees/
 
+# Previous root page retained locally for recovery only.
+/.local-archive/
+
 # Videos grandes — manejar directamente en VPS, no en git
 public/assets/img/video/

@@ -3,7 +3,6 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { playSoundWithFade } from '@/utils/audio';
 
 const PreviewNavbar = ({ navbarRef }) => {
   const pathname = usePathname();
@@ -18,18 +17,6 @@ const PreviewNavbar = ({ navbarRef }) => {
       window.dispatchEvent(new Event('resetPreloader'));
     }
     // Si está en otra página: PageTransition lo maneja vía data-force-preloader
-  };
-
-  const playSoftSound = (e) => {
-    if (typeof window !== 'undefined') {
-      if (window.location.pathname === '/' || window.location.pathname === '') {
-        e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'instant' });
-        window.dispatchEvent(new Event('resetPreloader'));
-      }
-
-      playSoundWithFade();
-    }
   };
 
   return (

@@ -17,8 +17,12 @@ const nextConfig: NextConfig = {
     return {
       beforeFiles: [
         {
+          source: "/",
+          destination: "/landing-primary/index.html",
+        },
+        {
           source: "/demos",
-          destination: "/demos-offbrand/index.html",
+          destination: "/landing-primary/index.html",
         },
       ],
       afterFiles: [],

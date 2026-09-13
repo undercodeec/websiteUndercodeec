@@ -3,7 +3,6 @@
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
-import { playSoundWithFade } from "@/utils/audio";
 
 const getPageTitle = (path) => {
   if (path === "/" || !path) return "INICIO";
@@ -75,7 +74,6 @@ export default function PageTransition({ children }) {
                  router.push(url.href);
                  return;
                }
-               playSoundWithFade();
              }
 
              setTargetPathname(url.pathname);

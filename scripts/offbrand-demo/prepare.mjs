@@ -6,13 +6,13 @@ const sourceName = "saveweb2zip-com-www-itsoffbrand-com";
 const sourceDir = resolve(
   process.env.OFFBRAND_SOURCE_DIR ?? join(projectRoot, "desing", sourceName),
 );
-const outputDir = resolve(projectRoot, "public", "demos-offbrand");
+const outputDir = resolve(projectRoot, "public", "landing-primary");
 const helperDir = resolve(projectRoot, "scripts", "offbrand-demo");
 
 if (basename(sourceDir) !== sourceName) {
   throw new Error(`Unexpected OFFBRAND_SOURCE_DIR: ${sourceDir}`);
 }
-if (outputDir !== resolve(projectRoot, "public", "demos-offbrand")) {
+if (outputDir !== resolve(projectRoot, "public", "landing-primary")) {
   throw new Error(`Unsafe output directory: ${outputDir}`);
 }
 
@@ -39,15 +39,15 @@ let animationScript = await readFile(join(sourceDir, "js", animationFilename), "
 animationScript = animationScript
   .replaceAll(
     "https://assets.itsoffbrand.io/ob/textures/ob_texture-old.webp",
-    "/demos-offbrand/images/ob_texture-old.webp",
+    "/landing-primary/images/ob_texture-old.webp",
   )
   .replaceAll(
     "https://assets.itsoffbrand.io/ob/textures/ob_texture-old-2.jpg",
-    "/demos-offbrand/images/ob_texture-old-2.jpg",
+    "/landing-primary/images/ob_texture-old-2.jpg",
   )
   .replaceAll(
     "https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.light.min.js",
-    "/demos-offbrand/js/hls.light.min.js",
+    "/landing-primary/js/hls.light.min.js",
   );
 await writeFile(join(outputDir, "js", animationFilename), animationScript, "utf8");
 await cp(
@@ -92,32 +92,32 @@ html = html.replace(/w-webflow-badge/gi, "demo-removed-badge");
 for (const directory of ["css", "fonts", "images", "js", "media"]) {
   html = html.replace(
     new RegExp(`(["'(=])(?:\\./)?${directory}/`, "g"),
-    `$1/demos-offbrand/${directory}/`,
+    `$1/landing-primary/${directory}/`,
   );
 }
 
-const poster = "/demos-offbrand/images/68b6edabe6aadf7c4b4218a7_overview.jpg";
+const poster = "/landing-primary/images/68b6edabe6aadf7c4b4218a7_overview.jpg";
 let localVideoAdded = false;
 html = html.replace(/<video\b([^>]*)>[\s\S]*?<\/video>/gi, (_video, attributes) => {
   const safeAttributes = attributes.replace(/\sposter=("|')[\s\S]*?\1/i, "");
   const source = localVideoAdded
     ? ""
-    : '<source src="/demos-offbrand/media/OFF_siteclips_13.mp4" type="video/mp4">';
+    : '<source src="/landing-primary/media/OFF_siteclips_13.mp4" type="video/mp4">';
   localVideoAdded = true;
   return `<video${safeAttributes} poster="${poster}">${source}</video>`;
 });
 
 html = html.replace(
   /<head>/i,
-  '<head><base href="/demos-offbrand/">',
+  '<head><base href="/landing-primary/">',
 );
 html = html.replace(
   /<\/head>/i,
-  '<link rel="stylesheet" href="/demos-offbrand/css/demo-local.css"></head>',
+  '<link rel="stylesheet" href="/landing-primary/css/demo-local.css"></head>',
 );
 html = html.replace(
   /<\/body>/i,
-  '<script src="/demos-offbrand/js/demo-local.js"></script></body>',
+  '<script src="/landing-primary/js/demo-local.js"></script></body>',
 );
 
 await writeFile(join(outputDir, "index.html"), html, "utf8");
