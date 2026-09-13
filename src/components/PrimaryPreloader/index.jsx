@@ -3,18 +3,35 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-const STORAGE_KEY = "landingPrimaryPreloaderSeen";
-
 export default function PrimaryPreloader() {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    const isPrivateRoute = pathname.startsWith("/admin") || pathname.startsWith("/portal");
-    const alreadySeen = sessionStorage.getItem(STORAGE_KEY) === "true";
+    const showBeforeNavigation = (event) => {
+      const link = event.target.closest?.("a[href]");
+      if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
 
-    if (isPrivateRoute || alreadySeen) {
+      const url = new URL(link.href, window.location.href);
+      const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+      const targetPath = url.pathname.replace(/\/$/, "") || "/";
+
+      if (url.origin !== window.location.origin || url.hash || currentPath === targetPath) return;
+      if (targetPath.startsWith("/admin") || targetPath.startsWith("/portal")) return;
+
+      setVisible(true);
+      setLeaving(false);
+    };
+
+    document.addEventListener("click", showBeforeNavigation, true);
+    return () => document.removeEventListener("click", showBeforeNavigation, true);
+  }, []);
+
+  useEffect(() => {
+    const isPrivateRoute = pathname.startsWith("/admin") || pathname.startsWith("/portal");
+
+    if (isPrivateRoute) {
       return;
     }
 
@@ -23,7 +40,6 @@ export default function PrimaryPreloader() {
     const startTimer = window.setTimeout(() => {
       setVisible(true);
       setLeaving(false);
-      sessionStorage.setItem(STORAGE_KEY, "true");
 
       leaveTimer = window.setTimeout(() => setLeaving(true), 900);
       finishTimer = window.setTimeout(() => {

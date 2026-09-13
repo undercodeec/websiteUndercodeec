@@ -1,5 +1,3 @@
-const PRELOADER_KEY = 'landingPrimaryPreloaderSeen';
-
 const initScrollAnimations = () => {
   if (typeof window === 'undefined') return;
 
@@ -48,17 +46,10 @@ const initScrollAnimations = () => {
   };
 
   // Pages without preloader, or preloader already dismissed: start after short delay
-  if (sessionStorage.getItem(PRELOADER_KEY)) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => setTimeout(startAnimations, 200));
-    } else {
-      setTimeout(startAnimations, 200);
-    }
-    return;
-  }
-
   // Pages with active preloader: wait for the "preloaderDone" event, then start
+  const fallbackTimer = setTimeout(startAnimations, 1400);
   window.addEventListener('preloaderDone', () => {
+    clearTimeout(fallbackTimer);
     setTimeout(startAnimations, 100);
   }, { once: true });
 };

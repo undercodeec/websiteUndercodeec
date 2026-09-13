@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import HermesWhatsAppButton from "@/components/HermesWhatsAppButton";
 import CustomCursor from "@/components/CustomCursor";
-import PageTransition from "@/components/PageTransition";
 import PrimaryPreloader from "@/components/PrimaryPreloader";
 import PromoBanner from "@/components/PromoBanner";
 import "@/styles/globals.css";
@@ -292,9 +291,7 @@ fbq('track', 'PageView');`}
         <PromoBanner />
         <CustomCursor />
         <HermesWhatsAppButton />
-        <PageTransition>
-          {children}
-        </PageTransition>
+        {children}
 
         <Script src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`} strategy="lazyOnload" />
         <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />

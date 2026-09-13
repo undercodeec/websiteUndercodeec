@@ -1125,7 +1125,6 @@ const LandingEcuador = () => {
     e.stopPropagation();
     sessionStorage.setItem("scrollToDemos", "true");
     // Mark preloader as already seen so it doesn't block the scroll
-    sessionStorage.setItem("landingPrimaryPreloaderSeen", "true");
     router.push("/");
   };
 
