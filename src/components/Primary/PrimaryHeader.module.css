@@ -7,7 +7,7 @@
   --header-paper: var(--main-light);
   position: fixed;
   z-index: 1040;
-  inset: var(--promo-banner-height, 0px) 0 0;
+  inset: 0;
   color: var(--header-ink);
   font-family: var(--primary-font-family);
   font-size: var(--primary-body-size);
@@ -18,6 +18,8 @@
   --header-ink: var(--main-light);
   --header-paper: var(--main-dark);
 }
+
+.hud[data-theme="dark"] .menuBackground { border-color: var(--dark-grey); }
 
 .frame {
   position: relative;
@@ -245,8 +247,8 @@
   z-index: -1;
   width: 3rem;
   height: 3rem;
-  border: 1px solid var(--light-grey);
-  border-radius: .4rem;
+  border: 1px solid var(--primary-gainsboro);
+  border-radius: .625em;
   background: var(--header-paper);
   transition: width .4s cubic-bezier(.755, .05, .855, .06), height .4s cubic-bezier(.755, .05, .855, .06), background-color .2s ease;
 }
@@ -319,20 +321,26 @@
   background: transparent;
   cursor: pointer;
   pointer-events: auto;
+  transition: transform .6s cubic-bezier(.165, .84, .44, 1);
 }
 
 .menuIcon { position: relative; display: block; width: 2rem; height: 1.5rem; }
 .menuIcon span { position: absolute; top: 50%; left: 50%; display: block; width: 1.5rem; height: 2px; background: currentColor; transition: transform .4s cubic-bezier(.68, -.55, .265, 1.55); }
-.menuIcon span:nth-child(1) { transform: translate(-50%, -.6rem); }
+.menuIcon span:nth-child(1) { transform: translate(-50%, -.5em); }
 .menuIcon span:nth-child(2) { transform: translate(-50%, -1px); }
-.menuIcon span:nth-child(3) { transform: translate(-50%, .6rem); }
-.menuButton:hover .menuIcon span:nth-child(1) { transform: translate(-50%, -.75rem); }
-.menuButton:hover .menuIcon span:nth-child(3) { transform: translate(-50%, .75rem); }
+.menuIcon span:nth-child(3) { transform: translate(-50%, .5em); }
+.menuButton:hover .menuIcon span:nth-child(1) { transform: translate(-50%, -.6em); }
+.menuButton:hover .menuIcon span:nth-child(3) { transform: translate(-50%, .6em); }
 .menuOverlayOpen .menuIcon span:nth-child(1),
-.menuOverlayOpen .menuButton:hover .menuIcon span:nth-child(1) { transform: translate(-50%, -1px) rotate(45deg); }
-.menuOverlayOpen .menuIcon span:nth-child(2) { transform: translate(-50%, -1px) scaleX(0); }
+.menuButton.is-open .menuIcon span:nth-child(1) { transform: translate(-50%, -1px) rotate(45deg); }
+.menuOverlayOpen .menuIcon span:nth-child(2),
+.menuButton.is-open .menuIcon span:nth-child(2) { transform: translate(-50%, -1px) scaleX(0); }
 .menuOverlayOpen .menuIcon span:nth-child(3),
-.menuOverlayOpen .menuButton:hover .menuIcon span:nth-child(3) { transform: translate(-50%, -1px) rotate(-45deg); }
+.menuButton.is-open .menuIcon span:nth-child(3) { transform: translate(-50%, -1px) rotate(-45deg); }
+.menuOverlayOpen .menuButton:hover .menuIcon span:nth-child(1),
+.menuButton.is-open:hover .menuIcon span:nth-child(1) { transform: translate(-50%, -1px) rotate(35deg); }
+.menuOverlayOpen .menuButton:hover .menuIcon span:nth-child(3),
+.menuButton.is-open:hover .menuIcon span:nth-child(3) { transform: translate(-50%, -1px) rotate(-35deg); }
 
 .pageLink:focus-visible,
 .cta:focus-visible,

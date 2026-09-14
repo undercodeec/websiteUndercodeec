@@ -1,0 +1,14 @@
+.page {
+  position: relative;
+  background: transparent;
+}
+
+:global(body:has(.services-page)) {
+  background: var(--primary-main-light);
+}
+
+.page :global(.about),
+.page :global(.testimonials),
+.page :global(.pricing) {
+  background: transparent !important;
+}

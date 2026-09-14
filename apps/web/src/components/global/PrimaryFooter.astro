@@ -1,0 +1,60 @@
+---
+import "../../styles/components/primary-footer.css";
+
+type FooterLink = { label: string; href: string; external?: boolean };
+
+interface Props {
+  sitemap?: FooterLink[];
+  social?: FooterLink[];
+  legal?: FooterLink[];
+  contactEmail?: string;
+}
+
+const {
+  sitemap = [
+    { label: "Inicio", href: "/" },
+    { label: "Nuestra trayectoria", href: "/nuestra-trayectoria" },
+    { label: "Servicios", href: "/servicios" },
+    { label: "Contacto", href: "/contacto" },
+  ],
+  social = [
+    { label: "Facebook", href: "https://www.facebook.com/undercodeec", external: true },
+    { label: "Instagram", href: "https://www.instagram.com/undercodeec/", external: true },
+    { label: "WhatsApp", href: "https://wa.me/593999739534", external: true },
+  ],
+  legal = [
+    { label: "Políticas de privacidad", href: "/politicas-playconsole" },
+    { label: "Derechos de autor", href: "/politicas-playconsole" },
+  ],
+  contactEmail = "gerencia@undercodeec.com",
+} = Astro.props;
+
+const attributes = (link: FooterLink) => link.external ? { target: "_blank", rel: "noreferrer" } : {};
+---
+
+<footer class="primary-footer" aria-label="Pie de página">
+  <div class="primary-footer__orb" aria-hidden="true">
+    <span class="primary-footer__orb-ring"></span>
+  </div>
+
+  <div class="primary-footer__cta">
+    <h2>¿Hacemos<br />algo<br />juntos?</h2>
+    <a class="primary-footer__button" href="/contacto"><span>Contáctanos</span><span aria-hidden="true">→</span></a>
+  </div>
+
+  <div class="primary-footer__navigation">
+    <nav aria-label="Mapa del sitio">
+      <p>Mapa del sitio</p>
+      {sitemap.map((link) => <a href={link.href} {...attributes(link)}>{link.label}<span aria-hidden="true">→</span></a>)}
+    </nav>
+    <nav aria-label="Redes sociales">
+      <p>Conecta</p>
+      {social.map((link) => <a href={link.href} {...attributes(link)}>{link.label}<span aria-hidden="true">→</span></a>)}
+    </nav>
+    <nav aria-label="Información legal">
+      <p>Legal</p>
+      {legal.map((link) => <a href={link.href}>{link.label}<span aria-hidden="true">→</span></a>)}
+      <a href={`mailto:${contactEmail}`}>{contactEmail}<span aria-hidden="true">→</span></a>
+    </nav>
+  </div>
+</footer>

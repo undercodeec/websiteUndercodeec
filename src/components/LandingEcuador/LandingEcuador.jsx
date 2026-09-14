@@ -1734,7 +1734,7 @@ const LandingEcuador = () => {
           id="presupuesto"
           className="py-5"
           style={{
-            scrollMarginTop: "calc(var(--promo-banner-height, 0px) + 16px)",
+            scrollMarginTop: "16px",
             paddingTop: "80px",
             paddingBottom: "80px",
             background: "#fff",

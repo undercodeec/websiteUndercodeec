@@ -1,0 +1,259 @@
+.section {
+  color: var(--primary-main-dark);
+  background: transparent;
+  font-family: var(--primary-font-family);
+  font-size: var(--primary-body-size);
+  overflow: clip;
+}
+
+.intro,
+.story {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.25em;
+  padding-right: var(--primary-page-gutter);
+  padding-left: var(--primary-page-gutter);
+}
+
+.intro {
+  align-items: start;
+  padding-top: clamp(5rem, 12vw, 12rem);
+  padding-bottom: clamp(5rem, 12vw, 12rem);
+}
+
+.kicker,
+.introIndex,
+.storyMeta {
+  margin: .35rem 0 0;
+  font-size: .72rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.kicker { grid-column: 1 / 3; }
+
+.introIndex {
+  grid-column: 12 / 13;
+  justify-self: end;
+  white-space: nowrap;
+}
+
+.introTitleBlend {
+  grid-column: 3 / 12;
+  color: var(--primary-main-light);
+  mix-blend-mode: difference;
+  user-select: none;
+}
+
+.introTitle,
+.storyTitle {
+  margin: 0;
+  font-weight: 400;
+  line-height: var(--primary-heading-line-height);
+  text-transform: uppercase;
+}
+
+.introTitle { max-width: 12ch; }
+
+.stories { border-top: 1px solid rgba(29, 29, 29, .28); }
+
+.story {
+  position: relative;
+  align-items: start;
+  padding-top: clamp(2rem, 4.5vw, 4.5rem);
+  padding-bottom: clamp(6rem, 13vw, 13rem);
+  border-bottom: 1px solid rgba(29, 29, 29, .28);
+}
+
+.storyMeta {
+  grid-column: 1 / 3;
+  grid-row: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-right: .7rem;
+}
+
+.visual {
+  grid-column: 3 / 8;
+  grid-row: 1;
+  position: relative;
+  display: grid;
+  min-height: clamp(23rem, 39vw, 42rem);
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(29, 29, 29, .36);
+  background: rgba(229, 228, 224, .5);
+  isolation: isolate;
+}
+
+.visual::after {
+  position: absolute;
+  inset: 1.1rem;
+  z-index: 3;
+  border: 1px solid rgba(29, 29, 29, .16);
+  content: "";
+  pointer-events: none;
+}
+
+.corner {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  width: 1.4rem;
+  height: 1.4rem;
+  place-items: center;
+  color: var(--primary-main-dark);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.cornerTopLeft { top: -.73rem; left: -.72rem; }
+.cornerTopRight { top: -.73rem; right: -.72rem; }
+.cornerBottomLeft { bottom: -.73rem; left: -.72rem; }
+.cornerBottomRight { right: -.72rem; bottom: -.73rem; }
+
+.storyContent {
+  grid-column: 8 / 13;
+  grid-row: 1;
+  padding-left: clamp(.5rem, 2.5vw, 3rem);
+}
+
+.storyTitle {
+  max-width: 8ch;
+  font-size: clamp(3rem, 4.5vw, var(--primary-heading-b-size));
+}
+
+.storyTitle span { color: var(--primary-main-light); mix-blend-mode: difference; }
+
+.description {
+  max-width: 39em;
+  margin: 2.5rem 0 2rem;
+  font-family: Arial, sans-serif;
+  font-size: .9rem;
+  line-height: 1.5;
+}
+
+.capabilities {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(29, 29, 29, .28);
+  list-style: none;
+}
+
+.capability { border-bottom: 1px solid rgba(29, 29, 29, .28); }
+
+.capabilityButton {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 2.8rem 1fr auto;
+  gap: .5rem;
+  align-items: center;
+  padding: .95rem 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: .76rem;
+  line-height: 1.2;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.capabilityButton:hover,
+.capabilityButton:focus-visible { color: #700047; }
+
+.capabilityButton:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.capabilitySymbol { font-size: 1.2rem; line-height: .7; }
+
+.capabilityDetail { overflow: hidden; }
+
+.capabilityDetail p {
+  margin: 0;
+  padding: 0 2.5rem 1.15rem 2.8rem;
+  color: rgba(29, 29, 29, .72);
+  font-family: Arial, sans-serif;
+  font-size: .8rem;
+  line-height: 1.5;
+}
+
+.action {
+  display: inline-flex;
+  gap: 2.8rem;
+  align-items: center;
+  margin-top: 2.2rem;
+  padding-bottom: .55rem;
+  border-bottom: 1px solid currentColor;
+  color: inherit;
+  font-size: .78rem;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color .3s ease, gap .4s cubic-bezier(.16, 1, .3, 1);
+}
+
+.action:hover,
+.action:focus-visible { gap: 3.6rem; color: #700047; }
+
+.storyReverse .storyMeta { grid-column: 11 / 13; }
+.storyReverse .visual { grid-column: 6 / 11; grid-row: 1; }
+.storyReverse .storyContent { grid-column: 1 / 6; grid-row: 1; padding-right: clamp(.5rem, 2.5vw, 3rem); padding-left: 0; }
+
+@media (max-width: 991px) {
+  .intro,
+  .story { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+
+  .kicker { grid-column: 1 / 3; }
+  .introTitleBlend { grid-column: 3 / 9; }
+  .introIndex { grid-column: 8 / 9; }
+  .storyMeta { grid-column: 1 / 3; }
+  .visual { grid-column: 3 / 6; min-height: 31rem; }
+  .storyContent { grid-column: 6 / 9; padding-left: 1rem; }
+  .storyReverse .storyMeta { grid-column: 7 / 9; }
+  .storyReverse .visual { grid-column: 4 / 7; }
+  .storyReverse .storyContent { grid-column: 1 / 4; padding-right: 1rem; }
+  .storyTitle { font-size: clamp(2.35rem, 5.1vw, 3.8rem); }
+  .description { margin-top: 1.6rem; font-size: .88rem; }
+}
+
+@media (max-width: 700px) {
+  .intro,
+  .story { grid-template-columns: 1fr; }
+
+  .intro { gap: 2.5rem; padding-top: 7.5rem; padding-bottom: 6rem; }
+  .kicker,
+  .introTitleBlend,
+  .introIndex,
+  .storyMeta,
+  .visual,
+  .storyContent,
+  .storyReverse .visual,
+  .storyReverse .storyContent { grid-column: 1; grid-row: auto; }
+
+  .introTitleBlend { max-width: 20rem; }
+  .introIndex { justify-self: start; }
+  .story { row-gap: 2.2rem; padding-top: 1.25rem; padding-bottom: 5rem; }
+  .storyMeta { justify-content: flex-start; gap: 1.5rem; padding: 0; }
+  .storyMeta,
+  .visual,
+  .storyContent,
+  .storyReverse .storyMeta,
+  .storyReverse .visual,
+  .storyReverse .storyContent { grid-row: auto; }
+  .visual { min-height: min(125vw, 34rem); }
+  .storyContent,
+  .storyReverse .storyContent { padding: 0; }
+  .storyTitle { max-width: 9ch; font-size: clamp(2.8rem, 12vw, 4.25rem); }
+  .description { max-width: 34rem; margin: 1.4rem 0 1.75rem; font-size: .94rem; }
+  .capabilityButton { font-size: .76rem; }
+  .capabilityDetail p { padding-right: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action { transition: none; }
+}

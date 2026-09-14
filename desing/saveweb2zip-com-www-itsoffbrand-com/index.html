@@ -1768,24 +1768,6 @@ display: none;}
     document.documentElement.style.setProperty('--vh', `${vh}px`);
   });
 
-  // Change title
-  let titleInterval = null;
-  const originalTitle = document.title;
-
-  // When tab is inactive
-  addEventListener('blur', function () {
-    titleInterval = setInterval(() => {
-      document.title = 'We miss you 😢';
-    }, 2000);
-  });
-  // When tab is active
-  addEventListener('focus', function () {
-    if (titleInterval) {
-      clearInterval(titleInterval);
-      document.title = originalTitle;
-    }
-  });
-
   // Welcome message
   function runWelcome() {
     console.log('%c ☩ %c  OFF+BRAND.  %c ☩ %c https://itsoffbrand.com ', 'background:#fffce1;color:#0e100f;font-family:monospace;font-size:11px;padding:0.75rem 0.5rem;', 'background:#0e100f;color:#fffce1;font-family:monospace;font-size:11px;font-weight:bold;padding:0.75rem 1rem;letter-spacing:0.1em;', 'background:#fffce1;color:#0e100f;font-family:monospace;font-size:11px;padding:0.75rem 0.5rem;', 'background:#0e100f;color:#fffce1;font-family:monospace;font-size:11px;padding:0.75rem 1rem;');

@@ -1,49 +1,22 @@
 .hero {
   position: relative;
   display: grid;
-  min-height: calc(100dvh - var(--promo-banner-height, 0px));
+  min-height: 100dvh;
   place-items: center;
   overflow: clip;
   isolation: isolate;
   color: var(--primary-main-light);
-  background: var(--primary-main-light);
+  background: transparent;
   font-family: var(--primary-font-family);
   font-size: var(--primary-body-size);
 }
 
-.orbField {
+.cardsOverlay {
   position: absolute;
-  z-index: -1;
-  inset: 0;
-  display: grid;
-  place-items: center;
-}
-
-.orb {
-  position: absolute;
-  z-index: 1;
-  width: 80vh;
-  min-width: 45rem;
-  height: 80vh;
-  min-height: 45rem;
-}
-
-.orbOutline {
-  position: absolute;
-  border: 0;
-  border-radius: 50%;
-}
-
-.orbOutlineInner {
-  width: min(80vh, 78vw);
-  aspect-ratio: 1;
-  animation: ringTurn 90s linear infinite;
-}
-
-.orbOutlineOuter {
-  width: min(100vh, 98vw);
-  aspect-ratio: 1;
-  animation: ringTurn 130s linear infinite reverse;
+  z-index: 2;
+  right: 0;
+  bottom: clamp(.75rem, 2vh, 2rem);
+  left: 0;
 }
 
 .heroFooter {
@@ -63,24 +36,8 @@
 
 .footerLine { height: 1px; background: var(--primary-light-grey); }
 
-@keyframes ringTurn { to { transform: rotate(360deg); } }
-
-@media (max-width: 991px) {
-  .orb {
-    width: 90vw;
-    min-width: 0;
-    height: 90vw;
-    min-height: 0;
-  }
-  .orbOutlineInner { width: 90vw; }
-  .orbOutlineOuter { width: min(86vh, 112vw); }
-}
-
 @media (max-width: 520px) {
-  .hero { min-height: calc(100svh - var(--promo-banner-height, 0px)); }
+  .hero { min-height: 100svh; }
+  .cardsOverlay { bottom: 1.25rem; }
   .heroFooter { font-size: .62rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .orbOutline { animation: none; }
 }

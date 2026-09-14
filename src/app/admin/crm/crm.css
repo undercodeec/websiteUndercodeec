@@ -14,10 +14,6 @@
   --crm-shadow: 0 14px 42px rgba(22, 32, 51, .1);
 }
 
-body:has(.crm-root) > [data-promo-banner],
-body:has(.crm-login-page) > [data-promo-banner],
-body:has(.crm-root) > div:has(+ [data-promo-banner]),
-body:has(.crm-login-page) > div:has(+ [data-promo-banner]) { display: none !important; }
 
 .crm-root, .crm-login-page, .crm-session-screen, .crm-modal {
   color: var(--crm-ink);

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import PrimaryHamburgerButton from "./PrimaryHamburgerButton";
 import styles from "./PrimaryHeader.module.css";
 
 const services = [
@@ -179,12 +180,6 @@ export default function PrimaryHeader() {
           </Link>
         </nav>
 
-        <div className={styles.scrollCue} aria-hidden="true">
-          <span className={styles.scrollLineTop} />
-          <span className={styles.scrollDot} />
-          <span className={styles.scrollLineBottom} />
-        </div>
-
         <div
           ref={menuRef}
           className={`${styles.menuOverlay} ${isMenuOpen ? styles.menuOverlayOpen : ""}`}
@@ -243,21 +238,14 @@ export default function PrimaryHeader() {
             </div>
           </div>
 
-          <button
-            ref={menuButtonRef}
-            type="button"
-            className={styles.menuButton}
-            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
-            aria-expanded={isMenuOpen}
-            aria-controls="primary-navigation-menu"
-            onClick={() => {
+          <PrimaryHamburgerButton
+            buttonRef={menuButtonRef}
+            isOpen={isMenuOpen}
+            onToggle={() => {
               clearCloseTimer();
               setMenuOpen((value) => !value);
             }}
-          >
-            <span className={styles.menuIcon} aria-hidden="true"><span /><span /><span /></span>
-          </button>
-          <span className={styles.menuBackground} aria-hidden="true" />
+          />
         </div>
       </div>
     </header>

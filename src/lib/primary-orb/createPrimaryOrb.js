@@ -1,5 +1,6 @@
 import {
   Clock,
+  Color,
   FloatType,
   HalfFloatType,
   Mesh,
@@ -172,6 +173,8 @@ uniform sampler2D texture;
 uniform sampler2D matcapTexture;
 uniform sampler2D matcapTexture2;
 uniform float textureMix;
+uniform vec3 colorTint;
+uniform float colorTintAmount;
 uniform vec2 size;
 uniform vec3 eye;
 uniform vec3 lightDirection;
@@ -222,13 +225,14 @@ void main() {
   vec3 viewDirection = normalize(eye - vPosition);
   vec3 reflectDirection = reflect(lightDirection, normalVector);
   float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 8.0);
-  vec3 specular = 0.025 * spec * vec3(0.47, 0.729, 0.9);
+  vec3 specular = 0.025 * spec * mix(vec3(0.47, 0.729, 0.9), vec3(1.0), colorTintAmount);
   vec2 rotatedUv = rotateUV(vUv, angle);
   vec3 color = mix(
     texture2D(matcapTexture, rotatedUv).rgb,
     texture2D(matcapTexture2, rotatedUv).rgb,
     textureMix
   );
+  color = mix(color, colorTint, colorTintAmount);
 
   gl_FragColor = vec4(blendOverlay(color, vec3(light)) + specular, 1.0);
 }
@@ -239,7 +243,7 @@ const mapRange = (value, inMin, inMax, outMin, outMax) =>
 
 const randomBetween = (min, max) => min + Math.random() * (max - min);
 
-export function createPrimaryOrb(viewport, { textureUrl = "/landing-primary/images/ob_texture-old.webp" } = {}) {
+export function createPrimaryOrb(viewport, { color, textureUrl = "/landing-primary/images/ob_texture-old.webp" } = {}) {
   if (!viewport) throw new Error("PrimaryOrb requires a viewport element.");
 
   const renderer = new WebGLRenderer({ antialias: true, alpha: true });
@@ -259,6 +263,7 @@ export function createPrimaryOrb(viewport, { textureUrl = "/landing-primary/imag
   renderer.setPixelRatio(window.devicePixelRatio || 1);
   renderer.setClearColor(0x000000, 0);
   renderer.domElement.setAttribute("aria-hidden", "true");
+  renderer.domElement.dataset.primaryOrbTextureReady = "false";
   viewport.appendChild(renderer.domElement);
 
   const camera = new PerspectiveCamera(60, 1, 0.1, 2);
@@ -315,6 +320,8 @@ export function createPrimaryOrb(viewport, { textureUrl = "/landing-primary/imag
       matcapTexture: { value: null },
       matcapTexture2: { value: null },
       textureMix: { value: 0 },
+      colorTint: { value: new Color(color || "#ffffff") },
+      colorTintAmount: { value: color ? 1 : 0 },
       size: { value: new Vector2(simulationTarget.width, simulationTarget.height) },
       eye: { value: new Vector3().copy(camera.position).normalize() },
       lightDirection: { value: new Vector3() },
@@ -405,6 +412,7 @@ export function createPrimaryOrb(viewport, { textureUrl = "/landing-primary/imag
     matcapTexture = texture;
     renderingMaterial.uniforms.matcapTexture.value = texture;
     renderingMaterial.uniforms.matcapTexture2.value = texture;
+    renderer.domElement.dataset.primaryOrbTextureReady = "true";
   });
 
   window.addEventListener("resize", resize);

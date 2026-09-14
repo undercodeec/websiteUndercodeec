@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import HermesWhatsAppButton from "@/components/HermesWhatsAppButton";
+import RecaptchaEnterpriseScript from "@/components/RecaptchaEnterpriseScript";
 import { PrimaryCursor, PrimaryPreloader } from "@/components/Primary";
-import PromoBanner from "@/components/PromoBanner";
 import "@/styles/globals.css";
 import "@/styles/primary-system.css";
 import "@/styles/trading-card.css";
@@ -287,12 +287,11 @@ fbq('track', 'PageView');`}
         </noscript>
         {/* End Meta Pixel Code (noscript) */}
 
-        <PromoBanner />
         <PrimaryCursor />
         <HermesWhatsAppButton />
         {children}
 
-        <Script src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`} strategy="lazyOnload" />
+        <RecaptchaEnterpriseScript />
         <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />
       </body>
     </html>

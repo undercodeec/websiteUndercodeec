@@ -4,9 +4,14 @@ import aboutData from '@/data/Saas/about.json';
 import Content1 from './Content1';
 import Content2 from './Content2';
 import Content3 from './Content3';
+import PrimaryAbout from './PrimaryAbout';
 
-const About = ({ noPaddingTop }) => {
+const About = ({ noPaddingTop, variant }) => {
   const data = aboutData;
+
+  if (variant === 'primary') {
+    return <PrimaryAbout data={data} />;
+  }
 
   return (
     <section className={`about ${noPaddingTop ? 'pt-0 pb-150':'section-padding'} style-5`} data-scroll-index="1">

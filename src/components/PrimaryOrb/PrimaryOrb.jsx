@@ -3,7 +3,11 @@
 import { useEffect, useRef } from "react";
 import styles from "./PrimaryOrb.module.css";
 
-export default function PrimaryOrb({ className, textureUrl = "/landing-primary/images/ob_texture-old.webp" }) {
+export default function PrimaryOrb({
+  className,
+  color,
+  textureUrl = "/landing-primary/images/ob_texture-old.webp",
+}) {
   const viewportRef = useRef(null);
 
   useEffect(() => {
@@ -13,7 +17,7 @@ export default function PrimaryOrb({ className, textureUrl = "/landing-primary/i
     import("@/lib/primary-orb/createPrimaryOrb")
       .then(({ createPrimaryOrb }) => {
         if (cancelled || !viewportRef.current) return;
-        orb = createPrimaryOrb(viewportRef.current, { textureUrl });
+        orb = createPrimaryOrb(viewportRef.current, { color, textureUrl });
         viewportRef.current.dataset.orbReady = "true";
       })
       .catch(() => {
@@ -24,13 +28,15 @@ export default function PrimaryOrb({ className, textureUrl = "/landing-primary/i
       cancelled = true;
       orb?.destroy();
     };
-  }, [textureUrl]);
+  }, [color, textureUrl]);
 
   return (
     <div
       ref={viewportRef}
       className={`${styles.viewport} ${className || ""}`}
       data-primary-orb
+      data-primary-orb-monochrome={color ? "true" : undefined}
+      style={color ? { "--primary-orb-fallback-color": color } : undefined}
       aria-hidden="true"
     />
   );

@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import navbarScrollEffect from "@/common/navbarScrollEffect";
+import { useEffect } from "react";
 import initScrollAnimations from "@/common/initScrollAnimations";
 import MainLayout from "@/layouts/Main";
-import TopNav from "@/components/Navbars/TopNav";
-import Navbar from "@/components/Navbars/AppNav";
+import { PrimaryHeader } from "@/components/Primary";
 import Header from "@/components/App/Header";
 import Features from "@/components/App/Features";
 import About from "@/components/App/About";
@@ -16,14 +14,6 @@ import Clients from "@/components/App/Clients";
 import Footer from "@/components/App/Footer";
 
 export default function AplicacionesMovilesPage() {
-  const navbarRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (navbarRef.current) {
-      navbarScrollEffect(navbarRef.current);
-    }
-  }, []);
-
   useEffect(() => {
     initScrollAnimations();
   }, []);
@@ -72,8 +62,7 @@ export default function AplicacionesMovilesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
-      <TopNav style="4" />
-      <Navbar navbarRef={navbarRef} />
+      <PrimaryHeader />
       <main>
         <Header />
         <Clients />
