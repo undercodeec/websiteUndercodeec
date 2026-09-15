@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { A11y, Autoplay, Keyboard } from "swiper";
+import "swiper/css";
 import about from "@/data/App/about.json";
 import faq from "@/data/App/faq.json";
 import screenshots from "@/data/App/screenshots.json";
@@ -75,6 +78,76 @@ function FAQList() {
           </article>
         );
       })}
+    </div>
+  );
+}
+
+function ProductScreensCarousel() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateMotionPreference = () => setPrefersReducedMotion(mediaQuery.matches);
+
+    updateMotionPreference();
+    mediaQuery.addEventListener("change", updateMotionPreference);
+
+    return () => mediaQuery.removeEventListener("change", updateMotionPreference);
+  }, []);
+
+  return (
+    <div
+      className={styles.shotGrid}
+      role="region"
+      aria-roledescription="carrusel"
+      aria-label="Muestras de interfaces móviles"
+    >
+      <Swiper
+        modules={[A11y, Autoplay, Keyboard]}
+        className={styles.shotCarousel}
+        dir="ltr"
+        slidesPerView={5}
+        centeredSlides
+        loop
+        speed={prefersReducedMotion ? 0 : 1000}
+        autoplay={prefersReducedMotion ? false : {
+          delay: 3000,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true,
+        }}
+        keyboard={{ enabled: true }}
+        breakpoints={{
+          0: { slidesPerView: 2 },
+          480: { slidesPerView: 2 },
+          787: { slidesPerView: 3 },
+          991: { slidesPerView: 3 },
+          1200: { slidesPerView: 5 },
+        }}
+      >
+        {screenshots.map((screenshot, index) => (
+          <SwiperSlide className={styles.shotSlide} key={screenshot}>
+            <figure className={styles.shot}>
+              <Image
+                src={screenshot}
+                alt={`Interfaz móvil de muestra ${index + 1}`}
+                width={190}
+                height={420}
+                sizes="(max-width: 700px) 8.5rem, 11.875rem"
+              />
+            </figure>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      <Image
+        src="/assets/img/screenshots/hand.png"
+        alt=""
+        aria-hidden="true"
+        className={styles.shotHand}
+        width={511}
+        height={676}
+        sizes="(max-width: 700px) 27rem, 37.5rem"
+      />
     </div>
   );
 }
@@ -185,20 +258,7 @@ export default function MobileAppsPrimaryContent() {
           </p>
         </header>
 
-        <div className={styles.shotGrid} aria-label="Muestras de interfaces móviles">
-          {screenshots.map((screenshot, index) => (
-            <figure className={styles.shot} key={screenshot}>
-              <Image
-                src={screenshot}
-                alt={`Interfaz móvil de muestra ${index + 1}`}
-                width={620}
-                height={1240}
-                sizes="(max-width: 700px) 34vw, 17vw"
-              />
-              <span className={styles.shotIndex}>{String(index + 1).padStart(2, "0")}</span>
-            </figure>
-          ))}
-        </div>
+        <ProductScreensCarousel />
       </section>
 
       <section className={styles.faqSection} aria-labelledby="mobile-apps-faq-title">
