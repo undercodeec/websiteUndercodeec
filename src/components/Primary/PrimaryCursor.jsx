@@ -25,12 +25,16 @@ export default function PrimaryCursor() {
       hasPosition = true;
 
       wrap.classList.add(styles.visible);
+      const targetElement = event.target instanceof Element ? event.target : null;
+      wrap.classList.toggle(styles.staticFooter, Boolean(targetElement?.closest("[data-primary-footer]")));
     };
 
     const updateHover = (event) => {
       const targetElement = event.target instanceof Element ? event.target : null;
       const interactive = targetElement?.closest("a, button, [data-cursor-hover]");
-      dot.classList.toggle(styles.hover, Boolean(interactive));
+      const staticFooter = targetElement?.closest("[data-primary-footer]");
+      dot.classList.toggle(styles.hover, Boolean(interactive && !staticFooter));
+      wrap.classList.toggle(styles.staticFooter, Boolean(staticFooter));
     };
 
     const hide = () => wrap.classList.remove(styles.visible);

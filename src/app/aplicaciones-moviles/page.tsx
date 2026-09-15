@@ -1,28 +1,10 @@
-"use client";
-
-import { useEffect } from "react";
-import initScrollAnimations from "@/common/initScrollAnimations";
 import MainLayout from "@/layouts/Main";
 import { PrimaryHeader } from "@/components/Primary";
 import Header from "@/components/App/Header";
-import Features from "@/components/App/Features";
-import About from "@/components/App/About";
-import Screenshots from "@/components/App/Screenshots";
-import Testimonials from "@/components/App/Testimonials";
-import FAQ from "@/components/App/FAQ";
-import Clients from "@/components/App/Clients";
-import Footer from "@/components/App/Footer";
+import MobileAppsPrimaryContent from "@/components/App/MobileAppsPrimaryContent";
+import ServiciosPrimaryFooter from "@/components/Servicios/ServiciosPrimaryFooter";
 
 export default function AplicacionesMovilesPage() {
-  useEffect(() => {
-    initScrollAnimations();
-  }, []);
-
-  useEffect(() => {
-    document.body.classList.add("home-style-4");
-    return () => document.body.classList.remove("home-style-4");
-  }, []);
-
   // Nota: el Service JSON-LD vive en layout.tsx (evita duplicación).
   // Aquí solo emitimos el FAQPage que es contenido específico de la página.
   const faqJsonLd = {
@@ -65,14 +47,9 @@ export default function AplicacionesMovilesPage() {
       <PrimaryHeader />
       <main>
         <Header />
-        <Clients />
-        <Features />
-        <About noFirstContent={false} noIntegration={false} noWave={false} />
-        <Screenshots />
-        <Testimonials />
-        <FAQ />
+        <MobileAppsPrimaryContent />
       </main>
-      <Footer />
+      <ServiciosPrimaryFooter />
     </MainLayout>
   );
 }

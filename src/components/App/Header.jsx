@@ -9,6 +9,16 @@ const MOBILE_APPS_TITLE = "Desarrollo de Aplicaciones Móviles";
 const MOBILE_APPS_TITLE_LINES = ["Desarrollo", "de Aplicaciones", "Móviles"];
 const HERO_SUBTITLE = "Diseño Innovador y Desarrollo Profesional";
 
+function HeroCharacters({ text }) {
+  return Array.from(text).map((character, index) => (
+    <span className={styles.titleCharacterClip} key={`${character}-${index}`}>
+      <span className={styles.titleCharacter} data-mobile-apps-hero-char>
+        {character === " " ? "\u00a0" : character}
+      </span>
+    </span>
+  ));
+}
+
 export default function Header() {
   const orbFieldRef = useRef(null);
 
@@ -22,10 +32,9 @@ export default function Header() {
     const innerRotation = orbField.querySelector('[data-mobile-apps-orb-outline-rotation="1"]');
     const outerRotation = orbField.querySelector('[data-mobile-apps-orb-outline-rotation="2"]');
     const hero = orbField.parentElement;
-    const title = hero?.querySelector("[data-mobile-apps-hero-title]");
     const titleCharacters = hero?.querySelectorAll("[data-mobile-apps-hero-char]");
     const titleLineTransforms = hero?.querySelectorAll("[data-mobile-apps-hero-line-transform]");
-    if (!orb || !innerOutline || !outerOutline || !innerRotation || !outerRotation || !title || !titleCharacters?.length || !titleLineTransforms?.length) return undefined;
+    if (!orb || !innerOutline || !outerOutline || !innerRotation || !outerRotation || !titleCharacters?.length || !titleLineTransforms?.length) return undefined;
 
     let animationFrame;
     let removePreloaderDoneListener = () => {};
@@ -71,7 +80,7 @@ export default function Header() {
           titleTimeline.from(
             line,
             { x: index % 2 === 0 ? "10em" : "-10em", duration: 1, ease: "power2.inOut" },
-            1 + index * .1,
+            .2 + index * .1,
           );
         });
       };
@@ -79,7 +88,7 @@ export default function Header() {
       if (document.body.classList.contains("primary-preloading")) {
         window.addEventListener("preloaderDone", revealTitle, { once: true });
         removePreloaderDoneListener = () => window.removeEventListener("preloaderDone", revealTitle);
-        revealFallback = window.setTimeout(revealTitle, 2500);
+        revealFallback = window.setTimeout(revealTitle, 900);
       } else {
         revealTitle();
       }
@@ -112,7 +121,7 @@ export default function Header() {
   }, []);
 
   return (
-    <section className={styles.hero} aria-label="Desarrollo de aplicaciones móviles">
+    <section className={styles.hero} aria-label={MOBILE_APPS_TITLE}>
       <div ref={orbFieldRef} className={styles.orbField} aria-hidden="true">
         <div className={styles.orbLayer} data-mobile-apps-orb>
           <PrimaryOrb className={styles.orb} />
@@ -136,24 +145,29 @@ export default function Header() {
       </div>
 
       <div className={styles.content}>
-        <h1 className={`primary-heading-a ${styles.title}`} data-mobile-apps-hero-title aria-label={MOBILE_APPS_TITLE}>
-          {MOBILE_APPS_TITLE_LINES.map((line) => (
-            <span className={styles.titleLineBlock} key={line}>
-              <span className={styles.titleTransform} data-mobile-apps-hero-line-transform>
-                <span className={styles.titleOverflow} aria-hidden="true">
-                  {Array.from(line).map((character, characterIndex) => (
-                    <span className={styles.titleCharacterClip} key={`${character}-${characterIndex}`}>
-                      <span className={styles.titleCharacter} data-mobile-apps-hero-char>
-                        {character === " " ? "\u00a0" : character}
-                      </span>
-                    </span>
-                  ))}
+        <div className={styles.tabletTitle} aria-hidden="true">
+          <div className={styles.tabletHeading}>
+            {MOBILE_APPS_TITLE_LINES.map((line) => <div key={line}><HeroCharacters text={line} /></div>)}
+          </div>
+        </div>
+
+        <div className={styles.desktopTitle}>
+          <div className={styles.titleBlend}>
+            {MOBILE_APPS_TITLE_LINES.map((line) => (
+              <div className={styles.titleBlock} key={line}>
+                <span className={styles.titleTransform} data-mobile-apps-hero-line-transform>
+                  <span className={styles.titleOverflow}>
+                    <h1 className={styles.title} data-mobile-apps-hero-line><HeroCharacters text={line} /></h1>
+                  </span>
                 </span>
-              </span>
-            </span>
-          ))}
-        </h1>
-        <p className={styles.subtitle}>{HERO_SUBTITLE}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className={styles.subtitleBlock}>
+            <p className={styles.subtitle}>{HERO_SUBTITLE}</p>
+          </div>
+        </div>
       </div>
     </section>
   );

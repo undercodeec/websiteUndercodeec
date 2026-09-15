@@ -8,16 +8,16 @@ import ServicesShowcase, { ServicesCards } from "@/components/Servicios/Services
 import About from "@/components/Saas/About";
 import Testimonials from "@/components/Saas/Testimonials";
 import Pricing from "@/components/Saas/Pricing";
-import Footer from "@/components/Saas/Footer";
+import ServiciosPrimaryFooter from "@/components/Servicios/ServiciosPrimaryFooter";
 import styles from "./ServiciosPage.module.css";
 
 export default function ServiciosPage() {
   return (
     <MainLayout>
       <PrimaryHeader />
-      <div className={styles.page}>
+      <div className={styles.page} data-services-page>
         <ServicesOrbBackground />
-        <main className="services-page style-5" data-services-page>
+        <main className="services-page style-5">
           <ServicesHero>
             <ServicesCards />
           </ServicesHero>
@@ -26,7 +26,7 @@ export default function ServiciosPage() {
           <Testimonials />
           <Pricing />
         </main>
-        <Footer noWave={true} />
+        <ServiciosPrimaryFooter />
       </div>
     </MainLayout>
   );

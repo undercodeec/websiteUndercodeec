@@ -96,6 +96,24 @@
   pointer-events: none;
 }
 
+.voxelCanvas {
+  position: absolute;
+  inset: 1.1rem;
+  z-index: 1;
+}
+
+.appCanvas {
+  position: absolute;
+  inset: 1.1rem;
+  z-index: 1;
+}
+
+.webCanvas {
+  position: absolute;
+  inset: 1.1rem;
+  z-index: 1;
+}
+
 .corner {
   position: absolute;
   z-index: 4;
@@ -125,6 +143,8 @@
 }
 
 .storyTitle span { color: var(--primary-main-light); mix-blend-mode: difference; }
+
+.softwareStory .storyTitle span { color: var(--primary-main-dark); mix-blend-mode: normal; }
 
 .description {
   max-width: 39em;

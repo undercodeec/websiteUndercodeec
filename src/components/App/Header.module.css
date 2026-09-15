@@ -7,6 +7,8 @@
   background: var(--primary-main-light);
   font-family: var(--primary-font-family);
   font-size: var(--primary-body-size);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .orbField {
@@ -55,69 +57,74 @@
 
 .content {
   position: relative;
-  z-index: 1;
-  display: grid;
   width: 100%;
   min-height: 100dvh;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-template-rows: 1fr auto 1fr;
-  column-gap: 1rem;
-  padding: 7.5rem var(--primary-page-gutter) 2rem;
 }
 
-.eyebrow,
-.title,
-.subtitle,
-.copy,
-.action {
-  grid-column: 2 / 12;
+.desktopTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .1rem;
+  min-height: 100dvh;
+  padding: 7rem 1.5rem 3rem;
 }
 
-.eyebrow {
-  grid-row: 3;
-  align-self: end;
-  margin: 0;
-  font-size: var(--primary-text-small-size);
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.title {
-  grid-row: 2;
-  align-self: center;
-  margin: 0;
-}
-
-.titleLineBlock {
-  display: block;
+.titleBlend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  width: 100%;
   color: var(--primary-main-light);
   mix-blend-mode: difference;
   user-select: none;
 }
 
-.subtitle {
-  grid-row: 3;
-  align-self: end;
+.titleBlock {
+  width: min(100%, 72rem);
+  text-align: center;
+}
+
+.subtitleBlock {
+  width: min(100%, 44rem);
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.title {
   margin: 0;
-  color: var(--primary-main-light);
-  font-size: var(--primary-text-small-size);
-  line-height: 1;
-  mix-blend-mode: difference;
+  color: inherit;
+  font-family: var(--primary-font-family);
+  font-size: clamp(2.8rem, 7vw, 7.5rem);
+  font-weight: 400;
+  line-height: .95;
+  letter-spacing: -.045em;
   text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--primary-text-regular-size);
+  line-height: 1.35;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.tabletTitle {
+  display: none;
 }
 
 .titleTransform,
-.titleOverflow,
-.eyebrowTransform,
-.eyebrowOverflow {
-  display: block;
+.titleOverflow { display: block; }
+
+.titleTransform { will-change: transform; }
+
+.titleOverflow {
+  overflow: clip;
 }
-
-.titleOverflow,
-.eyebrowOverflow { overflow: clip; }
-
-.titleTransform,
-.eyebrowTransform { will-change: transform; }
 
 .titleCharacterClip {
   display: inline-block;
@@ -160,6 +167,49 @@
 .action:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 
 @media (max-width: 991px) {
+  .content { padding: 0; }
+
+  .desktopTitle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .titleBlock { display: none; }
+
+  .subtitleBlock {
+    position: absolute;
+    inset: auto 0 0;
+    margin-bottom: 1.25em;
+  }
+
+  .tabletTitle {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 90%;
+    margin: auto;
+    padding-top: 15vh;
+    text-align: justify;
+    color: var(--primary-main-light);
+    mix-blend-mode: difference;
+    user-select: none;
+  }
+
+  .tabletHeading {
+    display: block;
+    width: 100%;
+    margin: 0 auto;
+    font-size: 9vw;
+    line-height: 1;
+    text-align: center;
+    word-break: normal;
+  }
+
   .orbLayer,
   .orbOutlineLayer {
     width: 90vw;
@@ -173,17 +223,14 @@
     height: min(86vh, 112vw);
   }
 
-  .eyebrow,
-  .title,
-  .subtitle,
-  .copy,
-  .action { grid-column: 1 / 13; }
+}
+
+@media (max-width: 767px) {
+  .tabletHeading { font-size: 10vw; }
 }
 
 @media (max-width: 520px) {
   .hero { min-height: 100svh; }
-  .content { padding-top: 7rem; }
-  .eyebrow { margin-bottom: 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

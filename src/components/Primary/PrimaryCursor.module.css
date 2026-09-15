@@ -10,6 +10,8 @@
 
 .visible { opacity: 1; }
 
+.staticFooter { opacity: 0; }
+
 .cursorDot {
   --cursor-x: 0px;
   --cursor-y: 0px;

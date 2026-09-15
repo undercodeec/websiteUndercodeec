@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/apps/web/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -16,6 +17,8 @@
 # next.js
 /.next/
 /out/
+/apps/web/.astro/
+/apps/web/dist/
 
 # production
 /build
@@ -46,6 +49,9 @@ next-env.d.ts
 
 # Previous root page retained locally for recovery only.
 /.local-archive/
+/.codex-reference-footer-*/
+/.tmp-visual-qa/
+/CON
 
 # Videos grandes — manejar directamente en VPS, no en git
 public/assets/img/video/

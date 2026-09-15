@@ -20,6 +20,65 @@ test("renders service cards over the hero while keeping the section heading belo
   assert.match(hero, /className=\{styles\.cardsOverlay\}/);
 });
 
+test("uses a Landing Primary-inspired footer isolated to the services route", async () => {
+  const page = await readFile("src/app/servicios/page.tsx", "utf8");
+  const footer = await readFile("src/components/Servicios/ServiciosPrimaryFooter.jsx", "utf8");
+  const styles = await readFile("src/components/Servicios/ServiciosPrimaryFooter.module.css", "utf8");
+  const primaryStyles = await readFile("src/styles/primary-system.css", "utf8");
+
+  assert.match(page, /import ServiciosPrimaryFooter from "@\/components\/Servicios\/ServiciosPrimaryFooter";/);
+  assert.match(page, /<ServiciosPrimaryFooter\s*\/>/);
+  assert.doesNotMatch(page, /import Footer from "@\/components\/Saas\/Footer";/);
+  assert.match(footer, /import \{ useEffect, useRef \} from "react";/);
+  assert.match(footer, /import gsap from "gsap";/);
+  assert.match(footer, /import \{ ScrollTrigger \} from "gsap\/ScrollTrigger";/);
+  assert.match(footer, /const FOOTER_TITLE_LINES = \[".Hacemos", "algo", "juntos\?"\]/);
+  assert.match(footer, /data-services-footer-link-target/);
+  assert.match(footer, /data-services-footer-link-track/);
+  assert.match(footer, /className=\{styles\.ctaGrid\}/);
+  assert.match(footer, /className=\{styles\.ctaRow\}/);
+  assert.match(footer, /data-services-footer-title-line/);
+  assert.match(footer, /className=\{styles\.buttonInner\}/);
+  assert.match(footer, /className=\{styles\.buttonBackground\}/);
+  assert.doesNotMatch(footer, /Jun\+tos/);
+  assert.doesNotMatch(footer, /revealFallback = window\.setTimeout/);
+  assert.match(footer, /const revealFooter = \(\) =>/);
+  assert.match(footer, /let hasRevealed = false;/);
+  assert.match(footer, /let hasArmed = false;/);
+  assert.match(footer, /if \(hasRevealed\) return;/);
+  assert.match(footer, /preloaderFallback = window\.setTimeout\(armReveal, 2500\);/);
+  assert.match(footer, /ScrollTrigger\.create\(\{[\s\S]*?onEnter: revealFooter/);
+  assert.match(footer, /requestAnimationFrame\(\(\) => ScrollTrigger\.refresh\(\)\);/);
+  assert.match(footer, /window\.clearTimeout\(preloaderFallback\);/);
+  assert.match(footer, /revealTrigger\?\.kill\(\);/);
+  assert.match(footer, /const revealTimeline = gsap\.timeline\(\);/);
+  assert.match(footer, /aria-label="Pie de p.gina"/);
+  assert.match(footer, /aria-label=\{label\}/);
+  assert.match(footer, /title="Mapa del sitio" label="Mapa del sitio"/);
+  assert.match(footer, /title="Conecta" label="Redes sociales"/);
+  assert.match(footer, /title="Legal" label="Informaci.n legal"/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(styles, /:focus-visible/);
+  assert.match(styles, /font-family: var\(--primary-font-family\);/);
+  assert.match(styles, /grid-template-columns: repeat\(12, minmax\(0, 1fr\)\);/);
+  assert.match(styles, /font-size: var\(--primary-heading-a-size\);/);
+  assert.match(styles, /\.ctaGrid\s*\{[\s\S]*?grid-template-columns:\s*repeat\(7, minmax\(0, 1fr\)\);[\s\S]*?padding-left:\s*3em;/);
+  assert.match(styles, /\.ctaRow\s*\{[\s\S]*?align-items:\s*center;[\s\S]*?display:\s*flex;/);
+  assert.match(styles, /\.button\s*\{[\s\S]*?border:\s*1px solid var\(--footer-line\);[\s\S]*?background:\s*var\(--primary-main-light\);[\s\S]*?border-radius:\s*6\.25em;[\s\S]*?font-size:\s*1\.6em;/);
+  assert.match(styles, /\.buttonInner\s*\{[\s\S]*?padding:\s*1em 2em;/);
+  assert.match(styles, /\.buttonBackground\s*\{[\s\S]*?mix-blend-mode:\s*exclusion;/);
+  assert.match(styles, /\.footer\s*\{[\s\S]*?font-weight:\s*400;[\s\S]*?font-synthesis:\s*none;/);
+  assert.match(styles, /\.grid\s*\{[\s\S]*?gap:\s*1\.25em;[\s\S]*?padding:\s*0 1\.25em;/);
+  assert.match(styles, /\.column p\s*\{[\s\S]*?font-weight:\s*400;[\s\S]*?letter-spacing:\s*normal;/);
+  assert.match(styles, /\.link\s*\{[\s\S]*?padding-bottom:\s*\.3em;[\s\S]*?font-size:\s*1em;[\s\S]*?font-weight:\s*400;[\s\S]*?font-synthesis:\s*none;[\s\S]*?line-height:\s*1;/);
+  assert.doesNotMatch(styles, /\.link\s*\{[\s\S]*?font-weight:\s*700;/);
+  assert.match(styles, /\.linkClip\s*\{[\s\S]*?gap:\s*\.5rem;/);
+  assert.match(styles, /@media \(max-width: 991px\)\s*\{[\s\S]*?\.grid\s*\{[\s\S]*?display:\s*flex;[\s\S]*?gap:\s*3rem;[\s\S]*?padding:\s*0 2vw;[\s\S]*?\.titleLine\s*\{\s*font-size:\s*10em;[\s\S]*?\.navigation\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);[\s\S]*?\.linkLabel,[\s\S]*?font-size:\s*1rem;[\s\S]*?\.miniLink \.linkLabel,[\s\S]*?font-size:\s*\.85rem;/);
+  assert.match(styles, /@media \(max-width: 767px\)\s*\{[\s\S]*?\.linkLabel,[\s\S]*?font-size:\s*\.8rem;/);
+  assert.match(styles, /@media \(max-width: 479px\)\s*\{[\s\S]*?\.grid\s*\{[\s\S]*?padding:\s*0 3vw;[\s\S]*?\.navigation\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);[\s\S]*?\.linkLabel,[\s\S]*?font-size:\s*\.8rem;[\s\S]*?\.miniLink \.linkLabel,[\s\S]*?font-size:\s*\.7rem;/);
+  assert.match(primaryStyles, /font-display:\s*block;/);
+});
+
 test("keeps the landing hamburger background nested inside the primary header", async () => {
   const header = await readFile("src/components/Primary/PrimaryHeader.jsx", "utf8");
   const hamburger = await readFile("src/components/Primary/PrimaryHamburgerButton.jsx", "utf8");
@@ -66,22 +125,40 @@ test("keeps the mobile-applications orb centered and reveals its hero title like
   assert.match(hero, /const revealTitle = \(\) =>/);
   assert.match(hero, /index % 2 === 0 \? "10em" : "-10em"/);
   assert.match(hero, /window\.addEventListener\("preloaderDone"/);
-  assert.match(hero, /window\.setTimeout\(revealTitle, 2500\)/);
+  assert.match(hero, /window\.setTimeout\(revealTitle, 900\)/);
   assert.match(hero, /data-mobile-apps-hero-line/);
   assert.match(hero, /data-mobile-apps-hero-line-transform/);
 });
 
-test("uses the native Landing Primary headline treatment for mobile applications", async () => {
+test("uses the original Landing Primary home-hero structure for mobile applications", async () => {
   const hero = await readFile("src/components/App/Header.jsx", "utf8");
   const styles = await readFile("src/components/App/Header.module.css", "utf8");
 
-  assert.doesNotMatch(hero, /framer-motion|usePageReady|motion\./);
+  assert.match(hero, /className=\{styles\.tabletTitle\}/);
+  assert.match(hero, /className=\{styles\.desktopTitle\}/);
+  assert.match(hero, /className=\{styles\.titleBlock\}/);
+  assert.match(hero, /className=\{styles\.subtitleBlock\}/);
   assert.match(hero, /const MOBILE_APPS_TITLE_LINES = \["Desarrollo", "de Aplicaciones", "Móviles"\]/);
   assert.match(hero, /data-mobile-apps-hero-line/);
-  assert.match(hero, /yPercent: -101/);
   assert.match(hero, /x: index % 2 === 0 \? "10em" : "-10em"/);
-  assert.match(styles, /\.titleLineBlock\s*\{[\s\S]*?mix-blend-mode: difference;/);
-  assert.match(styles, /\.titleLineBlock\s*\{[\s\S]*?color: var\(--primary-main-light\);/);
+  assert.match(styles, /\.desktopTitle\s*\{[\s\S]*?flex-direction:\s*column;[\s\S]*?padding:\s*7rem 1\.5rem 3rem;/);
+  assert.match(styles, /\.titleBlock\s*\{[\s\S]*?width:\s*min\(100%, 72rem\);[\s\S]*?text-align:\s*center;/);
+  assert.match(styles, /\.title\s*\{[\s\S]*?font-size:\s*clamp\(2\.8rem, 7vw, 7\.5rem\);[\s\S]*?line-height:\s*\.95;[\s\S]*?letter-spacing:\s*-\.045em;/);
+  assert.match(styles, /@media \(max-width: 991px\)\s*\{[\s\S]*?\.titleBlock\s*\{\s*display:\s*none;/);
+  assert.match(styles, /@media \(max-width: 991px\)\s*\{[\s\S]*?\.tabletTitle\s*\{[\s\S]*?display:\s*flex;/);
+});
+
+test("reveals the mobile-applications hero earlier with the services blend treatment", async () => {
+  const hero = await readFile("src/components/App/Header.jsx", "utf8");
+  const styles = await readFile("src/components/App/Header.module.css", "utf8");
+
+  assert.match(hero, /className=\{styles\.titleBlend\}/);
+  assert.match(hero, /window\.setTimeout\(revealTitle, 900\)/);
+  assert.match(hero, /\.2 \+ index \* \.1/);
+  assert.match(styles, /\.titleBlend\s*\{[\s\S]*?color:\s*var\(--primary-main-light\);[\s\S]*?mix-blend-mode:\s*difference;/);
+  assert.match(styles, /\.tabletTitle\s*\{[\s\S]*?color:\s*var\(--primary-main-light\);[\s\S]*?mix-blend-mode:\s*difference;/);
+  assert.doesNotMatch(styles, /\.content\s*\{[\s\S]*?z-index\s*:/);
+  assert.doesNotMatch(styles, /\.tabletTitle\s*\{[\s\S]*?z-index\s*:/);
 });
 
 test("uses the Landing Primary orb-only preloader globally", async () => {
@@ -106,7 +183,11 @@ test("keeps the services orb centered first and moves it through the full page s
   const showcaseStyles = await readFile("src/components/Servicios/ServicesShowcase.module.css", "utf8");
 
   assert.match(page, /import ServicesOrbBackground from "@\/components\/Servicios\/ServicesOrbBackground";/);
-  assert.match(page, /<ServicesOrbBackground\s*\/>\s*<main[^>]*data-services-page/);
+  assert.match(
+    page,
+    /<div className=\{styles\.page\} data-services-page>[\s\S]*?<ServicesOrbBackground\s*\/>[\s\S]*?<main className="services-page style-5">[\s\S]*?<ServiciosPrimaryFooter\s*\/>[\s\S]*?<\/div>/,
+  );
+  assert.doesNotMatch(page, /<main[^>]*data-services-page/);
   assert.doesNotMatch(hero, /data-services-orb/);
   assert.match(orb, /import \{ ScrollTrigger \} from "gsap\/ScrollTrigger";/);
   assert.match(orb, /trigger: page, start: "top top", end: "bottom bottom", scrub: true, immediateRender: false/);
@@ -115,6 +196,10 @@ test("keeps the services orb centered first and moves it through the full page s
   assert.match(orb, /x: "-50vw", y: "-20vh", scale: 1\.5, duration: \.15, ease: "power2\.inOut"/);
   assert.match(orb, /x: "0vw", y: "50vh", scale: 0, duration: \.05/);
   assert.match(orb, /x: "-60vw", y: "-75vh", scale: 0, ease: "power1\.out", duration: \.05/);
+  assert.match(orb, /x: "0vw", y: "0vh", scale: 0, duration: \.3/);
+  assert.match(orb, /x: "49vw", y: "0vh", scale: 1, duration: \.05/);
+  assert.match(orb, /x: "29vw", y: "0vh", scale: 1\.5, duration: \.05/);
+  assert.doesNotMatch(orb, /footerMotion|trigger:\s*footer/);
   assert.match(orb, /x: "10vw", y: "0vh", scale: 1\.2, duration: \.15, overwrite: "auto"/);
   assert.match(orb, /x: "25vw", y: "0vh", scale: 1\.3, duration: \.15, overwrite: "auto"/);
   assert.match(orb, /rotation: 360, duration: 100, repeat: -1, ease: "none", force3D: true/);
@@ -208,6 +293,73 @@ test("keeps the service hero cards compact and close to the lower edge", async (
   assert.match(showcaseStyles, /height:\s*clamp\(3\.5rem,\s*6vw,\s*4\.5rem\);/);
   assert.match(showcaseStyles, /width:\s*clamp\(3\.25rem,\s*8vw,\s*4\.25rem\);/);
   assert.match(showcaseStyles, /height:\s*clamp\(3rem,\s*18vw,\s*3\.75rem\);/);
+});
+
+test("renders the voxel canvas in the Desarrollo de software visual and keeps its title legible", async () => {
+  const about = await readFile("src/components/Saas/About/PrimaryAbout.jsx", "utf8");
+  const styles = await readFile("src/components/Saas/About/PrimaryAbout.module.css", "utf8");
+
+  assert.match(about, /import IsometricVoxelCard from "@\/components\/LandingEspana\/IsometricVoxelCard";/);
+  assert.match(about, /const isSoftwareStory = story\.number === "01";/);
+  assert.match(about, /isSoftwareStory \? \(\s*<div className=\{styles\.voxelCanvas\}>\s*<IsometricVoxelCard\s*\/>\s*<\/div>\s*\) : null/);
+  assert.match(styles, /\.voxelCanvas\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*1\.1rem;/);
+  assert.match(styles, /\.softwareStory \.storyTitle span\s*\{[\s\S]*?color:\s*var\(--primary-main-dark\);[\s\S]*?mix-blend-mode:\s*normal;/);
+});
+
+test("renders a responsive mobile-app canvas only in the Desarrollamos apps visual", async () => {
+  const about = await readFile("src/components/Saas/About/PrimaryAbout.jsx", "utf8");
+  const styles = await readFile("src/components/Saas/About/PrimaryAbout.module.css", "utf8");
+  const canvas = await readFile("src/components/Saas/About/MobileAppCanvas.jsx", "utf8");
+
+  assert.match(about, /import MobileAppCanvas from "\.\/MobileAppCanvas";/);
+  assert.match(about, /const isAppsStory = story\.number === "02";/);
+  assert.match(about, /isAppsStory \? \(\s*<div className=\{styles\.appCanvas\}>\s*<MobileAppCanvas\s*\/>\s*<\/div>\s*\) : null/);
+  assert.match(styles, /\.appCanvas\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*1\.1rem;/);
+  assert.match(canvas, /new ResizeObserver\(resize\)/);
+  assert.match(canvas, /new IntersectionObserver/);
+  assert.match(canvas, /container\.addEventListener\("pointermove"/);
+  assert.match(canvas, /container\.removeEventListener\("pointermove"/);
+  assert.match(canvas, /requestAnimationFrame\(frame\)/);
+  assert.match(canvas, /cancelAnimationFrame\(raf\)/);
+  assert.match(canvas, /<canvas ref=\{canvasRef\}/);
+});
+
+test("renders an ultra-realistic web-design canvas only in the DiseÃ±o y web visual", async () => {
+  const about = await readFile("src/components/Saas/About/PrimaryAbout.jsx", "utf8");
+  const styles = await readFile("src/components/Saas/About/PrimaryAbout.module.css", "utf8");
+  const canvas = await readFile("src/components/Saas/About/WebDesignCanvas.jsx", "utf8");
+
+  assert.match(about, /import WebDesignCanvas from "\.\/WebDesignCanvas";/);
+  assert.match(about, /const isWebStory = story\.number === "03";/);
+  assert.match(about, /isWebStory \? \(\s*<div className=\{styles\.webCanvas\}>\s*<WebDesignCanvas\s*\/>\s*<\/div>\s*\) : null/);
+  assert.match(styles, /\.webCanvas\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*1\.1rem;/);
+  assert.match(canvas, /const ASSET_URL = "\/images\/services\/web-design-studio\.png";/);
+  assert.match(canvas, /new ResizeObserver\(resize\)/);
+  assert.match(canvas, /new IntersectionObserver/);
+  assert.match(canvas, /container\.addEventListener\("pointermove"/);
+  assert.match(canvas, /requestAnimationFrame\(frame\)/);
+  assert.match(canvas, /<canvas ref=\{canvasRef\}/);
+});
+
+test("redesigns testimonials with the Landing Primary grid and GSAP motion", async () => {
+  const testimonials = await readFile("src/components/Saas/Testimonials.jsx", "utf8");
+  const styles = await readFile("src/components/Saas/Testimonials.module.css", "utf8");
+
+  assert.match(testimonials, /import gsap from "gsap";/);
+  assert.match(testimonials, /import \{ ScrollTrigger \} from "gsap\/ScrollTrigger";/);
+  assert.match(testimonials, /data-primary-testimonials/);
+  assert.match(testimonials, /data-testimonials-heading-character/);
+  assert.match(testimonials, /data-testimonials-reveal/);
+  assert.match(testimonials, /data-testimonials-client/);
+  assert.match(testimonials, /start: "top 72%"/);
+  assert.match(testimonials, /prefers-reduced-motion: reduce/);
+  assert.match(testimonials, /role="tablist"/);
+  assert.match(testimonials, /aria-live="polite"/);
+  assert.doesNotMatch(testimonials, /framer-motion|Swiper/);
+  assert.match(styles, /grid-template-columns:\s*repeat\(12, minmax\(0, 1fr\)\);/);
+  assert.match(styles, /font-family:\s*var\(--primary-font-family\);/);
+  assert.match(styles, /@keyframes testimonials-marquee/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
 });
 
 test("does not load reCAPTCHA on the services route", async () => {

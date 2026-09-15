@@ -7,7 +7,6 @@ interface Props {
   sitemap?: FooterLink[];
   social?: FooterLink[];
   legal?: FooterLink[];
-  contactEmail?: string;
 }
 
 const {
@@ -20,41 +19,122 @@ const {
   social = [
     { label: "Facebook", href: "https://www.facebook.com/undercodeec", external: true },
     { label: "Instagram", href: "https://www.instagram.com/undercodeec/", external: true },
-    { label: "WhatsApp", href: "https://wa.me/593999739534", external: true },
   ],
   legal = [
     { label: "Políticas de privacidad", href: "/politicas-playconsole" },
     { label: "Derechos de autor", href: "/politicas-playconsole" },
+    { label: "gerencia@undercodeec.com", href: "mailto:gerencia@undercodeec.com" },
   ],
-  contactEmail = "gerencia@undercodeec.com",
 } = Astro.props;
 
 const attributes = (link: FooterLink) => link.external ? { target: "_blank", rel: "noreferrer" } : {};
+const characters = (label: string) => Array.from(label);
 ---
 
-<footer class="primary-footer" aria-label="Pie de página">
-  <div class="primary-footer__orb" aria-hidden="true">
-    <span class="primary-footer__orb-ring"></span>
-  </div>
+<footer id="site-footer" class="primary-footer" aria-label="Pie de página" data-primary-footer>
+  <span class="primary-footer__reveal-anchor" aria-hidden="true" data-primary-footer-anchor></span>
 
-  <div class="primary-footer__cta">
-    <h2>¿Hacemos<br />algo<br />juntos?</h2>
-    <a class="primary-footer__button" href="/contacto"><span>Contáctanos</span><span aria-hidden="true">→</span></a>
-  </div>
+  <div class="primary-footer__container">
+    <div class="primary-footer__spacer" aria-hidden="true"></div>
 
-  <div class="primary-footer__navigation">
-    <nav aria-label="Mapa del sitio">
-      <p>Mapa del sitio</p>
-      {sitemap.map((link) => <a href={link.href} {...attributes(link)}>{link.label}<span aria-hidden="true">→</span></a>)}
-    </nav>
-    <nav aria-label="Redes sociales">
-      <p>Conecta</p>
-      {social.map((link) => <a href={link.href} {...attributes(link)}>{link.label}<span aria-hidden="true">→</span></a>)}
-    </nav>
-    <nav aria-label="Información legal">
-      <p>Legal</p>
-      {legal.map((link) => <a href={link.href}>{link.label}<span aria-hidden="true">→</span></a>)}
-      <a href={`mailto:${contactEmail}`}>{contactEmail}<span aria-hidden="true">→</span></a>
-    </nav>
+    <div class="primary-footer__grid">
+      <section class="primary-footer__cta" aria-labelledby="primary-footer-title">
+        <h2 id="primary-footer-title" class="primary-footer__sr-only">¿Hacemos algo juntos?</h2>
+
+        <div class="primary-footer__cta-grid" aria-hidden="true">
+          <div class="primary-footer__title-clip">
+            <span class="primary-footer__title-line" data-primary-footer-title style="--primary-footer-title-order:0">¿Hacemos</span>
+          </div>
+          <div class="primary-footer__title-clip">
+            <span class="primary-footer__title-line" data-primary-footer-title style="--primary-footer-title-order:1">algo</span>
+          </div>
+          <div class="primary-footer__cta-row">
+            <div class="primary-footer__title-clip">
+              <span class="primary-footer__title-line" data-primary-footer-title style="--primary-footer-title-order:2">juntos?</span>
+            </div>
+            <div class="primary-footer__button-clip">
+              <a class="primary-footer__button" href="/contacto" data-primary-footer-button>
+                <span class="primary-footer__button-inner">
+                  <span class="primary-footer__label">
+                    {characters("Contáctanos").map((character, index) => (
+                      <span class="primary-footer__character" style={`--primary-footer-character-order:${index}`}>{character}</span>
+                    ))}
+                  </span>
+                  <span class="primary-footer__arrow" aria-hidden="true">-&gt;</span>
+                </span>
+                <span class="primary-footer__button-background" aria-hidden="true"></span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="primary-footer__navigation">
+        <nav class="primary-footer__column" aria-label="Mapa del sitio">
+          <p>Mapa del sitio</p>
+          <div class="primary-footer__link-list">
+            {sitemap.map((link, index) => (
+              <a class="primary-footer__link" href={link.href} aria-label={link.label} style={`--primary-footer-link-order:${index}`} {...attributes(link)}>
+                <span class="primary-footer__link-reveal" data-primary-footer-link-target aria-hidden="true">
+                  <span class="primary-footer__label">
+                    {characters(link.label).map((character, index) => (
+                      <span class="primary-footer__character" style={`--primary-footer-character-order:${index}`}>{character === " " ? "\u00a0" : character}</span>
+                    ))}
+                  </span>
+                  <span class="primary-footer__arrow" aria-hidden="true">-&gt;</span>
+                </span>
+                <span class="primary-footer__link-track" aria-hidden="true" data-primary-footer-link-track><span></span></span>
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <nav class="primary-footer__column" aria-label="Redes sociales">
+          <p>Conecta</p>
+          <div class="primary-footer__link-list">
+            {social.map((link, index) => (
+              <a class="primary-footer__link" href={link.href} aria-label={link.label} style={`--primary-footer-link-order:${sitemap.length + index}`} {...attributes(link)}>
+                <span class="primary-footer__link-reveal" data-primary-footer-link-target aria-hidden="true">
+                  <span class="primary-footer__label">
+                    {characters(link.label).map((character, index) => (
+                      <span class="primary-footer__character" style={`--primary-footer-character-order:${index}`}>{character}</span>
+                    ))}
+                  </span>
+                  <span class="primary-footer__arrow" aria-hidden="true">-&gt;</span>
+                </span>
+                <span class="primary-footer__link-track" aria-hidden="true" data-primary-footer-link-track><span></span></span>
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <nav class="primary-footer__column" aria-label="Información legal">
+          <p>Legal</p>
+          <div class="primary-footer__link-list">
+            {legal.map((link, index) => (
+              <a class="primary-footer__link" href={link.href} aria-label={link.label} style={`--primary-footer-link-order:${sitemap.length + social.length + index}`} {...attributes(link)}>
+                <span class="primary-footer__link-reveal" data-primary-footer-link-target aria-hidden="true">
+                  <span class="primary-footer__label">
+                    {characters(link.label).map((character, index) => (
+                      <span class="primary-footer__character" style={`--primary-footer-character-order:${index}`}>{character === " " ? "\u00a0" : character}</span>
+                    ))}
+                  </span>
+                  <span class="primary-footer__arrow" aria-hidden="true">-&gt;</span>
+                </span>
+                <span class="primary-footer__link-track" aria-hidden="true" data-primary-footer-link-track><span></span></span>
+              </a>
+            ))}
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <div class="primary-footer__spacer" aria-hidden="true"></div>
   </div>
 </footer>
+
+<script>
+  import { initPrimaryFooters } from "../../scripts/primary-footer";
+
+  initPrimaryFooters();
+</script>

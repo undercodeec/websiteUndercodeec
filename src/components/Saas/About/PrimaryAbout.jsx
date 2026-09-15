@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import IsometricVoxelCard from "@/components/LandingEspana/IsometricVoxelCard";
+import MobileAppCanvas from "./MobileAppCanvas";
+import WebDesignCanvas from "./WebDesignCanvas";
 import styles from "./PrimaryAbout.module.css";
 
 const STORY_DATA = [
@@ -151,10 +154,13 @@ export default function PrimaryAbout({ data }) {
         {STORY_DATA.map((story, storyIndex) => {
           const links = data[story.linksKey] || [];
           const isReverse = storyIndex % 2 === 1;
+          const isSoftwareStory = story.number === "01";
+          const isAppsStory = story.number === "02";
+          const isWebStory = story.number === "03";
 
           return (
             <article
-              className={`${styles.story} ${isReverse ? styles.storyReverse : ""}`}
+              className={`${styles.story} ${isReverse ? styles.storyReverse : ""} ${isSoftwareStory ? styles.softwareStory : ""}`}
               data-primary-about-story
               key={story.number}
             >
@@ -164,6 +170,21 @@ export default function PrimaryAbout({ data }) {
               </div>
 
               <figure className={styles.visual} data-primary-about-image aria-hidden="true">
+                {isSoftwareStory ? (
+                  <div className={styles.voxelCanvas}>
+                    <IsometricVoxelCard />
+                  </div>
+                ) : null}
+                {isAppsStory ? (
+                  <div className={styles.appCanvas}>
+                    <MobileAppCanvas />
+                  </div>
+                ) : null}
+                {isWebStory ? (
+                  <div className={styles.webCanvas}>
+                    <WebDesignCanvas />
+                  </div>
+                ) : null}
                 <span className={`${styles.corner} ${styles.cornerTopLeft}`} aria-hidden="true">+</span>
                 <span className={`${styles.corner} ${styles.cornerTopRight}`} aria-hidden="true">+</span>
                 <span className={`${styles.corner} ${styles.cornerBottomLeft}`} aria-hidden="true">+</span>
