@@ -30,7 +30,6 @@
     "lightgallery": "^2.9.0",
     "lucide-react": "^0.564.0",
     "next": "16.1.2",
-    "rc-slider": "^11.1.9",
     "react": "19.2.3",
     "react-calendly": "^4.4.0",
     "react-dom": "19.2.3",
