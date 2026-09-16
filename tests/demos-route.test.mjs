@@ -37,6 +37,17 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
   const page = await readFile("public/landing-primary/index.html", "utf8");
   const localStyles = await readFile("public/landing-primary/css/demo-local.css", "utf8");
   const localScript = await readFile("public/landing-primary/js/demo-local.js", "utf8");
+  const animationRuntime = await readFile(
+    "public/landing-primary/js/ob.2026.index.23.js",
+    "utf8",
+  );
+
+  assert.match(page, /class="light w-mod-js"/);
+  assert.match(page, /color-scheme:\s*light/);
+  assert.doesNotMatch(page, /aria-label="Toggle colour theme"/);
+  assert.doesNotMatch(page, /\bmode-toggle=/);
+  assert.doesNotMatch(animationRuntime, /\[mode-toggle\]/);
+  assert.doesNotMatch(animationRuntime, /prefers-color-scheme: dark/);
 
   for (const text of [
     "Diseño de Páginas",
@@ -266,11 +277,7 @@ test("serves the landing-primary export at the root route", async (t) => {
   assert.match(page, /\/landing-primary\/css\/offbrand-2023\.shared\.0746f2a75\.min\.css/);
   assert.match(page, /\/landing-primary\/media\/OFF_siteclips_13\.mp4/);
   assert.match(page, /\/landing-primary\/js\/ob\.2026\.index\.23\.js/);
-  assert.match(page, /function lockLightTheme\(\)/);
-  assert.match(page, /color-scheme:\s*light/);
-  assert.match(page, /localStorage\.setItem\("mode", "light"\)/);
-  assert.match(page, /classList\.remove\("dark"\)/);
-  assert.match(page, /hud-mode-o-hidden"\)\?\.remove\(\)/);
+  assert.doesNotMatch(page, /lockLightTheme/);
 
   for (const forbidden of [
     "data-promo-banner",
