@@ -19,4 +19,8 @@ test("keeps Next and React as the only active frontend stack", async () => {
     nextConfig,
     /source:\s*"\/demos"[\s\S]*destination:\s*"\/landing-primary\/index\.html"/,
   );
+
+  for (const dependency of ["clsx", "tailwind-merge"]) {
+    assert.equal(packageJson.dependencies[dependency], undefined, dependency);
+  }
 });
