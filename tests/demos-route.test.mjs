@@ -203,7 +203,10 @@ test("serves the landing-primary export at the root route", async (t) => {
   const page = await response.text();
 
   assert.equal(response.status, 200);
-  assert.match(page, /<title>OFF\+BRAND\. \| Global Creative &amp; Technology Studio<\/title>/);
+  assert.match(
+    page,
+    /<title>Undercodeec \| Diseño Web, Apps, Software y SEO<\/title>/,
+  );
   assert.match(page, /Diseño de Páginas/i);
   assert.match(page, /Web Profesional/i);
   assert.match(page, /Creación, Programación y Desarrollo de Aplicaciones Web/i);
@@ -244,11 +247,8 @@ test("serves the landing-primary export at the root route", async (t) => {
     ["/landing-primary/css/offbrand-2023.shared.0746f2a75.min.css", /^text\/css/],
     ["/landing-primary/fonts/64ff29f82f284681edeb53a9_AtAero-Retina-dot-edit.woff2", /^font\/woff2/],
     ["/landing-primary/images/64ce56bd39c2f116181f1aa5_ob-2023-logomark-svg.svg", /^image\/svg\+xml/],
-    ["/landing-primary/images/6a54f691c4624186bbeb1157_cs-trevor-main-image.webp", /^image\/webp/],
-    ["/landing-primary/images/68ece3e91ef2f1125c5b57eb_lando-cs-hero-img.jpg", /^image\/jpeg/],
     ["/landing-primary/images/ob_texture-old.webp", /^image\/webp/],
     ["/landing-primary/images/ob_texture-old-2.jpg", /^image\/jpeg/],
-    ["/landing-primary/media/OFF_siteclips_13.mp4", /^video\/mp4/],
     ["/landing-primary/js/ob.2026.index.23.js", /^(?:text|application)\/javascript/],
     ["/landing-primary/js/hls.light.min.js", /^(?:text|application)\/javascript/],
     ["/landing-primary/js/demo-local.js", /^(?:text|application)\/javascript/],

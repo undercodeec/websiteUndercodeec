@@ -362,26 +362,28 @@ test("redesigns testimonials with the Landing Primary grid and GSAP motion", asy
   assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
 });
 
-test("does not load reCAPTCHA on the services route", async () => {
+test("loads reCAPTCHA only from routes and forms that require it", async () => {
   const layout = await readFile("src/app/layout.tsx", "utf8");
-  const recaptcha = await readFile("src/components/RecaptchaEnterpriseScript.jsx", "utf8");
+  const contact = await readFile("src/components/Contact/Form.jsx", "utf8");
+  const marketing = await readFile("src/components/Marketing/MarketingPrimaryContent.jsx", "utf8");
+  const hr = await readFile("src/app/recursos-humanos/page.tsx", "utf8");
 
-  assert.match(layout, /import RecaptchaEnterpriseScript from "@\/components\/RecaptchaEnterpriseScript"/);
-  assert.match(layout, /<RecaptchaEnterpriseScript\s*\/>/);
+  assert.doesNotMatch(layout, /RecaptchaEnterpriseScript/);
   assert.doesNotMatch(layout, /google\.com\/recaptcha\/enterprise\.js/);
-  assert.match(recaptcha, /usePathname/);
-  assert.match(recaptcha, /pathname === "\/servicios"/);
-  assert.match(recaptcha, /google\.com\/recaptcha\/enterprise\.js/);
+  assert.match(contact, /<RecaptchaEnterpriseScript\s*\/>/);
+  assert.match(marketing, /<RecaptchaEnterpriseScript\s*\/>/);
+  assert.match(hr, /<RecaptchaEnterpriseScript\s*\/>/);
 });
 
-test("removes the global promotion banner and anchors Hermes on the left", async () => {
+test("removes the promotion banner and keeps Hermes draggable from the right edge", async () => {
   const layout = await readFile("src/app/layout.tsx", "utf8");
   const hermes = await readFile("src/components/HermesWhatsAppButton/index.jsx", "utf8");
 
   assert.doesNotMatch(layout, /PromoBanner/);
   await assert.rejects(access("src/components/PromoBanner/index.tsx"));
-  assert.match(hermes, /left:\s*24px;/);
-  assert.doesNotMatch(hermes, /right:\s*24px;/);
-  assert.match(hermes, /left:\s*16px;/);
-  assert.doesNotMatch(hermes, /right:\s*16px;/);
+  assert.match(hermes, /right:\s*var\(--primary-page-gutter, 24px\);/);
+  assert.match(hermes, /right:\s*16px;/);
+  assert.match(hermes, /setPointerCapture/);
+  assert.match(hermes, /releasePointerCapture/);
+  assert.match(hermes, /touch-action:\s*none;/);
 });

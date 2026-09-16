@@ -8,6 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint src next.config.ts",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "test:backend": "npm --prefix backend test",
+    "test:all": "pnpm test && pnpm test:backend",
     "test:crm": "node --test tests/campaign-template-media.test.mjs",
     "purge:legacy-css": "node run-purge.cjs"
   },
