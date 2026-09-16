@@ -837,6 +837,9 @@ html.dark .offbrand-plan-action:focus-visible {
 }
 
 .offbrand-calendar-panel {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
   width: 100%;
   min-height: 700px;
   margin-top: 1.25rem;
@@ -844,6 +847,7 @@ html.dark .offbrand-plan-action:focus-visible {
   border: 1px solid var(--dark-grey);
   border-radius: 0.5rem;
   background: var(--main-light);
+  pointer-events: auto;
 }
 
 .offbrand-calendar-panel[hidden] {
@@ -851,10 +855,14 @@ html.dark .offbrand-plan-action:focus-visible {
 }
 
 .offbrand-calendar-panel iframe {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   min-height: 700px;
   border: 0;
+  pointer-events: auto !important;
+  touch-action: auto;
 }
 
 html.dark .offbrand-calendar-panel {

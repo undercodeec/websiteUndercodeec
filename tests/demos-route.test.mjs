@@ -97,6 +97,14 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
   );
   assert.match(
     localStyles,
+    /\.offbrand-calendar-panel\s*\{[\s\S]*isolation:\s*isolate;[\s\S]*pointer-events:\s*auto;/,
+  );
+  assert.match(
+    localStyles,
+    /\.offbrand-calendar-panel iframe\s*\{[\s\S]*pointer-events:\s*auto !important;[\s\S]*touch-action:\s*auto;/,
+  );
+  assert.match(
+    localStyles,
     /--offbrand-orb-magenta: #A10F79;/,
   );
   assert.match(
