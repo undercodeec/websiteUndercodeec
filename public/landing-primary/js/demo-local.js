@@ -1,14 +1,15 @@
 (() => {
-  const introductoryCallAnchorId = "llamada_introductoria";
+  const reservationAnchorId = "reserva_agenda";
   const headerScheduleLink = document.querySelector("[data-contact]");
   const introductoryCallLink = document.querySelector(".offbrand-plan-action");
+  const reservationSection = introductoryCallLink?.closest(".offbrand-plan-column");
 
-  if (introductoryCallLink) {
-    introductoryCallLink.id = introductoryCallAnchorId;
+  if (reservationSection) {
+    reservationSection.id = reservationAnchorId;
   }
 
-  if (headerScheduleLink && introductoryCallLink) {
-    headerScheduleLink.href = `/#${introductoryCallAnchorId}`;
+  if (headerScheduleLink && reservationSection) {
+    headerScheduleLink.href = `/#${reservationAnchorId}`;
   }
 
   if (introductoryCallLink) {
@@ -18,7 +19,7 @@
     calendarPanel.id = calendarPanelId;
     calendarPanel.className = "offbrand-calendar-panel";
     calendarPanel.hidden = true;
-    introductoryCallLink.href = `#${introductoryCallAnchorId}`;
+    introductoryCallLink.href = `#${reservationAnchorId}`;
     introductoryCallLink.setAttribute("aria-controls", calendarPanelId);
     introductoryCallLink.setAttribute("aria-expanded", "false");
     introductoryCallLink.insertAdjacentElement("afterend", calendarPanel);
@@ -43,6 +44,14 @@
         calendarPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
     });
+
+    const scrollToReservation = () => {
+      if (window.location.hash !== `#${reservationAnchorId}`) return;
+      reservationSection?.scrollIntoView({ behavior: "auto", block: "center" });
+    };
+
+    window.addEventListener("hashchange", scrollToReservation);
+    window.requestAnimationFrame(scrollToReservation);
   }
 
   const animationRuntimeReady = () => Boolean(window.SScroll);

@@ -14,13 +14,6 @@
   pointer-events: none;
 }
 
-.hud[data-theme="dark"] {
-  --header-ink: var(--main-light);
-  --header-paper: var(--main-dark);
-}
-
-.hud[data-theme="dark"] .menuBackground { border-color: var(--dark-grey); }
-
 .frame {
   position: relative;
   width: 100%;
@@ -298,14 +291,6 @@
 .menuOverlayOpen .socialLink:nth-child(2) { transition-delay: .45s; }
 .socialLink svg { width: auto; height: 1.2rem; fill: currentColor; }
 
-.themeClip { position: relative; bottom: -.6rem; left: -.6rem; margin-top: 1.5rem; padding: .6rem; overflow: hidden; }
-.themeToggle { padding: 0; border: 0; color: inherit; background: transparent; cursor: pointer; opacity: 0; transform: translateX(130%); transition: opacity .2s ease, transform .3s cubic-bezier(.755, .05, .855, .06); }
-.menuOverlayOpen .themeToggle { opacity: 1; transform: translateX(0); transition-delay: .4s; }
-.themeTrack { display: block; width: 4rem; height: 1.5rem; padding: 4px; border: 1px solid var(--light-grey); border-radius: .425rem; background: var(--header-paper); }
-.themeTrack > span { display: block; width: 1.5rem; height: 100%; border-radius: .4rem; background: var(--header-ink); transform: translateX(2.5rem); transition: transform .3s ease, background-color .2s ease; }
-.hud[data-theme="dark"] .themeTrack { border-color: var(--dark-grey); }
-.hud[data-theme="dark"] .themeTrack > span { transform: translateX(0); }
-
 .menuButton {
   position: absolute;
   right: 0;
@@ -345,7 +330,6 @@
 .pageLink:focus-visible,
 .cta:focus-visible,
 .socialLink:focus-visible,
-.themeToggle:focus-visible,
 .menuButton:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 
 @media (max-width: 991px) {

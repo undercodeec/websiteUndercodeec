@@ -87,7 +87,6 @@ function InstagramIcon() {
 export default function PrimaryHeader() {
   const pathname = usePathname();
   const [isMenuOpen, setMenuOpen] = useState(false);
-  const [isDark, setDark] = useState(false);
   const closeTimerRef = useRef(null);
   const menuRef = useRef(null);
   const menuButtonRef = useRef(null);
@@ -131,11 +130,7 @@ export default function PrimaryHeader() {
   };
 
   return (
-    <header
-      className={styles.hud}
-      data-theme={isDark ? "dark" : "light"}
-      aria-label="Cabecera de Undercodeec"
-    >
+    <header className={styles.hud} aria-label="Cabecera de Undercodeec">
       <div className={styles.frame}>
         <div className={styles.brandWrap}>
           <Link href="/" className={styles.brand} aria-label="Undercodeec — Inicio">
@@ -174,10 +169,10 @@ export default function PrimaryHeader() {
             </div>
           </div>
 
-          <Link href="/#reserva_agenda" className={styles.cta} aria-label="Agendar reunión">
+          <a href="/#reserva_agenda" className={styles.cta} aria-label="Agendar reunión">
             <span className={styles.ctaClip}><StaggerText text="Agendar reunión" /></span>
             <Arrow />
-          </Link>
+          </a>
         </nav>
 
         <div
@@ -224,18 +219,6 @@ export default function PrimaryHeader() {
               </a>
             </div>
 
-            <div className={styles.themeClip}>
-              <button
-                type="button"
-                className={styles.themeToggle}
-                onClick={() => setDark((value) => !value)}
-                aria-label="Cambiar tema de la cabecera"
-                aria-pressed={isDark}
-                tabIndex={isMenuOpen ? 0 : -1}
-              >
-                <span className={styles.themeTrack}><span /></span>
-              </button>
-            </div>
           </div>
 
           <PrimaryHamburgerButton

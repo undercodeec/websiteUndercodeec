@@ -36,6 +36,7 @@ async function waitForServer() {
 test("uses the root site's hero, logo, navigation, and service submenus", async () => {
   const page = await readFile("public/landing-primary/index.html", "utf8");
   const localStyles = await readFile("public/landing-primary/css/demo-local.css", "utf8");
+  const localScript = await readFile("public/landing-primary/js/demo-local.js", "utf8");
 
   for (const text of [
     "Diseño de Páginas",
@@ -120,6 +121,11 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
   assert.match(desktopHeader, />Servicios</);
   assert.match(desktopHeader, />Agendar Reunión</);
   assert.match(desktopHeader, /href="\/#reserva_agenda"/);
+  assert.match(localScript, /const reservationAnchorId = "reserva_agenda";/);
+  assert.match(localScript, /introductoryCallLink\?\.closest\("\.offbrand-plan-column"\)/);
+  assert.match(localScript, /reservationSection\.id = reservationAnchorId;/);
+  assert.match(localScript, /headerScheduleLink\.href = `\/#\$\{reservationAnchorId\}`;/);
+  assert.match(localScript, /window\.addEventListener\("hashchange", scrollToReservation\);/);
   assert.doesNotMatch(desktopHeader, /aria-haspopup="true""/);
   assert.match(desktopHeader, /offbrand-services-submenu/);
   assert.match(

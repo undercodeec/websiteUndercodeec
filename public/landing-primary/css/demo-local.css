@@ -583,6 +583,33 @@ html.dark [data-client-section].is-tools .home-client__grid-item:hover .tool-log
   font-size: 1.2rem;
 }
 
+.offbrand-wizard-price-title {
+  font-weight: 700;
+}
+
+.offbrand-wizard-price-features {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.offbrand-wizard-price-feature {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.offbrand-wizard-price-feature > span {
+  color: var(--plans-accent);
+  font-weight: 700;
+}
+
+.offbrand-wizard-price-card:is(:hover, :focus-visible, .is-selected) .offbrand-wizard-price-feature > span {
+  color: currentColor;
+}
+
 .offbrand-wizard-summary {
   display: flex;
   align-items: center;

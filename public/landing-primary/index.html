@@ -30,6 +30,11 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* The legacy menu script still references this node; hide it until that script is retired. */
+  .hud-mode-o-hidden {
+    display: none !important;
+  }
+
  
   /* .main-w {
   will-change: opacity, transform;
@@ -305,9 +310,6 @@
   html.dark .orb-outline {
     border-color: var(--dark-grey);
   }
-  html.dark .mode-toggle-track {
-    border-color: var(--dark-grey);
-  }
   html.dark .c.is-hsc {
     background: black;
     mix-blend-mode: multiply;
@@ -376,9 +378,6 @@
   html.light .orb-outline {
     border-color: var(--grey-rotate);
   }
-  html.light .mode-toggle-track {
-    border-color: var(--light-grey);
-  }
   html.light .hg-img-overlay {
     background: rgba(255, 255, 255, 0.3);
   }
@@ -400,6 +399,16 @@
 
 
 <script defer="" src="/landing-primary/js/ob.2026.index.23.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    const legacyModeToggle = document.querySelector(".hud-mode-o-hidden");
+    if (!legacyModeToggle) return;
+    legacyModeToggle.replaceChildren();
+    legacyModeToggle.setAttribute("aria-hidden", "true");
+    legacyModeToggle.setAttribute("mode-toggle", "light");
+    legacyModeToggle.classList.add("hud-mode-toggle-w");
+  });
+</script>
 
 
 
@@ -678,22 +687,6 @@
 
   .btn-icon-w .text-small {
     backface-visibility: hidden;
-  }
-
-  /* Colour Toggle  */
-  .hud-mode-toggle-w[mode-toggle="light"] .mode-toggle-track {
-    background: var(--main-light);
-  }
-  .hud-mode-toggle-w[mode-toggle="light"] .mode-toggle-btn {
-    background: var(--main-dark);
-    transform: translate(2.5em, 0px);
-  }
-  .hud-mode-toggle-w[mode-toggle="dark"] .mode-toggle-track {
-    background: var(--main-dark);
-  }
-  .hud-mode-toggle-w[mode-toggle="dark"] .mode-toggle-btn {
-    background: var(--main-light);
-    transform: translate(0em, 0px);
   }
 
   /* Hud scroll indicator */
@@ -1310,14 +1303,6 @@ transition: transform 0.3s ease;
   
   .span-tablet-hero.is-3 {
   	display: none !important;
-  }
-
-  /* Colour Toggle  */
-  .hud-mode-toggle-w[mode-toggle="light"] .mode-toggle-btn {
-    transform: translate(2.5rem, 0px);
-  }
-  .hud-mode-toggle-w[mode-toggle="dark"] .mode-toggle-btn {
-    transform: translate(0rem, 0px);
   }
 
   /* --- work page --- */

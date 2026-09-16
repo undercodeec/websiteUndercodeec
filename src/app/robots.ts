@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 
 export const dynamic = "force-static";
 
-const DISALLOW = ["/admin/", "/pago/", "/contratos/"];
+const DISALLOW = ["/admin/", "/pago/", "/contratos/", "/es/", "/ec/"];
 
 const AI_BOTS = [
   "GPTBot",

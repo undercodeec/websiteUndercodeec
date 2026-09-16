@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Haz crecer tu negocio online | Web, Apps y SEO en España | Undercodeec",
@@ -55,5 +56,7 @@ export default function EspanaLayout({
 }: {
   children: React.ReactNode;
 }) {
+  if (process.env.NODE_ENV === "production") notFound();
+
   return <>{children}</>;
 }

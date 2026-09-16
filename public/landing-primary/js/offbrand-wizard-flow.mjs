@@ -1,18 +1,150 @@
 const PRICE_CARDS = {
   "Sitio Web": [
-    { id: "web-launch", label: "Plan de Lanzamiento", price: 360, description: "Presencia digital profesional" },
-    { id: "web-growth", label: "Plan de Crecimiento", price: 510, description: "Web estratégica y captación" },
-    { id: "web-authority", label: "Plan de Autoridad", price: 1010, description: "Ecosistema corporativo" },
+    {
+      id: "web-launch",
+      label: "Plan de Lanzamiento",
+      price: 360,
+      description: "Presencia Viable - Tu negocio abierto al mundo",
+      features: [
+        "Diseño profesional con hasta 5 páginas",
+        "Adaptado para celulares, tablets y computadoras",
+        "Dominio .com y hosting incluido por 1 año",
+        "Certificado de seguridad SSL",
+        "Hasta 5 cuentas de correo corporativo",
+        "Formulario de contacto y botón de WhatsApp",
+        "Configuración inicial en Google",
+        "1 mes de soporte técnico incluido",
+      ],
+    },
+    {
+      id: "web-growth",
+      label: "Plan de Crecimiento",
+      price: 510,
+      description: "Máquina de Leads - Web estratégica y CRO",
+      features: [
+        "Todo lo del Plan Lanzamiento",
+        "Hasta 8 páginas con estructura para vender más",
+        "Textos persuasivos que generan confianza",
+        "Optimización de velocidad de carga",
+        "Posicionamiento local en Google",
+        "Google Analytics y Search Console conectados",
+        "Integración con tus herramientas",
+        "3 meses de soporte técnico incluido",
+      ],
+    },
+    {
+      id: "web-authority",
+      label: "Plan de Autoridad",
+      price: 1010,
+      description: "Ecosistema Corporativo - Rendimiento extremo",
+      features: [
+        "Todo lo del Plan Crecimiento",
+        "Diseño 100% personalizado, sin plantillas",
+        "Automatización con Inteligencia Artificial",
+        "Sistemas avanzados a medida",
+        "Seguridad reforzada",
+        "Campaña en Google Ads activa durante 1 mes",
+        "Seguimiento de resultados de la campaña",
+        "Soporte VIP prioritario por 6 meses",
+      ],
+    },
   ],
   "Landing Page": [
-    { id: "landing-basic", label: "Landing Básica", price: 150, description: "Captación de leads" },
-    { id: "landing-pro", label: "Landing Pro", price: 280, description: "Marketing integrado" },
-    { id: "landing-premium", label: "Landing Premium", price: 500, description: "Embudo automatizado" },
+    {
+      id: "landing-basic",
+      label: "Landing Básica",
+      price: 250,
+      description: "Captación de leads",
+      features: [
+        "Landing page de una sola sección",
+        "Diseño responsive para celulares",
+        "Botón flotante de WhatsApp y llamada directa",
+        "Formulario de contacto o captura de prospectos",
+        "Sección de beneficios del servicio o producto",
+        "Dominio .com y hosting básico por 1 año",
+        "5 correos corporativos",
+        "SEO técnico base",
+        "1 mes de soporte posterior a la entrega",
+      ],
+    },
+    {
+      id: "landing-pro",
+      label: "Landing Pro",
+      price: 600,
+      description: "Marketing integrado",
+      features: [
+        "Todo lo de la Landing Básica",
+        "Textos persuasivos para tu oferta",
+        "Formulario optimizado para captar prospectos",
+        "Recurso promocional o incentivo de conversión",
+        "Seguimiento de campañas y anuncios con Google Analytics",
+        "Integración con WhatsApp y respuestas iniciales",
+      ],
+    },
+    {
+      id: "landing-premium",
+      label: "Landing Premium",
+      price: 1500,
+      description: "Embudo automatizado",
+      features: [
+        "Todo lo de la Landing Básica",
+        "Palabras clave optimizadas para Google",
+        "Campaña en Google Ads activa durante 1 mes",
+        "Diseño personalizado con animaciones inmersivas",
+      ],
+    },
   ],
   "Tienda Online": [
-    { id: "store-launch", label: "Tienda de Lanzamiento", price: 850, description: "Para iniciar ventas online" },
-    { id: "store-growth", label: "Tienda de Crecimiento", price: 2500, description: "Para escalar ventas" },
-    { id: "store-elite", label: "Tienda Élite", price: 20000, description: "Arquitectura de alto rendimiento" },
+    {
+      id: "store-launch",
+      label: "Tienda de Lanzamiento",
+      price: 550,
+      description: "Para iniciar ventas online",
+      features: [
+        "Catálogo de productos administrable",
+        "Carga inicial de hasta 20 productos",
+        "Carrito de compras y proceso de pago seguro",
+        "Dominio .com, hosting y SSL por 1 año",
+        "Diseño adaptado para todos los dispositivos",
+        "Configuración de envíos",
+        "Configuración inicial en Google",
+        "5 correos corporativos",
+        "Capacitación para gestionar tu tienda",
+        "1 mes de soporte técnico incluido",
+      ],
+    },
+    {
+      id: "store-growth",
+      label: "Tienda de Crecimiento",
+      price: 850,
+      description: "Para escalar ventas",
+      features: [
+        "Todo lo de la Tienda de Lanzamiento",
+        "Filtros de búsqueda avanzados",
+        "SEO técnico avanzado",
+        "Recuperación de carritos abandonados",
+        "Control de inventario en tiempo real",
+        "Estrategia de envíos por zonas y condiciones",
+        "3 meses de soporte técnico incluido",
+      ],
+    },
+    {
+      id: "store-elite",
+      label: "Tienda Élite",
+      price: 3490,
+      description: "Arquitectura de alto rendimiento",
+      features: [
+        "Todo lo de la Tienda de Crecimiento",
+        "Tecnología ultra rápida",
+        "Conexión con tus sistemas empresariales",
+        "Recomendador inteligente con IA",
+        "Ventas internacionales",
+        "Automatización de marketing",
+        "Facturación electrónica integrada",
+        "Seguridad reforzada y respaldos automáticos",
+        "Soporte VIP prioritario por 6 meses",
+      ],
+    },
   ],
 };
 
@@ -100,6 +232,7 @@ export function getRoute(project, state) {
 export function validateStep(project, step, state) {
   const definition = getRoute(project, state).find((item) => item.id === step);
   if (!definition) return false;
+  if (step === "business" && state.domainStatus === "no_tengo" && !state.domainName.trim()) return false;
   if (step === "solution" && state.appWebObjetivo === "otros" && !state.appWebObjetivoDetalle.trim()) return false;
   if (step === "users" && state.appWebRoles.includes("otros") && !state.appWebRolesDetalle.trim()) return false;
   return definition.required.every((field) => hasValue(state[field]));

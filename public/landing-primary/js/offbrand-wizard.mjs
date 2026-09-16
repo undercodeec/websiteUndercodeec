@@ -3,6 +3,7 @@ import { openPayment, submitQuote, submitTransfer } from "./offbrand-wizard-paym
 
 const sectors = ["Comercio y ventas", "Servicios profesionales", "Salud y bienestar", "Educación", "Tecnología", "Otro"];
 const escape = (value = "") => String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character]));
+const formatPrice = (price) => `USD $${Number(price).toLocaleString("es-EC", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} incluido IVA`;
 
 function field(name, label, type = "text", required = true, placeholder = "") {
   return `<label class="offbrand-wizard-field"><span>${label}${required ? " *" : ""}</span><input class="offbrand-wizard-input" name="${name}" type="${type}" value="${escape(currentState[name])}" placeholder="${placeholder}" ${required ? "required" : ""}></label>`;
@@ -16,16 +17,25 @@ function choices(name, label, values, multiple = false) {
 let currentState = null;
 
 function renderBusiness() {
-  return `<div class="offbrand-wizard-form-grid">${field("businessName", "Nombre del negocio o proyecto", "text", true, "Ej. Mi empresa")}<label class="offbrand-wizard-field"><span>Sector *</span><select class="offbrand-wizard-input" name="sector" required><option value="">Selecciona una opción</option>${sectors.map((item) => `<option value="${item}" ${currentState.sector === item ? "selected" : ""}>${item}</option>`).join("")}</select></label>${choices("domainStatus", "¿Tienes dominio?", [["tengo", "Ya tengo dominio"], ["no_tengo", "Necesito uno"], ["migrar", "Quiero migrar"]])}</div>`;
+  const domainField = currentState.domainStatus === "no_tengo"
+    ? field("domainName", "Nombre de dominio que deseas", "text", true, "Ej. minegocio.com")
+    : "";
+  return `<div class="offbrand-wizard-form-grid">${field("businessName", "Nombre del negocio o proyecto", "text", true, "Ej. Mi empresa")}<label class="offbrand-wizard-field"><span>Sector *</span><select class="offbrand-wizard-input" name="sector" required><option value="">Selecciona una opción</option>${sectors.map((item) => `<option value="${item}" ${currentState.sector === item ? "selected" : ""}>${item}</option>`).join("")}</select></label>${choices("domainStatus", "¿Tienes dominio?", [["tengo", "Ya tengo dominio"], ["no_tengo", "Necesito uno"], ["migrar", "Quiero migrar"]])}${domainField}</div>`;
 }
 
 function renderBilling() {
   const price = getSelectedPrice(currentState);
-  return `<div class="offbrand-wizard-summary">${price ? `<span>Plan: ${escape(price.label)}</span><strong>$${price.price.toLocaleString("en-US")} USD</strong>` : ""}</div><div class="offbrand-wizard-form-grid">${choices("tipoCliente", "Tipo de cliente", [["consumidor_final", "Persona natural"], ["empresa", "Empresa"]])}${field("rucCedula", "Documento de identidad o RUC")}${field("razonSocial", "Nombre completo o razón social")}${field("email", "Correo electrónico", "email", true, "correo@ejemplo.com")}${field("telefono", "Teléfono", "tel", true, "+593")}${field("callePrincipal", "Dirección")}${field("ciudad", "Ciudad")}${field("provincia", "Provincia")}</div>${choices("tipoPago", "Forma de pago", [["total", "Pago total"], ["anticipo", "Anticipo 50%"]])}${choices("metodoPago", "Método de pago", [["tarjeta", "Tarjeta / PayPhone"], ["transferencia", "Transferencia bancaria"]])}${currentState.metodoPago === "transferencia" ? `<label class="offbrand-wizard-field"><span>Comprobante de transferencia *</span><input class="offbrand-wizard-input" name="comprobante" type="file" accept="image/*,application/pdf"></label>` : ""}<label class="offbrand-wizard-terms"><input name="termsAccepted" type="checkbox" ${currentState.termsAccepted ? "checked" : ""}> <span>Acepto los términos y el tratamiento de mis datos.</span></label>`;
+  return `<div class="offbrand-wizard-summary">${price ? `<span>Plan: ${escape(price.label)}</span><strong>${formatPrice(price.price)}</strong>` : ""}</div><div class="offbrand-wizard-form-grid">${choices("tipoCliente", "Tipo de cliente", [["consumidor_final", "Persona natural"], ["empresa", "Empresa"]])}${field("rucCedula", "Documento de identidad o RUC")}${field("razonSocial", "Nombre completo o razón social")}${field("email", "Correo electrónico", "email", true, "correo@ejemplo.com")}${field("telefono", "Teléfono", "tel", true, "+593")}${field("callePrincipal", "Dirección")}${field("ciudad", "Ciudad")}${field("provincia", "Provincia")}</div>${choices("tipoPago", "Forma de pago", [["total", "Pago total"], ["anticipo", "Anticipo 50%"]])}${choices("metodoPago", "Método de pago", [["tarjeta", "Tarjeta / PayPhone"], ["transferencia", "Transferencia bancaria"]])}${currentState.metodoPago === "transferencia" ? `<label class="offbrand-wizard-field"><span>Comprobante de transferencia *</span><input class="offbrand-wizard-input" name="comprobante" type="file" accept="image/*,application/pdf"></label>` : ""}<label class="offbrand-wizard-terms"><input name="termsAccepted" type="checkbox" ${currentState.termsAccepted ? "checked" : ""}> <span>Acepto los términos y el tratamiento de mis datos.</span></label>`;
+}
+
+function renderPriceCard(card) {
+  const isSelected = currentState.selectedPrice === card.id;
+  const features = (card.features ?? []).map((feature) => `<span class="offbrand-wizard-price-feature"><span aria-hidden="true">✓</span>${escape(feature)}</span>`).join("");
+  return `<button type="button" class="offbrand-wizard-price-card ${isSelected ? "is-selected" : ""}" data-wizard-price="${card.id}" aria-pressed="${isSelected}"><span class="offbrand-wizard-price-title">${escape(card.label)}</span><strong>${formatPrice(card.price)}</strong><small>${escape(card.description)}</small>${features ? `<span class="offbrand-wizard-price-features">${features}</span>` : ""}</button>`;
 }
 
 function renderStepContent(step) {
-  if (step.id === "price") return `<div class="offbrand-wizard-price-grid">${getPriceCards(currentState.project).map((card) => `<button type="button" class="offbrand-wizard-price-card ${currentState.selectedPrice === card.id ? "is-selected" : ""}" data-wizard-price="${card.id}"><span>${escape(card.label)}</span><strong>$${card.price.toLocaleString("en-US")}</strong><small>${escape(card.description)}</small></button>`).join("")}</div>`;
+  if (step.id === "price") return `<div class="offbrand-wizard-price-grid">${getPriceCards(currentState.project).map(renderPriceCard).join("")}</div>`;
   if (step.id === "business") return renderBusiness();
   if (step.id === "billing" || step.id === "payment") return renderBilling();
   if (step.id === "discovery") return `<div class="offbrand-wizard-form-grid">${choices("softwareObjetivo", "Objetivo", [["automatizar", "Automatizar procesos"], ["saas", "Crear un SaaS"], ["reemplazar", "Actualizar sistema"], ["conectar", "Conectar sistemas"]])}${field("softwareProblema", "¿Qué problema resolverá?", "text", true, "Describe brevemente")}${choices("softwareEstado", "Estado actual", [["idea", "Es una idea"], ["documentado", "Tengo requerimientos"], ["existente", "Ya existe una versión"]])}</div>`;
@@ -72,12 +82,20 @@ export function createOffbrandWizard({ plansGrid, onClose }) {
     const route = getRoute(currentState.project, currentState);
     const step = route[stepIndex];
     if (event.target.closest("[data-wizard-submit]")) { try { await submitQuote(buildSubmission(currentState.project, currentState)); host.innerHTML = `<div class="offbrand-wizard-confirmation"><h3 class="h-c">Solicitud enviada</h3><p>Gracias. Nuestro equipo se pondrá en contacto contigo.</p><button type="button" class="offbrand-wizard-button" data-wizard-close>Cerrar</button></div>`; } catch (error) { showError(error.message); } return; }
+    if (!event.target.closest("[data-wizard-next]")) return;
     if (!validateStep(currentState.project, step.id, currentState)) { showError("Completa los campos obligatorios para continuar."); return; }
     if (stepIndex === route.length - 1 && (step.id === "billing" || step.id === "payment")) {
       const request = { project: currentState.project, price: getSelectedPrice(currentState), data: currentState };
       try { if (currentState.metodoPago === "transferencia") { if (!currentState.comprobante) throw new Error("Adjunta el comprobante de transferencia."); await submitTransfer(request); host.innerHTML = `<div class="offbrand-wizard-confirmation"><h3 class="h-c">Transferencia registrada</h3><p>Verificaremos tu comprobante y te contactaremos.</p><button type="button" class="offbrand-wizard-button" data-wizard-close>Cerrar</button></div>`; } else { await openPayment(request, () => { host.innerHTML = `<div class="offbrand-wizard-confirmation"><h3 class="h-c">Pago confirmado</h3><p>Recibimos tu pago correctamente.</p><button type="button" class="offbrand-wizard-button" data-wizard-close>Cerrar</button></div>`; }, (error) => showError(error.message)); } } catch (error) { showError(error.message); } return;
     }
     stepIndex += 1; render();
+  });
+  host.addEventListener("change", (event) => {
+    if (event.target.name !== "domainStatus") return;
+    const form = host.querySelector("form");
+    syncState(form);
+    if (currentState.domainStatus !== "no_tengo") currentState.domainName = "";
+    render();
   });
   return { open(project) { currentState = createWizardState(project); stepIndex = 0; host.hidden = false; plansGrid.classList.add("is-wizard-open"); render(); }, close() { host.hidden = true; plansGrid.classList.remove("is-wizard-open"); } };
 }
