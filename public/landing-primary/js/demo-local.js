@@ -125,12 +125,50 @@
     });
   }
 
+  const favicon = (domain) =>
+    `https://www.google.com/s2/favicons?sz=256&domain_url=${encodeURIComponent(`https://${domain}`)}`;
+
   const brandLogos = [
     ["Banco Pichincha", "/landing-primary/images/ecuador-brands/banco-pichincha-logo.png"],
     ["PRONACA", "/landing-primary/images/ecuador-brands/pronaca-logo.png"],
     ["Tía", "/landing-primary/images/ecuador-brands/tia-logo.png"],
     ["Nava Cloud", "/landing-primary/images/ecuador-brands/nava-cloud-logo.png"],
     ["Arto Camello", "/landing-primary/images/ecuador-brands/arto-camello-logo.png"],
+    ["The Cave", "/landing-primary/images/ecuador-brands/the-cave.svg"],
+    ["Gimnasio Taurus", "/landing-primary/images/ecuador-brands/gimnasio-taurus.svg"],
+    ["Casa Gangotena", "/landing-primary/images/ecuador-brands/casa-gangotena.svg"],
+    ["Glogik Logistics", "/landing-primary/images/ecuador-brands/glogik-logistics.webp"],
+    ["Banco Guayaquil", favicon("bancoguayaquil.com")],
+    ["Banco del Pacífico", favicon("bancodelpacifico.com")],
+    ["Produbanco", favicon("produbanco.com")],
+    ["Cooperativa JEP", favicon("jep.coop")],
+    ["Supermaxi", "/landing-primary/images/ecuador-brands/supermaxi.jpg"],
+    ["Mi Comisariato", favicon("elrosado.com")],
+    ["Kywi", favicon("kywi.com.ec")],
+    ["Pacari", favicon("pacari.com")],
+    ["Toni", favicon("toni.com.ec")],
+    ["La Fabril", favicon("lafabril.com.ec")],
+    ["Nirsa", favicon("nirsa.com")],
+    ["Moderna Alimentos", favicon("modernaalimentos.com.ec")],
+    ["Sweet & Coffee", favicon("sweetandcoffee.com")],
+    ["Grupo Nobis", favicon("nobis.com.ec")],
+    ["Difare", favicon("difare.com.ec")],
+    ["Fybeca", favicon("fybeca.com")],
+    ["SanaSana", favicon("sanasana.com.ec")],
+    ["Netlife", favicon("netlife.ec")],
+    ["CNT", favicon("cnt.gob.ec")],
+    ["Xtrim", favicon("xtrim.com.ec")],
+    ["Tipti", favicon("tipti.market")],
+    ["Kushki", favicon("kushki.com")],
+    ["Payphone", favicon("payphonetodo.com")],
+    ["YaEstá", favicon("yaesta.com")],
+    ["Banco Internacional", favicon("bancointernacional.com.ec")],
+    ["Seguros Equinoccial", favicon("equinoccial.com")],
+    ["Novacero", favicon("novacero.com")],
+    ["Adelca", favicon("adelca.com")],
+    ["Plastigama", favicon("plastigama.com")],
+    ["Cervecería Nacional", favicon("cervecerianacional.ec")],
+    ["Zhumir", favicon("zhumir.com")],
   ];
 
   const brandSlots = [...document.querySelectorAll(".s.is-hg .hg-grid-inner")];
@@ -167,31 +205,37 @@
     {
       name: "Gunsmiths",
       image: "/landing-preview/img/demos/gunsmit.webp",
+      href: "https://gunsmithsec.com/",
       services: ["● Diseño web", "△ Desarrollo", "⁂ Catálogo digital"],
     },
     {
-      name: "Lucavvapes",
-      image: "/landing-preview/img/demos/lucanvape.webp",
+      name: "Glogik Logistics",
+      image: "/landing-preview/img/demos/logik.webp",
+      href: "https://glogiklogistics.com/",
       services: ["● Diseño web", "△ Desarrollo", "⁂ Tienda online"],
     },
     {
       name: "Julio Jaramillo",
       image: "/landing-preview/img/demos/juliojaramillo.webp",
+      href: "https://juliojaramilloec.com/",
       services: ["● Identidad digital", "△ Desarrollo", "⁂ Experiencia cultural"],
     },
     {
-      name: "Techco",
-      image: "/landing-preview/img/demos/1.1.webp",
+      name: "Nava",
+      image: "/landing-preview/img/demos/image.png",
+      href: "https://navacloud.app/",
       services: ["● Diseño web", "△ Desarrollo", "⁂ Sitio corporativo"],
     },
     {
-      name: "Cortinas & Decoraciones",
-      image: "/landing-preview/img/demos/screencapture-cortinasec-2026-01-20-12_21_13.webp",
-      services: ["● Diseño web", "△ Desarrollo", "⁂ Catálogo digital"],
+      name: "Casa Gangotena",
+      image: "/landing-preview/img/demos/4.4.webp",
+      href: "https://www.casagangotena.com/es/",
+      services: ["● Diseño web", "△ Desarrollo", "⁂ Sitio turístico"],
     },
     {
       name: "Café Jungla Andina",
       image: "/landing-preview/img/demos/3.3.webp",
+      href: "https://junglaandina.com/",
       services: ["● Diseño web", "△ Desarrollo", "⁂ Tienda online"],
     },
     {
@@ -202,6 +246,7 @@
     {
       name: "The Cave",
       image: "/landing-preview/img/demos/5.5.webp",
+      href: "https://thecave.ec/",
       services: ["● Diseño web", "△ Desarrollo", "⁂ Sitio informativo"],
     },
   ];
@@ -229,6 +274,11 @@
           image.removeAttribute("srcset");
         }
         if (title) title.textContent = work.name;
+        if (work.href) {
+          card.href = work.href;
+          card.target = "_blank";
+          card.rel = "noopener noreferrer";
+        }
         services.forEach((service, serviceIndex) => {
           service.textContent = work.services[serviceIndex] || "";
         });
