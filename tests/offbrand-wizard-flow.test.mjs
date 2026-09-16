@@ -1,12 +1,69 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
   createWizardState,
+  formatBillingPhone,
   getPriceCards,
   getRoute,
   validateStep,
 } from "../public/landing-primary/js/offbrand-wizard-flow.mjs";
+
+test("requires phone and billing country selectors before payment", () => {
+  const state = {
+    ...createWizardState("Sitio Web"),
+    tipoCliente: "consumidor_final",
+    rucCedula: "1712345678",
+    razonSocial: "Cliente de prueba",
+    email: "cliente@example.com",
+    telefonoPais: "EC",
+    telefono: "0991234567",
+    pais: "EC",
+    callePrincipal: "Av. Amazonas",
+    ciudad: "Quito",
+    provincia: "Pichincha",
+    metodoPago: "tarjeta",
+    termsAccepted: true,
+  };
+
+  assert.equal(validateStep("Sitio Web", "billing", state), true);
+  assert.equal(formatBillingPhone(state.telefono, state.telefonoPais), "+593991234567");
+  state.pais = "";
+  assert.equal(validateStep("Sitio Web", "billing", state), false);
+});
+
+test("requires a voucher when the selected payment method is transfer", () => {
+  const state = {
+    ...createWizardState("Sitio Web"),
+    tipoCliente: "consumidor_final",
+    rucCedula: "1712345678",
+    razonSocial: "Cliente de prueba",
+    email: "cliente@example.com",
+    telefonoPais: "EC",
+    telefono: "0991234567",
+    pais: "EC",
+    callePrincipal: "Av. Amazonas",
+    ciudad: "Quito",
+    provincia: "Pichincha",
+    metodoPago: "transferencia",
+    termsAccepted: true,
+  };
+
+  assert.equal(validateStep("Sitio Web", "billing", state), false);
+  state.comprobante = { name: "comprobante.pdf" };
+  assert.equal(validateStep("Sitio Web", "billing", state), true);
+});
+
+test("renders the country selectors in the OFF+BRAND payment wizard", async () => {
+  const wizard = await readFile("public/landing-primary/js/offbrand-wizard.mjs", "utf8");
+
+  assert.match(wizard, /name="telefonoPais"/);
+  assert.match(wizard, /name="pais" required/);
+  assert.match(wizard, /Datos bancarios para transferencia/);
+  assert.match(wizard, /name="comprobante"/);
+  assert.match(wizard, /País de facturación/);
+});
 
 test("returns the Website price, business and billing route", () => {
   const state = createWizardState("Sitio Web");
@@ -16,6 +73,97 @@ test("returns the Website price, business and billing route", () => {
     ["price", "business", "billing"],
   );
   assert.equal(validateStep("Sitio Web", "price", state), false);
+});
+
+test("uses the legacy mobile app discovery questions and submission values", async () => {
+  const state = {
+    ...createWizardState("Aplicación Móvil"),
+    businessName: "Mi Tienda App",
+    sector: "Comercio y Ventas",
+    domainStatus: "necesito",
+    appMobilePlataforma: "ambos",
+    appMobileTipo: "clientes",
+    appMobileFuncionalidades: ["gps", "none"],
+    appMobilePublicacion: "tengo_cuentas",
+    softwareNombre: "Juan Pérez",
+    softwareEmail: "juan@empresa.com",
+  };
+
+  assert.deepEqual(
+    getRoute("Aplicación Móvil", state).map(({ title }) => title),
+    ["Identidad de la App", "Plataforma y Tecnología", "Funcionalidades Críticas", "Proyecto Configurado", "Enviar solicitud"],
+  );
+  assert.equal(validateStep("Aplicación Móvil", "business", state), true);
+  assert.equal(validateStep("Aplicación Móvil", "platform", state), true);
+  assert.equal(validateStep("Aplicación Móvil", "features", state), true);
+
+  const wizard = await readFile("public/landing-primary/js/offbrand-wizard.mjs", "utf8");
+  assert.match(wizard, /¿Tienes sitio web actualmente\?/);
+  assert.match(wizard, /¿En qué dispositivos debe funcionar\?/);
+  assert.match(wizard, /¿Necesitas funciones nativas del celular\?/);
+  assert.match(wizard, /tengo_cuentas/);
+});
+
+test("uses the legacy web app discovery questions and submission values", async () => {
+  const state = {
+    ...createWizardState("Aplicación Web"),
+    businessName: "Sistema de Inventarios X",
+    sector: "Tecnología",
+    domainStatus: "interno",
+    appWebObjetivo: "otros",
+    appWebObjetivoDetalle: "Gestión de franquicias",
+    appWebMobile: "pwa",
+    appWebDescripcion: "Los vendedores registran visitas y pedidos.",
+    appWebUsuarios: "mediano",
+    appWebRoles: ["admin", "auditores", "otros"],
+    appWebRolesDetalle: "Supervisores regionales",
+    appWebReportes: "dashboards",
+    softwareNombre: "Juan Pérez",
+    softwareEmail: "juan@empresa.com",
+  };
+
+  assert.deepEqual(
+    getRoute("Aplicación Web", state).map(({ title }) => title),
+    ["Identidad del Negocio", "Tipo de Solución", "Usuarios y Seguridad", "Proyecto Configurado", "Enviar solicitud"],
+  );
+  assert.equal(validateStep("Aplicación Web", "business", state), true);
+  assert.equal(validateStep("Aplicación Web", "solution", state), true);
+  assert.equal(validateStep("Aplicación Web", "users", state), true);
+
+  const wizard = await readFile("public/landing-primary/js/offbrand-wizard.mjs", "utf8");
+  assert.match(wizard, /¿Tienes dominio para tu aplicación\?/);
+  assert.match(wizard, /¿Cuál es el propósito principal\?/);
+  assert.match(wizard, /¿Qué roles de seguridad necesitas\?/);
+  assert.match(wizard, /Super Administrador \(Ve todo\)/);
+});
+
+test("uses the legacy Moodle discovery questions and institutional route", async () => {
+  const state = {
+    ...createWizardState("Plataforma de cursos Moodle"),
+    businessName: "Academia de Idiomas X",
+    sector: "Academia Online",
+    domainStatus: "tengo",
+    moodleUso: "venta",
+    moodleUsuarios: "alto",
+    moodleClases: "en_vivo",
+    moodleDiseno: "a_medida",
+    softwareNombre: "Juan Pérez",
+    softwareEmail: "juan@empresa.com",
+  };
+
+  assert.deepEqual(
+    getRoute("Plataforma de cursos Moodle", state).map(({ title }) => title),
+    ["Identidad Institucional", "Escala y Usuarios", "Contenido y Diseño", "Proyecto Institucional", "Enviar solicitud"],
+  );
+  assert.equal(validateStep("Plataforma de cursos Moodle", "business", state), true);
+  assert.equal(validateStep("Plataforma de cursos Moodle", "scale", state), true);
+  assert.equal(validateStep("Plataforma de cursos Moodle", "content", state), true);
+
+  const wizard = await readFile("public/landing-primary/js/offbrand-wizard.mjs", "utf8");
+  assert.match(wizard, /¿Cuántos estudiantes estimas tener activos AL MISMO TIEMPO\?/);
+  assert.match(wizard, /Esta es la pregunta más importante para que no se caiga el servidor\./);
+  assert.match(wizard, /¿Cómo serán las clases\?/);
+  assert.match(wizard, /Diseño del Aula Virtual/);
 });
 
 test("requires a requested domain before leaving the business step", () => {

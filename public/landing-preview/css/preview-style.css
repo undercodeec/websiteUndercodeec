@@ -1728,9 +1728,7 @@ header #js-scene2 {
 
 
 @media screen and (max-width: 991px) {
-  header {
-    padding-top: 120px;
-  }
+
 
   header .cont {
     text-align: center;

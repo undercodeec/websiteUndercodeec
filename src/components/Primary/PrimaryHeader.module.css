@@ -261,6 +261,7 @@
 
 .menuLinks { display: flex; width: 100%; flex-direction: column; gap: .75rem; }
 .menuLinkWrap { width: 100%; overflow: hidden; transform: translateY(101%); transition: transform .2s cubic-bezier(.755, .05, .855, .06); }
+.mobileOnlyMenuLink { display: none; }
 .menuOverlayOpen .menuLinkWrap { transform: translateY(0); }
 .menuOverlayOpen .menuLinkWrap:nth-child(1) { transition-delay: .2s; }
 .menuOverlayOpen .menuLinkWrap:nth-child(2) { transition-delay: .25s; }
@@ -334,11 +335,28 @@
 
 @media (max-width: 991px) {
   .desktopLink { display: none; }
+  .brand {
+    width: clamp(4.25rem, 10vw, 5.25rem);
+    height: clamp(4.25rem, 10vw, 5.25rem);
+  }
   .menuLink { font-size: 1rem; }
+  .mobileOnlyMenuLink { display: block; }
+  .menuLinks { gap: .55rem; }
+  .menuOverlayOpen .menuLinkWrap { transition-delay: 0s; }
+}
+
+@media (max-width: 767px) {
+  .brand {
+    width: clamp(4.25rem, 18vw, 5.25rem);
+    height: clamp(4.25rem, 18vw, 5.25rem);
+  }
 }
 
 @media (max-width: 520px) {
-  .brand { width: 3rem; height: 3rem; }
+  .brand {
+    width: clamp(4.25rem, 18vw, 5.25rem);
+    height: clamp(4.25rem, 18vw, 5.25rem);
+  }
   .cta { gap: .65rem; padding: .85rem 1.1rem; font-size: .68rem; }
   .scrollCue { display: none; }
   .menuOverlay { width: min(15rem, calc(100vw - 6vw)); }

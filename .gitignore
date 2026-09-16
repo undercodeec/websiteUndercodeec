@@ -49,6 +49,7 @@ next-env.d.ts
 
 # Previous root page retained locally for recovery only.
 /.local-archive/
+backend/uploads/
 /.codex-reference-footer-*/
 /.tmp-visual-qa/
 /CON

@@ -176,6 +176,8 @@
 .action:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 
 @media (max-width: 991px) {
+  .hero { --mobile-apps-hero-title-offset: 2.5rem; }
+
   .content { padding: 0; }
 
   .desktopTitle {
@@ -199,11 +201,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    width: 90%;
+    justify-content: center;
+    width: 100%;
     margin: auto;
-    padding-top: 15vh;
-    text-align: justify;
+    padding: 5rem 1rem;
+    text-align: center;
     color: var(--primary-main-light);
     mix-blend-mode: difference;
     user-select: none;
@@ -217,6 +219,7 @@
     line-height: 1;
     text-align: center;
     word-break: normal;
+    transform: translateY(var(--mobile-apps-hero-title-offset));
   }
 
   .orbLayer,

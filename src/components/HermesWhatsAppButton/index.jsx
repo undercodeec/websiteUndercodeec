@@ -1,6 +1,7 @@
 "use client";
 
 import { FaWhatsapp } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { PrimaryOrb } from "@/components/Primary";
 import {
@@ -12,21 +13,122 @@ import {
 
 const HermesWhatsAppButton = () => {
   const pathname = usePathname();
+  const buttonRef = useRef(null);
+  const dragRef = useRef(null);
+  const suppressClickRef = useRef(false);
+  const [position, setPosition] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const clampPosition = (x, y, width, height) => ({
+    x: Math.min(Math.max(8, x), Math.max(8, window.innerWidth - width - 8)),
+    y: Math.min(Math.max(8, y), Math.max(8, window.innerHeight - height - 8)),
+  });
+
+  useEffect(() => {
+    const keepButtonInViewport = () => {
+      if (!position || !buttonRef.current) return;
+
+      const { width, height } = buttonRef.current.getBoundingClientRect();
+      setPosition((currentPosition) =>
+        currentPosition
+          ? clampPosition(currentPosition.x, currentPosition.y, width, height)
+          : currentPosition,
+      );
+    };
+
+    window.addEventListener("resize", keepButtonInViewport);
+    return () => window.removeEventListener("resize", keepButtonInViewport);
+  }, [position]);
 
   if (isHermesWhatsAppHiddenPath(pathname)) return null;
 
-  const trackClick = () => {
+  const handlePointerDown = (event) => {
+    if (event.button !== undefined && event.button !== 0) return;
+
+    const button = buttonRef.current;
+    if (!button) return;
+
+    const { left, top, width, height } = button.getBoundingClientRect();
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      initialX: left,
+      initialY: top,
+      width,
+      height,
+      hasMoved: false,
+    };
+    button.setPointerCapture(event.pointerId);
+    setPosition({ x: left, y: top });
+  };
+
+  const handlePointerMove = (event) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    const distanceX = event.clientX - drag.startX;
+    const distanceY = event.clientY - drag.startY;
+    if (!drag.hasMoved && Math.hypot(distanceX, distanceY) < 4) return;
+
+    drag.hasMoved = true;
+    setIsDragging(true);
+    setPosition(
+      clampPosition(
+        drag.initialX + distanceX,
+        drag.initialY + distanceY,
+        drag.width,
+        drag.height,
+      ),
+    );
+  };
+
+  const finishDragging = (event) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    if (buttonRef.current?.hasPointerCapture(event.pointerId)) {
+      buttonRef.current.releasePointerCapture(event.pointerId);
+    }
+    suppressClickRef.current = drag.hasMoved;
+    dragRef.current = null;
+    setIsDragging(false);
+  };
+
+  const preventNativeDrag = (event) => {
+    event.preventDefault();
+  };
+
+  const trackClick = (event) => {
+    if (suppressClickRef.current) {
+      event.preventDefault();
+      suppressClickRef.current = false;
+      return;
+    }
+
     const tracker = typeof window !== "undefined" ? window.fbq : undefined;
     trackHermesWhatsAppClick(tracker, pathname);
   };
 
   return (
     <a
+      ref={buttonRef}
       href={buildHermesWhatsAppUrl()}
       {...HERMES_WHATSAPP_LINK_PROPS}
+      draggable={false}
       onClick={trackClick}
+      onDragStart={preventNativeDrag}
       aria-label="Hablar con Hermes por WhatsApp"
-      className="hermes-whatsapp-button"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={finishDragging}
+      onPointerCancel={finishDragging}
+      className={`hermes-whatsapp-button${isDragging ? " is-dragging" : ""}`}
+      style={
+        position
+          ? { left: position.x, top: position.y, right: "auto", bottom: "auto" }
+          : undefined
+      }
     >
       <PrimaryOrb className="hermes-whatsapp-orb" color="#25D366" />
       <FaWhatsapp aria-hidden="true" size={28} />
@@ -49,6 +151,10 @@ const HermesWhatsAppButton = () => {
           color: #ffffff;
           text-decoration: none;
           isolation: isolate;
+          cursor: grab;
+          touch-action: none;
+          user-select: none;
+          -webkit-user-drag: none;
           visibility: hidden;
           pointer-events: none;
           opacity: 0;
@@ -79,6 +185,12 @@ const HermesWhatsAppButton = () => {
         .hermes-whatsapp-button:hover {
           transform: translateY(-3px);
           color: #ffffff;
+        }
+
+        .hermes-whatsapp-button.is-dragging {
+          cursor: grabbing;
+          transform: none;
+          transition: opacity 0.18s ease;
         }
 
         .hermes-whatsapp-button:focus-visible {

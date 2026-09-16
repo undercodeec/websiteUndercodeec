@@ -3,6 +3,81 @@ import { createPrimaryOrb } from "./whatsapp-primary-orb.js";
 (() => {
   const whatsappUrl =
     "https://wa.me/593999739534?text=Hola%2C%20quisiera%20obtener%20informaci%C3%B3n%20sobre%20los%20servicios%20de%20Undercodeec.";
+  const viewportPadding = 8;
+
+  const clampPosition = (x, y, width, height) => ({
+    x: Math.min(Math.max(viewportPadding, x), Math.max(viewportPadding, window.innerWidth - width - viewportPadding)),
+    y: Math.min(Math.max(viewportPadding, y), Math.max(viewportPadding, window.innerHeight - height - viewportPadding)),
+  });
+
+  const makeButtonDraggable = (button) => {
+    let drag = null;
+    let suppressClick = false;
+
+    const setPosition = (x, y, width, height) => {
+      const position = clampPosition(x, y, width, height);
+      button.style.left = `${position.x}px`;
+      button.style.top = `${position.y}px`;
+      button.style.right = "auto";
+      button.style.bottom = "auto";
+    };
+
+    button.addEventListener("pointerdown", (event) => {
+      if (event.button !== undefined && event.button !== 0) return;
+
+      const { left, top, width, height } = button.getBoundingClientRect();
+      drag = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        initialX: left,
+        initialY: top,
+        width,
+        height,
+        hasMoved: false,
+      };
+      button.setPointerCapture(event.pointerId);
+      setPosition(left, top, width, height);
+    });
+
+    button.addEventListener("pointermove", (event) => {
+      if (!drag || drag.pointerId !== event.pointerId) return;
+
+      const distanceX = event.clientX - drag.startX;
+      const distanceY = event.clientY - drag.startY;
+      if (!drag.hasMoved && Math.hypot(distanceX, distanceY) < 4) return;
+
+      drag.hasMoved = true;
+      button.classList.add("is-dragging");
+      setPosition(drag.initialX + distanceX, drag.initialY + distanceY, drag.width, drag.height);
+    });
+
+    const finishDragging = (event) => {
+      if (!drag || drag.pointerId !== event.pointerId) return;
+
+      if (button.hasPointerCapture(event.pointerId)) button.releasePointerCapture(event.pointerId);
+      suppressClick = drag.hasMoved;
+      drag = null;
+      button.classList.remove("is-dragging");
+    };
+
+    button.addEventListener("pointerup", finishDragging);
+    button.addEventListener("pointercancel", finishDragging);
+    button.addEventListener("dragstart", (event) => event.preventDefault());
+    button.addEventListener("click", (event) => {
+      if (!suppressClick) return;
+
+      event.preventDefault();
+      suppressClick = false;
+    });
+
+    window.addEventListener("resize", () => {
+      if (!button.style.left) return;
+
+      const { width, height } = button.getBoundingClientRect();
+      setPosition(Number.parseFloat(button.style.left), Number.parseFloat(button.style.top), width, height);
+    });
+  };
 
   const mountButton = () => {
     if (document.querySelector(".hermes-whatsapp-button")) return;
@@ -12,6 +87,7 @@ import { createPrimaryOrb } from "./whatsapp-primary-orb.js";
     button.href = whatsappUrl;
     button.target = "_blank";
     button.rel = "noopener noreferrer";
+    button.draggable = false;
     button.setAttribute("aria-label", "Hablar con Hermes por WhatsApp");
     const orb = document.createElement("div");
     orb.className = "hermes-whatsapp-orb";
@@ -22,6 +98,7 @@ import { createPrimaryOrb } from "./whatsapp-primary-orb.js";
       </svg>`;
     button.prepend(orb);
     document.body.append(button);
+    makeButtonDraggable(button);
     createPrimaryOrb(orb, { color: "#25D366" });
   };
 

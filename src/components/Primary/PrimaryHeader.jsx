@@ -19,6 +19,13 @@ const menuLinks = [
   { href: "/contacto", label: "Contáctanos" },
 ];
 
+const mobileHeaderLinks = [
+  { href: "/", label: "Inicio" },
+  { href: "/servicios", label: "Servicios" },
+  ...services,
+  { href: "/#reserva_agenda", label: "Agendar reunión" },
+];
+
 function StaggerText({ text }) {
   const characters = Array.from(text);
 
@@ -183,6 +190,19 @@ export default function PrimaryHeader() {
         >
             <div className={styles.menuContent} id="primary-navigation-menu" aria-hidden={!isMenuOpen}>
             <nav className={styles.menuLinks} aria-label="Navegación secundaria">
+              {mobileHeaderLinks.map(({ href, label, badge }) => (
+                <div className={`${styles.menuLinkWrap} ${styles.mobileOnlyMenuLink}`} key={href}>
+                  <UnderlineLink
+                    href={href}
+                    label={label}
+                    badge={badge}
+                    menuLink
+                    current={href === "/" ? pathname === "/" : pathname?.startsWith(href)}
+                    onClick={closeMenu}
+                    tabIndex={isMenuOpen ? 0 : -1}
+                  />
+                </div>
+              ))}
               {menuLinks.map(({ href, label }) => (
                 <div className={styles.menuLinkWrap} key={href}>
                   <UnderlineLink

@@ -441,7 +441,7 @@
 
 
 
-<link rel="stylesheet" href="/landing-primary/css/demo-local.css"><script type="module" src="/landing-primary/js/whatsapp-floating.js"></script><style>
+<link rel="stylesheet" href="/landing-primary/css/demo-local.css"><script type="module" src="/landing-primary/js/whatsapp-floating.js"></script><script src="/landing-primary/js/mobile-navigation.js" defer></script><script src="/landing-primary/js/responsive-orb-motion.js" defer></script><style>
   .hermes-whatsapp-button {
     position: fixed;
     right: 1.5em;
@@ -458,6 +458,10 @@
     background: transparent;
     box-shadow: none;
     isolation: isolate;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-drag: none;
     visibility: hidden;
     pointer-events: none;
     opacity: 0;
@@ -468,6 +472,7 @@
   .hermes-whatsapp-orb > canvas { position: absolute; top: 53%; left: 50%; width: 100% !important; height: 100% !important; border-radius: 50%; background: transparent !important; opacity: 1; transition: opacity .18s ease-out; transform: translate(-50%, -50%); }
   .hermes-whatsapp-orb > canvas[data-primary-orb-texture-ready="false"] { opacity: 0; }
   .hermes-whatsapp-button:hover { color: #ffffff; transform: translateY(-3px); }
+  .hermes-whatsapp-button.is-dragging { cursor: grabbing; transform: none; transition: opacity .18s ease; }
   .hermes-whatsapp-button:focus-visible { outline: 3px solid #111827; outline-offset: 3px; }
   .hermes-whatsapp-button svg { position: relative; z-index: 1; width: 28px; height: 28px; fill: currentColor; filter: drop-shadow(0 1px 2px rgba(0, 63, 31, .28)); }
   @media screen and (max-width: 479px) {

@@ -148,8 +148,26 @@ const PRICE_CARDS = {
   ],
 };
 
+export const BILLING_COUNTRIES = [
+  ["EC", "Ecuador", "+593"], ["ES", "España", "+34"], ["US", "Estados Unidos", "+1"],
+  ["CA", "Canadá", "+1"], ["AR", "Argentina", "+54"], ["BO", "Bolivia", "+591"],
+  ["BR", "Brasil", "+55"], ["CL", "Chile", "+56"], ["CO", "Colombia", "+57"],
+  ["CR", "Costa Rica", "+506"], ["DO", "República Dominicana", "+1"], ["GT", "Guatemala", "+502"],
+  ["MX", "México", "+52"], ["PA", "Panamá", "+507"], ["PE", "Perú", "+51"],
+  ["PR", "Puerto Rico", "+1"], ["PY", "Paraguay", "+595"], ["UY", "Uruguay", "+598"],
+  ["VE", "Venezuela", "+58"], ["DE", "Alemania", "+49"], ["FR", "Francia", "+33"],
+  ["GB", "Reino Unido", "+44"], ["IT", "Italia", "+39"], ["PT", "Portugal", "+351"],
+];
+
+const TIME_ZONE_COUNTRIES = {
+  "America/Argentina/Buenos_Aires": "AR", "America/Asuncion": "PY", "America/Bogota": "CO",
+  "America/Guayaquil": "EC", "America/La_Paz": "BO", "America/Lima": "PE",
+  "America/Mexico_City": "MX", "America/Montevideo": "UY", "America/Panama": "PA",
+  "America/Santiago": "CL", "Europe/Madrid": "ES", "Europe/Lisbon": "PT",
+};
+
 const BUSINESS_FIELDS = ["businessName", "sector", "domainStatus"];
-const BILLING_FIELDS = ["tipoCliente", "rucCedula", "razonSocial", "email", "telefono", "callePrincipal", "ciudad", "provincia", "metodoPago", "termsAccepted"];
+const BILLING_FIELDS = ["tipoCliente", "rucCedula", "razonSocial", "email", "telefonoPais", "telefono", "pais", "callePrincipal", "ciudad", "provincia", "metodoPago", "termsAccepted"];
 
 const PROJECT_ROUTES = {
   "Sitio Web": [
@@ -174,31 +192,31 @@ const PROJECT_ROUTES = {
     { id: "submit", title: "Enviar solicitud", required: [] },
   ],
   "Aplicación Web": [
-    { id: "business", title: "Sobre tu negocio", required: BUSINESS_FIELDS },
-    { id: "solution", title: "La solución", required: ["appWebObjetivo", "appWebMobile", "appWebDescripcion"] },
-    { id: "users", title: "Usuarios y reportes", required: ["appWebUsuarios", "appWebRoles", "appWebReportes"] },
-    { id: "contact", title: "Datos de contacto", required: ["softwareNombre", "softwareEmail"] },
+    { id: "business", title: "Identidad del Negocio", required: BUSINESS_FIELDS },
+    { id: "solution", title: "Tipo de Solución", required: ["appWebObjetivo", "appWebMobile", "appWebDescripcion"] },
+    { id: "users", title: "Usuarios y Seguridad", required: ["appWebUsuarios", "appWebRoles", "appWebReportes"] },
+    { id: "contact", title: "Proyecto Configurado", required: ["softwareNombre", "softwareEmail"] },
     { id: "submit", title: "Enviar solicitud", required: [] },
   ],
   "Aplicación Móvil": [
-    { id: "business", title: "Sobre tu negocio", required: BUSINESS_FIELDS },
-    { id: "platform", title: "Plataforma", required: ["appMobilePlataforma", "appMobileTipo"] },
-    { id: "features", title: "Funciones", required: ["appMobileFuncionalidades", "appMobilePublicacion"] },
-    { id: "contact", title: "Datos de contacto", required: ["softwareNombre", "softwareEmail"] },
+    { id: "business", title: "Identidad de la App", required: BUSINESS_FIELDS },
+    { id: "platform", title: "Plataforma y Tecnología", required: ["appMobilePlataforma", "appMobileTipo"] },
+    { id: "features", title: "Funcionalidades Críticas", required: ["appMobileFuncionalidades", "appMobilePublicacion"] },
+    { id: "contact", title: "Proyecto Configurado", required: ["softwareNombre", "softwareEmail"] },
     { id: "submit", title: "Enviar solicitud", required: [] },
   ],
   "Plataforma de cursos Moodle": [
-    { id: "business", title: "Sobre tu institución", required: BUSINESS_FIELDS },
-    { id: "scale", title: "Uso y escala", required: ["moodleUso", "moodleUsuarios"] },
-    { id: "content", title: "Contenido y diseño", required: ["moodleClases", "moodleDiseno"] },
+    { id: "business", title: "Identidad Institucional", required: BUSINESS_FIELDS },
+    { id: "scale", title: "Escala y Usuarios", required: ["moodleUso", "moodleUsuarios"] },
+    { id: "content", title: "Contenido y Diseño", required: ["moodleClases", "moodleDiseno"] },
     { id: "contact", title: "Datos de contacto", required: ["softwareNombre", "softwareEmail"] },
   ],
 };
 
 const DEFAULT_STATE = {
   selectedPrice: "", businessName: "", sector: "", domainStatus: "", domainName: "",
-  tipoCliente: "", rucCedula: "", razonSocial: "", email: "", telefono: "",
-  callePrincipal: "", calleSecundaria: "", ciudad: "", provincia: "", codigoPostal: "", pais: "Ecuador",
+  tipoCliente: "", rucCedula: "", razonSocial: "", email: "", telefonoPais: "", telefono: "",
+  callePrincipal: "", calleSecundaria: "", ciudad: "", provincia: "", codigoPostal: "", pais: "",
   metodoPago: "", tipoPago: "total", termsAccepted: false, comprobante: null,
   softwareObjetivo: "", softwareProblema: "", softwareEstado: "", softwareEscala: "", softwareRoles: [], softwareIntegraciones: [], softwarePresupuesto: "", softwareTiempo: "", softwareNombre: "", softwareEmail: "", softwareTelefono: "",
   appWebObjetivo: "", appWebObjetivoDetalle: "", appWebMobile: "", appWebDescripcion: "", appWebUsuarios: "", appWebRoles: [], appWebRolesDetalle: "", appWebReportes: "",
@@ -211,7 +229,33 @@ function hasValue(value) {
 }
 
 export function createWizardState(project) {
-  return { ...DEFAULT_STATE, project };
+  const countryCode = detectBrowserCountry();
+  return { ...DEFAULT_STATE, project, telefonoPais: countryCode, pais: countryCode };
+}
+
+export function getBillingCountry(countryCode) {
+  return BILLING_COUNTRIES.find(([code]) => code === String(countryCode || "").toUpperCase());
+}
+
+export function detectBrowserCountry() {
+  if (typeof navigator === "undefined") return "";
+  const locale = [...(navigator.languages || []), navigator.language]
+    .find((value) => /-[a-z]{2}$/i.test(value || ""));
+  const countryCode = locale?.match(/-([a-z]{2})$/i)?.[1]?.toUpperCase();
+  if (getBillingCountry(countryCode)) return countryCode;
+  return TIME_ZONE_COUNTRIES[Intl.DateTimeFormat().resolvedOptions().timeZone] || "";
+}
+
+export function formatBillingPhone(phone, countryCode) {
+  const value = String(phone || "").trim();
+  if (!value || value.startsWith("+")) return value;
+  const country = getBillingCountry(countryCode);
+  if (!country) return value;
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return value;
+  const dialDigits = country[2].slice(1);
+  if (digits.startsWith(dialDigits)) return `+${digits}`;
+  return `${country[2]}${digits.replace(/^0+/, "")}`;
 }
 
 export function getPriceCards(project) {
@@ -225,8 +269,11 @@ export function getRoute(project, state) {
   const isInstitutional = state.moodleUsuarios !== "bajo"
     || state.moodleClases === "en_vivo"
     || state.moodleDiseno === "a_medida";
-  route.push({ id: isInstitutional ? "submit" : "payment", title: isInstitutional ? "Enviar solicitud" : "Facturación y pago", required: isInstitutional ? [] : BILLING_FIELDS });
-  return route;
+  const moodleRoute = route.map((step) => step.id === "contact"
+    ? { ...step, title: isInstitutional ? "Proyecto Institucional" : step.title }
+    : step);
+  moodleRoute.push({ id: isInstitutional ? "submit" : "payment", title: isInstitutional ? "Enviar solicitud" : "Facturación y pago", required: isInstitutional ? [] : BILLING_FIELDS });
+  return moodleRoute;
 }
 
 export function validateStep(project, step, state) {
@@ -235,6 +282,7 @@ export function validateStep(project, step, state) {
   if (step === "business" && state.domainStatus === "no_tengo" && !state.domainName.trim()) return false;
   if (step === "solution" && state.appWebObjetivo === "otros" && !state.appWebObjetivoDetalle.trim()) return false;
   if (step === "users" && state.appWebRoles.includes("otros") && !state.appWebRolesDetalle.trim()) return false;
+  if ((step === "billing" || step === "payment") && state.metodoPago === "transferencia" && !state.comprobante) return false;
   return definition.required.every((field) => hasValue(state[field]));
 }
 
@@ -254,6 +302,13 @@ export function buildSubmission(project, state) {
     endpoint: endpointByProject[project] ?? "/api/save-wizard-data",
     project,
     price,
-    data: { ...state, plan: project, planId: state.selectedPrice, amount: price?.price ?? null },
+    data: {
+      ...state,
+      telefono: formatBillingPhone(state.telefono, state.telefonoPais),
+      paisNombre: getBillingCountry(state.pais)?.[1] || "",
+      plan: project,
+      planId: state.selectedPrice,
+      amount: price?.price ?? null,
+    },
   };
 }

@@ -9,6 +9,8 @@ const { GoogleAICacheManager } = require('@google/generative-ai/server');
 const cheerio = require('cheerio'); // Fallback scraping
 const puppeteer = require('puppeteer'); // Advanced scraping for design context
 const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const {
   CRM_OPERATOR_EMAIL,
   createCrmOtp,
@@ -29,6 +31,32 @@ const {
   getStaticChatReply,
   SYSTEM_INSTRUCTION,
 } = require('./chatCommercialPlaybook');
+
+const GEO_COUNTRY_HEADERS = ['cf-ipcountry', 'x-vercel-ip-country'];
+
+function normalizeCountryCode(value) {
+  const code = String(value || '').trim().toUpperCase();
+  return /^[A-Z]{2}$/.test(code) && code !== 'XX' && code !== 'T1' ? code : '';
+}
+
+function getVisitorCountry(req) {
+  for (const header of GEO_COUNTRY_HEADERS) {
+    const countryCode = normalizeCountryCode(req.get(header));
+    if (countryCode) return { countryCode, source: 'proxy_header' };
+  }
+
+  // El encabezado personalizado solo debe habilitarse si el proxy elimina los
+  // valores enviados por clientes antes de reenviar la petición a esta API.
+  if (process.env.TRUST_PROXY_GEO_HEADERS === 'true') {
+    const countryCode = normalizeCountryCode(req.get('x-geo-country'));
+    if (countryCode) return { countryCode, source: 'proxy_header' };
+  }
+
+  // Configuración opcional para instalaciones sin proveedor GeoIP. La región de
+  // la VPS no se usa: describe al servidor, no al visitante.
+  const countryCode = normalizeCountryCode(process.env.DEFAULT_VISITOR_COUNTRY);
+  return { countryCode, source: countryCode ? 'server_default' : 'unavailable' };
+}
 
 const app = express();
 const paymentState = createPaymentStateStore({ db });
@@ -562,6 +590,63 @@ app.use(cors(corsOptions));
 
 // Middleware para parsear JSON con límite de tamaño
 app.use(express.json({ limit: '10kb' }));
+
+// Archivos adjuntos de transferencias. Se usa un nombre generado por el
+// servidor para que el nombre original no pueda afectar rutas ni URLs.
+const VOUCHER_UPLOAD_DIR = path.join(__dirname, 'uploads');
+const VOUCHER_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'application/pdf']);
+const VOUCHER_EXTENSIONS = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'application/pdf': '.pdf',
+};
+const voucherStorage = multer.diskStorage({
+  destination: (_req, _file, callback) => {
+    fs.mkdir(VOUCHER_UPLOAD_DIR, { recursive: true }, (error) => callback(error, VOUCHER_UPLOAD_DIR));
+  },
+  filename: (_req, file, callback) => {
+    callback(null, `voucher-${Date.now()}-${crypto.randomUUID()}${VOUCHER_EXTENSIONS[file.mimetype] || ''}`);
+  },
+});
+const uploadVoucher = multer({
+  storage: voucherStorage,
+  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, callback) => {
+    callback(null, VOUCHER_MIME_TYPES.has(file.mimetype));
+  },
+});
+
+// La clave de sitio de Enterprise es pública por diseño. Centralizarla aquí
+// evita duplicarla en el HTML estático de OFF+BRAND y garantiza que coincida
+// con la que el servidor verifica.
+app.get('/api/public-config', (_req, res) => {
+  res.set('Cache-Control', 'public, max-age=300');
+  res.json({ recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || '' });
+});
+
+app.use('/uploads', express.static(VOUCHER_UPLOAD_DIR, { fallthrough: false, maxAge: '1d' }));
+
+app.post('/api/upload-voucher', (req, res) => {
+  uploadVoucher.single('voucher')(req, res, (error) => {
+    if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'El comprobante supera el límite de 10 MB.' });
+    }
+    if (error) {
+      console.error('Error al subir comprobante:', error.message);
+      return res.status(400).json({ error: 'No fue posible procesar el comprobante.' });
+    }
+    if (!req.file || !VOUCHER_MIME_TYPES.has(req.file.mimetype)) {
+      return res.status(400).json({ error: 'Adjunta un comprobante JPG, PNG o PDF.' });
+    }
+
+    const configuredPublicUrl = process.env.PUBLIC_API_URL?.replace(/\/$/, '');
+    const publicBaseUrl = configuredPublicUrl || `${req.protocol}://${req.get('host')}`;
+    return res.status(201).json({
+      success: true,
+      voucherUrl: `${publicBaseUrl}/uploads/${encodeURIComponent(req.file.filename)}`,
+    });
+  });
+});
 
 // Normaliza el token de reCAPTCHA: acepta el campo estandar `g-recaptcha-response`
 // del widget de Google y lo mapea a `recaptchaToken` que esperan los endpoints.
@@ -3166,6 +3251,9 @@ app.post('/api/send-order-emails', async (req, res) => {
   }
   // El voucherUrl debe haber sido emitido por nuestro propio servidor /api/upload-voucher
   // (defensa en profundidad — restringe el vector de phishing con vouchers externos).
+  if (!bodyOrderData.voucherUrl) {
+    return res.status(400).json({ error: 'Comprobante de transferencia requerido' });
+  }
   if (bodyOrderData.voucherUrl) {
     try {
       const vUrl = new URL(bodyOrderData.voucherUrl);
@@ -3183,7 +3271,8 @@ app.post('/api/send-order-emails', async (req, res) => {
     }
   }
   try {
-    await saveOrderToSupabase(bodyOrderData);
+    const savedOrder = await saveOrderToSupabase(bodyOrderData);
+    if (!savedOrder) throw new Error('No se pudo guardar el pedido en la base de datos local');
     await sendOrderEmailsInternal(bodyOrderData);
     return res.json({ success: true, message: 'Correos enviados exitosamente' });
   } catch (error) {
@@ -4424,6 +4513,13 @@ function deliverInvoiceIfAuthorized(invoiceRow) {
 }
 
 // Listado de facturas + estado de configuración SRI
+// País estimado del visitante para precargar formularios públicos. El cliente
+// siempre puede corregirlo antes de enviar sus datos de facturación.
+app.get('/api/visitor-country', (req, res) => {
+  res.set('Cache-Control', 'private, no-store');
+  res.json(getVisitorCountry(req));
+});
+
 app.get('/api/admin/invoices', adminAuth, async (req, res) => {
   try {
     const cfg = getSriConfig();
