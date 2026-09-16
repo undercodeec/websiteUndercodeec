@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import StackDemoHero from "@/components/LandingEspana/StackDemoHero";
 import HrCanvasSequence from "@/components/LandingEspana/HrCanvasSequence";
+import RecaptchaEnterpriseScript from "@/components/RecaptchaEnterpriseScript";
 import styles from "./recursos-humanos.module.css";
 
 declare global {
@@ -138,6 +139,8 @@ export default function RecursosHumanosPage() {
   };
 
   return (
+    <>
+      <RecaptchaEnterpriseScript />
     <main className={styles.page}>
       <section className={styles.stackHero} aria-label="Hero stack demo">
         <StackDemoHero />
@@ -308,5 +311,6 @@ export default function RecursosHumanosPage() {
       </section>
       </div>
     </main>
+    </>
   );
 }

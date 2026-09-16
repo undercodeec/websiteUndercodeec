@@ -1,0 +1,25 @@
+.page {
+  position: relative;
+  background: transparent;
+}
+
+.notFound {
+  min-height: 70vh;
+  padding: 12rem var(--primary-page-gutter) 7rem;
+  color: var(--primary-main-dark);
+  background: var(--primary-main-light);
+  font-family: var(--primary-font-family);
+  text-align: center;
+}
+
+.notFound h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 400;
+  line-height: .95;
+  text-transform: uppercase;
+}
+
+:global(body:has([data-blog-detail-page])) {
+  background: var(--primary-main-light);
+}

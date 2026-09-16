@@ -1,0 +1,200 @@
+.content {
+  --ink: var(--primary-main-dark);
+  --paper: var(--primary-main-light);
+  --line: rgba(29, 29, 29, .28);
+  --muted: rgba(29, 29, 29, .68);
+  position: relative;
+  z-index: 1;
+  color: var(--ink);
+  background: transparent;
+  font-family: var(--primary-font-family);
+  font-size: var(--primary-body-size);
+}
+
+.directory {
+  min-height: 100dvh;
+  padding: clamp(5rem, 9vw, 9rem) var(--primary-page-gutter);
+  border-bottom: 1px solid var(--line);
+}
+
+.sectionHeader {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.25em;
+  align-items: start;
+  padding-bottom: clamp(4rem, 7vw, 7rem);
+}
+
+.sectionMeta,
+.cardTop {
+  font-size: .72rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.sectionMeta {
+  grid-column: 1 / 3;
+  margin: .35rem 0 0;
+}
+
+.sectionHeader h2 {
+  grid-column: 3 / 10;
+  max-width: 11ch;
+  margin: 0;
+  font-size: clamp(3rem, 5.6vw, 6.8rem);
+  font-weight: 400;
+  line-height: .94;
+  letter-spacing: -.05em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.sectionIntro {
+  grid-column: 10 / 13;
+  margin: .35rem 0 0;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .95rem;
+  line-height: 1.55;
+}
+
+.channelGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.channelCard {
+  display: flex;
+  min-height: clamp(17rem, 24vw, 25rem);
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.25rem, 2vw, 2rem);
+  color: inherit;
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  text-decoration: none;
+  transition: color .35s ease, background-color .35s ease;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+}
+
+.channelVisual {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: clamp(8rem, 11vw, 11rem);
+  margin: auto 0;
+  pointer-events: none;
+}
+
+.channelOrbButton {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(104px, 9vw, 144px);
+  height: clamp(104px, 9vw, 144px);
+  overflow: hidden;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  color: #fff;
+  isolation: isolate;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .18s ease, transform .2s ease;
+}
+
+.channelOrbButton:has(.channelOrb > canvas[data-primary-orb-texture-ready="true"]) {
+  visibility: visible;
+  opacity: 1;
+}
+
+.channelOrb {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.channelOrbButton svg {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 63, 31, .28));
+}
+
+.channelIcon {
+  width: 44%;
+  height: 44%;
+}
+
+.channelCard:hover .channelOrbButton,
+.channelCard:focus-visible .channelOrbButton {
+  transform: translateY(-3px);
+}
+
+.channelCard h3 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.8rem, 2.6vw, 3.25rem);
+  font-weight: 400;
+  line-height: .95;
+  letter-spacing: -.045em;
+  text-transform: uppercase;
+}
+
+.channelCard p {
+  margin: 0;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .88rem;
+  line-height: 1.5;
+}
+
+.channelCard:hover,
+.channelCard:focus-visible {
+  color: var(--paper);
+  background: var(--ink);
+}
+
+.channelCard:hover p,
+.channelCard:hover .cardTop,
+.channelCard:focus-visible p,
+.channelCard:focus-visible .cardTop {
+  color: rgba(244, 244, 240, .72);
+}
+
+.channelCard:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -5px;
+}
+
+@media (max-width: 991px) {
+  .sectionHeader { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .sectionMeta { grid-column: 1 / 3; }
+  .sectionHeader h2 { grid-column: 3 / 7; }
+  .sectionIntro { grid-column: 7 / 9; }
+  .channelGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .directory { padding-top: 6rem; padding-bottom: 6rem; }
+  .sectionHeader { grid-template-columns: 1fr; gap: 2.5rem; padding-bottom: 4rem; }
+  .sectionMeta,
+  .sectionHeader h2,
+  .sectionIntro { grid-column: 1; }
+  .sectionHeader h2 { font-size: clamp(3rem, 14vw, 4.8rem); }
+  .channelGrid { grid-template-columns: 1fr; }
+  .channelCard { min-height: 16rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .channelCard { transition: none; }
+}

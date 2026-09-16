@@ -432,7 +432,39 @@
 
 
 
-<link rel="stylesheet" href="/landing-primary/css/demo-local.css"></head><body data-start="hidden"><div class="embed"><div class="css-global w-embed"><style>
+<link rel="stylesheet" href="/landing-primary/css/demo-local.css"><script type="module" src="/landing-primary/js/whatsapp-floating.js"></script><style>
+  .hermes-whatsapp-button {
+    position: fixed;
+    right: 1.5em;
+    bottom: 6em;
+    z-index: 9999;
+    display: grid;
+    width: 64px;
+    height: 64px;
+    place-items: center;
+    overflow: hidden;
+    border: 0;
+    border-radius: 50%;
+    color: #ffffff;
+    background: transparent;
+    box-shadow: none;
+    isolation: isolate;
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .18s ease, transform .2s ease;
+  }
+  .hermes-whatsapp-button:has(.hermes-whatsapp-orb > canvas[data-primary-orb-texture-ready="true"]) { visibility: visible; pointer-events: auto; opacity: 1; }
+  .hermes-whatsapp-orb { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; }
+  .hermes-whatsapp-orb > canvas { position: absolute; top: 53%; left: 50%; width: 100% !important; height: 100% !important; border-radius: 50%; background: transparent !important; opacity: 1; transition: opacity .18s ease-out; transform: translate(-50%, -50%); }
+  .hermes-whatsapp-orb > canvas[data-primary-orb-texture-ready="false"] { opacity: 0; }
+  .hermes-whatsapp-button:hover { color: #ffffff; transform: translateY(-3px); }
+  .hermes-whatsapp-button:focus-visible { outline: 3px solid #111827; outline-offset: 3px; }
+  .hermes-whatsapp-button svg { position: relative; z-index: 1; width: 28px; height: 28px; fill: currentColor; filter: drop-shadow(0 1px 2px rgba(0, 63, 31, .28)); }
+  @media screen and (max-width: 479px) {
+    .hermes-whatsapp-button { right: 1rem; bottom: 5.5rem; width: 58px; height: 58px; }
+  }
+</style></head><body data-start="hidden"><div class="embed"><div class="css-global w-embed"><style>
   /*  ---- ALL PAGES CSS  ---- */
   /*  ---- ALL PAGES CSS  ---- */
   html {

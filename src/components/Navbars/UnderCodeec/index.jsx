@@ -1,157 +1,112 @@
-import React from 'react';
-import {
-    FaGlobe,
-    FaInstagram,
-    FaFacebookF,
-    FaWhatsapp,
-} from 'react-icons/fa';
-import ReactGA from 'react-ga4';
+"use client";
 
-const BUBBLE_STYLES = Array.from({ length: 10 }, (_, index) => ({
-    left: `${(index * 37 + 11) % 100}%`,
-    animationDelay: `${((index * 17) % 50) / 10}s`,
-}));
+import Link from "next/link";
+import ReactGA from "react-ga4";
+import UnderCodeecChannelCanvas from "./UnderCodeecChannelCanvas";
+import styles from "./UnderCodeecPrimaryContent.module.css";
 
-const UnderCodeec = () => {
-    return (
-        <div className="undercodeec-container">
-            <img src="/assets/img/about/about_s6_bubbles.png" alt="" className="burbuja-rotar" />
-            <img src="/assets/img/about/about_s6_bubbles.png" alt="" className="burbuja-rotar2" />
-            <img src="/assets/img/header/hand_megaphone.png" alt="" className="animacion-oferta" />
-            <div className="undercodeec-card">
-                {/* Header Visual */}
-                <div className="undercodeec-header">
-                    <div className="lava-bubbles2">
-                        {BUBBLE_STYLES.map((style, i) => (
-                            <span key={i} className="bubble2" style={style} />
-                        ))}
-                    </div>
+const channels = [
+  {
+    index: "01",
+    label: "Sitio y proyectos",
+    description: "Conoce nuestra experiencia, servicios y proyectos digitales.",
+    href: "/",
+    event: "click_navegar_web",
+    visual: "website",
+    external: false,
+  },
+  {
+    index: "02",
+    label: "WhatsApp",
+    description: "Conversemos directamente sobre tu idea o necesidad.",
+    href: "https://wa.me/593999739534?text=Hola%20Undercodeec%2C%20quiero%20conversar%20sobre%20un%20proyecto.",
+    event: "click_whatsapp",
+    visual: "whatsapp",
+    external: true,
+  },
+  {
+    index: "03",
+    label: "Instagram",
+    description: "Procesos, ideas y una mirada cercana a nuestro trabajo.",
+    href: "https://www.instagram.com/undercodeec/",
+    event: "click_instagram",
+    visual: "instagram",
+    external: true,
+  },
+  {
+    index: "04",
+    label: "Facebook",
+    description: "Novedades, proyectos y contenido para negocios digitales.",
+    href: "https://www.facebook.com/undercodeec",
+    event: "click_facebook",
+    visual: "facebook",
+    external: true,
+  },
+];
 
-                    <h1>Transforma tu Presencia Digital</h1>
-                    <p className="undercodeec-subtitle">
-                        Solo elige y lo personalizamos
-                    </p>
-                    <p className="undercodeec-paragraph">
-                        Diseñamos y desarrollamos sitios web únicos que capturan la esencia
-                        de tu marca.
-                    </p>
+function trackChannel(channel) {
+  ReactGA.event({
+    category: "Interacción",
+    action: channel.event,
+    label: channel.label,
+  });
+
+  if (typeof window !== "undefined" && typeof window.fbq === "function") {
+    window.fbq("trackCustom", "ClickCanalUndercodeec", {
+      channel: channel.label,
+      location: "UnderCodeec",
+    });
+  }
+}
+
+export default function UnderCodeec() {
+  return (
+    <div className={styles.content}>
+      <section className={styles.directory} aria-labelledby="undercodeec-directory-title">
+        <header className={styles.sectionHeader}>
+          <p className={styles.sectionMeta}>Conecta / 01</p>
+          <h2 id="undercodeec-directory-title">Elige cómo quieres encontrarnos.</h2>
+          <p className={styles.sectionIntro}>
+            Explora nuestro trabajo, escríbenos directamente o acompaña lo que compartimos en nuestros canales.
+          </p>
+        </header>
+
+        <div className={styles.channelGrid}>
+          {channels.map((channel) => {
+            const inner = (
+              <>
+                <div className={styles.cardTop}>
+                  <span>{channel.index}</span>
+                  <span aria-hidden="true">↗</span>
                 </div>
-
-                {/* Información y enlaces */}
-                <div className="undercodeec-info">
-                    <h2>Conoce más sobre nosotros 🌐 ✨</h2>
-                    <p>
-                        ¡Síguenos en redes sociales para descubrir nuestro trabajo de
-                        calidad! 🎨✨
-                        <br />
-                        Juntos, podemos llevar la experiencia de tus clientes a otro nivel y
-                        hacer crecer tu negocio. 🚀🔥
-                    </p>
+                <UnderCodeecChannelCanvas type={channel.visual} />
+                <div>
+                  <h3>{channel.label}</h3>
+                  <p>{channel.description}</p>
                 </div>
+              </>
+            );
 
-                {/* Links */}
-                <div className="undercodeec-links">
-                    <a
-                        href="https://www.undercodeec.com"
-                        className="undercodeec-link"
-                        onClick={() => {
-                            // Evento para Google Analytics
-                            ReactGA.event({
-                                category: 'Interacción',
-                                action: 'click_navegar_web',
-                                label: 'Enlace a la página web'
-                            });
-
-                            // Evento para Meta Pixel
-                            if (typeof window !== 'undefined' && window.fbq) {
-                                window.fbq('trackCustom', 'ClickNavegarWeb', {
-                                    location: 'UnderCodeec'
-                                });
-                            }
-                        }}
-                    >
-                        <FaGlobe /> Nuestra Página Web & Galería de Proyectos
-                    </a>
-
-                    <a
-                        href="https://wa.me/?text=Hola%20UndercodeEC"
-                        className="undercodeec-link whatsapp"
-                        target="_blank"
-                        onClick={() => {
-                            // Evento para Google Analytics
-                            ReactGA.event({
-                                category: 'Interacción',
-                                action: 'click_whatsapp',
-                                label: 'Enlace WhatsApp'
-                            });
-
-                            // Evento para Meta Pixel
-                            if (typeof window !== 'undefined' && window.fbq) {
-                                window.fbq('trackCustom', 'ClickWhatsapp', {
-                                    location: 'UnderCodeec'
-                                });
-                            }
-                        }}
-                    >
-                        <FaWhatsapp /> WhatsApp
-                    </a>
-
-                    <a
-                        href="https://www.instagram.com/undercodeec/"
-                        className="undercodeec-link instagram"
-                        target="_blank"
-                        onClick={() => {
-                            // Evento para Google Analytics
-                            ReactGA.event({
-                                category: 'Interacción',
-                                action: 'click_instagram',
-                                label: 'Enlace Instagram'
-                            });
-
-                            // Evento para Meta Pixel
-                            if (typeof window !== 'undefined' && window.fbq) {
-                                window.fbq('trackCustom', 'ClickInstagram', {
-                                    location: 'UnderCodeec'
-                                });
-                            }
-                        }}
-                    >
-                        <FaInstagram /> Instagram
-                    </a>
-
-                    <a
-                        href="https://www.facebook.com/undercodeec"
-                        className="undercodeec-link facebook"
-                        target="_blank"
-                        onClick={() => {
-                            // Evento para Google Analytics
-                            ReactGA.event({
-                                category: 'Interacción',
-                                action: 'click_facebook',
-                                label: 'Enlace Facebook'
-                            });
-
-                            // Evento para Meta Pixel
-                            if (typeof window !== 'undefined' && window.fbq) {
-                                window.fbq('trackCustom', 'ClickFacebook', {
-                                    location: 'UnderCodeec'
-                                });
-                            }
-                        }}
-                    >
-                        <FaFacebookF /> Facebook
-                    </a>
-
-                    <div>
-                        <img src="/landing-preview/img/animacion-cuerpo.webp" alt="" className="animacion-cuerpo" />
-                        <img src="/landing-preview/img/animacion-cabeza.webp" alt="" className="animacion-cabeza" />
-                        <img src="/landing-preview/img/animacion-buzon.webp" alt="" className="animacion-buzon" />
-                        <img src="/landing-preview/img/animacion-chat.webp" alt="" className="animacion-chat" />
-                    </div>
-                </div>
-            </div>
+            return channel.external ? (
+              <a
+                className={styles.channelCard}
+                href={channel.href}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => trackChannel(channel)}
+                key={channel.label}
+              >
+                {inner}
+              </a>
+            ) : (
+              <Link className={styles.channelCard} href={channel.href} onClick={() => trackChannel(channel)} key={channel.label}>
+                {inner}
+              </Link>
+            );
+          })}
         </div>
-    );
-};
+      </section>
 
-export default UnderCodeec;
+    </div>
+  );
+}

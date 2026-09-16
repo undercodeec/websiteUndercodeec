@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { PrimaryOrb } from "@/components/Primary";
 import styles from "./Header.module.css";
 
@@ -10,13 +11,21 @@ const MOBILE_APPS_TITLE_LINES = ["Desarrollo", "de Aplicaciones", "Móviles"];
 const HERO_SUBTITLE = "Diseño Innovador y Desarrollo Profesional";
 
 function HeroCharacters({ text }) {
-  return Array.from(text).map((character, index) => (
-    <span className={styles.titleCharacterClip} key={`${character}-${index}`}>
-      <span className={styles.titleCharacter} data-mobile-apps-hero-char>
-        {character === " " ? "\u00a0" : character}
+  return text.split(/(\s+)/).map((word, wordIndex) => {
+    if (/^\s+$/.test(word)) return " ";
+
+    return (
+      <span className={styles.titleWord} key={`${word}-${wordIndex}`}>
+        {Array.from(word).map((character, characterIndex) => (
+          <span className={styles.titleCharacterClip} key={`${character}-${characterIndex}`}>
+            <span className={styles.titleCharacter} data-mobile-apps-hero-char>
+              {character}
+            </span>
+          </span>
+        ))}
       </span>
-    </span>
-  ));
+    );
+  });
 }
 
 export default function Header() {
@@ -32,6 +41,7 @@ export default function Header() {
     const innerRotation = orbField.querySelector('[data-mobile-apps-orb-outline-rotation="1"]');
     const outerRotation = orbField.querySelector('[data-mobile-apps-orb-outline-rotation="2"]');
     const hero = orbField.parentElement;
+    const page = document.querySelector("[data-mobile-apps-page]");
     const titleCharacters = hero?.querySelectorAll("[data-mobile-apps-hero-char]");
     const titleLineTransforms = hero?.querySelectorAll("[data-mobile-apps-hero-line-transform]");
     if (!orb || !innerOutline || !outerOutline || !innerRotation || !outerRotation || !titleCharacters?.length || !titleLineTransforms?.length) return undefined;
@@ -42,6 +52,8 @@ export default function Header() {
     let hasRevealed = false;
 
     const context = gsap.context(() => {
+      gsap.registerPlugin(ScrollTrigger);
+
       const timeline = gsap.timeline();
 
       timeline
@@ -53,6 +65,54 @@ export default function Header() {
         gsap.set(titleCharacters, { yPercent: 0, autoAlpha: 1 });
         timeline.progress(1);
         return;
+      }
+
+      if (page) {
+        gsap.set([orb, innerOutline, outerOutline], {
+          x: "0vw", y: "0vh", scale: 1, force3D: true,
+        });
+
+        const createScrollTimeline = () => gsap.timeline({
+          scrollTrigger: {
+            trigger: page,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: true,
+            immediateRender: false,
+          },
+        });
+
+        createScrollTimeline()
+          .to(orb, { x: "50vw", scale: 2, duration: .15, ease: "power2.out" })
+          .to(orb, { x: "-50vw", y: "-20vh", scale: 1.5, duration: .15, ease: "power2.inOut" })
+          .to(orb, { x: "0vw", y: "50vh", scale: 0, duration: .05 })
+          .to(orb, { x: "0vw", scale: 0, duration: .025 })
+          .to(orb, { x: "0vw", y: "0vh", scale: 1, duration: .125 })
+          .to(orb, { x: "-25vw", y: "20vh", scale: 1.5, duration: .1 })
+          .to(orb, { x: "-60vw", y: "-75vh", scale: 0, ease: "power1.out", duration: .05 })
+          .to(orb, { x: "0vw", y: "0vh", scale: 0, duration: .3 });
+
+        createScrollTimeline()
+          .to(innerOutline, { x: "10vw", y: "0vh", scale: 1.2, duration: .15, overwrite: "auto" })
+          .to(innerOutline, { x: "-30vw", y: "0vh", scale: 1.3, duration: .15 })
+          .to(innerOutline, { x: "0vw", y: "50vh", scale: 1, duration: .05 })
+          .to(innerOutline, { x: "0vw", y: "50vh", scale: .8, duration: .025 })
+          .to(innerOutline, { x: "0vw", y: "0vh", scale: 1, duration: .125 })
+          .to(innerOutline, { x: "30vw", y: "-20vh", scale: .7, duration: .15 })
+          .to(innerOutline, { x: "0vw", y: "0vh", scale: 1, duration: .05 })
+          .to(innerOutline, { x: "0vw", y: "0vh", scale: 0, duration: .25 })
+          .to(innerOutline, { x: "49vw", y: "0vh", scale: 1, duration: .05 });
+
+        createScrollTimeline()
+          .to(outerOutline, { x: "25vw", y: "0vh", scale: 1.3, duration: .15, overwrite: "auto" })
+          .to(outerOutline, { x: "-9vw", y: "32vh", scale: .6, duration: .15 })
+          .to(outerOutline, { x: "0vw", y: "50vh", scale: 1, duration: .05 })
+          .to(outerOutline, { x: "0vw", y: "50vh", scale: .8, duration: .025 })
+          .to(outerOutline, { x: "0vw", y: "0vh", scale: 1, duration: .125 })
+          .to(outerOutline, { x: "0vw", y: "14vh", scale: 1.2, duration: .15 })
+          .to(outerOutline, { x: "0vw", y: "0vh", scale: .6, duration: .05 })
+          .to(outerOutline, { x: "0vw", y: "0vh", scale: 0, duration: .25 })
+          .to(outerOutline, { x: "29vw", y: "0vh", scale: 1.5, duration: .05 });
       }
 
       const isTabletOrBelow = window.matchMedia("(max-width: 991px)").matches;

@@ -1,32 +1,28 @@
-"use client";
-
-import { useEffect, useRef } from "react";
-import navbarScrollEffect from "@/common/navbarScrollEffect";
 import MainLayout from "@/layouts/Main";
-import TopNav from "@/components/Navbars/TopNav";
-import Navbar from "@/components/Navbars/SaasNav";
-import ContactSection from "@/components/Contact/Form";
-import Map from "@/components/Contact/Map";
-import Footer from "@/components/Saas/Footer";
+import { PrimaryHeader } from "@/components/Primary";
+import PrimaryPageHero from "@/components/Marketing/MarketingHero";
+import ContactPrimaryContent from "@/components/Contact/ContactPrimaryContent";
+import ServiciosPrimaryFooter from "@/components/Servicios/ServiciosPrimaryFooter";
+import styles from "./ContactPage.module.css";
 
 export default function ContactoPage() {
-  const navbarRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (navbarRef.current) {
-      navbarScrollEffect(navbarRef.current, true);
-    }
-  }, []);
-
   return (
     <MainLayout>
-      <TopNav style="5" />
-      <Navbar navbarRef={navbarRef} bgTransparent={false} />
-      <main className="contact-page style-5">
-        <ContactSection style="5" />
-        <Map />
-      </main>
-      <Footer noWave={true} />
+      <div className={styles.page} data-contact-page data-primary-page>
+        <PrimaryHeader />
+        <main className="contact-page style-5">
+          <PrimaryPageHero
+            label="Hablemos de la próxima etapa de tu negocio"
+            lines={["Hablemos de", "lo que quieres", "construir"]}
+            topMeta="Contacto / Estrategia / Tecnología"
+            summary="Cuéntanos qué necesita tu negocio. Convertimos ideas, procesos y oportunidades en soluciones digitales claras, escalables y hechas a tu medida."
+            bottomMeta="Una buena solución empieza conversando"
+            titleId="contacto-hero-title"
+          />
+          <ContactPrimaryContent />
+        </main>
+        <ServiciosPrimaryFooter />
+      </div>
     </MainLayout>
   );
 }

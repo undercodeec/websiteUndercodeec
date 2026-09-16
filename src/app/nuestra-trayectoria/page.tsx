@@ -1,44 +1,30 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import navbarScrollEffect from "@/common/navbarScrollEffect";
 import MainLayout from "@/layouts/Main";
-import TopNav from "@/components/Navbars/TopNav";
-import Navbar from "@/components/Navbars/SaasNav";
-import AboutHeader from "@/components/Saas/AboutHeader";
-import Community from "@/components/Saas/Community";
-import Philosophy from "@/components/Saas/Philosophy";
-import ChooseUs from "@/components/Saas/ChooseUs";
-import Clients from "@/components/Saas/Clients";
-import Numbers from "@/components/Saas/Numbers";
-import Team from "@/components/Saas/Team";
-import Contact from "@/components/Saas/Contact";
-import Footer from "@/components/Saas/Footer";
+import { PrimaryHeader } from "@/components/Primary";
+import PrimaryPageHero from "@/components/Marketing/MarketingHero";
+import TrajectoryPrimaryContent from "@/components/Trajectory/TrajectoryPrimaryContent";
+import ServiciosPrimaryFooter from "@/components/Servicios/ServiciosPrimaryFooter";
+import styles from "./TrajectoryPage.module.css";
 
 export default function NuestraTrayectoriaPage() {
-  const navbarRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (navbarRef.current) {
-      navbarScrollEffect(navbarRef.current);
-    }
-  }, []);
-
   return (
     <MainLayout>
-      <TopNav style="5" />
-      <Navbar navbarRef={navbarRef} bgTransparent={false} />
-      <main className="about-page style-5">
-        <AboutHeader />
-        <Community />
-        <Philosophy />
-        <ChooseUs />
-        <Clients padding={true} />
-        <Numbers />
-        <Team />
-        <Contact />
-      </main>
-      <Footer noWave={true} />
+      <div className={styles.page} data-trajectory-page data-primary-page>
+        <PrimaryHeader />
+        <main>
+          <PrimaryPageHero
+            label="Nuestra trayectoria: ideas convertidas en soluciones digitales"
+            lines={["Nuestra trayectoria", "se escribe", "creando"]}
+            topMeta="Historia / Equipo / Evolución"
+            summary="Desde 2018 convertimos ideas en experiencias digitales, aplicaciones y software que ayudan a negocios a avanzar."
+            bottomMeta="Experiencia que impulsa lo que sigue"
+            titleId="trajectory-hero-title"
+          />
+          <TrajectoryPrimaryContent />
+        </main>
+        <ServiciosPrimaryFooter />
+      </div>
     </MainLayout>
   );
 }

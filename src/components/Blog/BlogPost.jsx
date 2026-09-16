@@ -1,122 +1,111 @@
-"use client";
-import React from 'react';
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
+import styles from "./BlogPost.module.css";
 
-const BlogPost = ({ post }) => {
+const SITE_URL = "https://undercodeec.com";
+
+function headingId(text, index) {
+  const slug = text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 64);
+  return `${slug || "seccion"}-${index}`;
+}
+
+export default function BlogPost({ post }) {
   if (!post) return null;
+  const canonical = `${SITE_URL}/blog/${post.slug}/`;
+  const headings = post.content
+    .map((block, index) => block.type === "heading" ? { text: block.text, id: headingId(block.text, index) } : null)
+    .filter(Boolean);
 
   return (
-    <article
-      className="blog-post-detail"
-      itemScope
-      itemType="https://schema.org/BlogPosting"
-    >
-      <meta itemProp="mainEntityOfPage" content={typeof window !== 'undefined' ? window.location.href : ''} />
-      {post.datePublished && (
-        <meta itemProp="datePublished" content={post.datePublished} />
-      )}
-      {(post.dateModified || post.datePublished) && (
-        <meta itemProp="dateModified" content={post.dateModified || post.datePublished} />
-      )}
+    <article className={styles.article} itemScope itemType="https://schema.org/BlogPosting">
+      <meta itemProp="mainEntityOfPage" content={canonical} />
+      {post.datePublished && <meta itemProp="datePublished" content={post.datePublished} />}
+      <meta itemProp="dateModified" content={post.dateModified || post.datePublished} />
 
-      {/* Hero Image */}
-      <figure className="blog-hero" itemProp="image" itemScope itemType="https://schema.org/ImageObject">
-        <img src={post.heroImage || post.image} alt={post.title} itemProp="url" />
-        <div className="blog-hero-overlay" />
+      <figure className={styles.heroImage} itemProp="image" itemScope itemType="https://schema.org/ImageObject">
+        <Image
+          src={post.heroImage || post.image}
+          alt={post.title}
+          fill
+          priority
+          sizes="100vw"
+          itemProp="url"
+        />
+        <figcaption>
+          <span>{post.category}</span>
+          <span>Undercodeec Journal</span>
+        </figcaption>
       </figure>
 
-      <div className="container">
-        <div className="blog-post-content">
-          {/* Breadcrumb */}
-          <nav className="blog-breadcrumb" aria-label="Breadcrumb">
-            <Link href="/">Inicio</Link>
-            <span>/</span>
-            <Link href="/blog">Blog</Link>
-            <span>/</span>
-            <span className="current">{post.category}</span>
-          </nav>
-
-          {/* Title */}
-          <header>
-            <h1 className="blog-post-title" itemProp="headline">{post.title}</h1>
-
-            {/* Meta */}
-            <div className="blog-post-meta">
-              <div
-                className="blog-author"
-                itemProp="author"
-                itemScope
-                itemType="https://schema.org/Person"
-              >
-                <img src={post.author?.avatar || '/assets/img/undercode-logo.png'} alt={post.author?.name} />
-                <div>
-                  <span className="author-name" itemProp="name">{post.author?.name || 'Equipo Undercodeec'}</span>
-                  <time className="post-date" dateTime={post.datePublished || undefined}>
-                    {post.date}
-                  </time>
-                </div>
-              </div>
-              <div className="blog-categories">
-                {post.category.split(', ').map((cat, i) => (
-                  <span key={i} className="blog-category-tag" itemProp="articleSection">{cat}</span>
-                ))}
-              </div>
-            </div>
-          </header>
-
-          <hr className="blog-divider" />
-
-          {/* Article Body */}
-          <section className="blog-body" itemProp="articleBody">
-            {post.content?.map((block, index) => {
-              switch (block.type) {
-                case 'heading':
-                  return <h2 key={index} className="blog-section-heading">{block.text}</h2>;
-                case 'paragraph':
-                  return <p key={index} className="blog-paragraph">{block.text}</p>;
-                case 'image':
-                  return (
-                    <figure key={index} className="blog-figure">
-                      <img src={block.src} alt={block.alt} />
-                      {block.alt && <figcaption>{block.alt}</figcaption>}
-                    </figure>
-                  );
-                case 'list':
-                  return (
-                    <ul key={index} className="blog-list">
-                      {block.items.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  );
-                default:
-                  return null;
-              }
-            })}
-          </section>
-
-          {/* Share & Back */}
-          <div className="blog-footer-actions">
-            <Link href="/blog" className="blog-back-btn">
-              <i className="fas fa-arrow-left"></i> Volver al Blog
-            </Link>
-            <div className="blog-share">
-              <span>Compartir:</span>
-              <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`} target="_blank" rel="noopener noreferrer">
-                <i className="fab fa-facebook-f"></i>
-              </a>
-              <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&text=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">
-                <i className="fab fa-twitter"></i>
-              </a>
-              <a href={`https://wa.me/?text=${encodeURIComponent(post.title + ' ' + (typeof window !== 'undefined' ? window.location.href : ''))}`} target="_blank" rel="noopener noreferrer">
-                <i className="fab fa-whatsapp"></i>
-              </a>
-            </div>
+      <div className={styles.articleLayout}>
+        <aside className={styles.sidebar}>
+          <div className={styles.articleFacts}>
+            <p>Publicado</p>
+            <time dateTime={post.datePublished || undefined}>{post.date}</time>
+            <p>Escrito por</p>
+            <span itemProp="author" itemScope itemType="https://schema.org/Organization">
+              <span itemProp="name">{post.author?.name || "Equipo Undercodeec"}</span>
+            </span>
+            <p>Categoría</p>
+            <span itemProp="articleSection">{post.category}</span>
           </div>
-        </div>
+
+          {headings.length > 0 && (
+            <nav className={styles.tableOfContents} aria-label="Contenido del artículo">
+              <p>En este artículo</p>
+              <ol>
+                {headings.map((heading, index) => (
+                  <li key={heading.id}><a href={`#${heading.id}`}><span>{String(index + 1).padStart(2, "0")}</span>{heading.text}</a></li>
+                ))}
+              </ol>
+            </nav>
+          )}
+        </aside>
+
+        <section className={styles.body} itemProp="articleBody">
+          <p className={styles.lead}>{post.excerpt}</p>
+          {post.content.map((block, index) => {
+            if (block.type === "heading") {
+              return <h2 id={headingId(block.text, index)} key={index}>{block.text}</h2>;
+            }
+            if (block.type === "paragraph") {
+              return <p key={index}>{block.text}</p>;
+            }
+            if (block.type === "image") {
+              return (
+                <figure className={styles.contentImage} key={index}>
+                  <Image src={block.src} alt={block.alt || ""} width={1200} height={675} sizes="(max-width: 700px) 94vw, 67vw" />
+                  {block.alt && <figcaption>{block.alt}</figcaption>}
+                </figure>
+              );
+            }
+            if (block.type === "list") {
+              return (
+                <ul key={index}>
+                  {block.items.map((item, itemIndex) => <li key={`${itemIndex}-${item.slice(0, 24)}`}>{item}</li>)}
+                </ul>
+              );
+            }
+            return null;
+          })}
+
+          <footer className={styles.actions}>
+            <Link href="/blog">← Volver al blog</Link>
+            <div aria-label="Compartir artículo">
+              <span>Compartir</span>
+              <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(canonical)}`} target="_blank" rel="noopener noreferrer">Facebook ↗</a>
+              <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(canonical)}&text=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">X ↗</a>
+              <a href={`https://wa.me/?text=${encodeURIComponent(`${post.title} ${canonical}`)}`} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a>
+            </div>
+          </footer>
+        </section>
       </div>
     </article>
   );
-};
-
-export default BlogPost;
+}

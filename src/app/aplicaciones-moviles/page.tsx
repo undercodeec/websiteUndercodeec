@@ -3,6 +3,7 @@ import { PrimaryHeader } from "@/components/Primary";
 import Header from "@/components/App/Header";
 import MobileAppsPrimaryContent from "@/components/App/MobileAppsPrimaryContent";
 import ServiciosPrimaryFooter from "@/components/Servicios/ServiciosPrimaryFooter";
+import styles from "./MobileAppsPage.module.css";
 
 export default function AplicacionesMovilesPage() {
   // Nota: el Service JSON-LD vive en layout.tsx (evita duplicación).
@@ -40,16 +41,18 @@ export default function AplicacionesMovilesPage() {
 
   return (
     <MainLayout>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
-      <PrimaryHeader />
-      <main>
-        <Header />
-        <MobileAppsPrimaryContent />
-      </main>
-      <ServiciosPrimaryFooter />
+      <div className={styles.page} data-mobile-apps-page>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+        <PrimaryHeader />
+        <main>
+          <Header />
+          <MobileAppsPrimaryContent />
+        </main>
+        <ServiciosPrimaryFooter />
+      </div>
     </MainLayout>
   );
 }

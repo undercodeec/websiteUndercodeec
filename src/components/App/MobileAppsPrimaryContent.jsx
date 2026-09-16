@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { A11y, Autoplay, Keyboard } from "swiper";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import MobileAppProcessCanvas from "./MobileAppProcessCanvas";
 import "swiper/css";
 import about from "@/data/App/about.json";
 import faq from "@/data/App/faq.json";
@@ -16,6 +19,33 @@ const deliveryStages = [
   ["03", "Desarrollo", "Construimos una app rápida, escalable y preparada para evolucionar."],
   ["04", "Lanzamiento", "Publicamos, medimos y acompañamos las siguientes mejoras."],
 ];
+
+function AnimatedHeading({ as: Heading = "h2", children, className, ...props }) {
+  const label = typeof children === "string" ? children : "";
+  const words = label.split(/(\s+)/);
+
+  return (
+    <Heading {...props} className={className} aria-label={label}>
+      <span className={styles.headingCharacters} aria-hidden="true">
+        {words.map((word, wordIndex) => {
+          if (/^\s+$/.test(word)) return " ";
+
+          return (
+            <span className={styles.headingWord} key={`${word}-${wordIndex}`}>
+              {Array.from(word).map((character, characterIndex) => (
+                <span className={styles.headingCharacterClip} key={`${character}-${characterIndex}`}>
+                  <span className={styles.headingCharacter} data-mobile-apps-content-heading-char>
+                    {character}
+                  </span>
+                </span>
+              ))}
+            </span>
+          );
+        })}
+      </span>
+    </Heading>
+  );
+}
 
 function ExpandableList({ items, label }) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -112,9 +142,11 @@ function ProductScreensCarousel() {
         speed={prefersReducedMotion ? 0 : 1000}
         autoplay={prefersReducedMotion ? false : {
           delay: 3000,
-          disableOnInteraction: false,
-          pauseOnMouseEnter: true,
+          disableOnInteraction: true,
+          pauseOnMouseEnter: false,
         }}
+        onClick={(swiper) => swiper.autoplay?.stop()}
+        onTouchStart={(swiper) => swiper.autoplay?.stop()}
         keyboard={{ enabled: true }}
         breakpoints={{
           0: { slidesPerView: 2 },
@@ -153,16 +185,75 @@ function ProductScreensCarousel() {
 }
 
 export default function MobileAppsPrimaryContent() {
+  const surfaceRef = useRef(null);
+
+  useEffect(() => {
+    const surface = surfaceRef.current;
+    if (!surface || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const context = gsap.context(() => {
+      surface.querySelectorAll("[data-mobile-apps-content-section]").forEach((section) => {
+        const headingCharacters = section.querySelectorAll("[data-mobile-apps-content-heading-char]");
+        const revealElements = section.querySelectorAll("[data-mobile-apps-content-reveal]");
+        const visual = section.querySelector("[data-mobile-apps-content-visual]");
+
+        gsap.set(headingCharacters, { yPercent: 105, autoAlpha: 0 });
+        gsap.set(revealElements, { y: 36, autoAlpha: 0 });
+        if (visual) gsap.set(visual, { clipPath: "inset(0 0 100% 0)" });
+
+        const timeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: "top 78%",
+            once: true,
+          },
+        });
+
+        if (headingCharacters.length) {
+          timeline.to(headingCharacters, {
+            yPercent: 0,
+            autoAlpha: 1,
+            duration: 1,
+            ease: "power4.inOut",
+            stagger: { each: .025, from: "random" },
+          });
+        }
+
+        if (revealElements.length) {
+          timeline.to(revealElements, {
+            y: 0,
+            autoAlpha: 1,
+            duration: .85,
+            ease: "power4.out",
+            stagger: .08,
+          }, headingCharacters.length ? .12 : 0);
+        }
+
+        if (visual) {
+          timeline.to(visual, {
+            clipPath: "inset(0 0 0% 0)",
+            duration: 1.1,
+            ease: "power4.inOut",
+          }, .1);
+        }
+      });
+    }, surface);
+
+    return () => context.revert();
+  }, []);
+
   return (
-    <div className={styles.surface}>
-      <section className={styles.intro} aria-labelledby="mobile-apps-intro-title">
-        <p className={styles.sectionMeta}>01 / Aplicaciones móviles</p>
+    <div ref={surfaceRef} className={styles.surface}>
+      <section className={styles.intro} data-mobile-apps-content-section aria-labelledby="mobile-apps-intro-title">
+        <p className={styles.sectionMeta} data-mobile-apps-content-reveal>01 / Aplicaciones móviles</p>
         <div className={styles.introTitleWrap}>
-          <h2 id="mobile-apps-intro-title" className={styles.displayTitle}>
+          <AnimatedHeading id="mobile-apps-intro-title" className={`primary-heading-b ${styles.displayTitle}`}>
             Tu idea, lista para vivir en cada pantalla.
-          </h2>
+          </AnimatedHeading>
         </div>
-        <div className={styles.introCopy}>
+        <div className={styles.introCopy} data-mobile-apps-content-reveal>
           <p>
             Diseñamos y desarrollamos aplicaciones móviles que conectan una necesidad real
             con una experiencia clara, útil y memorable.
@@ -173,41 +264,46 @@ export default function MobileAppsPrimaryContent() {
         </div>
       </section>
 
-      <section id="proceso" className={styles.process} aria-labelledby="mobile-apps-process-title">
+      <section id="proceso" className={styles.process} data-mobile-apps-content-section aria-labelledby="mobile-apps-process-title">
         <header className={styles.sectionHeader}>
-          <p className={styles.sectionMeta}>02 / De la idea al lanzamiento</p>
-          <h2 id="mobile-apps-process-title" className={styles.sectionTitle}>
+          <p className={styles.sectionMeta} data-mobile-apps-content-reveal>02 / De la idea al lanzamiento</p>
+          <AnimatedHeading id="mobile-apps-process-title" className={`primary-heading-b ${styles.sectionTitle}`}>
             Un producto pensado para avanzar.
-          </h2>
-          <p className={styles.headerCopy}>
+          </AnimatedHeading>
+          <p className={styles.headerCopy} data-mobile-apps-content-reveal>
             Trabajamos contigo desde la primera decisión hasta la publicación en App Store y Google Play.
           </p>
         </header>
 
         <div className={styles.stageGrid}>
           {deliveryStages.map(([number, title, description]) => (
-            <article className={styles.stage} key={number}>
+            <article className={styles.stage} data-mobile-apps-content-reveal key={number}>
               <span className={styles.stageNumber}>{number}</span>
-              <h3>{title}</h3>
-              <p>{description}</p>
+              <div className={styles.stageVisual} aria-hidden="true">
+                <MobileAppProcessCanvas stage={number} />
+              </div>
+              <div className={styles.stageContent}>
+                <AnimatedHeading as="h3">{title}</AnimatedHeading>
+                <p>{description}</p>
+              </div>
               <span className={styles.stageCorner} aria-hidden="true">+</span>
             </article>
           ))}
         </div>
       </section>
 
-      <section className={styles.experience} aria-labelledby="mobile-apps-experience-title">
+      <section className={styles.experience} data-mobile-apps-content-section aria-labelledby="mobile-apps-experience-title">
         <div className={styles.experienceCopy}>
-          <p className={styles.sectionMeta}>03 / Experiencia de producto</p>
-          <h2 id="mobile-apps-experience-title" className={styles.featureTitle}>
+          <p className={styles.sectionMeta} data-mobile-apps-content-reveal>03 / Experiencia de producto</p>
+          <AnimatedHeading id="mobile-apps-experience-title" className={`primary-heading-b ${styles.featureTitle}`}>
             Diseñamos experiencias que se sienten naturales.
-          </h2>
-          <p className={styles.bodyCopy}>
+          </AnimatedHeading>
+          <p className={styles.bodyCopy} data-mobile-apps-content-reveal>
             Cada decisión de diseño hace que tu marca se vea mejor y que las personas lleguen a su objetivo con menos esfuerzo.
           </p>
         </div>
 
-        <figure className={styles.phoneVisual}>
+        <figure className={styles.phoneVisual} data-mobile-apps-content-visual>
           <span className={`${styles.corner} ${styles.cornerTopLeft}`} aria-hidden="true">+</span>
           <span className={`${styles.corner} ${styles.cornerTopRight}`} aria-hidden="true">+</span>
           <span className={`${styles.corner} ${styles.cornerBottomLeft}`} aria-hidden="true">+</span>
@@ -224,7 +320,7 @@ export default function MobileAppsPrimaryContent() {
           <p className={styles.visualCaption}>Diseño UI / UX · Android · iOS</p>
         </figure>
 
-        <div className={styles.experienceList}>
+        <div className={styles.experienceList} data-mobile-apps-content-reveal>
           <ExpandableList items={about.features} label="Características de experiencia móvil" />
           <a className={styles.inlineAction} href="/contacto">
             <span>Hablemos de tu aplicación</span><span aria-hidden="true">→</span>
@@ -232,14 +328,14 @@ export default function MobileAppsPrimaryContent() {
         </div>
       </section>
 
-      <section className={styles.security} aria-labelledby="mobile-apps-security-title">
+      <section className={styles.security} data-mobile-apps-content-section aria-labelledby="mobile-apps-security-title">
         <div className={styles.securityHeader}>
-          <p className={styles.sectionMeta}>04 / Seguridad y escala</p>
-          <h2 id="mobile-apps-security-title" className={styles.securityTitle}>
+          <p className={styles.sectionMeta} data-mobile-apps-content-reveal>04 / Seguridad y escala</p>
+          <AnimatedHeading id="mobile-apps-security-title" className={`primary-heading-b ${styles.securityTitle}`}>
             Crece con una base segura.
-          </h2>
+          </AnimatedHeading>
         </div>
-        <div className={styles.securityContent}>
+        <div className={styles.securityContent} data-mobile-apps-content-reveal>
           <p className={styles.securityLead}>
             La confianza no se añade al final. Protegemos los datos, definimos una arquitectura preparada para crecer y cuidamos cada integración desde el inicio.
           </p>
@@ -247,13 +343,13 @@ export default function MobileAppsPrimaryContent() {
         </div>
       </section>
 
-      <section className={styles.showcase} aria-labelledby="mobile-apps-showcase-title">
+      <section className={styles.showcase} data-mobile-apps-content-section aria-labelledby="mobile-apps-showcase-title">
         <header className={styles.sectionHeader}>
-          <p className={styles.sectionMeta}>05 / Producto en movimiento</p>
-          <h2 id="mobile-apps-showcase-title" className={styles.sectionTitle}>
+          <p className={styles.sectionMeta} data-mobile-apps-content-reveal>05 / Producto en movimiento</p>
+          <AnimatedHeading id="mobile-apps-showcase-title" className={`primary-heading-b ${styles.sectionTitle}`}>
             Hecha para tu negocio. Preparada para tus clientes.
-          </h2>
-          <p className={styles.headerCopy}>
+          </AnimatedHeading>
+          <p className={styles.headerCopy} data-mobile-apps-content-reveal>
             Catálogos, reservas, ventas, contenido y flujos internos: construimos la aplicación alrededor de la forma en que tu negocio realmente trabaja.
           </p>
         </header>
@@ -261,14 +357,14 @@ export default function MobileAppsPrimaryContent() {
         <ProductScreensCarousel />
       </section>
 
-      <section className={styles.faqSection} aria-labelledby="mobile-apps-faq-title">
+      <section className={styles.faqSection} data-mobile-apps-content-section aria-labelledby="mobile-apps-faq-title">
         <header className={styles.faqHeader}>
-          <p className={styles.sectionMeta}>06 / Preguntas frecuentes</p>
-          <h2 id="mobile-apps-faq-title" className={styles.faqTitle}>
+          <p className={styles.sectionMeta} data-mobile-apps-content-reveal>06 / Preguntas frecuentes</p>
+          <AnimatedHeading id="mobile-apps-faq-title" className={`primary-heading-b ${styles.faqTitle}`}>
             Lo que necesitas saber antes de empezar.
-          </h2>
+          </AnimatedHeading>
         </header>
-        <FAQList />
+        <div className={styles.faqContent} data-mobile-apps-content-reveal><FAQList /></div>
       </section>
     </div>
   );

@@ -1,25 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
-import initScrollAnimations from "@/common/initScrollAnimations";
 import MainLayout from "@/layouts/Main";
-import Header from "@/components/DataAnalysis/Header";
-import Services from "@/components/DataAnalysis/Services";
-import About from "@/components/DataAnalysis/About";
-import Projects from "@/components/DataAnalysis/Projects";
-import Numbers from "@/components/DataAnalysis/Numbers";
-import Footer from "@/components/DataAnalysis/Footer";
-
-import FAQ from "@/components/DataAnalysis/FAQ";
+import { PrimaryHeader } from "@/components/Primary";
+import PrimaryServiceHero from "@/components/Marketing/MarketingHero";
+import SoftwarePrimaryContent from "@/components/Software/SoftwarePrimaryContent";
+import ServiciosPrimaryFooter from "@/components/Servicios/ServiciosPrimaryFooter";
+import styles from "./SoftwarePage.module.css";
 
 export default function SoftwareParaTuNegocioPage() {
   useEffect(() => {
     document.body.classList.add("home-style-8");
     return () => document.body.classList.remove("home-style-8");
-  }, []);
-
-  useEffect(() => {
-    initScrollAnimations();
   }, []);
 
   // Nota: el Service JSON-LD vive en layout.tsx (evita duplicación).
@@ -57,19 +49,25 @@ export default function SoftwareParaTuNegocioPage() {
 
   return (
     <MainLayout>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
-      <Header />
-      <main>
-        <Services />
-        <About />
-        <Projects />
-        <Numbers />
-        <FAQ />
-      </main>
-      <Footer />
+      <div className={styles.page} data-software-page data-primary-page>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+        <PrimaryHeader />
+        <main>
+          <PrimaryServiceHero
+            label="Desarrollo de software a medida para impulsar tu negocio"
+            lines={["Software a medida", "para impulsar", "tu negocio"]}
+            topMeta="Software / Automatización / Escalabilidad"
+            summary="CRM, inventarios, facturación y procesos conectados para convertir operaciones complejas en crecimiento."
+            bottomMeta="Tecnología diseñada para avanzar"
+            titleId="software-hero-title"
+          />
+          <SoftwarePrimaryContent />
+        </main>
+        <ServiciosPrimaryFooter />
+      </div>
     </MainLayout>
   );
 }

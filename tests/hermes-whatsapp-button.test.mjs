@@ -21,6 +21,7 @@ test("hides the Hermes entrypoint on internal route prefixes", () => {
     "/admin/crm",
     "/contratos/123",
     "/recursos-humanos/solicitudes",
+    "/undercodeec",
   ]) {
     assert.equal(isHermesWhatsAppHiddenPath(pathname), true, pathname);
   }

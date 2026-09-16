@@ -1,5 +1,6 @@
+"use client";
+
 import React, { useState } from 'react';
-import Link from 'next/link';
 
 const PoliticaContenido = () => {
     // Estado para manejar la sección seleccionada
@@ -268,29 +269,18 @@ const PoliticaContenido = () => {
     return (
         <section className="politica-section">
             <div className="politica-container">
-                <img src="/assets/img/contact_globe.svg" alt="" class="testi-globe1" />
-                <img src="/assets/img/contact_globe.svg" alt="" class="testi-globe2" />
-                <div className="politica-header">
-                    <img src="/landing-preview/img/politicas-seguridad.webp" alt="Política de Privacidad" className="politica-header-img" />
-                    <div className="textplayconsole">
-                        <Link href="/">INICIO {'\u00A0'}</Link>
-                        <p>|{'\u00A0'}{'\u00A0'}Políticas Play Console</p>
-                    </div>
-                    <div className="politica-header-overlay">
-                        <h1>{selectedData.titulo}</h1>
-                    </div>
-                </div>
-
                 <div className="politica-content">
-                    {/* Aquí colocamos las etiquetas de las secciones */}
-                    <div className="politica-tags">
-                        <span className="tag" onClick={() => handleTagClick('privacidadApp')}>Política de Privacidad Aplicaciones</span>
-                        <span className="tag" onClick={() => handleTagClick('privacidadWeb')}>Política de Privacidad Web</span>
-                        <span className="tag" onClick={() => handleTagClick('terminos')}>Términos y Condiciones</span>
+                    <div className="politica-document-header">
+                        <p>Documento vigente / Undercodeec</p>
+                        <h2>{selectedData.titulo}</h2>
                     </div>
 
+                    <nav className="politica-tags" aria-label="Documentos legales">
+                        <button type="button" className={`tag ${selectedSection === 'privacidadApp' ? 'is-active' : ''}`} aria-pressed={selectedSection === 'privacidadApp'} onClick={() => handleTagClick('privacidadApp')}>Política de Privacidad Aplicaciones</button>
+                        <button type="button" className={`tag ${selectedSection === 'privacidadWeb' ? 'is-active' : ''}`} aria-pressed={selectedSection === 'privacidadWeb'} onClick={() => handleTagClick('privacidadWeb')}>Política de Privacidad Web</button>
+                        <button type="button" className={`tag ${selectedSection === 'terminos' ? 'is-active' : ''}`} aria-pressed={selectedSection === 'terminos'} onClick={() => handleTagClick('terminos')}>Términos y Condiciones</button>
+                    </nav>
 
-                    {/* Mostrar el contenido de la sección seleccionada */}
                     {selectedData.secciones.map((seccion, index) => (
                         <div key={index}>
                             <h4 className="politica-subtitle">{seccion.titulo}</h4>

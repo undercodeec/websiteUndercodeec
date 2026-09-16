@@ -2,13 +2,12 @@
 
 import { useEffect } from "react";
 import MainLayout from "@/layouts/Main";
+import { PrimaryHeader } from "@/components/Primary";
 import MarketingHero from "@/components/Marketing/MarketingHero";
-import Blog from "@/components/Startup/Blog";
-
-import Clients from "@/components/Startup/Clients";
-import Numbers from "@/components/Startup/Numbers";
-import Contact from "@/components/Startup/Contact";
-import Footer from "@/components/Startup/Footer";
+import MarketingIntro from "@/components/Marketing/MarketingIntro";
+import MarketingPrimaryContent from "@/components/Marketing/MarketingPrimaryContent";
+import ServiciosPrimaryFooter from "@/components/Servicios/ServiciosPrimaryFooter";
+import styles from "./MarketingPage.module.css";
 
 export default function MarketingParaTuNegocioPage() {
   useEffect(() => {
@@ -41,19 +40,19 @@ export default function MarketingParaTuNegocioPage() {
 
   return (
     <MainLayout>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <main>
-        <MarketingHero />
-        <Blog />
-
-        <Clients />
-        <Numbers />
-        <Contact />
-      </main>
-      <Footer />
+      <div className={styles.page} data-marketing-page data-primary-page>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <PrimaryHeader />
+        <main>
+          <MarketingHero />
+          <MarketingIntro />
+          <MarketingPrimaryContent />
+        </main>
+        <ServiciosPrimaryFooter />
+      </div>
     </MainLayout>
   );
 }

@@ -1,0 +1,510 @@
+.surface {
+  --ink: var(--primary-main-dark);
+  --paper: var(--primary-main-light);
+  --line: rgba(29, 29, 29, .28);
+  --muted: rgba(29, 29, 29, .68);
+  overflow: clip;
+  color: var(--ink);
+  background: transparent;
+  font-family: var(--primary-font-family);
+  font-size: var(--primary-body-size);
+}
+
+.intro,
+.solutions,
+.security,
+.projects,
+.integrations,
+.faqSection {
+  padding-right: var(--primary-page-gutter);
+  padding-left: var(--primary-page-gutter);
+  border-bottom: 1px solid var(--line);
+}
+
+.intro,
+.solutions,
+.projects,
+.integrations,
+.faqSection {
+  padding-top: clamp(6rem, 12vw, 12rem);
+  padding-bottom: clamp(7rem, 13vw, 13rem);
+}
+
+.sectionHeader {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.25em;
+  align-items: start;
+  padding-bottom: clamp(4rem, 8vw, 8rem);
+}
+
+.sectionMeta,
+.projectTag,
+.systemVisual figcaption,
+.integrationCard > span {
+  margin: .35rem 0 0;
+  font-size: .72rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.sectionMeta { grid-column: 1 / 3; }
+
+.sectionTitle {
+  grid-column: 3 / 10;
+  max-width: 11ch;
+  margin: 0;
+  font-size: clamp(3rem, 5.2vw, 6.25rem);
+  font-weight: 400;
+  line-height: .96;
+  letter-spacing: -.048em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.headerCopy {
+  grid-column: 10 / 13;
+  margin: .35rem 0 0;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .95rem;
+  line-height: 1.55;
+}
+
+.systemVisual {
+  position: relative;
+  min-height: clamp(34rem, 56vw, 58rem);
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: transparent;
+}
+
+.systemVisual::after {
+  position: absolute;
+  inset: 1rem;
+  border: 1px solid rgba(29, 29, 29, .12);
+  content: "";
+  pointer-events: none;
+}
+
+.systemLines {
+  position: absolute;
+  z-index: 0;
+  inset: 9%;
+  width: 82%;
+  height: 82%;
+  overflow: visible;
+}
+
+.systemLines path {
+  fill: none;
+  stroke: rgba(112, 0, 71, .58);
+  stroke-width: .22;
+  stroke-dasharray: 1.2 1.8;
+  vector-effect: non-scaling-stroke;
+  animation: system-flow 16s linear infinite;
+}
+
+.systemHub,
+.systemNode {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  text-transform: uppercase;
+}
+
+.systemHub {
+  top: 50%;
+  left: 50%;
+  width: clamp(9rem, 16vw, 15rem);
+  aspect-ratio: 1;
+  border-color: rgba(112, 0, 71, .72);
+  border-radius: 50%;
+  color: #700047;
+  transform: translate(-50%, -50%);
+}
+
+.systemHub::before,
+.systemHub::after {
+  position: absolute;
+  border: 1px dashed rgba(112, 0, 71, .38);
+  border-radius: inherit;
+  content: "";
+  animation: orbit-spin 28s linear infinite;
+}
+
+.systemHub::before { inset: -1.25rem; }
+.systemHub::after { inset: -2.5rem; animation-direction: reverse; animation-duration: 38s; }
+.systemHub svg { width: 2.2rem; height: 2.2rem; stroke-width: 1.3; }
+.systemHub span { font-size: .72rem; letter-spacing: .08em; }
+
+.systemNode {
+  min-width: clamp(7.5rem, 13vw, 12rem);
+  min-height: 3.2rem;
+  padding: .75rem 1rem;
+  font-size: .72rem;
+  letter-spacing: .06em;
+}
+
+.nodeCrm { top: 13%; left: 11%; }
+.nodeSales { top: 13%; right: 11%; }
+.nodeStock { bottom: 22%; left: 7%; }
+.nodeBilling { right: 7%; bottom: 22%; }
+.nodeAutomation { bottom: 7%; left: 50%; transform: translateX(-50%); }
+
+.systemVisual figcaption {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.4rem;
+  left: 1.5rem;
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+}
+
+.solutionGrid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.solutionCard {
+  display: flex;
+  min-height: clamp(23rem, 32vw, 34rem);
+  grid-column: span 4;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.25rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  transition: color .35s ease, background-color .35s ease;
+}
+
+.solutionCard:nth-child(n + 4) { grid-column: span 6; }
+.solutionCard:hover { color: var(--paper); background: var(--ink); }
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: .72rem;
+}
+
+.cardTop svg {
+  width: clamp(2.25rem, 4vw, 4rem);
+  height: auto;
+  stroke-width: 1;
+}
+
+.solutionCard h3 {
+  max-width: 11ch;
+  margin: 0 0 1.5rem;
+  font-size: clamp(2rem, 3vw, 3.75rem);
+  font-weight: 400;
+  line-height: .95;
+  letter-spacing: -.04em;
+  text-transform: uppercase;
+}
+
+.solutionCard p {
+  max-width: 31rem;
+  margin: 0;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .9rem;
+  line-height: 1.5;
+  transition: color .35s ease;
+}
+
+.solutionCard:hover p { color: rgba(229, 228, 224, .72); }
+
+.security {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.25em;
+  padding-top: clamp(7rem, 14vw, 14rem);
+  padding-bottom: clamp(7rem, 14vw, 14rem);
+}
+
+.securityIntro { grid-column: 1 / 7; }
+.securityIntro .sectionMeta { margin-bottom: clamp(4rem, 8vw, 8rem); }
+
+.securityMark {
+  width: clamp(5rem, 10vw, 10rem);
+  height: auto;
+  margin-bottom: 2rem;
+  color: #700047;
+  stroke-width: .65;
+}
+
+.securityIntro h2 {
+  max-width: 9ch;
+  margin: 0;
+  font-size: clamp(3rem, 5.2vw, 6.25rem);
+  font-weight: 400;
+  line-height: .96;
+  letter-spacing: -.048em;
+  text-transform: uppercase;
+}
+
+.securityIntro > p:last-child {
+  max-width: 34rem;
+  margin: 2rem 0 0;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .95rem;
+  line-height: 1.55;
+}
+
+.securityList {
+  grid-column: 8 / 13;
+  align-self: end;
+  border-top: 1px solid var(--line);
+}
+
+.securityItem { border-bottom: 1px solid var(--line); }
+
+.securityItem button,
+.faqItem button {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.securityItem button {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.3rem 0;
+  font-size: clamp(1.05rem, 1.45vw, 1.4rem);
+  text-transform: uppercase;
+}
+
+.securityIcon { display: grid; place-items: center; }
+.securityIcon svg { width: 1.4rem; height: 1.4rem; stroke-width: 1.25; }
+
+.securityAnswer p,
+.faqAnswer p {
+  margin: 0;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+.securityAnswer p { padding: 0 2.5rem 1.5rem 3.5rem; }
+
+.projectGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.projectCard {
+  min-width: 0;
+  background: var(--paper);
+}
+
+.projectImage {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  margin: 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background: rgba(29, 29, 29, .04);
+}
+
+.projectImage img {
+  object-fit: cover;
+  filter: saturate(.75);
+  transition: filter .45s ease, transform .7s cubic-bezier(.16, 1, .3, 1);
+}
+
+.projectCard:hover .projectImage img { filter: saturate(1); transform: scale(1.025); }
+
+.projectImage > span {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 2;
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--paper);
+  background: var(--ink);
+  font-size: .7rem;
+}
+
+.projectInfo { padding: 1.5rem; }
+.projectTag { color: #700047; }
+
+.projectInfo h3 {
+  min-height: 2em;
+  margin: 2rem 0 1rem;
+  font-size: clamp(1.75rem, 2.4vw, 3rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+}
+
+.projectInfo > p:not(.projectTag) {
+  min-height: 6.3em;
+  margin: 0;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .88rem;
+  line-height: 1.55;
+}
+
+.projectInfo a {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: inherit;
+  font-size: .75rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.integrationGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.integrationCard {
+  position: relative;
+  display: grid;
+  min-height: clamp(12rem, 20vw, 20rem);
+  padding: 1rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+}
+
+.integrationCard > span:first-child { margin: 0; }
+.integrationCard > span:last-child { position: absolute; top: 1rem; right: 1rem; margin: 0; }
+.integrationCard > div { position: relative; width: 72%; height: 46%; place-self: center; }
+.integrationCard img { object-fit: contain; filter: grayscale(1); opacity: .68; transition: filter .3s ease, opacity .3s ease, transform .5s ease; }
+.integrationCard:hover img,
+.integrationCard:focus-visible img { filter: grayscale(0); opacity: 1; transform: scale(1.05); }
+
+.faqList {
+  width: calc(10 / 12 * 100%);
+  margin-left: auto;
+  border-top: 1px solid var(--line);
+}
+
+.faqItem { border-bottom: 1px solid var(--line); }
+
+.faqItem button {
+  display: grid;
+  grid-template-columns: 4rem 1fr auto;
+  gap: 1rem;
+  align-items: start;
+  padding: 1.6rem 0;
+  font-size: clamp(1.3rem, 2vw, 2.2rem);
+  line-height: 1.08;
+  text-transform: uppercase;
+}
+
+.faqNumber { padding-top: .25rem; font-size: .7rem; }
+.faqSymbol { font-size: 1.25rem; font-weight: 400; }
+.faqAnswer p { max-width: 49rem; padding: 0 3.5rem 1.8rem 5rem; }
+
+.securityItem button:focus-visible,
+.faqItem button:focus-visible,
+.integrationCard:focus-visible,
+.projectInfo a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+
+@keyframes system-flow {
+  to { stroke-dashoffset: -20; }
+}
+
+@keyframes orbit-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 991px) {
+  .sectionHeader { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .sectionMeta { grid-column: 1 / 3; }
+  .sectionTitle { grid-column: 3 / 7; }
+  .headerCopy { grid-column: 7 / 9; }
+  .solutionCard { grid-column: span 6; }
+  .solutionCard:nth-child(n + 4) { grid-column: span 6; }
+  .solutionCard:last-child { grid-column: span 12; }
+  .securityIntro { grid-column: 1 / 7; }
+  .securityList { grid-column: 7 / 13; }
+  .projectGrid { grid-template-columns: 1fr; }
+  .projectCard { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .projectImage { height: 100%; aspect-ratio: auto; border-right: 1px solid var(--line); border-bottom: 0; }
+  .projectInfo > p:not(.projectTag) { min-height: 0; }
+  .integrationGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .faqList { width: 100%; }
+}
+
+@media (max-width: 700px) {
+  .intro,
+  .solutions,
+  .projects,
+  .integrations,
+  .faqSection,
+  .security { padding-top: 7rem; padding-bottom: 7rem; }
+  .sectionHeader { grid-template-columns: 1fr; gap: 2.5rem; padding-bottom: 4rem; }
+  .sectionMeta,
+  .sectionTitle,
+  .headerCopy { grid-column: 1; }
+  .sectionTitle { max-width: 10ch; font-size: clamp(3rem, 14vw, 4.8rem); }
+  .headerCopy { max-width: 30rem; }
+  .systemVisual { min-height: 42rem; }
+  .systemNode { min-width: 6.5rem; min-height: 2.75rem; padding: .6rem; font-size: .6rem; }
+  .systemHub { width: 8rem; }
+  .nodeCrm { top: 12%; left: 5%; }
+  .nodeSales { top: 12%; right: 5%; }
+  .nodeStock { bottom: 23%; left: 3%; }
+  .nodeBilling { right: 3%; bottom: 23%; }
+  .systemVisual figcaption { flex-direction: column; gap: .3rem; }
+  .solutionGrid { grid-template-columns: 1fr; }
+  .solutionCard,
+  .solutionCard:nth-child(n + 4),
+  .solutionCard:last-child { min-height: 27rem; grid-column: 1; }
+  .security { grid-template-columns: 1fr; gap: 5rem; }
+  .securityIntro,
+  .securityList { grid-column: 1; }
+  .securityIntro h2 { font-size: clamp(3rem, 14vw, 4.8rem); }
+  .projectCard { display: block; }
+  .projectImage { aspect-ratio: 4 / 3; border-right: 0; border-bottom: 1px solid var(--line); }
+  .projectInfo h3 { min-height: 0; }
+  .integrationGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .integrationCard { min-height: 12rem; }
+  .faqItem button { grid-template-columns: 2.5rem 1fr auto; font-size: 1.2rem; }
+  .faqAnswer p { padding-right: 2.5rem; padding-left: 3.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .systemLines path,
+  .systemHub::before,
+  .systemHub::after { animation: none; }
+  .solutionCard,
+  .projectImage img,
+  .integrationCard img { transition: none; }
+}

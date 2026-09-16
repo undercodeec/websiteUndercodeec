@@ -1,34 +1,16 @@
-import React from 'react'
-import Link from 'next/link'
+import PrimaryPageHero from "@/components/Marketing/MarketingHero";
 
-const NotFound = () => {
+export default function NotFoundHero() {
   return (
-    <section className="erorr-page style-5">
-      <div className="container">
-        <div className="content">
-          <div className="row align-items-center">
-            <div className="col-lg-4">
-              <div className="info">
-                <div className="icon">
-                  <img src="/assets/img/icons/rocket.png" alt="" />
-                </div>
-                <h2 className="mb-30"> ¡Ups! Parece que aquí no hay nada. </h2>
-                <p className="color-777"> No se encuentra la página que buscas. Te sugerimos volver a la página principal. Es fácil... </p>
-                <Link href="/" className="btn rounded-pill blue5-3Dbutn hover-blue2 sm-butn fw-bold mt-40">
-                  <span> <i className="fas fa-long-arrow-left me-2"></i> Regresar al Inicio </span>
-                </Link>
-              </div>
-            </div>
-            <div className="col-lg-8 text-lg-end">
-              <div className="img">
-                <img src="/assets/img/404_1.png" alt="" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
+    <PrimaryPageHero
+      label="Error 404: la página solicitada no fue encontrada"
+      lines={["Esta ruta", "se quedó", "sin señal"]}
+      topMeta="Error 404 / Página no encontrada"
+      summary="La dirección que abriste no existe, cambió de lugar o ya no está disponible. Desde aquí podemos ayudarte a retomar el camino."
+      bottomMeta="Volvamos a un lugar conocido"
+      index="404"
+      titleId="not-found-hero-title"
+      animateAcrossPage={false}
+    />
+  );
 }
-
-export default NotFound

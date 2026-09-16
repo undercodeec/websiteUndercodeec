@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import HermesWhatsAppButton from "@/components/HermesWhatsAppButton";
-import RecaptchaEnterpriseScript from "@/components/RecaptchaEnterpriseScript";
 import { PrimaryCursor, PrimaryPreloader } from "@/components/Primary";
 import "@/styles/globals.css";
 import "@/styles/primary-system.css";
@@ -31,11 +30,6 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://undercodeec.com"),
   alternates: {
     canonical: "https://undercodeec.com/",
-    languages: {
-      "es-EC": "https://undercodeec.com/ec/",
-      "es-ES": "https://undercodeec.com/es/",
-      "x-default": "https://undercodeec.com/",
-    },
   },
   robots: {
     index: true,
@@ -291,7 +285,6 @@ fbq('track', 'PageView');`}
         <HermesWhatsAppButton />
         {children}
 
-        <RecaptchaEnterpriseScript />
         <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />
       </body>
     </html>

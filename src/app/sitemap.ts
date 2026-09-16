@@ -13,8 +13,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/aplicaciones-moviles",
     "/blog",
     "/contacto",
-    "/ec",
-    "/es",
     "/marketing-para-tu-negocio",
     "/nuestra-trayectoria",
     "/politicas-playconsole",

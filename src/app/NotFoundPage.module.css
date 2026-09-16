@@ -1,0 +1,9 @@
+.page {
+  position: relative;
+  min-height: 100dvh;
+  background: transparent;
+}
+
+:global(body:has([data-not-found-page])) {
+  background: var(--primary-main-light);
+}

@@ -20,6 +20,10 @@
   justify-content: center;
 }
 
+:global([data-mobile-apps-page]) .orbField {
+  position: fixed;
+}
+
 .orbLayer,
 .orbOutlineLayer {
   position: absolute;
@@ -130,6 +134,11 @@
   display: inline-block;
   overflow: clip;
   vertical-align: top;
+}
+
+.titleWord {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .titleCharacter {

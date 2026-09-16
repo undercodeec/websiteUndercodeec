@@ -34,8 +34,8 @@ const HermesWhatsAppButton = () => {
       <style jsx global>{`
         .hermes-whatsapp-button {
           position: fixed;
-          left: 24px;
-          bottom: 24px;
+          right: var(--primary-page-gutter, 24px);
+          bottom: 88px;
           z-index: 9999;
           display: grid;
           place-items: center;
@@ -100,8 +100,8 @@ const HermesWhatsAppButton = () => {
 
         @media (max-width: 575px) {
           .hermes-whatsapp-button {
-            left: 16px;
-            bottom: 16px;
+            right: 16px;
+            bottom: 82px;
             width: 58px;
             height: 58px;
           }

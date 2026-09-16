@@ -24,21 +24,15 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "https://undercodeec.com/ec/",
-    languages: {
-      "es-EC": "https://undercodeec.com/ec/",
-      "es-ES": "https://undercodeec.com/es/",
-      "x-default": "https://undercodeec.com/",
-    },
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
+    nocache: true,
     googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
+      index: false,
+      follow: false,
+      noimageindex: true,
     },
   },
   openGraph: {
