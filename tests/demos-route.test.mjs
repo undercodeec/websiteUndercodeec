@@ -70,6 +70,14 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
     assert.match(page, new RegExp(`href="${href}"`));
   }
 
+  for (const href of [
+    "https://understudio.undercodeec.com/",
+    "https://understudio.undercodeec.com/demo-moon/",
+    "https://understudio.undercodeec.com/stack-demo",
+  ]) {
+    assert.match(localScript, new RegExp(`href: "${href}"`));
+  }
+
   assert.match(page, /<img[^>]+src="\/assets\/img\/undercode-logo\.png"[^>]+alt="Undercodeec"/);
   assert.match(
     page,
