@@ -1,5 +1,7 @@
 # Plan de migración visual y retiro completo de React
 
+> **Estado: reemplazado el 16 de septiembre de 2026.** Se decidió conservar Next.js y React para proteger la experiencia visual y los flujos actuales. La decisión vigente y sus controles están documentados en `docs/superpowers/specs/2026-09-16-react-stabilization-design.md`.
+
 **Proyecto:** Undercodeec  
 **Fecha:** 13 de septiembre de 2026  
 **Estado:** propuesta para revisión  

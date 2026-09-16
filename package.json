@@ -46,7 +46,6 @@
     "three": "0.170.0"
   },
   "devDependencies": {
-    "astro": "^5.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
