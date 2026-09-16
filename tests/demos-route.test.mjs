@@ -78,6 +78,17 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
     assert.match(localScript, new RegExp(`href: "${href}"`));
   }
 
+  assert.match(
+    localScript,
+    /new URL\("https:\/\/calendly\.com\/undercodeec\/30min"\)/,
+  );
+  assert.match(localScript, /searchParams\.set\("hide_gdpr_banner", "1"\)/);
+  assert.match(localScript, /searchParams\.set\("embed_type", "Inline"\)/);
+  assert.match(
+    localScript,
+    /searchParams\.set\("embed_domain", window\.location\.host\)/,
+  );
+
   assert.match(page, /<img[^>]+src="\/assets\/img\/undercode-logo\.png"[^>]+alt="Undercodeec"/);
   assert.match(
     page,
@@ -97,11 +108,11 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
   );
   assert.match(
     localStyles,
-    /\.offbrand-calendar-panel\s*\{[\s\S]*isolation:\s*isolate;[\s\S]*pointer-events:\s*auto;/,
+    /\.offbrand-calendar-panel\s*\{[\s\S]*z-index:\s*2147483000;[\s\S]*pointer-events:\s*auto;/,
   );
   assert.match(
     localStyles,
-    /\.offbrand-calendar-panel iframe\s*\{[\s\S]*pointer-events:\s*auto !important;[\s\S]*touch-action:\s*auto;/,
+    /\.offbrand-calendar-surface iframe\s*\{[\s\S]*pointer-events:\s*auto !important;[\s\S]*touch-action:\s*auto;/,
   );
   assert.match(
     localStyles,
@@ -138,6 +149,22 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
   assert.match(desktopHeader, />Agendar Reunión</);
   assert.match(desktopHeader, /href="\/#reserva_agenda"/);
   assert.match(localScript, /const reservationAnchorId = "reserva_agenda";/);
+  assert.match(localScript, /calendarSurface\.className = "offbrand-calendar-surface"/);
+  assert.match(localScript, /calendarPanel\.setAttribute\("role", "dialog"\)/);
+  assert.match(localScript, /document\.body\.append\(calendarPanel\)/);
+  assert.match(
+    localScript,
+    /calendarPanel\.setAttribute\("data-lenis-prevent", ""\)/,
+  );
+  assert.match(
+    localScript,
+    /calendarPanel\.setAttribute\("data-lenis-prevent-touch", ""\)/,
+  );
+  assert.match(
+    localScript,
+    /calendarPanel\.setAttribute\("data-lenis-prevent-wheel", ""\)/,
+  );
+  assert.match(localScript, /calendar\.setAttribute\("scrolling", "yes"\)/);
   assert.match(localScript, /introductoryCallLink\?\.closest\("\.offbrand-plan-column"\)/);
   assert.match(localScript, /reservationSection\.id = reservationAnchorId;/);
   assert.match(localScript, /headerScheduleLink\.href = `\/#\$\{reservationAnchorId\}`;/);

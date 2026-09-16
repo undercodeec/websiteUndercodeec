@@ -14,34 +14,75 @@
 
   if (introductoryCallLink) {
     const calendarPanel = document.createElement("div");
+    const calendarSurface = document.createElement("div");
+    const calendarCloseButton = document.createElement("button");
     const calendarPanelId = "calendario-llamada-introductoria";
 
     calendarPanel.id = calendarPanelId;
     calendarPanel.className = "offbrand-calendar-panel";
+    calendarPanel.setAttribute("data-lenis-prevent", "");
+    calendarPanel.setAttribute("data-lenis-prevent-touch", "");
+    calendarPanel.setAttribute("data-lenis-prevent-wheel", "");
+    calendarPanel.setAttribute("role", "dialog");
+    calendarPanel.setAttribute("aria-modal", "true");
+    calendarPanel.setAttribute("aria-label", "Calendario para agendar una reunión");
     calendarPanel.hidden = true;
+    calendarSurface.className = "offbrand-calendar-surface";
+    calendarSurface.setAttribute("data-lenis-prevent", "");
+    calendarSurface.setAttribute("data-lenis-prevent-touch", "");
+    calendarSurface.setAttribute("data-lenis-prevent-wheel", "");
+    calendarCloseButton.type = "button";
+    calendarCloseButton.className = "offbrand-calendar-close";
+    calendarCloseButton.setAttribute("aria-label", "Cerrar calendario");
+    calendarCloseButton.textContent = "Cerrar ×";
+    calendarSurface.append(calendarCloseButton);
+    calendarPanel.append(calendarSurface);
     introductoryCallLink.href = `#${reservationAnchorId}`;
     introductoryCallLink.setAttribute("aria-controls", calendarPanelId);
     introductoryCallLink.setAttribute("aria-expanded", "false");
-    introductoryCallLink.insertAdjacentElement("afterend", calendarPanel);
+    document.body.append(calendarPanel);
+
+    const closeCalendar = () => {
+      if (calendarPanel.hidden) return;
+      calendarPanel.hidden = true;
+      introductoryCallLink.setAttribute("aria-expanded", "false");
+      introductoryCallLink.focus({ preventScroll: true });
+    };
+
+    calendarCloseButton.addEventListener("click", closeCalendar);
+    calendarPanel.addEventListener("click", (event) => {
+      if (event.target === calendarPanel) closeCalendar();
+    });
+    calendarPanel.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeCalendar();
+    });
 
     introductoryCallLink.addEventListener("click", (event) => {
       event.preventDefault();
       const isOpening = calendarPanel.hidden;
 
-      calendarPanel.hidden = !isOpening;
-      introductoryCallLink.setAttribute("aria-expanded", String(isOpening));
-
-      if (isOpening && !calendarPanel.childElementCount) {
+      if (isOpening && !calendarSurface.querySelector("iframe")) {
         const calendar = document.createElement("iframe");
-        calendar.src = "https://calendly.com/undercodeec/30min?locale=es";
+        const calendlyUrl = new URL("https://calendly.com/undercodeec/30min");
+        calendlyUrl.searchParams.set("locale", "es");
+        calendlyUrl.searchParams.set("hide_gdpr_banner", "1");
+        calendlyUrl.searchParams.set("embed_type", "Inline");
+        calendlyUrl.searchParams.set("embed_domain", window.location.host);
+        calendar.src = calendlyUrl.toString();
         calendar.title = "Agendar reunión con Undercodeec";
         calendar.loading = "lazy";
         calendar.allow = "fullscreen";
-        calendarPanel.append(calendar);
+        calendar.setAttribute("scrolling", "yes");
+        calendar.tabIndex = 0;
+        calendarSurface.append(calendar);
       }
 
       if (isOpening) {
-        calendarPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        calendarPanel.hidden = false;
+        introductoryCallLink.setAttribute("aria-expanded", "true");
+        window.requestAnimationFrame(() => calendarCloseButton.focus());
+      } else {
+        closeCalendar();
       }
     });
 

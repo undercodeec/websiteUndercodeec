@@ -837,37 +837,76 @@ html.dark .offbrand-plan-action:focus-visible {
 }
 
 .offbrand-calendar-panel {
-  position: relative;
-  z-index: 1;
+  position: fixed;
+  z-index: 2147483000;
+  inset: 0;
   isolation: isolate;
+  display: grid;
+  place-items: center;
   width: 100%;
-  min-height: 700px;
-  margin-top: 1.25rem;
+  height: 100dvh;
+  margin: 0;
+  padding: 1rem;
   overflow: hidden;
-  border: 1px solid var(--dark-grey);
-  border-radius: 0.5rem;
-  background: var(--main-light);
+  border: 0;
+  background: rgb(0 0 0 / 72%);
+  backdrop-filter: blur(4px);
+  overscroll-behavior: contain;
   pointer-events: auto;
 }
 
 .offbrand-calendar-panel[hidden] {
-  display: none;
+  display: none !important;
 }
 
-.offbrand-calendar-panel iframe {
+.offbrand-calendar-surface {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: min(72rem, calc(100vw - 2rem));
+  height: min(48rem, calc(100dvh - 2rem));
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--dark-grey);
+  border-radius: 0.5rem;
+  background: var(--main-light);
+  overscroll-behavior: contain;
+  pointer-events: auto;
+}
+
+.offbrand-calendar-close {
+  justify-self: end;
+  margin: 0.5rem 0.75rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--main-dark);
+  cursor: pointer;
+}
+
+.offbrand-calendar-surface iframe {
   position: relative;
   z-index: 1;
   display: block;
   width: 100%;
-  min-height: 700px;
+  height: 100%;
+  min-height: 0;
   border: 0;
   pointer-events: auto !important;
   touch-action: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
-html.dark .offbrand-calendar-panel {
+html.dark .offbrand-calendar-surface {
   border-color: var(--dark-grey);
   background: var(--main-dark);
+}
+
+html.dark .offbrand-calendar-close {
+  color: var(--main-light);
 }
 
 html.dark .offbrand-plan-selection-continue:hover,
@@ -1234,9 +1273,25 @@ html.dark .offbrand-plan-selection-continue:focus-visible {
     min-height: auto;
   }
 
-  .offbrand-calendar-panel,
-  .offbrand-calendar-panel iframe {
-    min-height: 650px;
+  .offbrand-calendar-panel {
+    padding:
+      max(0.25rem, env(safe-area-inset-top))
+      max(0.25rem, env(safe-area-inset-right))
+      max(0.25rem, env(safe-area-inset-bottom))
+      max(0.25rem, env(safe-area-inset-left));
+  }
+
+  .offbrand-calendar-surface {
+    width: 100%;
+    height: 100%;
+    border-radius: 0.35rem;
+  }
+
+  .offbrand-calendar-close {
+    min-width: 5.5rem;
+    min-height: 44px;
+    margin-top: max(0.25rem, env(safe-area-inset-top));
+    margin-right: max(0.5rem, env(safe-area-inset-right));
   }
 
   .offbrand-wizard-form-grid,
