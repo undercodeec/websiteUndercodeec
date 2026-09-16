@@ -266,6 +266,11 @@ test("serves the landing-primary export at the root route", async (t) => {
   assert.match(page, /\/landing-primary\/css\/offbrand-2023\.shared\.0746f2a75\.min\.css/);
   assert.match(page, /\/landing-primary\/media\/OFF_siteclips_13\.mp4/);
   assert.match(page, /\/landing-primary\/js\/ob\.2026\.index\.23\.js/);
+  assert.match(page, /function lockLightTheme\(\)/);
+  assert.match(page, /color-scheme:\s*light/);
+  assert.match(page, /localStorage\.setItem\("mode", "light"\)/);
+  assert.match(page, /classList\.remove\("dark"\)/);
+  assert.match(page, /hud-mode-o-hidden"\)\?\.remove\(\)/);
 
   for (const forbidden of [
     "data-promo-banner",

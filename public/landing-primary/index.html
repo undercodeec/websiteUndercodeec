@@ -24,6 +24,10 @@
 </script><script type="text/javascript">(function(e){var s={r:[]};e.wf={r:s.r,ready:t=>{s.r.push(t)}}})(window)</script><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=5">
 
 <style>
+  html {
+    color-scheme: light;
+  }
+
   body {
     overflow: clip;
     -webkit-font-smoothing: antialiased;
@@ -400,14 +404,32 @@
 
 <script defer="" src="/landing-primary/js/ob.2026.index.23.js"></script>
 <script>
-  window.addEventListener("load", () => {
-    const legacyModeToggle = document.querySelector(".hud-mode-o-hidden");
-    if (!legacyModeToggle) return;
-    legacyModeToggle.replaceChildren();
-    legacyModeToggle.setAttribute("aria-hidden", "true");
-    legacyModeToggle.setAttribute("mode-toggle", "light");
-    legacyModeToggle.classList.add("hud-mode-toggle-w");
-  });
+  (function lockLightTheme() {
+    var root = document.documentElement;
+
+    function applyLightTheme() {
+      root.classList.remove("dark");
+      root.classList.add("light");
+      try {
+        window.localStorage.setItem("mode", "light");
+      } catch (_) {
+        // The site remains light even when storage is unavailable.
+      }
+    }
+
+    // This runs before the deferred legacy runtime, which otherwise follows
+    // the visitor's operating-system colour preference.
+    applyLightTheme();
+
+    new MutationObserver(applyLightTheme).observe(root, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelector(".hud-mode-o-hidden")?.remove();
+    });
+  })();
 </script>
 
 
