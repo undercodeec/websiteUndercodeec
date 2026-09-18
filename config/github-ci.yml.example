@@ -22,13 +22,12 @@ jobs:
           cache: pnpm
           cache-dependency-path: |
             pnpm-lock.yaml
-            backend/pnpm-lock.yaml
 
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Install backend dependencies
-        run: pnpm --dir backend install --frozen-lockfile
+        run: npm --prefix backend install
 
       - name: Lint frontend
         run: pnpm lint
@@ -41,4 +40,4 @@ jobs:
         run: find backend -type f -name '*.js' -not -path 'backend/node_modules/*' -print0 | xargs -0 -n1 node --check
 
       - name: Test backend
-        run: pnpm --dir backend test
+        run: npm --prefix backend test

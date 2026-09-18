@@ -25,9 +25,9 @@ pnpm dev
 En otra terminal instala y ejecuta la API:
 
 ```powershell
-pnpm --dir backend install --frozen-lockfile
+npm --prefix backend install
 Copy-Item config/backend.env.example backend/.env
-pnpm --dir backend dev
+npm --prefix backend run dev
 ```
 
 Valores locales predeterminados:
@@ -45,7 +45,7 @@ Antes de integrar o desplegar ejecuta:
 ```powershell
 pnpm lint
 pnpm build
-pnpm --dir backend test
+npm --prefix backend test
 ```
 
 Para validar sintaxis de un archivo del backend:
@@ -86,7 +86,7 @@ El panel autenticado incorpora `/admin/crm/publicidad` y consume el contrato des
 
 ## Despliegue y rollback
 
-El artefacto debe construirse con `pnpm build` y ejecutarse con `pnpm start`. La API se inicia con `pnpm --dir backend start`. El proxy inverso de referencia está en `nginx.conf.example`.
+El artefacto debe construirse con `pnpm build` y ejecutarse con `pnpm start`. La API se inicia con `npm --prefix backend start`. El proxy inverso de referencia está en `nginx.conf.example`.
 
 Procedimiento mínimo:
 

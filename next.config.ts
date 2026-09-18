@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: import.meta.dirname,
   },
+  experimental: {
+    // Evita que los builds en VPS con poca RAM creen varios workers pesados.
+    cpus: 1,
+  },
   async rewrites() {
     return {
       beforeFiles: [
