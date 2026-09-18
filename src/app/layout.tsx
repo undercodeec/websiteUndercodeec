@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import AttributionProvider from "@/components/Attribution/AttributionProvider";
+import CommercialWhatsAppAttribution from "@/components/Attribution/CommercialWhatsAppAttribution";
+import ConsentManager from "@/components/Consent/ConsentManager";
 import HermesWhatsAppButton from "@/components/HermesWhatsAppButton";
 import { PrimaryCursor, PrimaryPreloader } from "@/components/Primary";
 import "@/styles/globals.css";
@@ -196,30 +199,18 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning={true}>
       <head>
-        {/* Google Tag Manager */}
-        <Script id="gtm-init" strategy="afterInteractive">
-          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-WX7HLGTV');`}
+        <Script id="consent-default" strategy="beforeInteractive">
+          {`window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments);}
+window.gtag=window.gtag||gtag;
+gtag('consent','default',{
+  ad_storage:'denied',
+  analytics_storage:'denied',
+  ad_user_data:'denied',
+  ad_personalization:'denied',
+  wait_for_update:500
+});`}
         </Script>
-        {/* End Google Tag Manager */}
-
-        {/* Meta Pixel Code */}
-        <Script id="meta-pixel" strategy="afterInteractive">
-          {`!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1528924045213380');
-fbq('track', 'PageView');`}
-        </Script>
-        {/* End Meta Pixel Code */}
 
         {/* Critical CSS — blocks render intentionally */}
         <link rel="stylesheet" href="/assets/css/lib/bootstrap.min.css" />
@@ -228,19 +219,6 @@ fbq('track', 'PageView');`}
         {/* Non-critical CSS — loaded async after main thread is free */}
         <Script id="deferred-css" strategy="afterInteractive">
           {`(function(){var s=['/assets/css/lib/all.min.css','/assets/css/lib/bootstrap-icons.css','/landing-preview/css/preview-style.css','/assets/css/animations.css'];s.forEach(function(h){var l=document.createElement('link');l.rel='stylesheet';l.href=h;document.head.appendChild(l);});})();`}
-        </Script>
-
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-99Z5CCZ3RK"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-99Z5CCZ3RK');
-          `}
         </Script>
 
         <script
@@ -257,35 +235,16 @@ fbq('track', 'PageView');`}
         />
       </head>
       <body suppressHydrationWarning={true}>
-        <PrimaryPreloader />
-        {/* Google Tag Manager (noscript) */}
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-WX7HLGTV"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          />
-        </noscript>
-        {/* End Google Tag Manager (noscript) */}
-
-        {/* Meta Pixel Code (noscript) */}
-        <noscript>
-          <img
-            height="1"
-            width="1"
-            style={{ display: "none" }}
-            src="https://www.facebook.com/tr?id=1528924045213380&ev=PageView&noscript=1"
-            alt=""
-          />
-        </noscript>
-        {/* End Meta Pixel Code (noscript) */}
-
-        <PrimaryCursor />
-        <HermesWhatsAppButton />
-        {children}
-
-        <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />
+        <ConsentManager>
+          <AttributionProvider>
+            <CommercialWhatsAppAttribution />
+            <PrimaryPreloader />
+            <PrimaryCursor />
+            <HermesWhatsAppButton />
+            {children}
+            <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />
+          </AttributionProvider>
+        </ConsentManager>
       </body>
     </html>
   );

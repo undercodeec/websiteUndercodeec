@@ -193,6 +193,20 @@
   .sectionHeader h2 { font-size: clamp(3rem, 14vw, 4.8rem); }
   .channelGrid { grid-template-columns: 1fr; }
   .channelCard { min-height: 16rem; }
+
+  /* A reliable, inexpensive equivalent of the WebGL orb for actual phones. */
+  .channelOrbButton {
+    visibility: visible;
+    opacity: 1;
+    background:
+      radial-gradient(circle at 31% 24%, rgba(255, 255, 255, .88) 0 3%, rgba(255, 255, 255, .24) 13%, transparent 31%),
+      radial-gradient(circle at 74% 78%, rgba(0, 0, 0, .3) 0, transparent 56%),
+      var(--channel-orb-color);
+    box-shadow:
+      inset 8px 9px 16px rgba(255, 255, 255, .2),
+      inset -12px -14px 20px rgba(0, 0, 0, .18),
+      0 8px 20px color-mix(in srgb, var(--channel-orb-color) 34%, transparent);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

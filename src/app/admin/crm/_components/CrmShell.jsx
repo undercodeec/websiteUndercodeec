@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Bell,
   BellRing,
+  BarChart3,
   Bot,
   BriefcaseBusiness,
   ChevronRight,
@@ -25,6 +26,7 @@ import { contactName, initials, relativeDate } from "./format";
 
 const NAV_ITEMS = [
   { href: "/admin/crm", label: "Resumen", icon: LayoutDashboard, exact: true },
+  { href: "/admin/crm/publicidad", label: "Publicidad y atribución", icon: BarChart3 },
   { href: "/admin/crm/leads", label: "Pipeline", icon: Rows3 },
   { href: "/admin/crm/inbox", label: "Inbox", icon: Inbox },
   { href: "/admin/crm/campanas", label: "CampaÃ±as", icon: Send },

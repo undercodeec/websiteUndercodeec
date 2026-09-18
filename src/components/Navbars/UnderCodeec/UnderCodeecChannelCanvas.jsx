@@ -16,8 +16,8 @@ export default function UnderCodeecChannelCanvas({ type }) {
 
   return (
     <div className={styles.channelVisual} aria-hidden="true">
-      <span className={styles.channelOrbButton}>
-        <PrimaryOrb className={styles.channelOrb} color={color} />
+      <span className={styles.channelOrbButton} style={{ "--channel-orb-color": color }}>
+        <PrimaryOrb className={styles.channelOrb} color={color} disableOnMobile />
         <Icon className={styles.channelIcon} />
       </span>
     </div>

@@ -31,8 +31,16 @@ function resetPreloader(preloader) {
 export default function PrimaryPreloader() {
   const pathname = usePathname();
   const preloaderRef = useRef(null);
+  const isAdminRoute = pathname === "/admin" || pathname?.startsWith("/admin/");
 
   useEffect(() => {
+    // El backoffice no comparte las transiciones visuales del sitio público.
+    // También se limpia la clase por si se llega al admin durante una navegación.
+    if (isAdminRoute) {
+      document.body.classList.remove("primary-preloading");
+      return undefined;
+    }
+
     const showBeforeNavigation = (event) => {
       const link = event.target.closest?.("a[href]");
       if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
@@ -49,9 +57,11 @@ export default function PrimaryPreloader() {
 
     document.addEventListener("click", showBeforeNavigation, true);
     return () => document.removeEventListener("click", showBeforeNavigation, true);
-  }, []);
+  }, [isAdminRoute]);
 
   useEffect(() => {
+    if (isAdminRoute) return undefined;
+
     const preloader = preloaderRef.current;
     const targets = resetPreloader(preloader);
     if (!targets) return undefined;
@@ -90,7 +100,9 @@ export default function PrimaryPreloader() {
       timeline.kill();
       document.body.classList.remove("primary-preloading");
     };
-  }, [pathname]);
+  }, [pathname, isAdminRoute]);
+
+  if (isAdminRoute) return null;
 
   return (
     <div

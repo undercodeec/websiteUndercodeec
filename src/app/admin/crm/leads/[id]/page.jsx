@@ -13,6 +13,7 @@ import {
   CircleDollarSign,
   Clock3,
   Mail,
+  Megaphone,
   MessageSquareText,
   Phone,
   RefreshCw,
@@ -21,6 +22,7 @@ import {
   Target,
 } from "lucide-react";
 import { hermesApi } from "@/lib/hermes/api";
+import { useCrmSession } from "../../_components/CrmSession";
 import {
   HANDOFF_REASON,
   HANDOFF_STATUS,
@@ -46,7 +48,10 @@ import {
 export default function LeadDetailPage() {
   const params = useParams();
   const id = String(params.id);
+  const { user } = useCrmSession();
   const [lead, setLead] = useState(null);
+  const [advertisingHistory, setAdvertisingHistory] = useState([]);
+  const [advertisingError, setAdvertisingError] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -56,7 +61,22 @@ export default function LeadDetailPage() {
     setLoading(true);
     setError("");
     try {
-      setLead(await hermesApi.lead(id));
+      const [leadResult, historyResult] = await Promise.allSettled([
+        hermesApi.lead(id),
+        hermesApi.advertisingLeadHistory(id),
+      ]);
+      if (leadResult.status === "rejected") throw leadResult.reason;
+      setLead(leadResult.value);
+      if (historyResult.status === "fulfilled") {
+        setAdvertisingHistory(Array.isArray(historyResult.value) ? historyResult.value : []);
+        setAdvertisingError("");
+      } else {
+        setAdvertisingHistory([]);
+        setAdvertisingError(apiErrorMessage(
+          historyResult.reason,
+          "No se pudo consultar la atribución publicitaria.",
+        ));
+      }
     } catch (requestError) {
       setError(apiErrorMessage(requestError, "No se pudo cargar el lead."));
     } finally {
@@ -191,6 +211,15 @@ export default function LeadDetailPage() {
               </div>
             </div>
           </section>
+
+          <AdvertisingLeadPanel
+            lead={lead}
+            history={advertisingHistory}
+            historyError={advertisingError}
+            user={user}
+            onRefresh={loadLead}
+            onToast={setToast}
+          />
 
           <section className="crm-panel">
             <div className="crm-panel-header">
@@ -336,6 +365,183 @@ function Kpi({ icon: Icon, label, value }) {
   return (
     <div><span><Icon size={17} />{label}</span><strong>{value}</strong></div>
   );
+}
+
+function AdvertisingLeadPanel({ lead, history, historyError, user, onRefresh, onToast }) {
+  const [saving, setSaving] = useState(false);
+  const [eventType, setEventType] = useState("MEETING_CONFIRMED");
+  const attribution = history.find((item) => item.attribution)?.attribution || null;
+  const touch = attribution?.touch || history.find((item) => item.touch)?.touch || null;
+  const clickId = touch?.gclid || touch?.gbraid || touch?.wbraid || null;
+  const clickType = touch?.gclid ? "GCLID" : touch?.gbraid ? "GBRAID" : touch?.wbraid ? "WBRAID" : null;
+  const isAdmin = user?.role === "ADMIN";
+
+  const submitEvent = async (event) => {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    const occurredAt = String(form.get("occurredAt") || "");
+    const value = String(form.get("value") || "");
+    const revenueReceived = String(form.get("revenueReceived") || "");
+    const commercialReference = String(form.get("commercialReference") || "").trim();
+    const serviceRequested = String(form.get("serviceRequested") || "").trim();
+    const payload = {
+      eventType,
+      ...(occurredAt ? { occurredAt: new Date(occurredAt).toISOString() } : {}),
+      ...(value ? { value: Number(value) } : {}),
+      ...(revenueReceived ? { revenueReceived: Number(revenueReceived) } : {}),
+      ...((value || eventType === "CONTRACT_WON") ? { currency: String(form.get("currency") || "EUR") } : {}),
+      ...(commercialReference ? { commercialReference } : {}),
+      ...(serviceRequested ? { serviceRequested } : {}),
+    };
+
+    setSaving(true);
+    try {
+      await hermesApi.recordAdvertisingEvent(lead.id, payload);
+      onToast({ tone: "success", message: "Hito comercial registrado y auditado." });
+      await onRefresh();
+      formElement.reset();
+      setEventType("MEETING_CONFIRMED");
+    } catch (requestError) {
+      onToast({
+        tone: "error",
+        message: apiErrorMessage(requestError, "No se pudo registrar el hito comercial."),
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const revokeConsent = async () => {
+    const reason = window.prompt("Motivo de la revocación de consentimiento:");
+    if (!reason?.trim()) return;
+    if (!window.confirm("Se cancelarán exportaciones pendientes para este contacto. ¿Continuar?")) return;
+    setSaving(true);
+    try {
+      await hermesApi.revokeAdvertisingConsent(lead.contactId, reason.trim());
+      onToast({ tone: "success", message: "Consentimiento publicitario revocado." });
+      await onRefresh();
+    } catch (requestError) {
+      onToast({ tone: "error", message: apiErrorMessage(requestError, "No se pudo revocar el consentimiento.") });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="crm-panel crm-lead-advertising">
+      <div className="crm-panel-header">
+        <div><span>Publicidad</span><h2>Atribución e hitos verificables</h2></div>
+        <Megaphone size={22} className="crm-panel-icon" />
+      </div>
+
+      {historyError ? (
+        <div className="crm-feedback is-error">{historyError}</div>
+      ) : (
+        <div className="crm-attribution-summary">
+          <div><span>Atribución</span><strong>{attribution?.status || "Sin atribución confirmada"}</strong></div>
+          <div><span>Identificador</span><strong>{clickId ? `${clickType} · ${maskIdentifier(clickId)}` : "No disponible"}</strong></div>
+          <div><span>Consentimiento Ads</span><strong>{touch?.adUserData || "No disponible"}</strong></div>
+          <div><span>Referencia</span><strong>{touch?.referenceLast4 ? `UC-••••${touch.referenceLast4}` : "No disponible"}</strong></div>
+        </div>
+      )}
+
+      <p className="crm-advertising-help">
+        Cambiar la etapa a “Calificado” genera LEAD_QUALIFIED mediante las reglas de Hermes. El formulario registra únicamente hitos que requieren verificación del operador.
+      </p>
+
+      <form className="crm-commercial-event-form" onSubmit={submitEvent}>
+        <label>
+          <span>Hito comercial</span>
+          <select value={eventType} onChange={(event) => setEventType(event.target.value)}>
+            <option value="MEETING_CONFIRMED">Reunión confirmada</option>
+            <option value="PROPOSAL_SENT">Propuesta enviada</option>
+            <option value="CONTRACT_WON">Contrato ganado</option>
+            <option value="CONTRACT_LOST">Contrato perdido</option>
+          </select>
+        </label>
+        <label>
+          <span>Fecha y hora</span>
+          <input name="occurredAt" type="datetime-local" />
+        </label>
+        <label>
+          <span>Servicio solicitado</span>
+          <input name="serviceRequested" maxLength={300} placeholder="Ej. Software a medida" />
+        </label>
+        {!["MEETING_CONFIRMED", "CONTRACT_LOST"].includes(eventType) && (
+          <label>
+            <span>{eventType === "CONTRACT_WON" ? "Importe contratado" : "Valor de propuesta"}</span>
+            <input name="value" type="number" min="0" step="0.01" required={eventType === "CONTRACT_WON"} />
+          </label>
+        )}
+        {eventType === "CONTRACT_WON" && (
+          <label>
+            <span>Ingresos recibidos</span>
+            <input name="revenueReceived" type="number" min="0" step="0.01" />
+          </label>
+        )}
+        {!["MEETING_CONFIRMED", "CONTRACT_LOST"].includes(eventType) && (
+          <label>
+            <span>Moneda</span>
+            <select name="currency" defaultValue="EUR"><option value="EUR">EUR</option><option value="USD">USD</option></select>
+          </label>
+        )}
+        {["CONTRACT_WON", "CONTRACT_LOST"].includes(eventType) && (
+          <label className="is-wide">
+            <span>{eventType === "CONTRACT_WON" ? "Referencia verificable del contrato" : "Motivo o referencia de pérdida"}</span>
+            <input name="commercialReference" maxLength={200} required={eventType === "CONTRACT_WON"} />
+          </label>
+        )}
+        <div className="crm-commercial-event-actions">
+          {isAdmin && attribution && (
+            <button type="button" className="crm-button is-danger" onClick={revokeConsent} disabled={saving}>
+              Revocar consentimiento
+            </button>
+          )}
+          <button className="crm-button is-primary" disabled={saving}>
+            {saving ? "Guardando…" : "Registrar hito"}
+          </button>
+        </div>
+      </form>
+
+      <div className="crm-conversion-history">
+        {history.length === 0 ? (
+          <div className="crm-inline-empty">No hay hitos publicitarios vinculados a este lead.</div>
+        ) : history.map((item) => (
+          <article key={item.id}>
+            <i className={`is-${String(item.syncJob?.status || (item.verified ? "VERIFIED" : "PENDING")).toLowerCase()}`} />
+            <div>
+              <strong>{advertisingEventLabel(item.eventType)}</strong>
+              <span>{item.source || "Hermes"}{item.syncJob?.validateOnly ? " · validateOnly" : ""}</span>
+            </div>
+            <div>
+              <strong>{item.syncJob?.status || (item.verified ? "VERIFIED" : "PENDING")}</strong>
+              <time>{formatDate(item.occurredAt, { withYear: true })}</time>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function maskIdentifier(value) {
+  if (!value) return "";
+  if (value.length <= 8) return "••••";
+  return `${value.slice(0, 4)}••••${value.slice(-4)}`;
+}
+
+function advertisingEventLabel(type) {
+  const labels = {
+    WHATSAPP_CLICK: "Clic en WhatsApp",
+    CONVERSATION_STARTED: "Conversación iniciada",
+    LEAD_QUALIFIED: "Lead cualificado",
+    MEETING_CONFIRMED: "Reunión confirmada",
+    PROPOSAL_SENT: "Propuesta enviada",
+    CONTRACT_WON: "Contrato ganado",
+    CONTRACT_LOST: "Contrato perdido",
+  };
+  return labels[type] || type;
 }
 
 function auditLabel(action) {

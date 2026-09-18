@@ -7,12 +7,22 @@ export default function PrimaryOrb({
   className,
   color,
   textureUrl = "/landing-primary/images/ob_texture-old.webp",
+  disableOnMobile = false,
 }) {
   const viewportRef = useRef(null);
 
   useEffect(() => {
     let orb;
     let cancelled = false;
+
+    // The primary orb needs floating-point WebGL render targets. On phones that
+    // capability is not reliable and several simultaneous canvases can exhaust
+    // the browser's WebGL-context budget, so callers can opt into their CSS
+    // fallback without even creating a canvas.
+    if (disableOnMobile && window.matchMedia("(max-width: 700px)").matches) {
+      viewportRef.current?.setAttribute("data-orb-fallback", "mobile");
+      return undefined;
+    }
 
     import("@/lib/primary-orb/createPrimaryOrb")
       .then(({ createPrimaryOrb }) => {
@@ -28,7 +38,7 @@ export default function PrimaryOrb({
       cancelled = true;
       orb?.destroy();
     };
-  }, [color, textureUrl]);
+  }, [color, disableOnMobile, textureUrl]);
 
   return (
     <div

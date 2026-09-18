@@ -212,6 +212,42 @@ export const hermesApi = {
   funnel() {
     return request("/analytics/funnel");
   },
+  advertisingDashboard(params) {
+    return request(`/advertising/dashboard${toQueryString(params)}`);
+  },
+  advertisingStatus() {
+    return request("/advertising/status");
+  },
+  updateAdvertisingIntegration(data) {
+    return request("/advertising/integration", { method: "PUT", body: data });
+  },
+  advertisingMappings() {
+    return request("/advertising/mappings");
+  },
+  updateAdvertisingMapping(data) {
+    return request("/advertising/mappings", { method: "PUT", body: data });
+  },
+  advertisingMetrics(params) {
+    return request(`/advertising/metrics${toQueryString(params)}`);
+  },
+  syncAdvertisingMetrics(data) {
+    return request("/advertising/metrics/sync", { method: "POST", body: data });
+  },
+  advertisingLeadHistory(id) {
+    return request(`/advertising/leads/${encodeURIComponent(id)}/history`);
+  },
+  recordAdvertisingEvent(id, data) {
+    return request(`/advertising/leads/${encodeURIComponent(id)}/events`, {
+      method: "POST",
+      body: data,
+    });
+  },
+  revokeAdvertisingConsent(contactId, reason) {
+    return request(`/advertising/contacts/${encodeURIComponent(contactId)}/revoke`, {
+      method: "POST",
+      body: { reason },
+    });
+  },
   leads(params) {
     return request(`/leads${toQueryString(params)}`);
   },

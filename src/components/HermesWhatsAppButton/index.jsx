@@ -3,7 +3,10 @@
 import { FaWhatsapp } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useAttribution } from "@/components/Attribution/AttributionProvider";
+import { useConsent } from "@/components/Consent/ConsentManager";
 import { PrimaryOrb } from "@/components/Primary";
+import { resolveAttributedWhatsAppUrl } from "@/lib/attribution/whatsapp-client.mjs";
 import {
   buildHermesWhatsAppUrl,
   HERMES_WHATSAPP_LINK_PROPS,
@@ -13,11 +16,15 @@ import {
 
 const HermesWhatsAppButton = () => {
   const pathname = usePathname();
+  const { buildIntent } = useAttribution();
+  const { preferences } = useConsent();
   const buttonRef = useRef(null);
   const dragRef = useRef(null);
   const suppressClickRef = useRef(false);
+  const preparingRef = useRef(false);
   const [position, setPosition] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isPreparing, setIsPreparing] = useState(false);
 
   const clampPosition = (x, y, width, height) => ({
     x: Math.min(Math.max(8, x), Math.max(8, window.innerWidth - width - 8)),
@@ -99,21 +106,58 @@ const HermesWhatsAppButton = () => {
     event.preventDefault();
   };
 
-  const trackClick = (event) => {
+  const trackClick = async (event) => {
     if (suppressClickRef.current) {
       event.preventDefault();
       suppressClickRef.current = false;
       return;
     }
 
-    const tracker = typeof window !== "undefined" ? window.fbq : undefined;
-    trackHermesWhatsAppClick(tracker, pathname);
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    if (preparingRef.current) return;
+
+    preparingRef.current = true;
+    setIsPreparing(true);
+
+    if (preferences?.analytics && Array.isArray(window.dataLayer)) {
+      window.dataLayer.push({
+        event: "whatsapp_click",
+        source: "hermes_whatsapp_button",
+        page_path: pathname || "/",
+      });
+    }
+
+    if (preferences?.advertising) {
+      trackHermesWhatsAppClick(window.fbq, pathname);
+    }
+
+    const popup = window.open("about:blank", "_blank");
+    if (popup) popup.opener = null;
+
+    try {
+      const destination = await resolveAttributedWhatsAppUrl(
+        buildHermesWhatsAppUrl(),
+        buildIntent(),
+      );
+      preparingRef.current = false;
+      setIsPreparing(false);
+      if (popup && !popup.closed) popup.location.replace(destination);
+      else window.location.assign(destination);
+    } catch {
+      const fallback = buildHermesWhatsAppUrl();
+      preparingRef.current = false;
+      setIsPreparing(false);
+      if (popup && !popup.closed) popup.location.replace(fallback);
+      else window.location.assign(fallback);
+    }
   };
 
   return (
     <a
       ref={buttonRef}
       href={buildHermesWhatsAppUrl()}
+      data-attribution-managed="true"
       {...HERMES_WHATSAPP_LINK_PROPS}
       draggable={false}
       onClick={trackClick}
@@ -123,14 +167,15 @@ const HermesWhatsAppButton = () => {
       onPointerMove={handlePointerMove}
       onPointerUp={finishDragging}
       onPointerCancel={finishDragging}
-      className={`hermes-whatsapp-button${isDragging ? " is-dragging" : ""}`}
+      aria-busy={isPreparing}
+      className={`hermes-whatsapp-button${isDragging ? " is-dragging" : ""}${isPreparing ? " is-preparing" : ""}`}
       style={
         position
           ? { left: position.x, top: position.y, right: "auto", bottom: "auto" }
           : undefined
       }
     >
-      <PrimaryOrb className="hermes-whatsapp-orb" color="#25D366" />
+      <PrimaryOrb className="hermes-whatsapp-orb" color="#25D366" disableOnMobile />
       <FaWhatsapp aria-hidden="true" size={28} />
       <span>Hablar por WhatsApp</span>
       <style jsx global>{`
@@ -193,6 +238,11 @@ const HermesWhatsAppButton = () => {
           transition: opacity 0.18s ease;
         }
 
+        .hermes-whatsapp-button.is-preparing {
+          cursor: wait;
+          opacity: 0.78;
+        }
+
         .hermes-whatsapp-button:focus-visible {
           outline: 3px solid #111827;
           outline-offset: 3px;
@@ -210,12 +260,23 @@ const HermesWhatsAppButton = () => {
           border: 0;
         }
 
-        @media (max-width: 575px) {
+        @media (max-width: 700px) {
           .hermes-whatsapp-button {
             right: 16px;
             bottom: 82px;
             width: 58px;
             height: 58px;
+            visibility: visible;
+            pointer-events: auto;
+            opacity: 1;
+            background:
+              radial-gradient(circle at 31% 24%, rgba(255, 255, 255, 0.88) 0 3%, rgba(255, 255, 255, 0.24) 13%, transparent 31%),
+              radial-gradient(circle at 74% 78%, rgba(0, 0, 0, 0.3) 0, transparent 56%),
+              #25D366;
+            box-shadow:
+              inset 8px 9px 16px rgba(255, 255, 255, 0.2),
+              inset -12px -14px 20px rgba(0, 0, 0, 0.18),
+              0 8px 20px rgba(37, 211, 102, 0.34);
           }
         }
       `}</style>

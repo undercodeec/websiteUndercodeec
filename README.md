@@ -69,6 +69,21 @@ La plantilla `config/github-ci.yml.example` ejecuta lint, build, comprobación d
 
 El proxy `/api/hermes/*` usa `HERMES_API_URL` en el servidor. Así el navegador puede conservar `NEXT_PUBLIC_HERMES_API_URL=/api/hermes` sin exponer la dirección interna de Hermes ni depender de una regla externa de Nginx.
 
+## Atribución publicitaria y privacidad
+
+El sitio incluye una capa local de consentimiento para Google Tag Manager y Meta Pixel. El estado inicial de Consent Mode v2 es denegado y las etiquetas opcionales se cargan únicamente después de la elección correspondiente. GTM es la única vía de carga de GA4 para evitar el pageview duplicado que producía la antigua etiqueta directa.
+
+Los enlaces comerciales al número de WhatsApp aprobado solicitan una referencia opaca mediante `POST /api/attribution/whatsapp`. La ruta valida el payload y llama a Hermes con una credencial exclusiva del servidor. Si Hermes no está configurado, responde tarde o rechaza la solicitud, WhatsApp se abre con el mensaje original.
+
+Variables adicionales:
+
+- `HERMES_ATTRIBUTION_KEY`: credencial dedicada que debe coincidir con `AD_ATTRIBUTION_INTEGRATION_KEY` en Hermes.
+- `ATTRIBUTION_ALLOWED_ORIGINS`: orígenes web permitidos, separados por comas.
+- `ATTRIBUTION_REQUEST_TIMEOUT_MS`: timeout de la llamada servidor a servidor.
+- `NEXT_PUBLIC_CONSENT_POLICY_VERSION`: versión que invalida preferencias antiguas cuando cambia la política.
+
+El panel autenticado incorpora `/admin/crm/publicidad` y consume el contrato desplegado de Hermes bajo `/advertising/*`: resumen, estado, configuración, mapeos, métricas, historial del lead, hitos comerciales y revocación. La interfaz muestra “Pendiente de conexión” cuando Hermes todavía no tiene métricas; UnderCodeEC no consulta Google directamente ni almacena una copia del modelo publicitario del CRM.
+
 ## Despliegue y rollback
 
 El artefacto debe construirse con `pnpm build` y ejecutarse con `pnpm start`. La API se inicia con `pnpm --dir backend start`. El proxy inverso de referencia está en `nginx.conf.example`.
