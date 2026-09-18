@@ -579,7 +579,7 @@ function runWithPuppeteer(task) {
 
 // Configuración de CORS mejorada
 const corsOptions = {
-  origin: ['https://undercodeec.com', 'https://www.undercodeec.com', 'https://api.undercodeec.com', 'http://localhost:3000', 'http://127.0.0.1:3000', process.env.FRONTEND_URL].filter(Boolean),
+  origin: ['https://undercodeec.com', 'https://www.undercodeec.com', 'https://api.undercodeec.com', 'https://admincrm.undercodeec.com', 'http://localhost:3000', 'http://127.0.0.1:3000', process.env.FRONTEND_URL].filter(Boolean),
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['X-Chat-Remaining-Today', 'X-Chat-Access-Tier'],
