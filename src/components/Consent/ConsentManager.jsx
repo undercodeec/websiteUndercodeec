@@ -54,6 +54,7 @@ export default function ConsentManager({ children }) {
   const pathname = usePathname();
   const [preferences, setPreferences] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [preloaderFinished, setPreloaderFinished] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [draft, setDraft] = useState(DENIED_CONSENT);
 
@@ -73,6 +74,27 @@ export default function ConsentManager({ children }) {
     });
     return () => {
       active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let fallbackTimer;
+    let frame;
+    const revealBanner = () => setPreloaderFinished(true);
+    const waitForPreloader = () => {
+      if (!document.body.classList.contains("primary-preloading")) {
+        revealBanner();
+        return;
+      }
+      window.addEventListener("preloaderDone", revealBanner, { once: true });
+      fallbackTimer = window.setTimeout(revealBanner, 3000);
+    };
+
+    frame = window.requestAnimationFrame(waitForPreloader);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(fallbackTimer);
+      window.removeEventListener("preloaderDone", revealBanner);
     };
   }, []);
 
@@ -140,7 +162,7 @@ fbq('consent','grant');fbq('init','1528924045213380');fbq('track','PageView');`}
         </Script>
       )}
 
-      {mounted && !excludedPath && !preferences && (
+      {mounted && preloaderFinished && !excludedPath && !preferences && (
         <section
           className={styles.banner}
           role="region"
@@ -169,12 +191,6 @@ fbq('consent','grant');fbq('init','1528924045213380');fbq('track','PageView');`}
             </button>
           </div>
         </section>
-      )}
-
-      {mounted && !excludedPath && preferences && !settingsOpen && (
-        <button className={styles.settingsButton} type="button" onClick={openSettings}>
-          Privacidad
-        </button>
       )}
 
       {mounted && !excludedPath && settingsOpen && (

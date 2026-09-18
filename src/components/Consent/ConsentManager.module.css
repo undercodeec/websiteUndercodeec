@@ -7,21 +7,22 @@
 }
 
 .banner {
-  right: clamp(12px, 3vw, 32px);
+  right: auto;
   bottom: clamp(12px, 3vw, 28px);
   left: clamp(12px, 3vw, 32px);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 24px;
+  gap: 28px;
   align-items: center;
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 20px 22px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 18px;
-  background: rgba(16, 10, 28, 0.97);
-  box-shadow: 0 20px 70px rgba(8, 4, 18, 0.42);
-  backdrop-filter: blur(18px);
+  width: min(760px, calc(100vw - 24px));
+  max-width: none;
+  margin: 0;
+  padding: 20px;
+  border: 1px solid #1d1d1d;
+  border-radius: 0;
+  color: #1d1d1d;
+  background: #f4f2ec;
+  box-shadow: 10px 10px 0 #1d1d1d;
 }
 
 .copy {
@@ -31,13 +32,16 @@
 .copy strong {
   display: block;
   margin-bottom: 6px;
-  font-size: 1rem;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
 }
 
 .copy p {
   max-width: 760px;
   margin: 0;
-  color: rgba(248, 250, 252, 0.78);
+  color: rgba(29, 29, 29, .74);
   font-size: 0.9rem;
   line-height: 1.55;
 }
@@ -50,56 +54,45 @@
 }
 
 .button,
-.settingsButton,
 .closeButton {
   min-height: 44px;
-  border: 1px solid rgba(255, 255, 255, 0.26);
-  border-radius: 999px;
+  border: 1px solid #1d1d1d;
+  border-radius: 0;
   font: inherit;
-  font-size: 0.875rem;
+  font-size: .72rem;
   font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
 .button {
   padding: 10px 17px;
   background: transparent;
-  color: #fff;
+  color: #1d1d1d;
 }
 
 .buttonPrimary {
-  border-color: #7c3aed;
-  background: #7c3aed;
+  color: #f4f2ec;
+  background: #1d1d1d;
 }
 
 .button:hover,
 .button:focus-visible,
-.settingsButton:hover,
-.settingsButton:focus-visible,
 .closeButton:hover,
 .closeButton:focus-visible {
-  border-color: #c4b5fd;
-  outline: 2px solid transparent;
-  box-shadow: 0 0 0 3px rgba(196, 181, 253, 0.28);
-}
-
-.settingsButton {
-  position: fixed;
-  left: 14px;
-  bottom: 14px;
-  z-index: 10020;
-  padding: 8px 13px;
-  background: rgba(18, 12, 30, 0.92);
-  color: #fff;
-  box-shadow: 0 8px 24px rgba(8, 4, 18, 0.25);
+  color: #1d1d1d;
+  border-color: #1d1d1d;
+  outline: 2px solid #efa238;
+  outline-offset: 2px;
+  background: #efa238;
 }
 
 .backdrop {
   position: fixed;
   inset: 0;
   z-index: 10040;
-  background: rgba(3, 2, 8, 0.66);
-  backdrop-filter: blur(6px);
+  background: rgba(29, 29, 29, .5);
 }
 
 .panel {
@@ -109,10 +102,10 @@
   max-height: min(88vh, 680px);
   overflow: auto;
   padding: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 22px;
-  background: #120c1e;
-  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.48);
+  border: 1px solid #1d1d1d;
+  border-radius: 0;
+  background: #f4f2ec;
+  box-shadow: 12px 12px 0 #1d1d1d;
   transform: translate(-50%, -50%);
 }
 
@@ -126,13 +119,13 @@
 
 .panelHeader h2 {
   margin: 0 0 7px;
-  color: #fff;
+  color: #1d1d1d;
   font-size: 1.35rem;
 }
 
 .panelHeader p {
   margin: 0;
-  color: rgba(248, 250, 252, 0.7);
+  color: rgba(29, 29, 29, .74);
   font-size: 0.9rem;
   line-height: 1.5;
 }
@@ -142,7 +135,7 @@
   width: 44px;
   padding: 0;
   background: transparent;
-  color: #fff;
+  color: #1d1d1d;
   font-size: 1.25rem;
 }
 
@@ -152,7 +145,7 @@
   gap: 16px;
   align-items: center;
   padding: 16px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(29, 29, 29, .2);
 }
 
 .choice strong,
@@ -162,7 +155,7 @@
 
 .choice span {
   margin-top: 4px;
-  color: rgba(248, 250, 252, 0.68);
+  color: rgba(29, 29, 29, .7);
   font-size: 0.84rem;
   line-height: 1.45;
 }
@@ -170,11 +163,11 @@
 .choice input {
   width: 22px;
   height: 22px;
-  accent-color: #8b5cf6;
+  accent-color: #1d1d1d;
 }
 
 .required {
-  color: #c4b5fd;
+  color: #700047;
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -202,18 +195,4 @@
     flex: 1 1 130px;
   }
 
-  .settingsButton {
-    bottom: 10px;
-    left: 10px;
-    min-height: 40px;
-    font-size: 0.78rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .banner,
-  .panel,
-  .settingsButton {
-    scroll-behavior: auto;
-  }
 }

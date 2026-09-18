@@ -5,9 +5,12 @@ import { PrimaryHeader } from "@/components/Primary";
 import PrimaryPageHero from "@/components/Marketing/MarketingHero";
 import PoliticaContenido from "@/components/Navbars/PlayConsole";
 import ServiciosPrimaryFooter from "@/components/Servicios/ServiciosPrimaryFooter";
+import { useConsent } from "@/components/Consent/ConsentManager";
 import styles from "./PoliciesPage.module.css";
 
 export default function PoliticasPlayConsolePage() {
+  const { openSettings } = useConsent();
+
   return (
     <MainLayout>
       <div className={styles.page} data-policies-page data-primary-page>
@@ -21,6 +24,12 @@ export default function PoliticasPlayConsolePage() {
             bottomMeta="Tecnología construida sobre confianza"
             titleId="policies-hero-title"
           />
+          <div className={styles.preferencesAction}>
+            <button type="button" onClick={openSettings}>
+              Preferencias de cookies
+              <span aria-hidden="true">&#8594;</span>
+            </button>
+          </div>
           <PoliticaContenido />
         </main>
         <ServiciosPrimaryFooter />

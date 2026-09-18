@@ -183,23 +183,14 @@
 
   const style = document.createElement("style");
   style.textContent = `
-    .uc-consent { position: fixed; z-index: 2147483647; right: 16px; bottom: 16px; max-width: 430px; padding: 18px; color: #fff; background: #111827; border: 1px solid rgba(255,255,255,.25); border-radius: 14px; box-shadow: 0 16px 48px rgba(0,0,0,.35); font: 14px/1.45 Arial,sans-serif; }
-    .uc-consent h2 { margin: 0 0 6px; font-size: 17px; } .uc-consent p { margin: 0 0 14px; } .uc-consent-actions { display: flex; flex-wrap: wrap; gap: 8px; } .uc-consent button { cursor: pointer; padding: 9px 12px; color: inherit; background: transparent; border: 1px solid rgba(255,255,255,.55); border-radius: 7px; font: inherit; } .uc-consent .uc-primary { color: #111827; background: #63f07a; border-color: #63f07a; } .uc-privacy { position: fixed; z-index: 2147483646; right: 16px; bottom: 16px; padding: 8px 10px; color: #fff; background: #111827; border: 1px solid rgba(255,255,255,.35); border-radius: 7px; font: 13px Arial,sans-serif; cursor: pointer; }
-    @media (max-width: 600px) { .uc-consent { right: 12px; bottom: 12px; left: 12px; max-width: none; } }
+    .uc-consent { position: fixed; z-index: 2147483647; right: auto; bottom: 1.25rem; left: 1.25rem; width: min(34rem, calc(100vw - 2.5rem)); padding: 1.25rem; color: #1d1d1d; background: #f4f2ec; border: 1px solid #1d1d1d; box-shadow: .55rem .55rem 0 #1d1d1d; font: 14px/1.45 Arial, sans-serif; }
+    .uc-consent h2 { margin: 0 0 .45rem; font-family: Arial, sans-serif; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; } .uc-consent p { margin: 0 0 1rem; color: rgba(29,29,29,.76); } .uc-consent-actions { display: flex; flex-wrap: wrap; gap: .5rem; } .uc-consent button { min-height: 2.75rem; cursor: pointer; padding: .65rem .9rem; color: #1d1d1d; background: transparent; border: 1px solid #1d1d1d; border-radius: 0; font: 700 .72rem/1 Arial, sans-serif; letter-spacing: .06em; text-transform: uppercase; } .uc-consent button:hover, .uc-consent button:focus-visible { color: #f4f2ec; background: #1d1d1d; outline: 2px solid #efa238; outline-offset: 2px; } .uc-consent .uc-primary { color: #f4f2ec; background: #1d1d1d; } .uc-consent .uc-primary:hover, .uc-consent .uc-primary:focus-visible { color: #1d1d1d; background: #efa238; } @media (max-width: 600px) { .uc-consent { right: auto; bottom: 1rem; left: 1rem; width: calc(100vw - 2rem); } .uc-consent button { flex: 1 1 9rem; } }
   `;
   document.head.append(style);
 
   const renderConsent = (editing = false) => {
-    document.querySelector(".uc-consent, .uc-privacy")?.remove();
-    if (preferences && !editing) {
-      const button = document.createElement("button");
-      button.className = "uc-privacy";
-      button.type = "button";
-      button.textContent = "Privacidad";
-      button.addEventListener("click", () => renderConsent(true));
-      document.body.append(button);
-      return;
-    }
+    document.querySelector(".uc-consent")?.remove();
+    if (preferences && !editing) return;
     const panel = document.createElement("section");
     panel.className = "uc-consent";
     panel.setAttribute("role", "region");
@@ -224,6 +215,14 @@
     document.body.append(panel);
   };
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => renderConsent(), { once: true });
-  else renderConsent();
+  const renderAfterPreloader = () => {
+    if (document.querySelector("[preloader]")) {
+      window.setTimeout(renderAfterPreloader, 100);
+      return;
+    }
+    renderConsent();
+  };
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", renderAfterPreloader, { once: true });
+  else renderAfterPreloader();
 })();
