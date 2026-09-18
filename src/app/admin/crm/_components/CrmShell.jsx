@@ -53,6 +53,26 @@ export default function CrmShell({ children }) {
   const notificationRef = useRef(null);
   const previousPriorityIds = useRef(null);
 
+  useEffect(() => {
+    try {
+      setSidebarCollapsed(window.localStorage.getItem("hermes-crm-sidebar-collapsed") === "true");
+    } catch {
+      // La navegación sigue funcionando si el almacenamiento no está disponible.
+    }
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed((collapsed) => {
+      const next = !collapsed;
+      try {
+        window.localStorage.setItem("hermes-crm-sidebar-collapsed", String(next));
+      } catch {
+        // No se requiere almacenamiento para contraer o expandir durante la sesión.
+      }
+      return next;
+    });
+  };
+
   const loadNotifications = useCallback(async (showDesktopAlerts = false) => {
     if (!showDesktopAlerts) setNotificationLoading(true);
     setNotificationError("");
@@ -136,7 +156,13 @@ export default function CrmShell({ children }) {
     <div className={`crm-root ${sidebarCollapsed ? "is-sidebar-collapsed" : ""}`}>
       <a className="crm-skip-link" href="#crm-content">Saltar al contenido</a>
 
-      <aside className="crm-sidebar" aria-label="Navegación principal del CRM">
+      <aside
+        id="crm-sidebar"
+        className="crm-sidebar"
+        aria-label="Navegación principal del CRM"
+        aria-hidden={sidebarCollapsed}
+        inert={sidebarCollapsed ? "" : undefined}
+      >
         <div className="crm-brand">
           <div className="crm-brand-mark">
             <Bot size={22} aria-hidden="true" />
@@ -168,22 +194,6 @@ export default function CrmShell({ children }) {
           })}
         </nav>
 
-        <button
-          type="button"
-          className="crm-sidebar-toggle"
-          onClick={() => setSidebarCollapsed((collapsed) => !collapsed)}
-          aria-label={sidebarCollapsed ? "Expandir navegación" : "Comprimir navegación"}
-          aria-pressed={sidebarCollapsed}
-          title={sidebarCollapsed ? "Expandir navegación" : "Comprimir navegación"}
-        >
-          {sidebarCollapsed ? (
-            <PanelLeftOpen size={19} aria-hidden="true" />
-          ) : (
-            <PanelLeftClose size={19} aria-hidden="true" />
-          )}
-          <span>{sidebarCollapsed ? "Expandir" : "Comprimir"}</span>
-        </button>
-
         <div className="crm-sidebar-note">
           <DatabaseZap size={18} aria-hidden="true" />
           <div>
@@ -212,6 +222,22 @@ export default function CrmShell({ children }) {
 
       <main className="crm-main" id="crm-content" tabIndex={-1}>
         <header className="crm-topbar">
+          <button
+            type="button"
+            className="crm-sidebar-toggle"
+            onClick={toggleSidebar}
+            aria-label={sidebarCollapsed ? "Mostrar navegación lateral" : "Ocultar navegación lateral"}
+            aria-expanded={!sidebarCollapsed}
+            aria-controls="crm-sidebar"
+            title={sidebarCollapsed ? "Mostrar menú" : "Ocultar menú"}
+          >
+            {sidebarCollapsed ? (
+              <PanelLeftOpen size={19} aria-hidden="true" />
+            ) : (
+              <PanelLeftClose size={19} aria-hidden="true" />
+            )}
+            <span>{sidebarCollapsed ? "Mostrar menú" : "Ocultar menú"}</span>
+          </button>
           <div className="crm-topbar-context">
             <span>Hermes CRM</span>
             <strong>{current.label}</strong>

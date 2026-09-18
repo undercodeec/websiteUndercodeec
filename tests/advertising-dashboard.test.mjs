@@ -12,6 +12,9 @@ test("adds the advertising attribution area to the authenticated CRM", async () 
 
   assert.match(shell, /href: "\/admin\/crm\/publicidad"/);
   assert.match(shell, /label: "Publicidad y atribución"/);
+  assert.match(shell, /hermes-crm-sidebar-collapsed/);
+  assert.match(shell, /aria-controls="crm-sidebar"/);
+  assert.match(shell, /Mostrar navegación lateral/);
   assert.match(api, /advertisingDashboard\(params\)/);
   assert.match(api, /request\(`\/advertising\/dashboard/);
   assert.match(api, /advertisingStatus\(\)/);
