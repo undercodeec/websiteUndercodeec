@@ -29,7 +29,6 @@ const legal = [
 
 const legalSecondary = [
   { label: "Privacidad", href: "/politicas-playconsole", isMini: true },
-  { label: "Carreras", href: "/recursos-humanos", isMini: true },
 ];
 
 const mobileLegal = [

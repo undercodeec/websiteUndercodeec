@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import IsometricVoxelCard from "@/components/LandingEspana/IsometricVoxelCard";
+import IsometricVoxelCard from "@/components/LandingShared/IsometricVoxelCard";
 import MobileAppCanvas from "./MobileAppCanvas";
 import WebDesignCanvas from "./WebDesignCanvas";
 import styles from "./PrimaryAbout.module.css";

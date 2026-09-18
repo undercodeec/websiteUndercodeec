@@ -299,7 +299,7 @@ test("renders the voxel canvas in the Desarrollo de software visual and keeps it
   const about = await readFile("src/components/Saas/About/PrimaryAbout.jsx", "utf8");
   const styles = await readFile("src/components/Saas/About/PrimaryAbout.module.css", "utf8");
 
-  assert.match(about, /import IsometricVoxelCard from "@\/components\/LandingEspana\/IsometricVoxelCard";/);
+  assert.match(about, /import IsometricVoxelCard from "@\/components\/LandingShared\/IsometricVoxelCard";/);
   assert.match(about, /const isSoftwareStory = story\.number === "01";/);
   assert.match(about, /isSoftwareStory \? \(\s*<div className=\{styles\.voxelCanvas\}>\s*<IsometricVoxelCard\s*\/>\s*<\/div>\s*\) : null/);
   assert.match(styles, /\.voxelCanvas\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*1\.1rem;/);
@@ -372,7 +372,7 @@ test("loads reCAPTCHA only from routes and forms that require it", async () => {
   assert.doesNotMatch(layout, /google\.com\/recaptcha\/enterprise\.js/);
   assert.match(contact, /<RecaptchaEnterpriseScript\s*\/>/);
   assert.match(marketing, /<RecaptchaEnterpriseScript\s*\/>/);
-  assert.match(hr, /<RecaptchaEnterpriseScript\s*\/>/);
+  assert.match(hr, /notFound\(\)/);
 });
 
 test("removes the promotion banner and keeps Hermes draggable from the right edge", async () => {

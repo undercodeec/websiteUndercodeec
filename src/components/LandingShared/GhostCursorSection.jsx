@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 // WebGL only runs client-side — avoid SSR of the three.js canvas.
 const GhostCursor = dynamic(
-  () => import("@/components/LandingEspana/GhostCursor"),
+  () => import("@/components/LandingShared/GhostCursor"),
   { ssr: false }
 );
 

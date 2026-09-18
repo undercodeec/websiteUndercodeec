@@ -1,7 +1,7 @@
 const WHATSAPP_NUMBER = "593999739534";
 const WHATSAPP_MESSAGE =
   "Hola, quisiera obtener información sobre los servicios de Undercodeec.";
-const HIDDEN_PATH_PREFIXES = ["/admin", "/contratos", "/recursos-humanos", "/undercodeec"];
+const HIDDEN_PATH_PREFIXES = ["/admin", "/contratos", "/undercodeec"];
 const REFERENCE_PATTERN = /^UC-[A-Z2-7]{22}$/;
 
 export const HERMES_WHATSAPP_LINK_PROPS = {

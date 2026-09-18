@@ -3,9 +3,9 @@
 import { createElement, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import MoonMini from "@/components/3D/MoonMini";
-import IsometricVoxelCard from "@/components/LandingEspana/IsometricVoxelCard";
-import OrbVisualizer from "@/components/LandingEspana/OrbVisualizer";
-import { STACK_TIMELINE_HTML } from "@/components/LandingEspana/stackTimelineHtml";
+import IsometricVoxelCard from "@/components/LandingShared/IsometricVoxelCard";
+import OrbVisualizer from "@/components/LandingShared/OrbVisualizer";
+import { STACK_TIMELINE_HTML } from "@/components/LandingShared/stackTimelineHtml";
 
 /* Réplica EXACTA y self-contained de la sección "Innovación, diseñada."
    (timeline [scrollto-lenis] de sui.io / stack-demo). NO depende del sitio
@@ -18,7 +18,7 @@ import { STACK_TIMELINE_HTML } from "@/components/LandingEspana/stackTimelineHtm
    scroll). Assets (fuentes .otf/.woff2, iconos .riv) se sirven desde el CDN
    de Webflow, independiente del stack-demo. */
 
-const BASE = "/landing-espana/stack-timeline";
+const BASE = "/landing-shared/stack-timeline";
 const CARD_LINKS = {
   1: "https://understudio.undercodeec.com",
   2: "https://understudio.undercodeec.com/demo-moon",

@@ -18,12 +18,12 @@ import { toHermesContactIntent } from "../src/lib/attribution/hermes-contract.mj
 
 test("captures only supported advertising parameters without rewriting values", () => {
   const result = parseAttributionParams(
-    "?gclid=AbC_123-xy&utm_source=Google&utm_campaign=Espa%C3%B1a&email=no%40example.com",
+    "?gclid=AbC_123-xy&utm_source=Google&utm_campaign=campana-prueba&email=no%40example.com",
   );
   assert.deepEqual(result, {
     gclid: "AbC_123-xy",
     utm_source: "Google",
-    utm_campaign: "España",
+    utm_campaign: "campana-prueba",
   });
   assert.equal(hasAttributionParams(result), true);
 });
@@ -65,7 +65,7 @@ function validIntent(overrides = {}) {
     utm: {
       source: "google",
       medium: "cpc",
-      campaign: "spain",
+      campaign: "campana-prueba",
       content: null,
       term: null,
     },
@@ -157,7 +157,7 @@ test("maps the browser payload to the deployed Hermes contact-intent contract", 
       gclid: "abc_123",
       utmSource: "google",
       utmMedium: "cpc",
-      utmCampaign: "spain",
+      utmCampaign: "campana-prueba",
       landingPage: "https://undercodeec.com/es",
       visitedAt: result.value.occurredAt,
       consent: {

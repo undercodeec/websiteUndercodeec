@@ -28,7 +28,6 @@ test("hides the Hermes entrypoint on internal route prefixes", () => {
     "/admin",
     "/admin/crm",
     "/contratos/123",
-    "/recursos-humanos/solicitudes",
     "/undercodeec",
   ]) {
     assert.equal(isHermesWhatsAppHiddenPath(pathname), true, pathname);
@@ -36,6 +35,7 @@ test("hides the Hermes entrypoint on internal route prefixes", () => {
   assert.equal(isHermesWhatsAppHiddenPath("/servicios"), false);
   assert.equal(isHermesWhatsAppHiddenPath("/administracion"), false);
   assert.equal(isHermesWhatsAppHiddenPath("/contratos-publicos"), false);
+  assert.equal(isHermesWhatsAppHiddenPath("/recursos-humanos/solicitudes"), false);
 });
 
 test("uses secure new-tab attributes and tracks only the Hermes click event", () => {

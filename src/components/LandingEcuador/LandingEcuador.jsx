@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { animate, stagger } from "animejs";
 import "@/components/Slider/slider.css";
 import ScrollPinShowcase from "@/components/LandingEcuador/ScrollPinShowcase";
-import StackTimeline from "@/components/LandingEspana/StackTimeline";
+import StackTimeline from "@/components/LandingShared/StackTimeline";
 import ThanosTextSection from "@/components/LandingEcuador/ThanosTextSection";
 import CompetenceTable from "@/components/LandingEcuador/CompetenceTable";
 

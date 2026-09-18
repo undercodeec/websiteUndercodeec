@@ -24,14 +24,22 @@ const nextConfig: NextConfig = {
           source: "/",
           destination: "/landing-primary/index.html",
         },
-        {
-          source: "/demos",
-          destination: "/landing-primary/index.html",
-        },
       ],
       afterFiles: [],
       fallback: [],
     };
+  },
+  async headers() {
+    return [
+      {
+        // La home se entrega desde este archivo estático, pero esta URL de
+        // recurso no debe competir con su canonical público: /.
+        source: "/landing-primary/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+    ];
   },
   async redirects() {
     return [

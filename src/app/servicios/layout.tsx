@@ -114,7 +114,7 @@ const faqJsonLd = {
       name: "¿Trabajan con empresas fuera de Ecuador?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Sí. Tenemos clientes en Ecuador, España y Latinoamérica. Trabajamos de forma 100% remota con reuniones por videollamada, gestión ágil con Jira/Trello y entregas quincenales. La facturación se hace en USD o EUR según el país del cliente.",
+        text: "Sí. Trabajamos de forma remota con reuniones por videollamada, gestión ágil con Jira/Trello y entregas quincenales. La facturación se coordina según las necesidades del proyecto.",
       },
     },
     {

@@ -10,9 +10,9 @@ import React, {
   useRef,
 } from "react";
 import gsap from "gsap";
-import StickyContentSwitch from "@/components/LandingEspana/StickyContentSwitch";
-import GlitchTechAnimation from "@/components/LandingEspana/GlitchTechAnimation";
-import HorizontalGallery from "@/components/LandingEspana/HorizontalGallery";
+import StickyContentSwitch from "@/components/LandingShared/StickyContentSwitch";
+import GlitchTechAnimation from "@/components/LandingShared/GlitchTechAnimation";
+import HorizontalGallery from "@/components/LandingShared/HorizontalGallery";
 /* ═══════════════════════════════════════════════════════════════
  *  CardSwapServicios – perspective card-swap showcase
  *  GSAP timeline engine adapted from the Card_Swap spec to the

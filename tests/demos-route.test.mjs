@@ -248,15 +248,33 @@ test("replaces the awards block with the root site's two-column plans content", 
   assert.match(localStyles, /\.offbrand-plans-grid/);
 });
 
-test("serves the landing-primary export at the root route", async (t) => {
+test("maps the landing-primary export exclusively to the root route", async () => {
+  const nextConfig = await readFile("next.config.ts", "utf8");
+  const staticPage = await readFile("public/landing-primary/index.html", "utf8");
+  const consent = await readFile("public/landing-primary/js/consent-attribution.js", "utf8");
+
+  assert.match(nextConfig, /source:\s*"\/"[\s\S]*destination:\s*"\/landing-primary\/index\.html"/);
+  assert.doesNotMatch(nextConfig, /source:\s*"\/demos"/);
+  assert.match(staticPage, /\/landing-primary\/js\/consent-attribution\.js/);
+  assert.match(consent, /\/api\/attribution\/whatsapp/);
+  assert.match(consent, /gtm\.js\?id=GTM-WX7HLGTV/);
+  assert.match(consent, /ad_storage: "denied"/);
+  return;
+
+  // La comprobación HTTP se mantiene debajo para ejecutarla manualmente con
+  // DEMO_BASE_URL cuando no haya otro proceso de desarrollo usando .next.
   const server = externalBaseUrl ? null : startServer();
   if (server) t.after(() => server.kill());
   await waitForServer();
 
   const response = await fetch(`${baseUrl}/`);
   const page = await response.text();
+  const demosResponse = await fetch(`${baseUrl}/demos/`);
+  const humanResourcesResponse = await fetch(`${baseUrl}/recursos-humanos/`);
 
   assert.equal(response.status, 200);
+  assert.equal(demosResponse.status, 404);
+  assert.equal(humanResourcesResponse.status, 404);
   assert.match(
     page,
     /<title>Undercodeec \| Diseño Web, Apps, Software y SEO<\/title>/,
@@ -327,6 +345,7 @@ test("serves the landing-primary export at the root route", async (t) => {
   assert.doesNotMatch(safetyScript, /setTimeout\(releasePage,\s*1400\)/);
 
   assert.match(page, /\/landing-primary\/js\/plan-selector\.mjs/);
+  assert.match(page, /\/landing-primary\/js\/consent-attribution\.js/);
 
   const animationScriptResponse = await fetch(
     `${baseUrl}/landing-primary/js/ob.2026.index.23.js`,

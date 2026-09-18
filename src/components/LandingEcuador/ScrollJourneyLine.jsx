@@ -8,7 +8,7 @@ import {
   useSpring,
   useMotionValue,
 } from "framer-motion";
-import CameraAnim from "@/components/LandingEspana/CameraAnim";
+import CameraAnim from "@/components/LandingShared/CameraAnim";
 
 const PROJECTS = [
   {

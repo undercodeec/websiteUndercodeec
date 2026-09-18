@@ -3,15 +3,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { animate } from "animejs";
-import AnimatedCards from "@/components/LandingEspana/AnimatedCards";
-import StackingCardsDemo from "@/components/LandingEspana/StackingCardsDemo";
+import AnimatedCards from "@/components/LandingShared/AnimatedCards";
+import StackingCardsDemo from "@/components/LandingShared/StackingCardsDemo";
 
 const TubesBackground = dynamic(
-  () => import("@/components/LandingEspana/TubesBackground"),
+  () => import("@/components/LandingShared/TubesBackground"),
   { ssr: false, loading: () => null }
 );
 const JellySqueeze = dynamic(
-  () => import("@/components/LandingEspana/JellySqueeze"),
+  () => import("@/components/LandingShared/JellySqueeze"),
   { ssr: false, loading: () => null }
 );
 

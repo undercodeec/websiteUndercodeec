@@ -120,9 +120,10 @@ const HermesWhatsAppButton = () => {
     preparingRef.current = true;
     setIsPreparing(true);
 
-    if (preferences?.analytics && Array.isArray(window.dataLayer)) {
+    if ((preferences?.analytics || preferences?.advertising) && Array.isArray(window.dataLayer)) {
       window.dataLayer.push({
         event: "whatsapp_click",
+        contact_method: "whatsapp",
         source: "hermes_whatsapp_button",
         page_path: pathname || "/",
       });

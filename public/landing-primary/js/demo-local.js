@@ -1,8 +1,28 @@
 (() => {
   const reservationAnchorId = "reserva_agenda";
+  const consentStorageKey = "undercodeec_consent_v1";
+  const consentPolicyVersion = "2026-09-17";
+  const calendlyOrigin = "https://calendly.com";
   const headerScheduleLink = document.querySelector("[data-contact]");
   const introductoryCallLink = document.querySelector(".offbrand-plan-action");
   const reservationSection = introductoryCallLink?.closest(".offbrand-plan-column");
+
+  const measurementConsentIsGranted = () => {
+    try {
+      const preferences = JSON.parse(window.localStorage.getItem(consentStorageKey) || "null");
+      return preferences?.policyVersion === consentPolicyVersion
+        && (preferences.analytics === true || preferences.advertising === true);
+    } catch {
+      return false;
+    }
+  };
+
+  const pushAnalyticsEvent = (event, parameters = {}) => {
+    if (!measurementConsentIsGranted()) return false;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event, ...parameters });
+    return true;
+  };
 
   if (reservationSection) {
     reservationSection.id = reservationAnchorId;
@@ -42,6 +62,19 @@
     introductoryCallLink.setAttribute("aria-expanded", "false");
     document.body.append(calendarPanel);
 
+    let calendarReservationRecorded = false;
+    const recordCalendlyReservation = (event) => {
+      if (event.origin !== calendlyOrigin || event.data?.event !== "calendly.event_scheduled") return;
+      if (calendarReservationRecorded) return;
+
+      calendarReservationRecorded = true;
+      pushAnalyticsEvent("schedule_complete", {
+        booking_type: "introductory_call",
+        page_path: window.location.pathname || "/",
+      });
+    };
+    window.addEventListener("message", recordCalendlyReservation);
+
     const closeCalendar = () => {
       if (calendarPanel.hidden) return;
       calendarPanel.hidden = true;
@@ -80,6 +113,10 @@
       if (isOpening) {
         calendarPanel.hidden = false;
         introductoryCallLink.setAttribute("aria-expanded", "true");
+        pushAnalyticsEvent("schedule_open", {
+          booking_type: "introductory_call",
+          page_path: window.location.pathname || "/",
+        });
         window.requestAnimationFrame(() => calendarCloseButton.focus());
       } else {
         closeCalendar();

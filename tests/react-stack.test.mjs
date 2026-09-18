@@ -15,10 +15,7 @@ test("keeps Next and React as the only active frontend stack", async () => {
     nextConfig,
     /source:\s*"\/"[\s\S]*destination:\s*"\/landing-primary\/index\.html"/,
   );
-  assert.match(
-    nextConfig,
-    /source:\s*"\/demos"[\s\S]*destination:\s*"\/landing-primary\/index\.html"/,
-  );
+  assert.doesNotMatch(nextConfig, /source:\s*"\/demos"/);
 
   for (const dependency of ["clsx", "rc-slider", "tailwind-merge"]) {
     assert.equal(packageJson.dependencies[dependency], undefined, dependency);

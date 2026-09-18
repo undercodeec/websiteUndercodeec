@@ -103,7 +103,7 @@ const organizationJsonLd = {
   },
   image: `${SITE_URL}/assets/img/undercode-logo.png`,
   description:
-    "Agencia digital especializada en diseño y desarrollo de páginas web profesionales, aplicaciones móviles Android e iOS, posicionamiento SEO, marketing digital y software empresarial a medida (CRM, ERP, facturación electrónica) para empresas en Ecuador, España y Latinoamérica.",
+    "Agencia digital especializada en diseño y desarrollo de páginas web profesionales, aplicaciones móviles Android e iOS, posicionamiento SEO, marketing digital y software empresarial a medida (CRM, ERP y facturación electrónica).",
   slogan: "Transformación digital para tu negocio",
   email: "gerencia@undercodeec.com",
   telephone: "+593-999-739-534",
@@ -122,12 +122,7 @@ const organizationJsonLd = {
     "Transformación digital empresarial",
     "Generative Engine Optimization (GEO)",
   ],
-  knowsLanguage: ["es", "es-EC", "es-ES"],
-  areaServed: [
-    { "@type": "Country", name: "Ecuador" },
-    { "@type": "Country", name: "España" },
-    { "@type": "Place", name: "Latinoamérica" },
-  ],
+  knowsLanguage: ["es"],
   sameAs: [
     "https://www.facebook.com/undercodeec",
     "https://www.instagram.com/undercodeec/",
@@ -139,7 +134,6 @@ const organizationJsonLd = {
       email: "gerencia@undercodeec.com",
       telephone: "+593-999-739-534",
       availableLanguage: ["es"],
-      areaServed: ["EC", "ES"],
     },
     {
       "@type": "ContactPoint",

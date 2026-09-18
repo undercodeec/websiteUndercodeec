@@ -7,6 +7,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RecursosHumanosLayout({ children }: { children: React.ReactNode }) {
+export default function PortalLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return children;
 }

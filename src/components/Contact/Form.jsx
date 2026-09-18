@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ReactGA from "react-ga4";
 import RecaptchaEnterpriseScript from "@/components/RecaptchaEnterpriseScript";
+import { pushAnalyticsEvent } from "@/lib/analytics/dataLayer.mjs";
 import styles from "./ContactPrimaryContent.module.css";
 
 const INITIAL_FORM = {
@@ -124,6 +125,12 @@ export default function ContactSection() {
         throw new Error(result.message || "No fue posible enviar el mensaje.");
       }
 
+      pushAnalyticsEvent("generate_lead", {
+        form_id: "contact_primary",
+        lead_type: "contact_form",
+        service_interest: formData.option,
+        page_path: window.location.pathname || "/contacto",
+      });
       window.fbq?.("track", "CompleteRegistration");
       setFormData(INITIAL_FORM);
       setStatus({

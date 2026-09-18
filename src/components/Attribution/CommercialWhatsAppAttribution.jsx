@@ -29,9 +29,10 @@ export default function CommercialWhatsAppAttribution() {
       anchor.dataset.attributionPending = "true";
       anchor.setAttribute("aria-busy", "true");
 
-      if (preferences?.analytics && Array.isArray(window.dataLayer)) {
+      if ((preferences?.analytics || preferences?.advertising) && Array.isArray(window.dataLayer)) {
         window.dataLayer.push({
           event: "whatsapp_click",
+          contact_method: "whatsapp",
           source: "commercial_whatsapp_link",
           page_path: pathname || "/",
         });
@@ -49,7 +50,7 @@ export default function CommercialWhatsAppAttribution() {
 
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
-  }, [buildIntent, pathname, preferences?.analytics]);
+  }, [buildIntent, pathname, preferences?.advertising, preferences?.analytics]);
 
   return null;
 }

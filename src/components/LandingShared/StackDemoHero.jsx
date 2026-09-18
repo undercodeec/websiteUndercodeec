@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const BASE = "/landing-espana/stack-timeline";
+const BASE = "/landing-shared/stack-timeline";
 
 const HERO_HTML = String.raw`
 <section class="hero-section">

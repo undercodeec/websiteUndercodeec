@@ -9,6 +9,7 @@ import ReactGA from "react-ga4";
 import toolImages from "@/data/Startup/clients.json";
 import { buildMarketingPayload, isMarketingSubmissionSuccessful } from "./marketingForm.mjs";
 import { splitAnimatedWords } from "./marketingIntroText.mjs";
+import { pushAnalyticsEvent } from "@/lib/analytics/dataLayer.mjs";
 import MarketingCanvas from "./MarketingCanvas";
 import RecaptchaEnterpriseScript from "@/components/RecaptchaEnterpriseScript";
 import styles from "./MarketingPrimaryContent.module.css";
@@ -171,6 +172,11 @@ function MarketingFormDialog({ isOpen, onClose }) {
       const data = await response.json().catch(() => ({}));
 
       if (isMarketingSubmissionSuccessful(response.ok, data)) {
+        pushAnalyticsEvent("generate_lead", {
+          form_id: "marketing_primary",
+          lead_type: "marketing_form",
+          page_path: window.location.pathname || "/marketing-para-tu-negocio",
+        });
         setStatus("Tu solicitud fue enviada correctamente.");
         setFormData(initialFormData);
       } else {

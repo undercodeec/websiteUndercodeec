@@ -6,7 +6,7 @@ const SITE_URL = "https://undercodeec.com";
 export const metadata: Metadata = {
   title: "Blog Undercodeec | Desarrollo Web, IA, Marketing Digital y Tecnología",
   description:
-    "Artículos, guías y noticias sobre desarrollo de software, aplicaciones móviles, inteligencia artificial, marketing digital, WhatsApp Business API y SEO para empresas en Ecuador, España y Latinoamérica.",
+    "Artículos, guías y noticias sobre desarrollo de software, aplicaciones móviles, inteligencia artificial, marketing digital, WhatsApp Business API y SEO para empresas.",
   keywords: [
     "blog undercodeec",
     "blog desarrollo de software",

@@ -106,16 +106,17 @@ export default function ConsentManager({ children }) {
     [openSettings, preferences],
   );
 
-  const excludedPath = ["/admin", "/contratos", "/recursos-humanos", "/undercodeec"]
+  const excludedPath = ["/admin", "/contratos", "/undercodeec"]
     .some((prefix) => pathname === prefix || pathname?.startsWith(`${prefix}/`));
   const analyticsAllowed = !excludedPath && Boolean(preferences?.analytics);
   const advertisingAllowed = !excludedPath && Boolean(preferences?.advertising);
+  const googleTagsAllowed = analyticsAllowed || advertisingAllowed;
 
   return (
     <ConsentContext.Provider value={value}>
       {children}
 
-      {analyticsAllowed && (
+      {googleTagsAllowed && (
         <Script id="gtm-consented" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
