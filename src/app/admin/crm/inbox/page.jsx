@@ -25,7 +25,11 @@ import {
   UserRoundCheck,
   X,
 } from "lucide-react";
-import { hermesApi } from "@/lib/hermes/api";
+import {
+  HERMES_CONVERSATION_READ_EVENT,
+  HERMES_CUSTOMER_MESSAGE_EVENT,
+  hermesApi,
+} from "@/lib/hermes/api";
 import {
   activeHandoff,
   CONVERSATION_STATUS,
@@ -103,8 +107,8 @@ export default function InboxPage() {
   const [toast, setToast] = useState(null);
   const messagesEndRef = useRef(null);
 
-  const loadConversations = useCallback(async () => {
-    setListLoading(true);
+  const loadConversations = useCallback(async (quiet = false) => {
+    if (!quiet) setListLoading(true);
     setListError("");
     try {
       const result = await hermesApi.conversations({
@@ -126,7 +130,7 @@ export default function InboxPage() {
         apiErrorMessage(requestError, "No se pudieron cargar las conversaciones."),
       );
     } finally {
-      setListLoading(false);
+      if (!quiet) setListLoading(false);
     }
   }, [deferredSearch, priorityOnly, statusFilter]);
 
@@ -170,6 +174,50 @@ export default function InboxPage() {
   useEffect(() => {
     loadConversation(selectedId);
   }, [loadConversation, selectedId]);
+
+  useEffect(() => {
+    if (!selectedId || document.visibilityState !== "visible") return;
+    window.dispatchEvent(
+      new CustomEvent(HERMES_CONVERSATION_READ_EVENT, {
+        detail: { conversationId: selectedId },
+      }),
+    );
+  }, [selectedId, messages]);
+
+  useEffect(() => {
+    const handleCustomerMessage = (event) => {
+      const incoming = event.detail;
+      void loadConversations(true);
+      if (incoming?.conversationId === selectedId) {
+        void loadConversation(selectedId, true).then(() => {
+          window.setTimeout(
+            () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
+            30,
+          );
+        });
+      }
+    };
+    window.addEventListener(HERMES_CUSTOMER_MESSAGE_EVENT, handleCustomerMessage);
+    return () => {
+      window.removeEventListener(HERMES_CUSTOMER_MESSAGE_EVENT, handleCustomerMessage);
+    };
+  }, [loadConversation, loadConversations, selectedId]);
+
+  useEffect(() => {
+    const refreshQuietly = () => {
+      void loadConversations(true);
+      if (selectedId) void loadConversation(selectedId, true);
+    };
+    const interval = window.setInterval(refreshQuietly, 15000);
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") refreshQuietly();
+    };
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, [loadConversation, loadConversations, selectedId]);
 
   const selectConversation = (id) => {
     setSelectedId(id);
@@ -337,7 +385,7 @@ export default function InboxPage() {
     return <LoadingState label="Abriendo la bandeja de WhatsApp…" />;
   }
   if (listError && !conversations.length) {
-    return <ErrorState message={listError} onRetry={loadConversations} />;
+    return <ErrorState message={listError} onRetry={() => loadConversations()} />;
   }
 
   const handoff = activeHandoff(conversation);

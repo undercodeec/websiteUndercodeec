@@ -17,9 +17,15 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Rows3,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { hermesApi } from "@/lib/hermes/api";
+import {
+  HERMES_CONVERSATION_READ_EVENT,
+  HERMES_CUSTOMER_MESSAGE_EVENT,
+  hermesApi,
+  subscribeHermesEvents,
+} from "@/lib/hermes/api";
 import { useCrmSession } from "./CrmSession";
 import { activeHandoff } from "./constants";
 import { contactName, initials, relativeDate } from "./format";
@@ -50,8 +56,14 @@ export default function CrmShell({ children }) {
   const [notificationLoading, setNotificationLoading] = useState(true);
   const [notificationError, setNotificationError] = useState("");
   const [notificationPermission, setNotificationPermission] = useState("unsupported");
+  const [recentCustomerMessages, setRecentCustomerMessages] = useState([]);
+  const [unreadMessageIds, setUnreadMessageIds] = useState([]);
+  const [liveAlert, setLiveAlert] = useState(null);
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
   const notificationRef = useRef(null);
   const previousPriorityIds = useRef(null);
+  const previousPriorityMessageIds = useRef(null);
+  const receivedMessageIds = useRef(new Set());
 
   useEffect(() => {
     try {
@@ -72,6 +84,50 @@ export default function CrmShell({ children }) {
       return next;
     });
   };
+
+  const handleCustomerMessage = useCallback((message) => {
+    if (!message?.messageId || receivedMessageIds.current.has(message.messageId)) return;
+    receivedMessageIds.current.add(message.messageId);
+
+    window.dispatchEvent(
+      new CustomEvent(HERMES_CUSTOMER_MESSAGE_EVENT, { detail: message }),
+    );
+    setRecentCustomerMessages((items) => [
+      message,
+      ...items.filter((item) => item.messageId !== message.messageId),
+    ].slice(0, 8));
+
+    const openConversationId = new URLSearchParams(window.location.search).get(
+      "conversationId",
+    );
+    const isReadingConversation =
+      document.visibilityState === "visible" &&
+      normalizedPathname === "/admin/crm/inbox" &&
+      openConversationId === message.conversationId;
+
+    if (isReadingConversation) return;
+    setUnreadMessageIds((ids) =>
+      ids.includes(message.messageId) ? ids : [...ids, message.messageId],
+    );
+    setLiveAlert(message);
+
+    if ("Notification" in window && window.Notification.permission === "granted") {
+      const notification = new window.Notification(
+        `Nuevo mensaje de ${message.contactName || "un cliente"}`,
+        {
+          body: message.content || "El cliente respondió en WhatsApp.",
+          tag: `hermes-message-${message.messageId}`,
+        },
+      );
+      notification.onclick = () => {
+        window.focus();
+        window.location.assign(
+          `/admin/crm/inbox?conversationId=${encodeURIComponent(message.conversationId)}`,
+        );
+        notification.close();
+      };
+    }
+  }, [normalizedPathname]);
 
   const loadNotifications = useCallback(async (showDesktopAlerts = false) => {
     if (!showDesktopAlerts) setNotificationLoading(true);
@@ -102,7 +158,30 @@ export default function CrmShell({ children }) {
         });
       }
 
+      if (showDesktopAlerts && previousPriorityMessageIds.current) {
+        items.forEach((conversation) => {
+          const latest = conversation.messages?.[0];
+          if (
+            latest?.sender === "CONTACT" &&
+            previousPriorityMessageIds.current.get(conversation.id) !== latest.id
+          ) {
+            handleCustomerMessage({
+              messageId: latest.id,
+              conversationId: conversation.id,
+              contactId: conversation.contactId,
+              contactName: contactName(conversation.contact),
+              content: latest.content || `[${latest.type || "Mensaje"}]`,
+              messageType: latest.type || "UNKNOWN",
+              createdAt: latest.createdAt,
+            });
+          }
+        });
+      }
+
       previousPriorityIds.current = new Set(items.map((conversation) => conversation.id));
+      previousPriorityMessageIds.current = new Map(
+        items.map((conversation) => [conversation.id, conversation.messages?.[0]?.id]),
+      );
       setNotificationItems(items);
       setNotificationTotal(result?.total || items.length);
     } catch {
@@ -110,20 +189,53 @@ export default function CrmShell({ children }) {
     } finally {
       setNotificationLoading(false);
     }
-  }, []);
+  }, [handleCustomerMessage]);
 
   useEffect(() => {
     if (normalizedPathname === "/admin/crm/login") return undefined;
     loadNotifications();
-    const interval = window.setInterval(() => loadNotifications(true), 60000);
+    const interval = window.setInterval(() => loadNotifications(true), 15000);
     return () => window.clearInterval(interval);
   }, [loadNotifications, normalizedPathname]);
+
+  useEffect(() => {
+    if (normalizedPathname === "/admin/crm/login" || !user) return undefined;
+
+    return subscribeHermesEvents(
+      (event) => {
+        if (event.type !== "customer_message" || !event.data?.messageId) return;
+        handleCustomerMessage(event.data);
+        void loadNotifications(true);
+      },
+      setRealtimeConnected,
+    );
+  }, [handleCustomerMessage, loadNotifications, normalizedPathname, user]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
       setNotificationPermission(window.Notification.permission);
     }
   }, []);
+
+  useEffect(() => {
+    const markConversationRead = (event) => {
+      const conversationId = event.detail?.conversationId;
+      if (!conversationId) return;
+      const messageIds = new Set(
+        recentCustomerMessages
+          .filter((message) => message.conversationId === conversationId)
+          .map((message) => message.messageId),
+      );
+      setUnreadMessageIds((ids) => ids.filter((id) => !messageIds.has(id)));
+      setLiveAlert((message) =>
+        message?.conversationId === conversationId ? null : message,
+      );
+    };
+    window.addEventListener(HERMES_CONVERSATION_READ_EVENT, markConversationRead);
+    return () => {
+      window.removeEventListener(HERMES_CONVERSATION_READ_EVENT, markConversationRead);
+    };
+  }, [recentCustomerMessages]);
 
   useEffect(() => {
     if (!notificationsOpen) return undefined;
@@ -147,10 +259,18 @@ export default function CrmShell({ children }) {
     setNotificationPermission(permission);
   };
 
+  const markCustomerMessageRead = (messageId) => {
+    setUnreadMessageIds((ids) => ids.filter((id) => id !== messageId));
+    setLiveAlert((message) =>
+      message?.messageId === messageId ? null : message,
+    );
+  };
+
   if (normalizedPathname === "/admin/crm/login") return children;
 
   const current =
     NAV_ITEMS.find((item) => navIsActive(normalizedPathname, item)) || NAV_ITEMS[0];
+  const notificationBadgeTotal = notificationTotal + unreadMessageIds.length;
 
   return (
     <div className={`crm-root ${sidebarCollapsed ? "is-sidebar-collapsed" : ""}`}>
@@ -251,14 +371,14 @@ export default function CrmShell({ children }) {
                 setNotificationsOpen((open) => !open);
                 if (!notificationsOpen) loadNotifications();
               }}
-              aria-label={`Notificaciones: ${notificationTotal} atenciones pendientes`}
+              aria-label={`Notificaciones: ${notificationBadgeTotal} pendientes`}
               aria-expanded={notificationsOpen}
               aria-controls="crm-notification-panel"
             >
-              {notificationTotal > 0 ? <BellRing size={19} /> : <Bell size={19} />}
-              {notificationTotal > 0 && (
+              {notificationBadgeTotal > 0 ? <BellRing size={19} /> : <Bell size={19} />}
+              {notificationBadgeTotal > 0 && (
                 <span className="crm-notification-badge">
-                  {notificationTotal > 99 ? "99+" : notificationTotal}
+                  {notificationBadgeTotal > 99 ? "99+" : notificationBadgeTotal}
                 </span>
               )}
             </button>
@@ -268,7 +388,7 @@ export default function CrmShell({ children }) {
                 <header>
                   <div>
                     <span>Notificaciones</span>
-                    <strong>Atención humana pendiente</strong>
+                    <strong>Mensajes y atención pendiente</strong>
                   </div>
                   <button type="button" onClick={() => loadNotifications()} disabled={notificationLoading}>
                     Actualizar
@@ -280,31 +400,57 @@ export default function CrmShell({ children }) {
                     <div className="crm-notification-empty">Consultando handoffs…</div>
                   ) : notificationError ? (
                     <div className="crm-notification-empty is-error">{notificationError}</div>
-                  ) : notificationItems.length === 0 ? (
+                  ) : notificationItems.length === 0 && recentCustomerMessages.length === 0 ? (
                     <div className="crm-notification-empty">
                       <Bell size={21} />
                       <strong>Sin alertas pendientes</strong>
-                      <span>Hermes no requiere intervención humana.</span>
+                      <span>No hay mensajes nuevos ni handoffs pendientes.</span>
                     </div>
                   ) : (
-                    notificationItems.map((conversation) => {
-                      const handoff = activeHandoff(conversation);
-                      return (
+                    <>
+                      {recentCustomerMessages.length > 0 && (
+                        <div className="crm-notification-group-label">Mensajes recientes</div>
+                      )}
+                      {recentCustomerMessages.map((message) => (
                         <Link
-                          key={conversation.id}
-                          href={`/admin/crm/inbox?conversationId=${conversation.id}&priorityOnly=true`}
-                          className="crm-notification-item"
-                          onClick={() => setNotificationsOpen(false)}
+                          key={message.messageId}
+                          href={`/admin/crm/inbox?conversationId=${message.conversationId}`}
+                          className={`crm-notification-item ${unreadMessageIds.includes(message.messageId) ? "is-unread" : ""}`}
+                          onClick={() => {
+                            markCustomerMessageRead(message.messageId);
+                            setNotificationsOpen(false);
+                          }}
                         >
-                          <div className="crm-avatar">{initials(contactName(conversation.contact))}</div>
+                          <div className="crm-avatar">{initials(message.contactName)}</div>
                           <div>
-                            <strong>{contactName(conversation.contact)}</strong>
-                            <span>{handoff?.reasonDetail || "Requiere atención humana"}</span>
-                            <time>{relativeDate(conversation.updatedAt)}</time>
+                            <strong>{message.contactName || "Cliente"}</strong>
+                            <span>{message.content || "Nuevo mensaje de WhatsApp"}</span>
+                            <time>{relativeDate(message.createdAt)}</time>
                           </div>
                         </Link>
-                      );
-                    })
+                      ))}
+                      {notificationItems.length > 0 && (
+                        <div className="crm-notification-group-label">Handoffs pendientes</div>
+                      )}
+                      {notificationItems.map((conversation) => {
+                        const handoff = activeHandoff(conversation);
+                        return (
+                          <Link
+                            key={conversation.id}
+                            href={`/admin/crm/inbox?conversationId=${conversation.id}&priorityOnly=true`}
+                            className="crm-notification-item"
+                            onClick={() => setNotificationsOpen(false)}
+                          >
+                            <div className="crm-avatar">{initials(contactName(conversation.contact))}</div>
+                            <div>
+                              <strong>{contactName(conversation.contact)}</strong>
+                              <span>{handoff?.reasonDetail || "Requiere atención humana"}</span>
+                              <time>{relativeDate(conversation.updatedAt)}</time>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </>
                   )}
                 </div>
 
@@ -328,13 +474,38 @@ export default function CrmShell({ children }) {
             )}
           </div>
 
-          <div className="crm-live-status" role="status" aria-label="Sesión protegida y activa">
+          <div
+            className={`crm-live-status ${realtimeConnected ? "is-realtime" : "is-reconnecting"}`}
+            role="status"
+            aria-label={realtimeConnected ? "Inbox en tiempo real activo" : "Reconectando Inbox"}
+          >
             <i aria-hidden="true" />
-            <span>Sesión protegida</span>
+            <span>{realtimeConnected ? "Tiempo real activo" : "Reconectando…"}</span>
           </div>
         </header>
         <div className="crm-content">{children}</div>
       </main>
+      {liveAlert && (
+        <aside className="crm-live-alert" role="status" aria-live="polite">
+          <Link
+            href={`/admin/crm/inbox?conversationId=${liveAlert.conversationId}`}
+            onClick={() => markCustomerMessageRead(liveAlert.messageId)}
+          >
+            <BellRing size={18} />
+            <span>
+              <strong>{liveAlert.contactName || "Cliente"}</strong>
+              <small>{liveAlert.content || "Nuevo mensaje de WhatsApp"}</small>
+            </span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setLiveAlert(null)}
+            aria-label="Cerrar aviso"
+          >
+            <X size={15} />
+          </button>
+        </aside>
+      )}
     </div>
   );
 }

@@ -43,6 +43,8 @@ async function proxyHermes(
   target.pathname = `${basePath}/${path.map(encodeURIComponent).join("/")}`;
   target.search = request.nextUrl.search;
   const isMediaUpload = isMediaUploadPath(path, request.method);
+  const isEventStream =
+    request.method === "GET" && path.join("/") === "conversations/events";
 
   const headers = new Headers();
   const authorization = request.headers.get("authorization");
@@ -57,14 +59,20 @@ async function proxyHermes(
       headers,
       body: request.method === "GET" ? undefined : isMediaUpload ? request.body : await request.arrayBuffer(),
       cache: "no-store",
-      signal: AbortSignal.timeout(isMediaUpload ? 60_000 : 15_000),
+      signal: isEventStream
+        ? request.signal
+        : AbortSignal.timeout(isMediaUpload ? 60_000 : 15_000),
     };
     if (isMediaUpload) init.duplex = "half";
     const upstream = await fetch(target, init);
     const responseHeaders = new Headers();
     const upstreamContentType = upstream.headers.get("content-type");
     if (upstreamContentType) responseHeaders.set("content-type", upstreamContentType);
-    responseHeaders.set("cache-control", "no-store");
+    responseHeaders.set(
+      "cache-control",
+      isEventStream ? "no-cache, no-transform" : "no-store",
+    );
+    if (isEventStream) responseHeaders.set("x-accel-buffering", "no");
 
     return new NextResponse(upstream.body, {
       status: upstream.status,

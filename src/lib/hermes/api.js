@@ -11,6 +11,8 @@ export const HERMES_TOKEN_KEY = "hermesCrmToken";
 export const HERMES_USER_KEY = "hermesCrmUser";
 export const ADMIN_TOKEN_KEY = "adminToken";
 export const HERMES_SESSION_EXPIRED_EVENT = "hermes:session-expired";
+export const HERMES_CUSTOMER_MESSAGE_EVENT = "hermes:customer-message";
+export const HERMES_CONVERSATION_READ_EVENT = "hermes:conversation-read";
 
 function readStoredValue(key) {
   if (typeof window === "undefined") return null;
@@ -122,6 +124,112 @@ async function request(path, options = {}) {
   }
 
   return payload;
+}
+
+function parseServerEvent(block) {
+  let type = "message";
+  const dataLines = [];
+  let retry;
+
+  block.split("\n").forEach((line) => {
+    if (line.startsWith("event:")) type = line.slice(6).trim() || "message";
+    if (line.startsWith("data:")) dataLines.push(line.slice(5).trimStart());
+    if (line.startsWith("retry:")) retry = Number(line.slice(6).trim());
+  });
+
+  const rawData = dataLines.join("\n");
+  let data = rawData;
+  if (rawData) {
+    try {
+      data = JSON.parse(rawData);
+    } catch {
+      // Algunos proxies pueden entregar eventos de diagnóstico como texto.
+    }
+  }
+  return { type, data, retry };
+}
+
+function reconnectDelay(ms, signal) {
+  return new Promise((resolve) => {
+    let timer;
+    const finish = () => {
+      window.clearTimeout(timer);
+      signal.removeEventListener("abort", finish);
+      resolve();
+    };
+    timer = window.setTimeout(finish, ms);
+    if (signal.aborted) finish();
+    else signal.addEventListener("abort", finish, { once: true });
+  });
+}
+
+export function subscribeHermesEvents(onEvent, onConnectionChange = () => {}) {
+  const controller = new AbortController();
+  const { signal } = controller;
+
+  const connect = async () => {
+    let retryDelay = 3000;
+    while (!signal.aborted) {
+      try {
+        const token = getHermesToken();
+        if (!token) return;
+        const response = await fetch(`${API_BASE_URL}/conversations/events`, {
+          headers: {
+            Accept: "text/event-stream",
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
+          signal,
+        });
+        if (response.status === 401) {
+          clearHermesSession();
+          window.dispatchEvent(new CustomEvent(HERMES_SESSION_EXPIRED_EVENT));
+          return;
+        }
+        if (!response.ok || !response.body) {
+          throw new Error(`No se pudo abrir el canal en tiempo real (${response.status}).`);
+        }
+
+        onConnectionChange(true);
+        retryDelay = 3000;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (!signal.aborted) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer = `${buffer}${decoder.decode(value, { stream: true })}`.replace(
+            /\r\n/g,
+            "\n",
+          );
+          let boundary = buffer.indexOf("\n\n");
+          while (boundary >= 0) {
+            const block = buffer.slice(0, boundary).trim();
+            buffer = buffer.slice(boundary + 2);
+            if (block && !block.startsWith(":")) {
+              const event = parseServerEvent(block);
+              if (Number.isFinite(event.retry) && event.retry >= 1000) {
+                retryDelay = Math.min(event.retry, 30000);
+              }
+              onEvent(event);
+            }
+            boundary = buffer.indexOf("\n\n");
+          }
+        }
+      } catch (error) {
+        if (error?.name === "AbortError" || signal.aborted) return;
+      } finally {
+        onConnectionChange(false);
+      }
+
+      await reconnectDelay(retryDelay, signal);
+      retryDelay = Math.min(retryDelay * 2, 30000);
+    }
+  };
+
+  void connect();
+  return () => controller.abort();
 }
 
 async function requestAdminCrmAuth(path, body) {
