@@ -26,6 +26,7 @@ import {
   hermesApi,
   subscribeHermesEvents,
 } from "@/lib/hermes/api";
+import { customerMessageEventsFromConversations } from "@/lib/hermes/realtime.mjs";
 import { useCrmSession } from "./CrmSession";
 import { activeHandoff } from "./constants";
 import { contactName, initials, relativeDate } from "./format";
@@ -62,7 +63,7 @@ export default function CrmShell({ children }) {
   const [realtimeConnected, setRealtimeConnected] = useState(false);
   const notificationRef = useRef(null);
   const previousPriorityIds = useRef(null);
-  const previousPriorityMessageIds = useRef(null);
+  const previousConversationMessageIds = useRef(null);
   const receivedMessageIds = useRef(new Set());
 
   useEffect(() => {
@@ -133,12 +134,16 @@ export default function CrmShell({ children }) {
     if (!showDesktopAlerts) setNotificationLoading(true);
     setNotificationError("");
     try {
-      const result = await hermesApi.conversations({
-        page: 1,
-        limit: 6,
-        priorityOnly: true,
-      });
+      const [result, recentResult] = await Promise.all([
+        hermesApi.conversations({
+          page: 1,
+          limit: 6,
+          priorityOnly: true,
+        }),
+        hermesApi.conversations({ page: 1, limit: 50 }),
+      ]);
       const items = result?.data || [];
+      const recentItems = recentResult?.data || [];
 
       if (
         showDesktopAlerts
@@ -158,30 +163,14 @@ export default function CrmShell({ children }) {
         });
       }
 
-      if (showDesktopAlerts && previousPriorityMessageIds.current) {
-        items.forEach((conversation) => {
-          const latest = conversation.messages?.[0];
-          if (
-            latest?.sender === "CONTACT" &&
-            previousPriorityMessageIds.current.get(conversation.id) !== latest.id
-          ) {
-            handleCustomerMessage({
-              messageId: latest.id,
-              conversationId: conversation.id,
-              contactId: conversation.contactId,
-              contactName: contactName(conversation.contact),
-              content: latest.content || `[${latest.type || "Mensaje"}]`,
-              messageType: latest.type || "UNKNOWN",
-              createdAt: latest.createdAt,
-            });
-          }
-        });
-      }
+      const { events, nextMessageIds } = customerMessageEventsFromConversations(
+        recentItems,
+        previousConversationMessageIds.current,
+      );
+      if (showDesktopAlerts) events.forEach(handleCustomerMessage);
 
       previousPriorityIds.current = new Set(items.map((conversation) => conversation.id));
-      previousPriorityMessageIds.current = new Map(
-        items.map((conversation) => [conversation.id, conversation.messages?.[0]?.id]),
-      );
+      previousConversationMessageIds.current = nextMessageIds;
       setNotificationItems(items);
       setNotificationTotal(result?.total || items.length);
     } catch {
