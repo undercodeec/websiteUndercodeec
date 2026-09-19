@@ -212,7 +212,7 @@ export default function InboxPage() {
   const sendReply = async (event) => {
     event.preventDefault();
     const content = reply.trim();
-    if (!content || !conversation?.replyWindow?.isOpen) return;
+    if (!content || !canReplyManually) return;
     setSending(true);
     try {
       const message = await hermesApi.reply(selectedId, content);
@@ -280,6 +280,28 @@ export default function InboxPage() {
     }
   };
 
+  const reopenConversation = async () => {
+    setActionLoading(true);
+    try {
+      await hermesApi.reopenConversation(selectedId);
+      await Promise.all([loadConversation(selectedId, true), loadConversations()]);
+      setToast({
+        tone: "success",
+        message: "Conversación reabierta. Hermes vuelve a atender con el contexto previo.",
+      });
+    } catch (requestError) {
+      setToast({
+        tone: "error",
+        message: apiErrorMessage(
+          requestError,
+          "No se pudo reabrir la conversación con Hermes.",
+        ),
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const resolveHandoff = async (event) => {
     event.preventDefault();
     const handoff = activeHandoff(conversation);
@@ -320,6 +342,12 @@ export default function InboxPage() {
 
   const handoff = activeHandoff(conversation);
   const replyWindow = conversation?.replyWindow;
+  const canReplyManually = Boolean(
+    conversation?.status === "HANDED_OFF" &&
+      handoff &&
+      ["ASSIGNED", "IN_PROGRESS"].includes(handoff.status) &&
+      replyWindow?.isOpen,
+  );
 
   return (
     <div className={`crm-inbox ${selectedId ? "has-selection" : ""}`}>
@@ -454,17 +482,48 @@ export default function InboxPage() {
                 <i aria-hidden="true" />
                 {CONVERSATION_STATUS[conversation.status] || conversation.status}
               </div>
-              <button
-                type="button"
-                className="crm-icon-button"
-                onClick={closeConversation}
-                disabled={actionLoading || conversation.status === "CLOSED"}
-                aria-label="Cerrar conversación"
-                title="Cerrar conversación"
-              >
-                <MoreHorizontal size={20} />
-              </button>
+              <div className="crm-chat-actions">
+                {conversation.status === "CLOSED" ? (
+                  <button
+                    type="button"
+                    className="crm-button is-primary crm-reopen-button"
+                    onClick={reopenConversation}
+                    disabled={actionLoading || Boolean(handoff)}
+                    title={
+                      handoff
+                        ? "Resuelve el handoff abierto antes de devolver la conversación a Hermes"
+                        : "Hermes vuelve a atender usando el contexto previo"
+                    }
+                  >
+                    <RotateCcw size={15} />
+                    Reabrir con Hermes
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="crm-icon-button"
+                    onClick={closeConversation}
+                    disabled={actionLoading || Boolean(handoff)}
+                    aria-label="Cerrar conversación"
+                    title={
+                      handoff
+                        ? "Resuelve el handoff para cerrar la conversación"
+                        : "Cerrar conversación"
+                    }
+                  >
+                    <MoreHorizontal size={20} />
+                  </button>
+                )}
+              </div>
             </header>
+
+            <div className="crm-conversation-lifecycle-note">
+              <LockKeyhole size={14} />
+              <span>
+                <strong>Cerrar:</strong> Hermes deja de responder. <strong>Reabrir con Hermes:</strong>{" "}
+                vuelve a atender usando el contexto previo.
+              </span>
+            </div>
 
             {handoff && (
               <div className="crm-chat-handoff">
@@ -549,7 +608,17 @@ export default function InboxPage() {
             </div>
 
             <form className="crm-reply-box" onSubmit={sendReply}>
-              {replyWindow?.isOpen ? (
+              {conversation.status === "CLOSED" ? (
+                <div className="crm-reply-window is-closed">
+                  <LockKeyhole size={15} />
+                  Conversación cerrada. Reábrela para que Hermes vuelva a atender.
+                </div>
+              ) : !handoff || !["ASSIGNED", "IN_PROGRESS"].includes(handoff.status) ? (
+                <div className="crm-reply-window is-closed">
+                  <LockKeyhole size={15} />
+                  La respuesta manual requiere un handoff tomado por un operador.
+                </div>
+              ) : replyWindow?.isOpen ? (
                 <div className="crm-reply-window is-open">
                   <Clock3 size={15} />
                   Ventana abierta hasta {formatDate(replyWindow.closesAt)}
@@ -565,25 +634,27 @@ export default function InboxPage() {
                   value={reply}
                   onChange={(event) => setReply(event.target.value)}
                   placeholder={
-                    replyWindow?.isOpen
+                    canReplyManually
                       ? "Escribe una respuesta como operador…"
-                      : "Se requiere una plantilla aprobada por Meta"
+                      : conversation.status === "CLOSED"
+                        ? "La conversación está cerrada"
+                        : "Toma el handoff para responder manualmente"
                   }
                   maxLength={4096}
-                  disabled={!replyWindow?.isOpen || sending}
+                  disabled={!canReplyManually || sending}
                   rows={2}
                   aria-label="Respuesta manual"
                 />
                 <button
                   type="submit"
                   className="crm-button is-primary"
-                  disabled={!reply.trim() || !replyWindow?.isOpen || sending}
+                  disabled={!reply.trim() || !canReplyManually || sending}
                 >
                   <Send size={17} />
                   {sending ? "Enviando…" : "Enviar"}
                 </button>
               </div>
-              {!replyWindow?.isOpen && (
+              {!replyWindow?.isOpen && conversation.status !== "CLOSED" && (
                 <label className="crm-template-placeholder">
                   <span>Plantilla aprobada</span>
                   <select disabled>

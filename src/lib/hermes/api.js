@@ -283,6 +283,12 @@ export const hermesApi = {
       body: {},
     });
   },
+  reopenConversation(id) {
+    return request(`/conversations/${encodeURIComponent(id)}/reopen`, {
+      method: "PUT",
+      body: {},
+    });
+  },
   takeHandoff(id) {
     return request(`/handoff/${encodeURIComponent(id)}/take`, {
       method: "PUT",

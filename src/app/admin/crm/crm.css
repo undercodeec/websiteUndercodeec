@@ -561,6 +561,13 @@
 .crm-chat-back { display: none; }.crm-chat-contact { min-width: 0; flex: 1; display: flex; flex-direction: column; }
 .crm-chat-contact strong { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .crm-chat-contact span { display: flex; align-items: center; gap: 4px; color: var(--crm-muted); font-size: 8px; }
+.crm-chat-actions { flex: 0 0 auto; display: flex; align-items: center; }
+.crm-reopen-button { min-height: 32px; padding-inline: 11px; white-space: nowrap; }
+.crm-conversation-lifecycle-note {
+  min-height: 34px; padding: 7px 14px; display: flex; align-items: center; gap: 7px;
+  color: #667185; border-bottom: 1px solid #e4e8ef; background: #f8f9fb; font-size: 8px;
+}
+.crm-conversation-lifecycle-note strong { color: #3f4959; }
 .crm-conversation-status {
   min-height: 26px; padding: 0 8px; display: flex; align-items: center; gap: 6px;
   color: #547061; border: 1px solid #d4e6dc; border-radius: 99px; background: #f0f9f4;
