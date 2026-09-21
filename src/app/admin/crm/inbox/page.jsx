@@ -30,6 +30,7 @@ import {
   HERMES_CUSTOMER_MESSAGE_EVENT,
   hermesApi,
 } from "@/lib/hermes/api";
+import { presentHermesIncident } from "@/lib/hermes/incidents.mjs";
 import {
   activeHandoff,
   CONVERSATION_STATUS,
@@ -390,6 +391,10 @@ export default function InboxPage() {
 
   const handoff = activeHandoff(conversation);
   const replyWindow = conversation?.replyWindow;
+  const incidentPresentation = presentHermesIncident(
+    conversation?.hermesIncident,
+    conversation?.hermesReviewTask,
+  );
   const canReplyManually = Boolean(
     conversation?.status === "HANDED_OFF" &&
       handoff &&
@@ -485,6 +490,11 @@ export default function InboxPage() {
                         <><Bot size={13} />{CONVERSATION_STATUS[item.status] || item.status}</>
                       )}
                     </span>
+                    {item.hermesIncident && (
+                      <span className="crm-hermes-incident-chip">
+                        <AlertTriangle size={13} />Incidencia de Hermes
+                      </span>
+                    )}
                   </div>
                 </button>
               );
@@ -572,6 +582,42 @@ export default function InboxPage() {
                 vuelve a atender usando el contexto previo.
               </span>
             </div>
+
+            {incidentPresentation && (
+              <section
+                className={`crm-hermes-incident is-${incidentPresentation.tone}`}
+                role={incidentPresentation.tone === "review" ? "alert" : "status"}
+                aria-label="Incidencia de Hermes"
+              >
+                <AlertTriangle size={20} aria-hidden="true" />
+                <div>
+                  <header>
+                    <strong>{incidentPresentation.categoryLabel}</strong>
+                    <span>{incidentPresentation.statusLabel}</span>
+                  </header>
+                  <p>{incidentPresentation.summary}</p>
+                  <footer>
+                    {incidentPresentation.code && (
+                      <code>{incidentPresentation.code}</code>
+                    )}
+                    <span>{incidentPresentation.attemptsLabel}</span>
+                    {incidentPresentation.occurredAt && (
+                      <time dateTime={incidentPresentation.occurredAt}>
+                        {formatDate(incidentPresentation.occurredAt, {
+                          withYear: true,
+                        })}
+                      </time>
+                    )}
+                  </footer>
+                  {incidentPresentation.taskLabel && (
+                    <div className="crm-hermes-review-task">
+                      <Clock3 size={14} aria-hidden="true" />
+                      {incidentPresentation.taskLabel}
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
 
             {handoff && (
               <div className="crm-chat-handoff">

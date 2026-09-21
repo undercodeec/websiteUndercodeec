@@ -550,6 +550,7 @@
 .crm-conversation-list-copy strong { font-size: 10px; }.crm-conversation-list-copy time { flex: 0 0 auto; color: #a0a7b2; font-size: 8px; }
 .crm-conversation-list-copy p { margin: 4px 0; color: #717b8c; font-size: 9px; }
 .crm-conversation-list-copy > span { width: max-content; display: flex; align-items: center; gap: 4px; color: #667185; font-size: 8px; font-weight: 650; }
+.crm-conversation-list-copy > .crm-hermes-incident-chip { margin-top: 4px; color: #a64732; }
 .crm-chat-panel { position: relative; display: flex; flex-direction: column; background: #f4f5f8; }
 .crm-chat-placeholder, .crm-context-placeholder {
   height: 100%; display: flex; align-items: center; justify-content: center;
@@ -568,6 +569,31 @@
   color: #667185; border-bottom: 1px solid #e4e8ef; background: #f8f9fb; font-size: 8px;
 }
 .crm-conversation-lifecycle-note strong { color: #3f4959; }
+.crm-hermes-incident {
+  padding: 11px 14px; display: flex; align-items: flex-start; gap: 10px;
+  color: #9a3d2e; border-bottom: 1px solid #efc7be; background: #fff3f0;
+}
+.crm-hermes-incident > svg { margin-top: 1px; flex: 0 0 auto; }
+.crm-hermes-incident > div { min-width: 0; flex: 1; }
+.crm-hermes-incident header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.crm-hermes-incident header strong { font-size: 10px; }
+.crm-hermes-incident header span {
+  padding: 3px 7px; flex: 0 0 auto; color: #933a2c; border: 1px solid #e7b6ab;
+  border-radius: 99px; background: #fff; font-size: 8px; font-weight: 750;
+}
+.crm-hermes-incident p { margin: 5px 0 7px; color: #774b44; font-size: 9px; line-height: 1.45; }
+.crm-hermes-incident footer { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; color: #9a6b63; font-size: 8px; }
+.crm-hermes-incident footer code { padding: 2px 5px; border-radius: 4px; background: rgba(154,61,46,.08); font-size: 8px; }
+.crm-hermes-incident.is-recovered { color: #287151; border-color: #bfdfcf; background: #eff9f4; }
+.crm-hermes-incident.is-recovered header span { color: #287151; border-color: #b9d9c8; }
+.crm-hermes-incident.is-recovered p { color: #426456; }
+.crm-hermes-incident.is-recovered footer { color: #668475; }
+.crm-hermes-incident.is-recovered footer code { background: rgba(40,113,81,.08); }
+.crm-hermes-incident.is-warning { color: #95621e; border-color: #ead4ac; background: #fff8e8; }
+.crm-hermes-review-task {
+  margin-top: 8px; padding-top: 7px; display: flex; align-items: center; gap: 5px;
+  color: #783529; border-top: 1px solid rgba(154,61,46,.16); font-size: 8px; font-weight: 700;
+}
 .crm-conversation-status {
   min-height: 26px; padding: 0 8px; display: flex; align-items: center; gap: 6px;
   color: #547061; border: 1px solid #d4e6dc; border-radius: 99px; background: #f0f9f4;
