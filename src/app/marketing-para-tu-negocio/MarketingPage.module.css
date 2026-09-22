@@ -4,5 +4,5 @@
 }
 
 :global(body:has([data-marketing-page])) {
-  background: var(--primary-main-light);
+  background: var(--primary-theme-paper);
 }

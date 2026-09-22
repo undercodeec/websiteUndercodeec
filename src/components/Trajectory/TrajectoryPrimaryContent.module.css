@@ -1,6 +1,6 @@
 .surface {
-  --ink: var(--primary-main-dark);
-  --paper: var(--primary-main-light);
+  --ink: var(--primary-theme-ink);
+  --paper: var(--primary-theme-paper);
   --line: rgba(29, 29, 29, .28);
   --muted: rgba(29, 29, 29, .68);
   overflow: clip;
@@ -8,6 +8,11 @@
   background: transparent;
   font-family: var(--primary-font-family);
   font-size: var(--primary-body-size);
+}
+
+:global(html.dark) .surface {
+  --line: rgba(255, 255, 255, .28);
+  --muted: rgba(255, 255, 255, .68);
 }
 
 .story,
@@ -88,6 +93,13 @@
 .storyGrid h3 { max-width: 10ch; margin: 0 0 1.5rem; font-size: clamp(2rem, 3vw, 3.75rem); font-weight: 400; line-height: .95; letter-spacing: -.04em; text-transform: uppercase; }
 .storyGrid p { max-width: 31rem; margin: 0; color: var(--muted); font-family: Arial, sans-serif; font-size: .92rem; line-height: 1.55; }
 .today p { color: rgba(229, 228, 224, .7); }
+
+:global(html.dark) .today {
+  color: #fff;
+  background: #000;
+}
+
+:global(html.dark) .today p { color: rgba(255, 255, 255, .7); }
 
 .storyLine { position: relative; height: 1px; background: var(--line); }
 .storyLine::before,
@@ -172,6 +184,13 @@
 .capability h3 { max-width: 9ch; margin: 0 0 1.25rem; font-size: clamp(1.8rem, 2.5vw, 3.1rem); font-weight: 400; line-height: .95; letter-spacing: -.04em; text-transform: uppercase; }
 .capability p { margin: 0; color: var(--muted); font-family: Arial, sans-serif; font-size: .86rem; line-height: 1.5; transition: color .35s ease; }
 .capability:hover p { color: rgba(229, 228, 224, .72); }
+
+:global(html.dark) .capability:hover {
+  color: #fff;
+  background: #000;
+}
+
+:global(html.dark) .capability:hover p { color: rgba(255, 255, 255, .72); }
 
 .numberGrid {
   display: grid;

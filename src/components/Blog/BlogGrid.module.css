@@ -1,6 +1,6 @@
 .surface {
-  --ink: var(--primary-main-dark);
-  --paper: var(--primary-main-light);
+  --ink: var(--primary-theme-ink);
+  --paper: var(--primary-theme-paper);
   --line: rgba(29, 29, 29, .28);
   --muted: rgba(29, 29, 29, .68);
   overflow: clip;
@@ -10,6 +10,11 @@
   background: transparent;
   font-family: var(--primary-font-family);
   font-size: var(--primary-body-size);
+}
+
+:global(html.dark) .surface {
+  --line: rgba(255, 255, 255, .28);
+  --muted: rgba(255, 255, 255, .68);
 }
 
 .sectionHeader {
@@ -92,6 +97,13 @@
 .imageLink:focus-visible,
 .articleInfo a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 
+:global(html.dark) .filters button:hover,
+:global(html.dark) .filters button:focus-visible,
+:global(html.dark) .filters button[aria-pressed="true"] {
+  color: #fff;
+  background: #000;
+}
+
 .articleGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -151,6 +163,11 @@
   font-size: .68rem;
 }
 
+:global(html.dark) .articleNumber {
+  color: #fff;
+  background: #000;
+}
+
 .articleInfo {
   display: flex;
   min-width: 0;
@@ -167,6 +184,9 @@
 }
 
 .articleMeta time { color: var(--muted); }
+
+:global(html.dark) .filterBar p span,
+:global(html.dark) .articleMeta { color: #fff; }
 
 .articleInfo h3 {
   margin: clamp(2rem, 5vw, 5rem) 0 1.5rem;
@@ -204,6 +224,9 @@
 .articleFooter a { display: flex; gap: 1.5rem; color: inherit; text-decoration: none; transition: gap .35s ease, color .25s ease; }
 .articleFooter a:hover,
 .articleFooter a:focus-visible { gap: 2.25rem; color: #700047; }
+
+:global(html.dark) .articleFooter a:hover,
+:global(html.dark) .articleFooter a:focus-visible { color: #fff; }
 
 .emptyState { margin: 4rem 0 0; font-family: Arial, sans-serif; color: var(--muted); }
 

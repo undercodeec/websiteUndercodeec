@@ -244,5 +244,47 @@
 }
 
 :global(body:has([data-policies-page])) {
-  background: var(--primary-main-light);
+  background: var(--primary-theme-paper);
 }
+
+:global(html.dark) .preferencesAction button {
+  border-color: #fff;
+  color: #fff;
+  background: #000;
+}
+
+:global(html.dark) .preferencesAction button:hover,
+:global(html.dark) .preferencesAction button:focus-visible {
+  color: #fff;
+  background: #000;
+  outline-color: #fff;
+}
+
+:global(html.dark) .page :global(.politica-section),
+:global(html.dark) .page :global(.politica-content) {
+  color: #fff;
+}
+
+:global(html.dark) .page :global(.politica-document-header p),
+:global(html.dark) .page :global(.politica-tags .tag),
+:global(html.dark) .page :global(.politica-content p),
+:global(html.dark) .page :global(.politica-content li) {
+  color: rgba(255, 255, 255, .76);
+}
+
+:global(html.dark) .page :global(.politica-tags),
+:global(html.dark) .page :global(.politica-tags .tag),
+:global(html.dark) .page :global(.politica-content > div:not(.politica-document-header)),
+:global(html.dark) .page :global(.politica-content ul),
+:global(html.dark) .page :global(.politica-content li) {
+  border-color: rgba(255, 255, 255, .28);
+}
+
+:global(html.dark) .page :global(.politica-tags .tag:hover),
+:global(html.dark) .page :global(.politica-tags .tag:focus-visible),
+:global(html.dark) .page :global(.politica-tags .tag.is-active) {
+  color: #fff;
+  background: #000;
+}
+
+:global(html.dark) .page :global(.politica-content a:hover) { color: #fff; }

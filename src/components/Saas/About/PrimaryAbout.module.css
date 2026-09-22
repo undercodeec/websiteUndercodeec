@@ -1,5 +1,5 @@
 .section {
-  color: var(--primary-main-dark);
+  color: var(--primary-theme-ink);
   background: transparent;
   font-family: var(--primary-font-family);
   font-size: var(--primary-body-size);
@@ -55,14 +55,14 @@
 
 .introTitle { max-width: 12ch; }
 
-.stories { border-top: 1px solid rgba(29, 29, 29, .28); }
+.stories { border-top: 1px solid var(--primary-theme-border); }
 
 .story {
   position: relative;
   align-items: start;
   padding-top: clamp(2rem, 4.5vw, 4.5rem);
   padding-bottom: clamp(6rem, 13vw, 13rem);
-  border-bottom: 1px solid rgba(29, 29, 29, .28);
+  border-bottom: 1px solid var(--primary-theme-border);
 }
 
 .storyMeta {
@@ -82,8 +82,8 @@
   min-height: clamp(23rem, 39vw, 42rem);
   margin: 0;
   overflow: hidden;
-  border: 1px solid rgba(29, 29, 29, .36);
-  background: rgba(229, 228, 224, .5);
+  border: 1px solid var(--primary-theme-border);
+  background: color-mix(in srgb, var(--primary-theme-paper) 72%, transparent);
   isolation: isolate;
 }
 
@@ -91,7 +91,7 @@
   position: absolute;
   inset: 1.1rem;
   z-index: 3;
-  border: 1px solid rgba(29, 29, 29, .16);
+  border: 1px solid var(--primary-theme-border);
   content: "";
   pointer-events: none;
 }
@@ -121,7 +121,7 @@
   width: 1.4rem;
   height: 1.4rem;
   place-items: center;
-  color: var(--primary-main-dark);
+  color: var(--primary-theme-ink);
   font-size: 1.1rem;
   line-height: 1;
 }
@@ -144,7 +144,7 @@
 
 .storyTitle span { color: var(--primary-main-light); mix-blend-mode: difference; }
 
-.softwareStory .storyTitle span { color: var(--primary-main-dark); mix-blend-mode: normal; }
+.softwareStory .storyTitle span { color: var(--primary-theme-ink); mix-blend-mode: normal; }
 
 .description {
   max-width: 39em;
@@ -157,11 +157,11 @@
 .capabilities {
   margin: 0;
   padding: 0;
-  border-top: 1px solid rgba(29, 29, 29, .28);
+  border-top: 1px solid var(--primary-theme-border);
   list-style: none;
 }
 
-.capability { border-bottom: 1px solid rgba(29, 29, 29, .28); }
+.capability { border-bottom: 1px solid var(--primary-theme-border); }
 
 .capabilityButton {
   display: grid;
@@ -184,6 +184,9 @@
 .capabilityButton:hover,
 .capabilityButton:focus-visible { color: #700047; }
 
+:global(html.dark) .capabilityButton:hover,
+:global(html.dark) .capabilityButton:focus-visible { color: #fff; }
+
 .capabilityButton:focus-visible {
   outline: 1px solid currentColor;
   outline-offset: -1px;
@@ -196,7 +199,7 @@
 .capabilityDetail p {
   margin: 0;
   padding: 0 2.5rem 1.15rem 2.8rem;
-  color: rgba(29, 29, 29, .72);
+  color: var(--primary-theme-muted-ink);
   font-family: Arial, sans-serif;
   font-size: .8rem;
   line-height: 1.5;
@@ -219,6 +222,9 @@
 
 .action:hover,
 .action:focus-visible { gap: 3.6rem; color: #700047; }
+
+:global(html.dark) .action:hover,
+:global(html.dark) .action:focus-visible { color: #fff; }
 
 .storyReverse .storyMeta { grid-column: 11 / 13; }
 .storyReverse .visual { grid-column: 6 / 11; grid-row: 1; }

@@ -3,8 +3,8 @@
   min-height: 100dvh;
   overflow: clip;
   isolation: isolate;
-  color: var(--primary-main-dark);
-  background: var(--primary-main-light);
+  color: var(--primary-theme-ink);
+  background: var(--primary-theme-paper);
   font-family: var(--primary-font-family);
   font-size: var(--primary-body-size);
   -webkit-font-smoothing: antialiased;
@@ -157,7 +157,7 @@
   width: fit-content;
   margin-top: 2rem;
   padding: .9rem 1.35rem;
-  border: 1px solid var(--primary-main-dark);
+  border: 1px solid var(--primary-theme-ink);
   border-radius: 6.25rem;
   color: inherit;
   font-size: var(--primary-text-small-size);
@@ -169,8 +169,8 @@
 
 .action:hover,
 .action:focus-visible {
-  color: var(--primary-main-light);
-  background: var(--primary-main-dark);
+  color: var(--primary-theme-paper);
+  background: var(--primary-theme-ink);
 }
 
 .action:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }

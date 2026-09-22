@@ -3,8 +3,8 @@
   z-index: 10000000;
   inset: 0;
   overflow: hidden;
-  color: var(--primary-main-dark);
-  background: var(--primary-main-light);
+  color: var(--primary-theme-ink);
+  background: var(--primary-theme-paper);
   font-family: var(--primary-font-family);
 }
 

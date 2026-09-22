@@ -8,6 +8,7 @@ export default function PrimaryOrb({
   color,
   textureUrl = "/landing-primary/images/ob_texture-old.webp",
   disableOnMobile = false,
+  darkModeBlack = false,
 }) {
   const viewportRef = useRef(null);
 
@@ -46,6 +47,7 @@ export default function PrimaryOrb({
       className={`${styles.viewport} ${className || ""}`}
       data-primary-orb
       data-primary-orb-monochrome={color ? "true" : undefined}
+      data-primary-orb-night-black={darkModeBlack ? "true" : undefined}
       style={color ? { "--primary-orb-fallback-color": color } : undefined}
       aria-hidden="true"
     />

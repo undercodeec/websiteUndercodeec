@@ -1,6 +1,6 @@
 .hero {
-  --ink: var(--primary-main-dark);
-  --paper: var(--primary-main-light);
+  --ink: var(--primary-theme-ink);
+  --paper: var(--primary-theme-paper);
   position: relative;
   display: grid;
   min-height: 100dvh;
@@ -161,6 +161,12 @@
   line-height: 1.35;
   text-transform: uppercase;
   text-wrap: balance;
+}
+
+:global(html.dark) .titleBlend,
+:global(html.dark) .summary {
+  color: #fff;
+  mix-blend-mode: normal;
 }
 
 .bottomMeta {

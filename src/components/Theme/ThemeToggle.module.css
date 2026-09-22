@@ -1,0 +1,34 @@
+.toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.1rem;
+  padding: 1rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--light-grey);
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: var(--primary-nav-text-size);
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.icon {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.toggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}

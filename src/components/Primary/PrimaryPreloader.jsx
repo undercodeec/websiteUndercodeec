@@ -115,7 +115,7 @@ export default function PrimaryPreloader() {
       <div className={styles.orbStage} aria-hidden="true">
         <span className={`${styles.orbRing} ${styles.orbRingInner}`} data-primary-preloader-ring />
         <span className={`${styles.orbRing} ${styles.orbRingOuter}`} data-primary-preloader-ring />
-        <PrimaryOrb className={styles.orb} />
+        <PrimaryOrb className={styles.orb} darkModeBlack />
       </div>
     </div>
   );

@@ -1,0 +1,169 @@
+/* Home only: high-contrast night mode controlled from the hamburger menu. */
+html.dark {
+  color-scheme: dark;
+}
+
+/*
+ * The page uses nested spans for split-text/reveal effects, so styling only
+ * headings and paragraphs leaves parts of a title in their original colour.
+ * Apply the foreground colour at every text-bearing level of the home view.
+ */
+html.dark body .hud-w,
+html.dark body .hud-w *,
+html.dark body [data-page="home"],
+html.dark body [data-page="home"] *,
+html.dark body [data-page="home"] *::before,
+html.dark body [data-page="home"] *::after {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/*
+ * Keep only the closed hamburger identical to day mode. Once opened, the
+ * same expanding surface becomes a black night-mode panel.
+ */
+html.dark .hud-menu-bg {
+  background: #000;
+  border-color: var(--dark-grey);
+}
+
+html.dark .hud-menu-line {
+  background: var(--main-light);
+}
+
+html.dark .hud-menu-w:not(.is-open) + .hud-menu-bg,
+html.dark .hud-menu-w[aria-expanded="false"] + .hud-menu-bg {
+  background: var(--main-light);
+  border-color: var(--light-grey);
+}
+
+html.dark .hud-menu-w.is-open + .hud-menu-bg,
+html.dark .hud-menu-w[aria-expanded="true"] + .hud-menu-bg {
+  background: #000;
+  border-color: var(--dark-grey);
+}
+
+html.dark .hud-menu-w:not(.is-open) .hud-menu-line,
+html.dark .hud-menu-w[aria-expanded="false"] .hud-menu-line {
+  background: var(--main-dark);
+}
+
+html.dark .hud-menu-w.is-open .hud-menu-line,
+html.dark .hud-menu-w[aria-expanded="true"] .hud-menu-line {
+  background: var(--main-light);
+}
+
+/*
+ * Recolour only the animated liquid canvas at the centre of the orb. Its
+ * alpha, deformation and pointer-driven animation remain controlled by the
+ * existing renderer; the surrounding SVG/rings keep their original colour.
+ */
+html.dark [data-orb] > canvas {
+  filter: grayscale(1) brightness(0) contrast(1.2);
+}
+
+/* Night-mode artwork: preserve transparency while rendering the artwork white. */
+html.dark img[src="/landing-preview/img/img-call.png"] {
+  filter: brightness(0) invert(1);
+}
+
+/* The HSC mark paints itself with an internal SVG gradient. Filtering the
+   finished SVG ensures that paint remains solid white in night mode. */
+html.dark .s.is-hsc,
+html.dark .s.is-hsc .c.is-hsc {
+  mix-blend-mode: normal !important;
+}
+
+html.dark .s.is-hsc [hsc-img] svg {
+  filter: brightness(0) invert(1) !important;
+  mix-blend-mode: normal !important;
+}
+
+html.dark .s.is-hsc #hsc-expansion-gradient stop {
+  stop-color: #fff !important;
+}
+
+html.dark .s.is-hsc [hsc-img] svg :is(path, circle, ellipse, polygon, polyline, rect) {
+  fill: #fff !important;
+  stroke: none !important;
+}
+
+/* The HSC headline sits over its white SVG and must remain legible. */
+html.dark .s.is-hsc [hsc-text],
+html.dark .s.is-hsc [hsc-text] * {
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+}
+
+html.dark .s.is-hsc .hsc-text-w {
+  z-index: 3;
+}
+
+.home-theme-control {
+  width: 100%;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--light-grey);
+}
+
+.home-theme-toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .65rem 0;
+  border: 0;
+  color: var(--main-dark);
+  background: transparent;
+  font: inherit;
+  font-size: .85rem;
+  letter-spacing: .08em;
+  line-height: 1.2;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.home-theme-toggle__icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.home-theme-toggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+/* The menu must retain white text, icons and animation shadows in night mode. */
+html.dark .hud-menu-o,
+html.dark .hud-menu-o :is(a, button, p, span, div) {
+  color: #fff !important;
+}
+
+html.dark .hud-menu-o .hud-menu-link [stagger-text],
+html.dark .hud-menu-o .hud-menu-link [split-text] {
+  text-shadow: 0 1em 0 #fff !important;
+}
+
+html.dark .hud-menu-o .hud-menu-link .btn-icon-w .btn-txt {
+  text-shadow: -1em 0 0 #fff !important;
+}
+
+html.dark .hud-menu-o .hud-menu-link .link-track-fill {
+  background: #fff !important;
+}
+
+html.dark .hud-menu-o .hud-menu-link .link-track,
+html.dark .home-theme-control {
+  border-color: rgba(255, 255, 255, .35);
+  background-color: rgba(255, 255, 255, .35);
+}
+
+html.dark .home-theme-control {
+  background-color: transparent;
+}
+
+html.dark .hud-menu-o .hud-social-img path {
+  fill: #fff !important;
+}

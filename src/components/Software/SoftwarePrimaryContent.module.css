@@ -1,13 +1,20 @@
 .surface {
-  --ink: var(--primary-main-dark);
-  --paper: var(--primary-main-light);
+  --ink: var(--primary-theme-ink);
+  --paper: var(--primary-theme-paper);
   --line: rgba(29, 29, 29, .28);
   --muted: rgba(29, 29, 29, .68);
+  --soft-line: rgba(29, 29, 29, .12);
   overflow: clip;
   color: var(--ink);
   background: transparent;
   font-family: var(--primary-font-family);
   font-size: var(--primary-body-size);
+}
+
+:global(html.dark) .surface {
+  --line: rgba(255, 255, 255, .28);
+  --muted: rgba(255, 255, 255, .68);
+  --soft-line: rgba(255, 255, 255, .12);
 }
 
 .intro,
@@ -83,7 +90,7 @@
 .systemVisual::after {
   position: absolute;
   inset: 1rem;
-  border: 1px solid rgba(29, 29, 29, .12);
+  border: 1px solid var(--soft-line);
   content: "";
   pointer-events: none;
 }
@@ -142,6 +149,10 @@
 .systemHub svg { width: 2.2rem; height: 2.2rem; stroke-width: 1.3; }
 .systemHub span { font-size: .72rem; letter-spacing: .08em; }
 
+:global(html.dark) .systemHub,
+:global(html.dark) .securityMark,
+:global(html.dark) .projectTag { color: #fff; }
+
 .systemNode {
   min-width: clamp(7.5rem, 13vw, 12rem);
   min-height: 3.2rem;
@@ -188,6 +199,11 @@
 .solutionCard:nth-child(n + 4) { grid-column: span 6; }
 .solutionCard:hover { color: var(--paper); background: var(--ink); }
 
+:global(html.dark) .solutionCard:hover {
+  color: #fff;
+  background: #000;
+}
+
 .cardTop {
   display: flex;
   justify-content: space-between;
@@ -222,6 +238,8 @@
 }
 
 .solutionCard:hover p { color: rgba(229, 228, 224, .72); }
+
+:global(html.dark) .solutionCard:hover p { color: rgba(255, 255, 255, .72); }
 
 .security {
   display: grid;
@@ -347,6 +365,11 @@
   color: var(--paper);
   background: var(--ink);
   font-size: .7rem;
+}
+
+:global(html.dark) .projectImage > span {
+  color: #fff;
+  background: #000;
 }
 
 .projectInfo { padding: 1.5rem; }

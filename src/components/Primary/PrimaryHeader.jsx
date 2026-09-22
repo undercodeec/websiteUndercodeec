@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import PrimaryHamburgerButton from "./PrimaryHamburgerButton";
+import ThemeToggle from "@/components/Theme/ThemeToggle";
 import styles from "./PrimaryHeader.module.css";
 
 const services = [
@@ -215,6 +216,8 @@ export default function PrimaryHeader() {
                 </div>
               ))}
             </nav>
+
+            <ThemeToggle tabIndex={isMenuOpen ? 0 : -1} />
 
             <div className={styles.socials} aria-label="Redes sociales">
               <a

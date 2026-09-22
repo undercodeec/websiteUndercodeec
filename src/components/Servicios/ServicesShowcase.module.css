@@ -1,6 +1,6 @@
 .section {
-  --ink: var(--primary-main-dark);
-  --paper: var(--primary-main-light);
+  --ink: var(--primary-theme-ink);
+  --paper: var(--primary-theme-paper);
   --card-surface: #e5e4e0;
   --line: rgba(111, 111, 111, .38);
   overflow: hidden;

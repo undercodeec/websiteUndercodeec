@@ -203,7 +203,7 @@ export default function MarketingHero({
           <div className={styles.innerRing} data-marketing-hero-ring-rotation="inner" />
         </div>
         <div className={styles.orbLayer} data-marketing-hero-orb>
-          <PrimaryOrb className={styles.orb} />
+          <PrimaryOrb className={styles.orb} darkModeBlack />
         </div>
       </div>
 

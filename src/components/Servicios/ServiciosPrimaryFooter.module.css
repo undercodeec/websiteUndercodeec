@@ -1,6 +1,6 @@
 .footer {
   position: relative;
-  --footer-ink: var(--primary-main-dark);
+  --footer-ink: var(--primary-theme-ink);
   --footer-blend: var(--primary-main-light);
   --footer-line: var(--primary-light-grey);
   width: 100%;
@@ -106,7 +106,7 @@
   display: flex;
   overflow: hidden;
   border: 1px solid var(--footer-line);
-  background: var(--primary-main-light);
+  background: var(--primary-theme-paper);
   border-radius: 6.25em;
   color: var(--footer-ink);
   font-family: var(--primary-font-family);

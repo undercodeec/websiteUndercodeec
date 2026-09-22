@@ -319,16 +319,30 @@
   }
   html.dark .c.is-hsc {
     background: black;
-    mix-blend-mode: multiply;
+    mix-blend-mode: normal !important;
   }
   html.dark .s.is-hsc {
-    mix-blend-mode: lighten;
+    mix-blend-mode: normal !important;
   }
   html.dark .hg-img-overlay {
     background: rgba(29, 29, 29, 0.3);
   }
   html.dark .hsc-track .h-c {
     color: white;
+  }
+  html.dark .s.is-hsc [hsc-img] svg {
+    filter: brightness(0) invert(1) !important;
+    mix-blend-mode: normal !important;
+  }
+  html.dark .s.is-hsc #hsc-expansion-gradient stop {
+    stop-color: #fff !important;
+  }
+  html.dark .s.is-hsc .hsc-img-path {
+    fill: #fff !important;
+    stroke: none !important;
+  }
+  html.dark .s.is-hsc .hsc-text-w {
+    z-index: 3;
   }
   html.dark .home-client__grid-img {
     filter: invert(0);
@@ -438,7 +452,7 @@
 
 
 
-<link rel="stylesheet" href="/landing-primary/css/demo-local.css?v=20260916-mobile-overlay"><script src="/landing-primary/js/consent-attribution.js" defer></script><script type="module" src="/landing-primary/js/whatsapp-floating.js"></script><script src="/landing-primary/js/mobile-navigation.js" defer></script><script src="/landing-primary/js/responsive-orb-motion.js" defer></script><style>
+<link rel="stylesheet" href="/landing-primary/css/demo-local.css?v=20260916-mobile-overlay"><link rel="stylesheet" href="/landing-primary/css/home-night-mode.css?v=20260920-6"><script src="/landing-primary/js/consent-attribution.js" defer></script><script type="module" src="/landing-primary/js/whatsapp-floating.js"></script><script src="/landing-primary/js/mobile-navigation.js" defer></script><script src="/landing-primary/js/home-night-mode.js" defer></script><script src="/landing-primary/js/responsive-orb-motion.js" defer></script><style>
   .hermes-whatsapp-button {
     position: fixed;
     right: 1.5em;

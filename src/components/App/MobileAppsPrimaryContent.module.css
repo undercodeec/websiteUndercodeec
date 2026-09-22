@@ -1,6 +1,6 @@
 .surface {
-  --ink: var(--primary-main-dark);
-  --paper: var(--primary-main-light);
+  --ink: var(--primary-theme-ink);
+  --paper: var(--primary-theme-paper);
   --line: rgba(29, 29, 29, .28);
   --muted: rgba(29, 29, 29, .68);
   color: var(--ink);
@@ -492,8 +492,17 @@
   --soft-line: rgba(29, 29, 29, .16);
   --muted: rgba(29, 29, 29, .66);
   --card-surface: #e5e4e0;
+  --stage-grid-line: rgba(29, 29, 29, .08);
   position: relative;
   background: transparent;
+}
+
+:global(html.dark) .surface {
+  --line: rgba(255, 255, 255, .28);
+  --soft-line: rgba(255, 255, 255, .16);
+  --muted: rgba(255, 255, 255, .68);
+  --card-surface: #000;
+  --stage-grid-line: rgba(255, 255, 255, .12);
 }
 
 .headingCharacters { display: block; }
@@ -556,6 +565,17 @@
   mix-blend-mode: difference;
 }
 
+/* Con fondo oscuro, "difference" entre el mismo tono de papel y fondo da
+   negro. Los títulos deben conservar la lectura blanca del modo noche. */
+:global(html.dark) .displayTitle .headingCharacters,
+:global(html.dark) .sectionTitle .headingCharacters,
+:global(html.dark) .featureTitle .headingCharacters,
+:global(html.dark) .securityTitle .headingCharacters,
+:global(html.dark) .faqTitle .headingCharacters {
+  color: #fff;
+  mix-blend-mode: normal;
+}
+
 .introCopy {
   grid-column: 8 / 12;
   margin-top: clamp(2.5rem, 5vw, 5rem);
@@ -574,6 +594,9 @@
 
 .inlineAction:hover,
 .inlineAction:focus-visible { gap: 3.6rem; color: var(--primary-orb-wine); }
+
+:global(html.dark) .inlineAction:hover,
+:global(html.dark) .inlineAction:focus-visible { color: #fff; }
 
 .process,
 .showcase {
@@ -663,6 +686,10 @@
   background: rgba(229, 228, 224, .5);
 }
 
+:global(html.dark) .phoneVisual {
+  background: color-mix(in srgb, var(--primary-theme-paper) 72%, transparent);
+}
+
 .phoneVisual::after {
   position: absolute;
   inset: 1.1rem;
@@ -699,6 +726,9 @@
 .expandableButton:hover,
 .expandableButton:focus-visible { color: var(--primary-orb-wine); }
 
+:global(html.dark) .expandableButton:hover,
+:global(html.dark) .expandableButton:focus-visible { color: #fff; }
+
 .expandableContent p { color: var(--muted); }
 
 .security {
@@ -718,6 +748,9 @@
 .security .expandableItem { border-color: var(--line); }
 .security .expandableButton:hover,
 .security .expandableButton:focus-visible { color: var(--primary-orb-wine); }
+
+:global(html.dark) .security .expandableButton:hover,
+:global(html.dark) .security .expandableButton:focus-visible { color: #fff; }
 .security .expandableContent p { color: var(--muted); }
 
 .faqSection {
@@ -758,6 +791,12 @@
 
 .faqButton:hover::before,
 .faqButton:focus-visible::before { transform: scaleX(1); transform-origin: left; }
+
+:global(html.dark) .faqButton:hover,
+:global(html.dark) .faqButton:focus-visible { color: #fff; }
+
+:global(html.dark) .faqButton:hover::before,
+:global(html.dark) .faqButton:focus-visible::before { background: #000; }
 
 .faqAnswer p { color: var(--muted); }
 
@@ -841,7 +880,7 @@
   border-top: 1px solid var(--soft-line);
   border-bottom: 1px solid var(--soft-line);
   background:
-    linear-gradient(90deg, transparent 49.7%, rgba(29, 29, 29, .08) 50%, transparent 50.3%),
+    linear-gradient(90deg, transparent 49.7%, var(--stage-grid-line) 50%, transparent 50.3%),
     rgba(255, 255, 255, .08);
   isolation: isolate;
   transition: border-color .35s ease, background-color .35s ease;

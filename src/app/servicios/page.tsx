@@ -15,7 +15,7 @@ export default function ServiciosPage() {
   return (
     <MainLayout>
       <PrimaryHeader />
-      <div className={styles.page} data-services-page>
+      <div className={styles.page} data-services-page data-primary-page>
         <ServicesOrbBackground />
         <main className="services-page style-5">
           <ServicesHero>

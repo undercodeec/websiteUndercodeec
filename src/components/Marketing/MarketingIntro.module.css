@@ -1,13 +1,19 @@
 .section {
-  --ink: var(--primary-main-dark);
-  --paper: var(--primary-main-light);
+  --ink: var(--primary-theme-ink);
+  --paper: var(--primary-theme-paper);
   --line: rgba(29, 29, 29, .28);
+  --muted: rgba(29, 29, 29, .72);
   overflow: clip;
   border-bottom: 1px solid var(--line);
   color: var(--ink);
   background: transparent;
   font-family: var(--primary-font-family);
   font-size: var(--primary-body-size);
+}
+
+:global(html.dark) .section {
+  --line: rgba(255, 255, 255, .28);
+  --muted: rgba(255, 255, 255, .72);
 }
 
 .header,
@@ -42,6 +48,11 @@
   color: var(--paper);
   mix-blend-mode: difference;
   user-select: none;
+}
+
+:global(html.dark) .titleBlend {
+  color: #fff;
+  mix-blend-mode: normal;
 }
 
 .title {
@@ -91,7 +102,7 @@
   margin: 0;
   overflow: hidden;
   place-items: end center;
-  border: 1px solid rgba(29, 29, 29, .36);
+  border: 1px solid var(--line);
   background: transparent;
   isolation: isolate;
 }
@@ -100,7 +111,7 @@
   position: absolute;
   z-index: -1;
   inset: 1.1rem;
-  border: 1px solid rgba(29, 29, 29, .17);
+  border: 1px solid var(--line);
   content: "";
 }
 
@@ -174,7 +185,7 @@
 .inbound > p:last-child {
   max-width: 42rem;
   margin: 0;
-  color: rgba(29, 29, 29, .72);
+  color: var(--muted);
   font-family: Arial, sans-serif;
   font-size: .95rem;
   line-height: 1.55;
@@ -212,6 +223,9 @@
   outline: 2px solid currentColor;
   outline-offset: 3px;
 }
+
+:global(html.dark) .socialLinks a:hover,
+:global(html.dark) .socialLinks a:focus-visible { color: #fff; }
 
 @media (max-width: 991px) {
   .header,

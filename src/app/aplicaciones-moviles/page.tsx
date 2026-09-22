@@ -41,7 +41,7 @@ export default function AplicacionesMovilesPage() {
 
   return (
     <MainLayout>
-      <div className={styles.page} data-mobile-apps-page>
+      <div className={styles.page} data-mobile-apps-page data-primary-page>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}

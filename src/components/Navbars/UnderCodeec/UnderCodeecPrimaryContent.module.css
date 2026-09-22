@@ -1,6 +1,6 @@
 .content {
-  --ink: var(--primary-main-dark);
-  --paper: var(--primary-main-light);
+  --ink: var(--primary-theme-ink);
+  --paper: var(--primary-theme-paper);
   --line: rgba(29, 29, 29, .28);
   --muted: rgba(29, 29, 29, .68);
   position: relative;

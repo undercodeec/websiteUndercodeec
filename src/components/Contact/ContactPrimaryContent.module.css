@@ -1,6 +1,6 @@
 .section {
-  --ink: var(--primary-main-dark);
-  --paper: var(--primary-main-light);
+  --ink: var(--primary-theme-ink);
+  --paper: var(--primary-theme-paper);
   --line: rgba(29, 29, 29, .28);
   --muted: rgba(29, 29, 29, .68);
   position: relative;
@@ -12,6 +12,11 @@
   background: transparent;
   font-family: var(--primary-font-family);
   font-size: var(--primary-body-size);
+}
+
+:global(html.dark) .section {
+  --line: rgba(255, 255, 255, .28);
+  --muted: rgba(255, 255, 255, .68);
 }
 
 .sectionHeader {
@@ -109,6 +114,10 @@
 .contactItem a { transition: color .2s ease; }
 .contactItem a:hover,
 .contactItem a:focus-visible { color: #700047; }
+
+:global(html.dark) .contactItem > span,
+:global(html.dark) .contactItem a:hover,
+:global(html.dark) .contactItem a:focus-visible { color: #fff; }
 
 .coverage {
   max-width: 25rem;
@@ -229,6 +238,11 @@
 .submit:focus-visible { color: var(--ink); background: transparent; }
 .submit:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .submit:disabled { cursor: wait; opacity: .55; }
+
+:global(html.dark) .submit {
+  color: #fff;
+  background: #000;
+}
 
 @media (max-width: 991px) {
   .sectionHeader { grid-template-columns: repeat(8, minmax(0, 1fr)); }

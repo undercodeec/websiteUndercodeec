@@ -14,6 +14,12 @@
   pointer-events: none;
 }
 
+:global(html.dark) .hud {
+  --header-ink: #fff;
+  --header-paper: #000;
+  --light-grey: var(--primary-dark-grey);
+}
+
 .frame {
   position: relative;
   width: 100%;
@@ -247,6 +253,24 @@
 }
 
 .menuOverlayOpen .menuBackground { width: 100%; height: 100%; }
+
+:global(html.dark) .menuOverlay:not(.menuOverlayOpen) .menuBackground {
+  border-color: var(--primary-light-grey);
+  background: var(--primary-main-light);
+}
+
+:global(html.dark) .menuOverlay:not(.menuOverlayOpen) .menuButton {
+  color: var(--primary-main-dark);
+}
+
+:global(html.dark) .menuOverlayOpen .menuBackground {
+  border-color: var(--primary-dark-grey);
+  background: #000;
+}
+
+:global(html.dark) .menuOverlayOpen .menuButton {
+  color: #fff;
+}
 
 .menuContent {
   display: flex;

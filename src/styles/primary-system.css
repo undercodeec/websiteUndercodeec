@@ -23,6 +23,10 @@
   --primary-orb-magenta: #a10f79;
   --primary-orb-light-magenta: #ae24a2;
   --primary-orb-fuchsia: #eb1c74;
+  --primary-theme-paper: var(--primary-main-light);
+  --primary-theme-ink: var(--primary-main-dark);
+  --primary-theme-muted-ink: rgba(29, 29, 29, .68);
+  --primary-theme-border: rgba(29, 29, 29, .2);
   --primary-page-gutter: 2vw;
   --primary-radius-medium: .625rem;
   --primary-body-size: 1vw;
@@ -36,6 +40,24 @@
   --primary-heading-line-height: 1;
   --primary-hero-line-height: .95;
   --primary-hero-letter-spacing: -.045em;
+}
+
+html.dark {
+  color-scheme: dark;
+  --primary-theme-paper: var(--primary-main-dark);
+  --primary-theme-ink: #fff;
+  --primary-theme-muted-ink: rgba(255, 255, 255, .68);
+  --primary-theme-border: rgba(255, 255, 255, .2);
+}
+
+[data-primary-page] {
+  color: var(--primary-theme-ink);
+  background: var(--primary-theme-paper);
+}
+
+html.dark body:has([data-primary-page]) {
+  color: var(--primary-theme-ink);
+  background: var(--primary-theme-paper);
 }
 
 /* Base compartida solo para bloques ya migrados al lenguaje de landing-primary. */

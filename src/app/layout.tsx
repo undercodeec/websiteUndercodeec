@@ -5,6 +5,7 @@ import CommercialWhatsAppAttribution from "@/components/Attribution/CommercialWh
 import ConsentManager from "@/components/Consent/ConsentManager";
 import HermesWhatsAppButton from "@/components/HermesWhatsAppButton";
 import { PrimaryCursor, PrimaryPreloader } from "@/components/Primary";
+import ThemeProvider from "@/components/Theme/ThemeProvider";
 import "@/styles/globals.css";
 import "@/styles/primary-system.css";
 import "@/styles/trading-card.css";
@@ -193,6 +194,9 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning={true}>
       <head>
+        <Script id="site-theme-init" strategy="beforeInteractive">
+          {`(function(){try{var t=localStorage.getItem('undercodeec-home-theme')==='dark'?'dark':'light';var r=document.documentElement;r.classList.remove(t==='dark'?'light':'dark');r.classList.add(t);r.dataset.theme=t;}catch(e){document.documentElement.classList.add('light');document.documentElement.dataset.theme='light';}})();`}
+        </Script>
         <Script id="consent-default" strategy="beforeInteractive">
           {`window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
@@ -229,16 +233,18 @@ gtag('consent','default',{
         />
       </head>
       <body suppressHydrationWarning={true}>
-        <ConsentManager>
-          <AttributionProvider>
-            <CommercialWhatsAppAttribution />
-            <PrimaryPreloader />
-            <PrimaryCursor />
-            <HermesWhatsAppButton />
-            {children}
-            <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />
-          </AttributionProvider>
-        </ConsentManager>
+        <ThemeProvider>
+          <ConsentManager>
+            <AttributionProvider>
+              <CommercialWhatsAppAttribution />
+              <PrimaryPreloader />
+              <PrimaryCursor />
+              <HermesWhatsAppButton />
+              {children}
+              <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />
+            </AttributionProvider>
+          </ConsentManager>
+        </ThemeProvider>
       </body>
     </html>
   );

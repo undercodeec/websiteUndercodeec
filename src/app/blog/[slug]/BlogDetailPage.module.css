@@ -6,8 +6,8 @@
 .notFound {
   min-height: 70vh;
   padding: 12rem var(--primary-page-gutter) 7rem;
-  color: var(--primary-main-dark);
-  background: var(--primary-main-light);
+  color: var(--primary-theme-ink);
+  background: var(--primary-theme-paper);
   font-family: var(--primary-font-family);
   text-align: center;
 }
@@ -21,5 +21,5 @@
 }
 
 :global(body:has([data-blog-detail-page])) {
-  background: var(--primary-main-light);
+  background: var(--primary-theme-paper);
 }

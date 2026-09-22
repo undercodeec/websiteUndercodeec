@@ -1,6 +1,6 @@
 .article {
-  --ink: var(--primary-main-dark);
-  --paper: var(--primary-main-light);
+  --ink: var(--primary-theme-ink);
+  --paper: var(--primary-theme-paper);
   --line: rgba(29, 29, 29, .28);
   --muted: rgba(29, 29, 29, .7);
   overflow: clip;
@@ -8,6 +8,11 @@
   background: transparent;
   font-family: var(--primary-font-family);
   font-size: var(--primary-body-size);
+}
+
+:global(html.dark) .article {
+  --line: rgba(255, 255, 255, .28);
+  --muted: rgba(255, 255, 255, .7);
 }
 
 .heroImage {
@@ -35,6 +40,11 @@
   line-height: 1;
   text-transform: uppercase;
   mix-blend-mode: difference;
+}
+
+:global(html.dark) .heroImage figcaption {
+  color: #fff;
+  mix-blend-mode: normal;
 }
 
 .articleLayout {
@@ -84,6 +94,8 @@
 .tableOfContents a:hover,
 .tableOfContents a:focus-visible { padding-left: .35rem; color: var(--ink); }
 
+:global(html.dark) .tableOfContents a span { color: #fff; }
+
 .lead {
   margin: 0 0 clamp(4rem, 8vw, 8rem);
   font-family: var(--primary-font-family) !important;
@@ -107,7 +119,7 @@
 
 .body > p:not(.lead),
 .body li {
-  color: rgba(29, 29, 29, .82);
+  color: var(--muted);
   font-family: Arial, sans-serif;
   font-size: clamp(1rem, 1.15vw, 1.14rem);
   line-height: 1.8;
@@ -142,6 +154,9 @@
 .actions a { transition: color .2s ease; }
 .actions a:hover,
 .actions a:focus-visible { color: #700047; }
+
+:global(html.dark) .actions a:hover,
+:global(html.dark) .actions a:focus-visible { color: #fff; }
 .tableOfContents a:focus-visible,
 .actions a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 

@@ -184,7 +184,7 @@ export default function Header() {
     <section className={styles.hero} aria-label={MOBILE_APPS_TITLE}>
       <div ref={orbFieldRef} className={styles.orbField} aria-hidden="true">
         <div className={styles.orbLayer} data-mobile-apps-orb>
-          <PrimaryOrb className={styles.orb} />
+          <PrimaryOrb className={styles.orb} darkModeBlack />
         </div>
         <div className={styles.orbOutlineLayer} data-mobile-apps-orb-outline="1">
           <div

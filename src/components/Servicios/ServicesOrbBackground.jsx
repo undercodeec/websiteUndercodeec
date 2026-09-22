@@ -106,7 +106,7 @@ export default function ServicesOrbBackground() {
   return (
     <div ref={orbFieldRef} className={styles.root} aria-hidden="true">
       <div className={styles.orbLayer} data-services-orb>
-        <PrimaryOrb className={styles.orb} />
+        <PrimaryOrb className={styles.orb} darkModeBlack />
       </div>
       <div className={styles.orbOutlineLayer} data-services-orb-outline="1">
         <div className={styles.orbOutlineRotation} data-services-orb-outline-rotation="1">
