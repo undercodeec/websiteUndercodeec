@@ -1,48 +1,68 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Undercodeec - Diseño de Páginas Web en Quito y Ecuador",
+  title:
+    "Diseño de Páginas Web en Ecuador | Quito y Guayaquil | Undercodeec",
   description:
-    "Expertos en diseño y desarrollo de páginas web profesionales, aplicaciones móviles y SEO en Quito, Guayaquil y todo el Ecuador. Impulsamos tu negocio digital.",
+    "Diseñamos páginas web profesionales en Ecuador para empresas de Quito, Guayaquil y todo el país. Desarrollo web, ecommerce, apps, software y SEO.",
   keywords: [
-    "paginas web en ecuador",
-    "desarrollo de páginas web",
-    "pagina web quito",
-    "diseño de paginas web en quito",
-    "diseño de paginas web quito",
-    "paginas web en guayaquil",
-    "creacion de paginas web profesionales",
-    "creación programación y diseño de páginas web",
-    "diseño de pagina web profesional",
-    "Desarrollo de Aplicaciones Web",
-    "Desarrollo y diseño web",
+    "páginas web en Ecuador",
+    "diseño de páginas web en Ecuador",
+    "diseño web Ecuador",
+    "desarrollo web Ecuador",
+    "páginas web Quito",
     "diseño web Quito",
-    "desarrollo de apps Quito",
-    "seo para páginas web Quito",
-    "ecommerce Quito",
-    "agencia de diseño web Quito",
+    "desarrollo web Quito",
+    "páginas web Guayaquil",
+    "diseño web Guayaquil",
+    "desarrollo web Guayaquil",
+    "agencia de diseño web Ecuador",
+    "agencia desarrollo web Ecuador",
+    "página web profesional Ecuador",
+    "presupuesto página web Ecuador",
+    "precio página web Ecuador",
+    "tiendas online Ecuador",
+    "ecommerce Ecuador",
   ],
   alternates: {
     canonical: "https://undercodeec.com/ec/",
   },
   robots: {
-    index: false,
-    follow: false,
-    nocache: true,
+    index: true,
+    follow: true,
     googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
     },
   },
   openGraph: {
-    title: "Undercodeec - Diseño Web Profesional en Quito",
+    title:
+      "Diseño de Páginas Web en Ecuador | Quito y Guayaquil | Undercodeec",
     description:
-      "Ofrecemos servicios expertos en diseño web, desarrollo de aplicaciones móviles y SEO.",
+      "Páginas web profesionales para empresas de Quito, Guayaquil y Ecuador. Desarrollo web, ecommerce, apps, software y SEO.",
     url: "https://undercodeec.com/ec/",
     siteName: "Undercodeec",
     type: "website",
     locale: "es_EC",
+    images: [
+      {
+        url: "https://undercodeec.com/assets/img/undercode-logo.png",
+        width: 512,
+        height: 512,
+        alt: "Undercodeec, diseño y desarrollo web en Ecuador",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title:
+      "Diseño de Páginas Web en Ecuador | Quito y Guayaquil | Undercodeec",
+    description:
+      "Páginas web profesionales para empresas de Quito, Guayaquil y Ecuador.",
+    images: ["https://undercodeec.com/assets/img/undercode-logo.png"],
   },
 };
 

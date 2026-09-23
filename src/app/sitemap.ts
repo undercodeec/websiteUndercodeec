@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/aplicaciones-moviles",
     "/blog",
     "/contacto",
+    "/ec",
     "/hosting",
     "/marketing-para-tu-negocio",
     "/nuestra-trayectoria",
@@ -26,7 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${baseUrl}${route}/`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
-    priority: route === "" ? 1.0 : 0.8,
+    priority: route === "" ? 1.0 : route === "/ec" ? 0.9 : 0.8,
   }));
 
   // Rutas dinámicas basadas en los posts del blog
