@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Undercodeec - Diseño de Páginas Web en Quito y Ecuador",
@@ -52,7 +51,5 @@ export default function EcuadorLayout({
 }: {
   children: React.ReactNode;
 }) {
-  if (process.env.NODE_ENV === "production") notFound();
-
   return <>{children}</>;
 }

@@ -1,1462 +1,269 @@
-"use client";
-
-import React, { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { animate, stagger } from "animejs";
-import "@/components/Slider/slider.css";
-import ScrollPinShowcase from "@/components/LandingEcuador/ScrollPinShowcase";
-import StackTimeline from "@/components/LandingShared/StackTimeline";
-import ThanosTextSection from "@/components/LandingEcuador/ThanosTextSection";
-import CompetenceTable from "@/components/LandingEcuador/CompetenceTable";
-
-const heroBackgroundPattern = "/assets/slider/6fa818bb935c0e2a1081f259d84df226b237a184.png";
-
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "UNDER CODEEC",
-  "alternateName": "Undercodeec",
-  "url": "https://undercodeec.com/ec",
-  "logo": "https://undercodeec.com/assets/img/undercode-logo.png",
-  "description":
+  name: "UNDER CODEEC",
+  alternateName: "Undercodeec",
+  url: "https://undercodeec.com/ec",
+  logo: "https://undercodeec.com/assets/img/undercode-logo.png",
+  description:
     "Agencia digital especializada en diseño y desarrollo de páginas web profesionales, aplicaciones móviles y posicionamiento SEO en Quito, Guayaquil y todo el Ecuador.",
-  "areaServed": {
-    "@type": "Country",
-    "name": "Ecuador",
-  },
-  "sameAs": [
+  areaServed: { "@type": "Country", name: "Ecuador" },
+  sameAs: [
     "https://www.facebook.com/undercodeec",
     "https://www.instagram.com/undercodeec/",
   ],
-  "contactPoint": {
+  contactPoint: {
     "@type": "ContactPoint",
-    "contactType": "sales",
-    "email": "gerencia@undercodeec.com",
-    "telephone": "+593-999-739-534",
-    "availableLanguage": ["es"],
-    "areaServed": "EC",
+    contactType: "sales",
+    email: "gerencia@undercodeec.com",
+    telephone: "+593-999-739-534",
+    availableLanguage: ["es"],
+    areaServed: "EC",
   },
 };
 
 const localBusinessJsonLd = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
-  "name": "UNDER CODEEC",
-  "image": "https://undercodeec.com/assets/img/undercode-logo.png",
-  "url": "https://undercodeec.com/ec",
-  "telephone": "+593-999-739-534",
-  "email": "gerencia@undercodeec.com",
-  "priceRange": "$$",
-  "currenciesAccepted": "USD",
-  "paymentAccepted": "Cash, Credit Card, Bank Transfer, PayPal",
-  "address": {
+  name: "UNDER CODEEC",
+  image: "https://undercodeec.com/assets/img/undercode-logo.png",
+  url: "https://undercodeec.com/ec",
+  telephone: "+593-999-739-534",
+  email: "gerencia@undercodeec.com",
+  priceRange: "$$",
+  currenciesAccepted: "USD",
+  paymentAccepted: "Cash, Credit Card, Bank Transfer, PayPal",
+  address: {
     "@type": "PostalAddress",
-    "streetAddress": "Sangolquí - Valle de los Chillos",
-    "addressLocality": "Quito",
-    "addressRegion": "Pichincha",
-    "addressCountry": "EC",
+    streetAddress: "Sangolquí - Valle de los Chillos",
+    addressLocality: "Quito",
+    addressRegion: "Pichincha",
+    addressCountry: "EC",
   },
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": -0.3331,
-    "longitude": -78.4530,
-  },
-  "areaServed": [
-    { "@type": "City", "name": "Quito" },
-    { "@type": "City", "name": "Guayaquil" },
-    { "@type": "City", "name": "Cuenca" },
-    { "@type": "City", "name": "Ambato" },
-    { "@type": "City", "name": "Sangolquí" },
-    { "@type": "AdministrativeArea", "name": "Valle de los Chillos" },
-    { "@type": "Country", "name": "Ecuador" },
+  geo: { "@type": "GeoCoordinates", latitude: -0.3331, longitude: -78.453 },
+  areaServed: [
+    { "@type": "City", name: "Quito" },
+    { "@type": "City", name: "Guayaquil" },
+    { "@type": "Country", name: "Ecuador" },
   ],
-  "openingHoursSpecification": {
+  openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",
-    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-    "opens": "09:00",
-    "closes": "18:00",
+    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    opens: "09:00",
+    closes: "18:00",
   },
 };
 
 const serviceJsonLd = {
   "@context": "https://schema.org",
   "@type": "Service",
-  "name": "Diseño Web, Apps Móviles y Posicionamiento SEO en Quito y Ecuador",
-  "description":
-    "Servicios profesionales de diseño y desarrollo web a medida, aplicaciones móviles para Android e iOS, posicionamiento en Google (SEO), Google Ads y software empresarial para pymes y empresas en Quito, Guayaquil y todo el Ecuador.",
-  "provider": {
+  name: "Diseño Web, Apps Móviles y Posicionamiento SEO en Quito y Ecuador",
+  description:
+    "Servicios profesionales de diseño y desarrollo web a medida, aplicaciones móviles para Android e iOS, posicionamiento en Google, Google Ads y software empresarial para empresas en Quito, Guayaquil y Ecuador.",
+  provider: {
     "@type": "Organization",
-    "name": "UNDER CODEEC",
-    "url": "https://undercodeec.com/ec",
-    "logo": "https://undercodeec.com/assets/img/undercode-logo.png",
+    name: "UNDER CODEEC",
+    url: "https://undercodeec.com/ec",
   },
-  "areaServed": {
-    "@type": "Country",
-    "name": "Ecuador",
-  },
-  "availableChannel": {
+  areaServed: { "@type": "Country", name: "Ecuador" },
+  availableChannel: {
     "@type": "ServiceChannel",
-    "serviceUrl": "https://undercodeec.com/ec",
-    "availableLanguage": "es",
+    serviceUrl: "https://undercodeec.com/ec",
+    availableLanguage: "es",
   },
-  "serviceType": [
+  serviceType: [
     "Diseño y desarrollo de páginas web en Quito",
     "Desarrollo de aplicaciones móviles Android e iOS",
-    "Posicionamiento web (SEO) en Ecuador",
+    "Posicionamiento web SEO en Ecuador",
     "Campañas de Google Ads y Meta Ads",
-    "Software empresarial a medida (CRM, ERP)",
+    "Software empresarial a medida",
     "Facturación electrónica SRI Ecuador",
     "Tiendas online y e-commerce",
-    "Automatización de procesos",
   ],
-  "offers": {
+  offers: {
     "@type": "AggregateOffer",
-    "priceCurrency": "USD",
-    "lowPrice": "250",
-    "highPrice": "30000",
-    "offerCount": "8",
+    priceCurrency: "USD",
+    lowPrice: "80",
+    highPrice: "30000",
+    offerCount: "8",
   },
 };
+
+const faqs = [
+  {
+    question: "¿Cuánto cuesta una página web profesional en Quito o Ecuador?",
+    answer:
+      "El precio de una página web profesional en Ecuador parte desde $80 USD para una landing page, hasta $5.000 USD o más para tiendas online avanzadas o sistemas a medida. Trabajamos con presupuestos que se ajustan a tu bolsillo, sin costos ocultos.",
+  },
+  {
+    question: "¿Atienden proyectos fuera de Quito?",
+    answer:
+      "Sí. Trabajamos de forma remota con empresas y pymes de Quito, Guayaquil y todo el Ecuador. La gestión es online con videollamadas y entregas semanales.",
+  },
+  {
+    question: "¿Su facturación electrónica cumple con el SRI?",
+    answer:
+      "Sí. Nuestros sistemas de facturación electrónica están preparados para cumplir con los requisitos del SRI Ecuador, generación de comprobantes XML, firma electrónica y autorización en línea.",
+  },
+  {
+    question: "¿Cuánto tarda el posicionamiento SEO en Google Ecuador?",
+    answer:
+      "Los primeros resultados sólidos de SEO en Ecuador suelen verse entre los 3 y 6 meses, dependiendo del sector y la competencia local en Quito o Guayaquil.",
+  },
+  {
+    question: "¿Puedo pedir un presupuesto sin compromiso?",
+    answer:
+      "Por supuesto. Cuéntanos tu proyecto y en 24 a 48 horas te enviamos un presupuesto detallado en dólares, sin compromiso.",
+  },
+];
 
 const faqJsonLd = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "¿Cuánto cuesta una página web profesional en Quito o Ecuador?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text":
-          "El precio de una página web profesional en Ecuador parte desde $250 USD para una landing page corporativa, hasta $5.000 USD o más para tiendas online avanzadas o sistemas a medida. Trabajamos con presupuestos que se ajustan a tu bolsillo, sin costos ocultos.",
-      },
-    },
-    {
-      "@type": "Question",
-      "name": "¿Atienden proyectos fuera de Quito?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text":
-          "Sí. Trabajamos de forma remota con empresas y pymes de Quito, Guayaquil, Cuenca, Ambato, Sangolquí y todo el Ecuador. La gestión es 100 % online con videollamadas y entregas semanales.",
-      },
-    },
-    {
-      "@type": "Question",
-      "name": "¿Su facturación electrónica cumple con el SRI?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text":
-          "Sí. Nuestros sistemas de facturación electrónica están preparados para cumplir con los requisitos del SRI Ecuador, generación de comprobantes XML, firma electrónica y autorización en línea.",
-      },
-    },
-    {
-      "@type": "Question",
-      "name": "¿Cuánto tarda el posicionamiento SEO en Google Ecuador?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text":
-          "Los primeros resultados sólidos de SEO en Ecuador suelen verse entre los 3 y 6 meses, dependiendo del sector y la competencia local en Quito o Guayaquil. Entregamos informes mensuales con métricas claras de retorno.",
-      },
-    },
-  ],
+  mainEntity: faqs.map(({ question, answer }) => ({
+    "@type": "Question",
+    name: question,
+    acceptedAnswer: { "@type": "Answer", text: answer },
+  })),
 };
-
-const organizationJsonLdString = JSON.stringify(organizationJsonLd);
-const localBusinessJsonLdString = JSON.stringify(localBusinessJsonLd);
-const serviceJsonLdString = JSON.stringify(serviceJsonLd);
-const faqJsonLdString = JSON.stringify(faqJsonLd);
-
-const budgetClipStyles = `
-  #presupuesto { clip-path: inset(-220px 0 0 0); }
-`;
-
-const planCardGlobalStyles = `
-  .plan-card-tilt {
-    overflow: hidden;
-    transform-style: preserve-3d;
-    will-change: transform;
-    transition: box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .plan-card-tilt::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      circle 280px at var(--mx, 50%) var(--my, 50%),
-      rgba(255, 255, 255, 0.2),
-      transparent 65%
-    );
-    opacity: 0;
-    transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-      background 0.15s linear;
-    pointer-events: none;
-    border-radius: inherit;
-    z-index: 1;
-  }
-  .plan-card-tilt:hover::before {
-    opacity: 1;
-  }
-  .plan-card-tilt:hover {
-    box-shadow: 0 35px 60px -15px rgba(96, 11, 86, 0.45) !important;
-  }
-  .plan-card-tilt > * {
-    position: relative;
-    z-index: 2;
-  }
-  .hero-cta-tilt {
-    position: relative;
-    overflow: hidden;
-    transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .hero-cta-tilt::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      circle 140px at var(--mx, 50%) var(--my, 50%),
-      rgba(255, 255, 255, 0.45),
-      transparent 65%
-    );
-    opacity: 0;
-    mix-blend-mode: screen;
-    transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    pointer-events: none;
-    border-radius: inherit;
-  }
-  .hero-cta-tilt:hover::after {
-    opacity: 1;
-  }
-  .hero-cta-tilt:hover {
-    box-shadow: 0 18px 35px -10px rgba(96, 11, 86, 0.55);
-  }
-`;
 
 const services = [
   {
-    icon: "bi bi-laptop",
     title: "Diseño Web en Quito",
-    text: "Diseñamos y desarrollamos páginas web profesionales, corporativas y tiendas online a medida en Quito y todo el Ecuador. Webs optimizadas para móvil, ordenador y tablet, con velocidad de carga y SEO desde el primer pixel.",
+    description:
+      "Diseñamos y desarrollamos páginas web profesionales, corporativas y tiendas online a medida en Quito y todo el Ecuador.",
     features: [
-      "Diseño 100 % personalizado a tu identidad de marca",
-      "Mobile-first · Core Web Vitals optimizados",
-      "SEO técnico integrado desde el primer pixel",
-      "Entrega en 2–4 semanas con garantía de 1 año",
+      "Diseño personalizado a tu identidad de marca",
+      "Sitios web adaptados a móviles, ordenadores y tabletas",
+      "SEO técnico integrado desde el inicio",
+      "Entrega en 2 a 4 semanas con garantía de 1 año",
     ],
   },
   {
-    icon: "bi bi-phone",
-    title: "Apps Móviles Android & iOS",
-    text: "Desarrollo de aplicaciones móviles nativas y multiplataforma (Flutter, React Native) para Android e iOS. Publicamos tu app en Play Store y App Store para empresas en Ecuador.",
+    title: "Apps Móviles Android y iOS",
+    description:
+      "Desarrollo de aplicaciones móviles nativas y multiplataforma para Android e iOS, con publicación en Play Store y App Store.",
     features: [
       "Flutter o React Native según tu proyecto",
-      "Publicación en Play Store y App Store incluida",
-      "Diseño UX/UI nativo y fluido",
+      "Publicación en Play Store y App Store",
+      "Diseño UX y UI nativo",
       "Mantenimiento y actualizaciones continuas",
     ],
   },
   {
-    icon: "bi bi-graph-up-arrow",
     title: "SEO en Ecuador",
-    text: "Posicionamiento web local y nacional en Google Ecuador. Auditoría SEO técnica, contenidos, link building y SEO local para que aparezcas cuando tus clientes buscan en Quito, Guayaquil y todo el país.",
+    description:
+      "Posicionamiento web local y nacional en Google Ecuador para aparecer cuando tus clientes buscan en Quito, Guayaquil y el país.",
     features: [
-      "Auditoría técnica + palabras clave locales",
+      "Auditoría técnica y palabras clave locales",
       "Contenido optimizado para Ecuador",
       "Link building y autoridad de dominio",
       "Reportes mensuales con métricas reales",
     ],
   },
   {
-    icon: "bi bi-megaphone",
     title: "Google Ads y Meta Ads",
-    text: "Campañas SEM rentables en Google Ads y Meta Ads (Facebook e Instagram) orientadas al mercado ecuatoriano. Seguimiento de conversiones y ROI medible cada mes.",
+    description:
+      "Campañas en Google Ads y Meta Ads orientadas al mercado ecuatoriano, con seguimiento de conversiones y retorno de inversión.",
     features: [
       "Campañas Search, Display y Shopping",
-      "Segmentación precisa al mercado ecuatoriano",
+      "Segmentación para el mercado ecuatoriano",
       "Seguimiento de conversiones y ROAS",
-      "Optimización semanal para maximizar ROI",
+      "Optimización semanal",
     ],
   },
   {
-    icon: "bi bi-gear-wide-connected",
     title: "Software a Medida",
-    text: "CRM, ERP, sistemas de inventarios, automatización de procesos y software a medida para tu pyme en Ecuador. Soluciones que se adaptan a tu forma de trabajar.",
+    description:
+      "CRM, ERP, inventarios, automatización de procesos y software a medida para empresas en Ecuador.",
     features: [
       "CRM, ERP e inventarios personalizados",
       "Automatización de procesos operativos",
-      "Integración con tus sistemas actuales",
-      "Escalable y con soporte técnico dedicado",
+      "Integración con sistemas actuales",
+      "Soluciones escalables con soporte técnico",
     ],
   },
   {
-    icon: "bi bi-receipt",
     title: "Facturación Electrónica SRI",
-    text: "Sistemas de facturación electrónica preparados para el SRI Ecuador: comprobantes XML, firma electrónica y autorización en línea. Cumple con la normativa tributaria ecuatoriana sin complicaciones.",
+    description:
+      "Sistemas preparados para el SRI Ecuador, con comprobantes XML, firma electrónica y autorización en línea.",
     features: [
       "Comprobantes XML autorizados por el SRI",
       "Firma electrónica y emisión en línea",
-      "Integración con tu sistema contable",
-      "Actualizaciones automáticas ante cambios normativos",
+      "Integración con sistemas contables",
+      "Actualizaciones ante cambios normativos",
     ],
   },
 ];
 
-const pricingPlans = [
+const plans = [
   {
     name: "Landing Page",
     price: "80",
     originalPrice: "250",
-    discount: 68,
-    description: "Para autónomos y pequeños negocios que necesitan estar en Google ya.",
+    description:
+      "Para autónomos y pequeños negocios que necesitan estar en Google.",
     features: [
-      "Dominio.com y Hosting por 1 año",
-      "Diseño unico optimizado",
-      "Diseño 100% adaptable (Mobile-first)",
+      "Dominio .com y hosting por 1 año",
+      "Diseño optimizado y adaptable a móviles",
       "Formulario de contacto",
-      "Botones flotantes de WhatsApp y Llamadas",
+      "Botones de WhatsApp y llamadas",
       "SEO orgánico integrado",
-      "Soporte durante 1 mes y garantía de 1 año.",
+      "Soporte durante 1 mes y garantía de 1 año",
     ],
   },
   {
     name: "Web Site Lanzamiento",
     price: "120",
     originalPrice: "360",
-    discount: 67,
-    description: "Para mostrar servicios variados , gran cantidad de informacion todo desde un portal web completo. ",
+    description:
+      "Para mostrar servicios e información desde un portal web completo.",
     features: [
-      "Diseño basado, optimizadas y adaptadas a la identidad de la marca",
-      "Estructura de 5 a 10 páginas (Inicio, Servicios, Nosotros, etc.)",
-      "Diseño 100% Mobile-first (obligatorio en 2026)",
-      "Configuración SEO orgánico integrado",
+      "Estructura de 5 a 10 páginas",
+      "Diseño adaptado a la identidad de marca",
+      "Diseño adaptable a móviles",
+      "SEO orgánico integrado",
       "Formularios de contacto e integración con WhatsApp",
-      "Dominio.com y Hosting por 1 año",
-      "Soporte durante 1 mes y garantía de 1 año.",
+      "Dominio .com y hosting por 1 año",
     ],
-    featured: true,
   },
   {
     name: "Tienda Online",
     price: "250",
     originalPrice: "550",
-    discount: 55,
-    description: "Tienda autogestionable perfecta para vender 24/7 sin preocuparse de procesos manuales.",
+    description:
+      "Tienda autogestionable para vender sin procesos manuales.",
     features: [
-      "4 conceptos de diseño",
-      "Tienda administrable para subir productos",
-      "Carga inicial de 50 a 100 productos con opcion a mas",
-      "Integración de pasarelas de pago (Stripe, Paypal, etc.)",
-      "Dominio.com y Hosting por 1 año",
-      "Compra de productos por WhatsApp, Telegram y redes sociales",
-      "Métodos de envíos avanzados y SEO orgánico integrado",
-      "Soporte durante 1 mes y garantía de 1 año.",
+      "Tienda administrable para productos",
+      "Carga inicial de 50 a 100 productos",
+      "Pasarelas de pago como Stripe y PayPal",
+      "Dominio .com y hosting por 1 año",
+      "Compra por WhatsApp, Telegram y redes sociales",
+      "SEO orgánico integrado",
     ],
   },
 ];
 
-const faqs = [
-  {
-    q: "¿Cuánto cuesta una página web profesional en Quito o Ecuador?",
-    a: "El precio de una página web profesional en Ecuador parte desde $250 USD para una landing page corporativa, hasta $5.000 USD o más para tiendas online avanzadas o sistemas a medida. Trabajamos con presupuestos que se ajustan a tu bolsillo, sin costos ocultos.",
-  },
-  {
-    q: "¿Atienden proyectos fuera de Quito?",
-    a: "Sí. Trabajamos de forma remota con empresas y pymes de Quito, Guayaquil, Cuenca, Ambato, Sangolquí y todo el Ecuador. La gestión es 100 % online con videollamadas y entregas semanales.",
-  },
-  {
-    q: "¿Su facturación electrónica cumple con el SRI?",
-    a: "Sí. Nuestros sistemas de facturación electrónica están preparados para cumplir con los requisitos del SRI Ecuador: comprobantes XML, firma electrónica y autorización en línea.",
-  },
-  {
-    q: "¿Cuánto tarda el posicionamiento SEO en Google Ecuador?",
-    a: "Los primeros resultados sólidos de SEO en Ecuador suelen verse entre los 3 y 6 meses, dependiendo del sector y la competencia local en Quito o Guayaquil. Entregamos informes mensuales con métricas claras de retorno.",
-  },
-  {
-    q: "¿Puedo pedir un presupuesto sin compromiso?",
-    a: "Por supuesto. Cuéntanos tu proyecto y en 24-48 h te enviamos un presupuesto detallado en dólares, sin compromiso y sin letra pequeña. Si te encaja, seguimos. Si no, sin problema.",
-  },
+const comparisonRows = [
+  ["Precio de landing page", "Desde $80", "—", "Desde $1.000"],
+  ["Tiempo de entrega", "24 a 48 horas", "1 a 2 semanas", "2 a 4 semanas"],
+  ["Demo gratis", "Sí", "No", "No"],
+  ["Hosting incluido", "Sí", "A veces", "No"],
+  ["SSL incluido", "Sí", "A veces", "A veces"],
+  ["Diseño responsive", "Sí", "Sí", "Sí"],
+  ["SEO configurado", "Sí", "Básico", "Sí"],
+  ["Soporte por WhatsApp", "Sí", "Limitado", "No"],
+  ["Cada web es única", "Sí", "Depende", "Sí"],
 ];
 
-const PlanCard = ({ plan, index }) => {
-  const cardRef = useRef(null);
-  const innerRef = useRef(null);
-  const animatedRef = useRef(false);
-  const rafRef = useRef(null);
-  const targetRef = useRef({ rx: 0, ry: 0, tz: 0 });
-  const currentRef = useRef({ rx: 0, ry: 0, tz: 0 });
-  const velocityRef = useRef({ rx: 0, ry: 0, tz: 0 });
-  const isHoveringRef = useRef(false);
-
-  useEffect(() => {
-    if (!cardRef.current) return;
-    const node = cardRef.current;
-    const innerNode = innerRef.current;
-
-    const runAnimation = () => {
-      if (animatedRef.current) return;
-      animatedRef.current = true;
-      animate(node, {
-        opacity: [0, 1],
-        translateY: [80, 0],
-        rotateX: [-30, 0],
-        scale: [0.92, 1],
-        duration: 1100,
-        delay: index * 140,
-        ease: "outElastic(1, 0.6)",
-      });
-      if (innerNode && plan.featured) {
-        animate(innerNode, {
-          scale: [1, 1.03],
-          duration: 900,
-          delay: index * 140 + 600,
-          ease: "outQuad",
-        });
-      }
-    };
-
-    const rect = node.getBoundingClientRect();
-    const viewportH = window.innerHeight || document.documentElement.clientHeight;
-    if (rect.top < viewportH * 0.9 && rect.bottom > 0) {
-      runAnimation();
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          runAnimation();
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" }
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [index, plan.featured]);
-
-  // Cleanup del rAF al desmontar
-  useEffect(() => {
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
-
-  const tick = () => {
-    const t = targetRef.current;
-    const c = currentRef.current;
-    const v = velocityRef.current;
-    // Spring damper: rigidez baja + amortiguación alta = suave + ligero rebote al volver
-    const stiffness = 0.085;
-    const damping = 0.82;
-
-    v.rx = v.rx * damping + (t.rx - c.rx) * stiffness;
-    v.ry = v.ry * damping + (t.ry - c.ry) * stiffness;
-    v.tz = v.tz * damping + (t.tz - c.tz) * stiffness;
-
-    c.rx += v.rx;
-    c.ry += v.ry;
-    c.tz += v.tz;
-
-    const node = innerRef.current;
-    if (node) {
-      node.style.transform = `rotateX(${c.rx.toFixed(3)}deg) rotateY(${c.ry.toFixed(3)}deg) translateZ(${c.tz.toFixed(2)}px)`;
-    }
-
-    const settled =
-      !isHoveringRef.current &&
-      Math.abs(t.rx - c.rx) < 0.02 &&
-      Math.abs(v.rx) < 0.02 &&
-      Math.abs(t.ry - c.ry) < 0.02 &&
-      Math.abs(v.ry) < 0.02 &&
-      Math.abs(t.tz - c.tz) < 0.1 &&
-      Math.abs(v.tz) < 0.05;
-
-    if (settled) {
-      rafRef.current = null;
-      if (node) node.style.transform = "";
-      currentRef.current = { rx: 0, ry: 0, tz: 0 };
-      velocityRef.current = { rx: 0, ry: 0, tz: 0 };
-      return;
-    }
-    rafRef.current = requestAnimationFrame(tick);
-  };
-
-  const ensureLoop = () => {
-    if (rafRef.current == null) {
-      rafRef.current = requestAnimationFrame(tick);
-    }
-  };
-
-  const handleMouseEnter = () => {
-    isHoveringRef.current = true;
-    ensureLoop();
-  };
-
-  const handleMouseMove = (e) => {
-    const node = innerRef.current;
-    if (!node) return;
-    const rect = node.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-    // Ángulo máximo reducido (de 10° a 7°) para sensación más sutil
-    targetRef.current.ry = ((x - cx) / cx) * 7;
-    targetRef.current.rx = -((y - cy) / cy) * 7;
-    targetRef.current.tz = 14;
-    node.style.setProperty("--mx", `${(x / rect.width) * 100}%`);
-    node.style.setProperty("--my", `${(y / rect.height) * 100}%`);
-    ensureLoop();
-  };
-
-  const handleMouseLeave = () => {
-    isHoveringRef.current = false;
-    targetRef.current = { rx: 0, ry: 0, tz: 0 };
-    ensureLoop();
-  };
-
-  return (
-    <div
-      ref={cardRef}
-      className="col-md-6 col-lg-4"
-      style={{
-        opacity: 0,
-        perspective: "1200px",
-        transformStyle: "preserve-3d",
-        willChange: "transform, opacity",
-      }}
-    >
-      <div
-        ref={innerRef}
-        className="h-100 p-4 rounded-3 text-center position-relative plan-card-tilt"
-        onMouseEnter={handleMouseEnter}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          background: plan.featured ? "linear-gradient(135deg, #150e23, #600B56)" : "#fff",
-          color: plan.featured ? "#fff" : "inherit",
-          border: plan.featured ? "none" : "1px solid #eee",
-          boxShadow: plan.featured ? "0 20px 40px rgba(186, 39, 244, 0.3)" : "0 4px 20px rgba(0,0,0,0.04)",
-          transformOrigin: "center center",
-          transformStyle: "preserve-3d",
-        }}
-      >
-      {plan.featured && (
-        <span
-          className="position-absolute top-0 start-50 translate-middle badge px-3 py-2"
-          style={{ background: "#fff", color: "#600b56", fontSize: "12px" }}
-        >
-          MÁS POPULAR
-        </span>
-      )}
-      <h3 className={`mb-2 ${plan.featured ? "mt-3" : ""}`} style={{ fontSize: "22px", fontWeight: 700 }}>
-        {plan.name}
-      </h3>
-      <div className="my-3">
-        {plan.originalPrice && (
-          <div style={{ marginBottom: "6px", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "13px", opacity: plan.featured ? 0.85 : 1, color: plan.featured ? "#fff" : "#888" }}>antes</span>
-            <span
-              style={{
-                fontSize: "20px",
-                textDecoration: "line-through",
-                opacity: 0.6,
-                color: plan.featured ? "rgba(255,255,255,0.75)" : "#888",
-              }}
-            >
-              ${plan.originalPrice}
-            </span>
-            <span
-              style={{
-                padding: "4px 10px",
-                borderRadius: "999px",
-                fontSize: "12px",
-                fontWeight: 800,
-                letterSpacing: "0.3px",
-                background: plan.featured ? "#fff" : "linear-gradient(135deg, #ff4d4d, #f7b733)",
-                color: plan.featured ? "#600b56" : "#fff",
-                boxShadow: "0 6px 16px rgba(255, 77, 77, 0.25)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              AHORRA {plan.discount}%
-            </span>
-          </div>
-        )}
-        <span style={{ fontSize: "14px", verticalAlign: "top" }}>desde</span>{" "}
-        <span style={{ fontSize: "24px" }}>$</span>
-        <span style={{ fontSize: "44px", fontWeight: 700 }}>{plan.price}</span>
-        <span style={{ fontSize: "16px" }}> USD</span>
-      </div>
-      <p className={plan.featured ? "mb-4" : "text-muted mb-4"} style={{ fontSize: "14px" }}>
-        {plan.description}
-      </p>
-      <ul className="list-unstyled text-start mb-4">
-        {plan.features.map((f, j) => (
-          <li key={j} className="mb-2" style={{ fontSize: "14px" }}>
-            <i
-              className="bi bi-check-lg me-2"
-              style={plan.featured ? { color: "#fff" } : { background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
-            ></i>
-            {f}
-          </li>
-        ))}
-      </ul>
-      <a
-        href={`https://wa.me/593999739534?text=${encodeURIComponent(`Hola, quisiera solicitar un presupuesto del plan *${plan.name}*.\n\nDescripción del plan: ${plan.description}`)}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`btn ${plan.featured ? "btn-light" : "btn-outline-primary"} fw-bold w-100 py-2`}
-        style={{
-          borderRadius: "50px",
-          color: plan.featured ? "#fff" : "transparent",
-          background: plan.featured ? "none" : "linear-gradient(135deg, #150e23, #600B56)",
-          WebkitBackgroundClip: plan.featured ? "unset" : "text",
-          WebkitTextFillColor: plan.featured ? "unset" : "transparent",
-          borderColor: plan.featured ? "#fff" : "#600B56",
-        }}
-      >
-        Solicitar presupuesto
-      </a>
-    </div>
-  </div>
-  );
-};
-
-const BudgetModal = ({ open, onClose }) => {
-  if (!open) return null;
-
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="budget-modal-title"
-      onClick={onClose}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 10050,
-        background: "rgba(8, 6, 14, 0.72)",
-        backdropFilter: "blur(10px)",
-        overflowY: "auto",
-        padding: "clamp(18px, 4vw, 48px)",
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          position: "relative",
-          width: "min(1180px, 100%)",
-          margin: "0 auto",
-          background: "#fff",
-          borderRadius: "28px",
-          padding: "clamp(24px, 4vw, 48px)",
-          boxShadow: "0 30px 90px rgba(0,0,0,0.35)",
-        }}
-      >
-        <button
-          type="button"
-          aria-label="Cerrar presupuestos"
-          onClick={onClose}
-          style={{
-            position: "absolute",
-            top: "18px",
-            right: "18px",
-            width: "42px",
-            height: "42px",
-            borderRadius: "50%",
-            border: "1px solid #eadfee",
-            background: "#fff",
-            color: "#600b56",
-            fontSize: "24px",
-            lineHeight: 1,
-            cursor: "pointer",
-            zIndex: 2,
-          }}
-        >
-          ×
-        </button>
-
-        <div className="text-center mb-5">
-          <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
-            Tarifas en dólares
-          </span>
-          <h2 id="budget-modal-title" className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
-            Presupuestos transparentes, sin letra pequeña
-          </h2>
-          <p className="text-muted mx-auto" style={{ maxWidth: "650px", fontSize: "17px" }}>
-            Elige un punto de partida y contáctanos por WhatsApp sin tener que atravesar las animaciones de la página.
-          </p>
-        </div>
-
-        <div className="row g-4 justify-content-center">
-          {pricingPlans.map((plan, i) => (
-            <PlanCard key={i} plan={plan} index={i} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const FeaturesParticles = ({ active }) => {
-  const canvasRef = useRef(null);
-  const animRef  = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-
-    const resize = () => {
-      canvas.width  = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    };
-    resize();
-
-    if (!active) {
-      cancelAnimationFrame(animRef.current);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      return;
-    }
-
-    cancelAnimationFrame(animRef.current);
-
-    const particles = Array.from({ length: 35 }, () => ({
-      x:       Math.random() * canvas.width,
-      y:       Math.random() * canvas.height,
-      vy:      -(Math.random() * 0.65 + 0.22),
-      phase:   Math.random() * Math.PI * 2,
-      amp:     Math.random() * 14 + 4,
-      size:    Math.random() * 2.6 + 1.1,
-      opacity: Math.random() * 0.7 + 0.1,
-      dOp:     (Math.random() * 0.007 + 0.003) * (Math.random() > 0.5 ? 1 : -1),
-      purple:  Math.random() > 0.45,
-    }));
-
-    let t = 0;
-    const frame = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      t += 0.018;
-
-      particles.forEach((p) => {
-        p.y += p.vy;
-        p.x += Math.sin(t * 1.1 + p.phase) * 0.38;
-        p.opacity += p.dOp;
-        if (p.opacity > 0.82) p.dOp = -Math.abs(p.dOp);
-        if (p.opacity < 0.07) p.dOp =  Math.abs(p.dOp);
-        if (p.y < -8) {
-          p.y = canvas.height + 8;
-          p.x = Math.random() * canvas.width;
-        }
-
-        const color = p.purple ? `150,28,128` : `185,110,215`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${color},${p.opacity})`;
-        ctx.fill();
-      });
-
-      animRef.current = requestAnimationFrame(frame);
-    };
-
-    animRef.current = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(animRef.current);
-  }, [active]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}
-    />
-  );
-};
-
-const VideoShowcase = () => {
-  const sectionRef = useRef(null);
-  const videoWrapRef = useRef(null);
-  const glowRef = useRef(null);
-  const starCanvasRef = useRef(null);
-  const mouseRef = useRef({ x: 0.5, y: 0.5 });
-  const starAnimRef = useRef(null);
-
-  // Starfield canvas with mouse parallax
-  useEffect(() => {
-    const canvas = starCanvasRef.current;
-    const section = sectionRef.current;
-    if (!canvas || !section) return;
-
-    const ctx = canvas.getContext("2d");
-    let w, h;
-
-    const resize = () => {
-      w = section.offsetWidth;
-      h = section.offsetHeight;
-      canvas.width = w;
-      canvas.height = h;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    // Create star layers (3 depth layers for parallax)
-    const layers = [
-      { count: 120, speed: 0.3, sizeMin: 0.4, sizeMax: 1.2, alpha: 0.3 },
-      { count: 80, speed: 0.6, sizeMin: 0.8, sizeMax: 2.0, alpha: 0.5 },
-      { count: 40, speed: 1.0, sizeMin: 1.2, sizeMax: 3.0, alpha: 0.8 },
-    ];
-
-    const stars = [];
-    layers.forEach((layer) => {
-      for (let i = 0; i < layer.count; i++) {
-        stars.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          baseX: Math.random() * w,
-          baseY: Math.random() * h,
-          size: layer.sizeMin + Math.random() * (layer.sizeMax - layer.sizeMin),
-          speed: layer.speed,
-          alpha: layer.alpha * (0.5 + Math.random() * 0.5),
-          twinkleSpeed: 0.005 + Math.random() * 0.015,
-          twinkleOffset: Math.random() * Math.PI * 2,
-          hue: Math.random() > 0.7 ? 290 + Math.random() * 30 : 0, // some purple-tinted
-        });
-      }
-    });
-
-    // Shooting stars
-    const shootingStars = [];
-    let lastShoot = 0;
-
-    const spawnShootingStar = () => {
-      shootingStars.push({
-        x: Math.random() * w * 0.8,
-        y: Math.random() * h * 0.3,
-        vx: 4 + Math.random() * 6,
-        vy: 2 + Math.random() * 3,
-        life: 1,
-        length: 40 + Math.random() * 60,
-        size: 1 + Math.random() * 1.5,
-      });
-    };
-
-    const frame = (ts) => {
-      ctx.clearRect(0, 0, w, h);
-
-      const mx = mouseRef.current.x;
-      const my = mouseRef.current.y;
-      const offsetX = (mx - 0.5) * 2; // -1 to 1
-      const offsetY = (my - 0.5) * 2;
-
-      // Draw stars
-      for (let i = 0; i < stars.length; i++) {
-        const s = stars[i];
-        const parallaxX = offsetX * 30 * s.speed;
-        const parallaxY = offsetY * 20 * s.speed;
-        s.x = s.baseX + parallaxX;
-        s.y = s.baseY + parallaxY;
-
-        // Twinkle
-        const twinkle = 0.5 + 0.5 * Math.sin(ts * s.twinkleSpeed + s.twinkleOffset);
-        const finalAlpha = s.alpha * twinkle;
-
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        if (s.hue > 0) {
-          ctx.fillStyle = `hsla(${s.hue}, 80%, 40%, ${finalAlpha})`; // Darker colored stars
-        } else {
-          ctx.fillStyle = `rgba(96,11,86,${finalAlpha})`; // Dark purple instead of white
-        }
-        ctx.fill();
-
-        // Glow for bigger stars
-        if (s.size > 1.8) {
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.size * 3, 0, Math.PI * 2);
-          ctx.fillStyle = s.hue > 0
-            ? `hsla(${s.hue}, 80%, 40%, ${finalAlpha * 0.15})`
-            : `rgba(96,11,86,${finalAlpha * 0.15})`;
-          ctx.fill();
-        }
-      }
-
-      // Draw connections between nearby stars (layer 3 only)
-      const layer3 = stars.filter((s) => s.speed === 1.0);
-      for (let i = 0; i < layer3.length; i++) {
-        for (let j = i + 1; j < layer3.length; j++) {
-          const dx = layer3[i].x - layer3[j].x;
-          const dy = layer3[i].y - layer3[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(layer3[i].x, layer3[i].y);
-            ctx.lineTo(layer3[j].x, layer3[j].y);
-            ctx.strokeStyle = `rgba(180,40,160,${0.12 * (1 - dist / 120)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-
-      // Shooting stars
-      if (ts - lastShoot > 4000 + Math.random() * 6000) {
-        spawnShootingStar();
-        lastShoot = ts;
-      }
-      for (let i = shootingStars.length - 1; i >= 0; i--) {
-        const ss = shootingStars[i];
-        ss.x += ss.vx;
-        ss.y += ss.vy;
-        ss.life -= 0.018;
-        if (ss.life <= 0) { shootingStars.splice(i, 1); continue; }
-
-        const grad = ctx.createLinearGradient(
-          ss.x, ss.y,
-          ss.x - ss.vx * ss.length * 0.15, ss.y - ss.vy * ss.length * 0.15
-        );
-        grad.addColorStop(0, `rgba(96,11,86,${ss.life * 0.9})`); // Dark purple head
-        grad.addColorStop(1, `rgba(180,40,160,0)`);
-        ctx.beginPath();
-        ctx.moveTo(ss.x, ss.y);
-        ctx.lineTo(ss.x - ss.vx * ss.length * 0.15, ss.y - ss.vy * ss.length * 0.15);
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = ss.size * ss.life;
-        ctx.lineCap = "round";
-        ctx.stroke();
-      }
-
-      starAnimRef.current = requestAnimationFrame(frame);
-    };
-
-    starAnimRef.current = requestAnimationFrame(frame);
-
-    return () => {
-      cancelAnimationFrame(starAnimRef.current);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
-  // Video reveal animation
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const section = sectionRef.current;
-    const videoWrap = videoWrapRef.current;
-    const glow = glowRef.current;
-    if (!section || !videoWrap) return;
-
-    videoWrap.style.opacity = "0";
-    videoWrap.style.transform = "scale(0.82) translateY(60px) rotateX(8deg)";
-    videoWrap.style.filter = "blur(8px)";
-    if (glow) {
-      glow.style.opacity = "0";
-      glow.style.transform = "scale(0.6)";
-    }
-
-    if (reduced) {
-      videoWrap.style.opacity = "1";
-      videoWrap.style.transform = "none";
-      videoWrap.style.filter = "none";
-      if (glow) { glow.style.opacity = "1"; glow.style.transform = "none"; }
-      return;
-    }
-
-    let triggered = false;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !triggered) {
-            triggered = true;
-            observer.unobserve(section);
-
-            animate(videoWrap, {
-              opacity: [0, 1],
-              scale: [0.82, 1],
-              translateY: [60, 0],
-              rotateX: [8, 0],
-              filter: ["blur(8px)", "blur(0px)"],
-              duration: 1200,
-              ease: "outExpo",
-            });
-
-            if (glow) {
-              animate(glow, {
-                opacity: [0, 0.7],
-                scale: [0.6, 1.05],
-                duration: 1400,
-                delay: 300,
-                ease: "outExpo",
-              });
-              setTimeout(() => {
-                animate(glow, {
-                  scale: [1.05, 1.12, 1.05],
-                  opacity: [0.7, 0.9, 0.7],
-                  duration: 3000,
-                  ease: "inOutSine",
-                  loop: true,
-                });
-              }, 1700);
-            }
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
-  const handleMouseMove = (e) => {
-    const rect = sectionRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    mouseRef.current = {
-      x: (e.clientX - rect.left) / rect.width,
-      y: (e.clientY - rect.top) / rect.height,
-    };
-  };
-
-  const videoRef = useRef(null);
-
-  // Intersection Observer to mute/unmute video based on visibility
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        video.muted = !entry.isIntersecting;
-      },
-      { threshold: 0.5 }
-    );
-
-    observer.observe(video);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  return (
-    <section
-      ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      style={{
-        background: "linear-gradient(180deg, #ffffff 0%, #ffffff 42%, #f8f5f8 48%, #f5f1f5 50%, #f8f5f8 52%, #ffffff 58%, #ffffff 100%)",
-        paddingTop: "100px",
-        paddingBottom: "200px",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Interactive starfield canvas */}
-      <canvas
-        ref={starCanvasRef}
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
-
-
-      <div className="container" style={{ position: "relative", zIndex: 2 }}>
-        <div
-          ref={videoWrapRef}
-          style={{
-            maxWidth: "960px",
-            margin: "0 auto",
-            borderRadius: "20px",
-            overflow: "hidden",
-            boxShadow: "0 30px 80px rgba(96,11,86,0.5), 0 0 60px rgba(180,40,160,0.2)",
-            border: "1px solid rgba(180,40,160,0.25)",
-            perspective: "1000px",
-            transformStyle: "preserve-3d",
-            willChange: "transform, opacity, filter",
-          }}
-        >
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            controls
-            loop
-            playsInline
-            preload="metadata"
-            style={{
-              width: "100%",
-              height: "auto",
-              display: "block",
-            }}
-          >
-            <source src="/assets/img/video/video-undercode-ec-1.mp4" type="video/mp4" />
-          </video>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const LandingEcuador = () => {
-  const router = useRouter();
-  const [openFaq, setOpenFaq] = useState(0);
-  const [hoveredService, setHoveredService] = useState(null);
-  const [budgetModalOpen, setBudgetModalOpen] = useState(false);
-  const heroRef = useRef(null);
-  const heroImgRef = useRef(null);
-  const trustBarRef = useRef(null);
-  const galaxyCanvasRef = useRef(null);
-  const galaxyAnimRef = useRef(null);
-  const galaxyMouseRef = useRef({ x: 0, y: 0 });
-
-  // Tracking Meta Pixel ViewContent
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.fbq) {
-      window.fbq('track', 'ViewContent', {
-        content_name: 'Landing Page Ecuador',
-        content_category: 'Landing Pages'
-      });
-    }
-  }, []);
-
-  const handleVerPortafolios = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    sessionStorage.setItem("scrollToDemos", "true");
-    // Mark preloader as already seen so it doesn't block the scroll
-    router.push("/");
-  };
-
-  const openBudgetModal = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setBudgetModalOpen(true);
-  };
-
-  useEffect(() => {
-    const openModal = () => setBudgetModalOpen(true);
-    const onKeyDown = (e) => {
-      if (e.key === "Escape") setBudgetModalOpen(false);
-    };
-
-    window.addEventListener("open-budget-modal", openModal);
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("open-budget-modal", openModal);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!budgetModalOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [budgetModalOpen]);
-
-  // Entrada en stagger del hero
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const node = heroRef.current;
-    if (!node) return;
-    const items = node.querySelectorAll("[data-hero-anim]");
-    if (!items.length) return;
-
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      items.forEach((el) => {
-        el.style.opacity = "1";
-        el.style.transform = "none";
-      });
-      return;
-    }
-
-    animate(items, {
-      opacity: [0, 1],
-      translateY: [24, 0],
-      duration: 700,
-      delay: stagger(90, { start: 80 }),
-      ease: "outExpo",
-    });
-  }, []);
-
-  // Floating loop sutil en la imagen (solo desktop, no reduced)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
-    if (window.innerWidth < 992) return;
-    const node = heroImgRef.current;
-    if (!node) return;
-
-    const anim = animate(node, {
-      translateY: [0, -10],
-      duration: 2400,
-      ease: "inOutSine",
-      loop: true,
-      alternate: true,
-      delay: 1400,
-    });
-
-    return () => {
-      if (anim && typeof anim.pause === "function") anim.pause();
-    };
-  }, []);
-
-  // Tilt 3D mouse-follow en los botones del hero (no reduced)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
-    const root = heroRef.current;
-    if (!root) return;
-    const nodes = root.querySelectorAll("[data-hero-tilt]");
-    if (!nodes.length) return;
-
-    const cleanups = [];
-
-    nodes.forEach((node) => {
-      const target = { rx: 0, ry: 0, tz: 0 };
-      const current = { rx: 0, ry: 0, tz: 0 };
-      const velocity = { rx: 0, ry: 0, tz: 0 };
-      let rafId = null;
-      let hovering = false;
-
-      const tick = () => {
-        const stiffness = 0.11;
-        const damping = 0.78;
-        velocity.rx = velocity.rx * damping + (target.rx - current.rx) * stiffness;
-        velocity.ry = velocity.ry * damping + (target.ry - current.ry) * stiffness;
-        velocity.tz = velocity.tz * damping + (target.tz - current.tz) * stiffness;
-        current.rx += velocity.rx;
-        current.ry += velocity.ry;
-        current.tz += velocity.tz;
-
-        node.style.transform = `perspective(700px) rotateX(${current.rx.toFixed(3)}deg) rotateY(${current.ry.toFixed(3)}deg) translateZ(${current.tz.toFixed(2)}px)`;
-
-        const settled =
-          !hovering &&
-          Math.abs(target.rx - current.rx) < 0.02 &&
-          Math.abs(velocity.rx) < 0.02 &&
-          Math.abs(target.ry - current.ry) < 0.02 &&
-          Math.abs(velocity.ry) < 0.02 &&
-          Math.abs(target.tz - current.tz) < 0.1 &&
-          Math.abs(velocity.tz) < 0.05;
-
-        if (settled) {
-          rafId = null;
-          node.style.transform = "";
-          current.rx = 0; current.ry = 0; current.tz = 0;
-          velocity.rx = 0; velocity.ry = 0; velocity.tz = 0;
-          return;
-        }
-        rafId = requestAnimationFrame(tick);
-      };
-
-      const ensureLoop = () => {
-        if (rafId == null) rafId = requestAnimationFrame(tick);
-      };
-
-      const onEnter = () => {
-        hovering = true;
-        ensureLoop();
-      };
-      const onMove = (e) => {
-        const rect = node.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const cx = rect.width / 2;
-        const cy = rect.height / 2;
-        target.ry = ((x - cx) / cx) * 14;
-        target.rx = -((y - cy) / cy) * 14;
-        target.tz = 12;
-        node.style.setProperty("--mx", `${(x / rect.width) * 100}%`);
-        node.style.setProperty("--my", `${(y / rect.height) * 100}%`);
-        ensureLoop();
-      };
-      const onLeave = () => {
-        hovering = false;
-        target.rx = 0; target.ry = 0; target.tz = 0;
-        ensureLoop();
-      };
-
-      node.addEventListener("mouseenter", onEnter);
-      node.addEventListener("mousemove", onMove);
-      node.addEventListener("mouseleave", onLeave);
-
-      cleanups.push(() => {
-        node.removeEventListener("mouseenter", onEnter);
-        node.removeEventListener("mousemove", onMove);
-        node.removeEventListener("mouseleave", onLeave);
-        if (rafId != null) cancelAnimationFrame(rafId);
-      });
-    });
-
-    return () => cleanups.forEach((fn) => fn());
-  }, []);
-
-  // Counters animados en la trust bar
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const node = trustBarRef.current;
-    if (!node) return;
-    const counters = node.querySelectorAll("[data-counter-value]");
-    if (!counters.length) return;
-
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const writeFinal = (el) => {
-      const v = el.getAttribute("data-counter-value");
-      const prefix = el.getAttribute("data-counter-prefix") || "";
-      const suffix = el.getAttribute("data-counter-suffix") || "";
-      el.textContent = `${prefix}${v}${suffix}`;
-    };
-
-    if (reduced) {
-      counters.forEach(writeFinal);
-      return;
-    }
-
-    counters.forEach((el) => {
-      el.textContent = `${el.getAttribute("data-counter-prefix") || ""}0${el.getAttribute("data-counter-suffix") || ""}`;
-    });
-
-    const started = new Set();
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const el = entry.target;
-          if (started.has(el)) return;
-          started.add(el);
-          observer.unobserve(el);
-          const target = parseFloat(el.getAttribute("data-counter-value"));
-          const prefix = el.getAttribute("data-counter-prefix") || "";
-          const suffix = el.getAttribute("data-counter-suffix") || "";
-          const state = { val: 0 };
-          animate(state, {
-            val: target,
-            duration: 1400,
-            ease: "outExpo",
-            onUpdate: () => {
-              el.textContent = `${prefix}${Math.round(state.val)}${suffix}`;
-            },
-            onComplete: () => writeFinal(el),
-          });
-        });
-      },
-      { threshold: 0.35 }
-    );
-    counters.forEach((c) => observer.observe(c));
-    return () => observer.disconnect();
-  }, []);
-
-  // Galaxy particle canvas
-  useEffect(() => {
-    const canvas = galaxyCanvasRef.current;
-    if (!canvas) return;
-    const section = canvas.parentElement;
-    canvas.width = section.offsetWidth;
-    canvas.height = section.offsetHeight;
-    const ctx = canvas.getContext("2d");
-
-    if (hoveredService === null) {
-      cancelAnimationFrame(galaxyAnimRef.current);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      return;
-    }
-
-    cancelAnimationFrame(galaxyAnimRef.current);
-    const particles = [];
-
-    const spawnBatch = () => {
-      const { x, y } = galaxyMouseRef.current;
-      for (let i = 0; i < 4; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 2.8 + 0.4;
-        particles.push({
-          x: x + (Math.random() - 0.5) * 24,
-          y: y + (Math.random() - 0.5) * 24,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - 0.6,
-          life: 1,
-          size: Math.random() * 2.8 + 0.7,
-          rgb: Math.random() > 0.45 ? "180,40,160" : "255,255,255",
-        });
-      }
-      while (particles.length > 160) particles.shift();
-    };
-
-    // Initial burst
-    const bx = canvas.width / 2;
-    const by = canvas.height * 0.35;
-    for (let i = 0; i < 28; i++) {
-      const angle = (i / 28) * Math.PI * 2;
-      const speed = Math.random() * 5 + 2;
-      particles.push({
-        x: bx, y: by,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        life: 1, size: Math.random() * 3 + 1,
-        rgb: Math.random() > 0.5 ? "180,40,160" : "255,255,255",
-      });
-    }
-
-    let lastSpawn = 0;
-    const frame = (ts) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (ts - lastSpawn > 38) { spawnBatch(); lastSpawn = ts; }
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.x += p.vx; p.y += p.vy;
-        p.vy += 0.06; p.vx *= 0.985;
-        p.life -= 0.017;
-        if (p.life <= 0) { particles.splice(i, 1); continue; }
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${p.rgb},${p.life * 0.82})`;
-        ctx.fill();
-      }
-      galaxyAnimRef.current = requestAnimationFrame(frame);
-    };
-    galaxyAnimRef.current = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(galaxyAnimRef.current);
-  }, [hoveredService]);
-
-  // Efecto "mounting" de presupuesto encima de thanos
-  useEffect(() => {
-    const section = document.getElementById("presupuesto");
-    if (!section) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0].isIntersecting) return;
-        observer.disconnect();
-        animate(section, {
-          translateY: [30, 0],
-          opacity: [0, 1],
-          scale: [0.97, 1],
-          duration: 850,
-          ease: "outExpo",
-        });
-      },
-      { threshold: 0.04 }
-    );
-
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
+const organizationJsonLdString = JSON.stringify(organizationJsonLd);
+const localBusinessJsonLdString = JSON.stringify(localBusinessJsonLd);
+const serviceJsonLdString = JSON.stringify(serviceJsonLd);
+const faqJsonLdString = JSON.stringify(faqJsonLd);
+
+export default function LandingEcuador() {
   return (
     <>
-      {/* clip-path en presupuesto: muestra shadow solo hacia arriba, corta la parte inferior */}
-      <style>{budgetClipStyles}</style>
-      <BudgetModal open={budgetModalOpen} onClose={() => setBudgetModalOpen(false)} />
-
-      {/* JSON-LD: Organization, LocalBusiness/ProfessionalService, Service, FAQPage */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: organizationJsonLdString }}
@@ -1474,429 +281,131 @@ const LandingEcuador = () => {
         dangerouslySetInnerHTML={{ __html: faqJsonLdString }}
       />
 
-      <main className="landing-ecuador">
-        {/* HERO */}
-        <section
-          ref={heroRef}
-          className="tw-relative tw-overflow-hidden"
-          style={{ paddingTop: "20px", paddingBottom: "100px" }}
-        >
-          <div className="tw-absolute tw-inset-0 gradient-bg tw-z-0 tw-pointer-events-none" />
+      <main>
+        <header>
+          <p>Agencia digital con cobertura nacional en Ecuador</p>
+          <h1>Diseño de Páginas Web en Quito y Ecuador</h1>
+          <p>
+            Diseñamos páginas web, aplicaciones móviles y estrategias SEO para
+            empresas en Quito, Guayaquil y todo el Ecuador.
+          </p>
+          <p><a href="#presupuesto">Pide tu presupuesto gratis</a></p>
+          <p><a href="/#demos">Ver portafolios</a></p>
+          <ul>
+            <li>Presupuesto en 24 horas</li>
+            <li>Sin permanencia</li>
+            <li>Facturación electrónica SRI</li>
+          </ul>
+        </header>
 
-          <div className="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-pointer-events-none tw-z-[1]">
-            <img
-              src={heroBackgroundPattern}
-              alt="Background Pattern"
-              className="rotating-pattern tw-w-full tw-h-full tw-object-cover tw-opacity-30 tw-pointer-events-none"
-            />
-          </div>
+        <section aria-labelledby="indicadores-title">
+          <h2 id="indicadores-title">Experiencia y atención</h2>
+          <ul>
+            <li>Más de 100 proyectos entregados</li>
+            <li>Presupuestos en 24 horas</li>
+            <li>Facturación electrónica SRI</li>
+            <li>Más de 10 años de experiencia</li>
+          </ul>
+        </section>
 
-          <div className="gradient-blob-1 tw-pointer-events-none" />
-          <div className="gradient-blob-2 tw-pointer-events-none" />
-          <div className="gradient-blob-3 tw-pointer-events-none" />
+        <section id="servicios">
+          <h2>Servicios digitales para empresas en Ecuador</h2>
+          <p>Todo lo que tu empresa necesita para crecer online con un único equipo.</p>
+          {services.map((service) => (
+            <article key={service.title}>
+              <h3>{service.title}</h3>
+              <p>{service.description}</p>
+              <ul>
+                {service.features.map((feature) => <li key={feature}>{feature}</li>)}
+              </ul>
+            </article>
+          ))}
+        </section>
 
-          <div className="container tw-relative" style={{ zIndex: 30 }}>
-            <div className="row align-items-center">
-              <div className="col-lg-7">
-                <span
-                  data-hero-anim
-                  className="badge mb-3 px-3 py-2"
-                  style={{
-                    background: "rgba(96, 11, 86, 0.1)",
-                    color: "#600b56",
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    opacity: 0,
-                  }}
-                >
-                  Agencia digital · Cobertura nacional en Ecuador
-                </span>
-                <h1
-                  data-hero-anim
-                  className="gradient-title mb-4"
-                  style={{ fontSize: "clamp(32px, 5vw, 56px)", fontWeight: 700, lineHeight: 1.1, opacity: 0 }}
-                >
-                  Diseño de Páginas Web en Quito y Ecuador
-                </h1>
-                <p
-                  data-hero-anim
-                  className="mb-4"
-                  style={{ fontSize: "18px", color: "#333", maxWidth: "600px", lineHeight: 1.7, opacity: 0 }}
-                >
-                  Expertos en diseño y desarrollo de páginas web profesionales, aplicaciones móviles y SEO en Quito, Guayaquil y todo el Ecuador. Impulsamos tu negocio digital con presupuestos que se ajustan a tu bolsillo.
+        <section id="presupuesto">
+          <h2>Presupuestos transparentes</h2>
+          <p>Estos precios son puntos de partida. Cada proyecto recibe un presupuesto acorde a sus necesidades.</p>
+          {plans.map((plan) => {
+            const message = encodeURIComponent(
+              "Hola, quisiera solicitar un presupuesto del plan " + plan.name + ".",
+            );
+
+            return (
+              <article key={plan.name}>
+                <h3>{plan.name}</h3>
+                <p>
+                  Desde {"$"}{plan.price} USD. Precio referencial anterior: {"$"}
+                  {plan.originalPrice} USD.
                 </p>
-                <div data-hero-anim className="d-flex flex-wrap gap-3 mt-4" style={{ opacity: 0 }}>
-                  <button
-                    type="button"
-                    onClick={openBudgetModal}
-                    data-hero-tilt
-                    className="btn btn-lg fw-bold px-4 py-3 hero-cta-tilt"
-                    style={{
-                      borderRadius: "50px",
-                      backgroundColor: "rgb(96, 11, 86)",
-                      color: "#fff",
-                      border: "none",
-                      transformStyle: "preserve-3d",
-                      willChange: "transform",
-                    }}
+                <p>{plan.description}</p>
+                <ul>
+                  {plan.features.map((feature) => <li key={feature}>{feature}</li>)}
+                </ul>
+                <p>
+                  <a
+                    href={"https://wa.me/593999739534?text=" + message}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    Pide tu presupuesto gratis
-                  </button>
-<button
-                     type="button"
-                     onClick={handleVerPortafolios}
-                     data-hero-tilt
-                     className="btn btn-lg fw-bold px-4 py-3 hero-cta-tilt"
-                     style={{
-                       borderRadius: "50px",
-                       backgroundColor: "rgb(96, 11, 86)",
-                       color: "#fff",
-                       border: "none",
-                       transformStyle: "preserve-3d",
-                       willChange: "transform",
-                       cursor: "pointer",
-                     }}
-                   >
-                     Ver portafolios
-                   </button>
-                </div>
-                <div
-                  data-hero-anim
-                  className="mt-4 d-flex flex-wrap gap-4"
-                  style={{ fontSize: "14px", color: "#555", opacity: 0 }}
-                >
-                  <span><i className="bi bi-check-circle me-2" style={{ color: "#600b56" }}></i>Presupuesto en 24 h</span>
-                  <span><i className="bi bi-check-circle me-2" style={{ color: "#600b56" }}></i>Sin permanencia</span>
-                  <span><i className="bi bi-check-circle me-2" style={{ color: "#600b56" }}></i>Facturación electrónica SRI</span>
-                </div>
-              </div>
-              <div className="col-lg-5 d-none d-lg-block text-center">
-                <img
-                  ref={heroImgRef}
-                  data-hero-anim
-                  src="/assets/img/header/Animation3DSoftware.webp"
-                  alt="Agencia de diseño web y desarrollo de aplicaciones móviles en Quito y Ecuador"
-                  style={{ maxWidth: "100%", height: "auto", filter: "drop-shadow(0 20px 40px rgba(96, 11, 86, 0.25))", opacity: 0 }}
-                />
-              </div>
-            </div>
-          </div>
+                    Solicitar presupuesto por WhatsApp
+                  </a>
+                </p>
+              </article>
+            );
+          })}
         </section>
 
-        {/* TRUST BAR */}
-        <section ref={trustBarRef} className="py-4 border-bottom" style={{ background: "#f8f9fa" }}>
-          <div className="container">
-            <div className="row text-center g-3 animate-fadeUp">
-              <div className="col-6 col-md-3">
-                <div
-                  suppressHydrationWarning
-                  className="fw-bold"
-                  style={{ fontSize: "28px", color: "#600b56" }}
-                  data-counter-value="100"
-                  data-counter-prefix="+"
-                >
-                  +0
-                </div>
-                <div className="text-muted small">Proyectos entregados</div>
-              </div>
-              <div className="col-6 col-md-3">
-                <div
-                  suppressHydrationWarning
-                  className="fw-bold"
-                  style={{ fontSize: "28px", color: "#600b56" }}
-                  data-counter-value="24"
-                  data-counter-suffix=" h"
-                >
-                  0 h
-                </div>
-                <div className="text-muted small">Tiempo medio de presupuesto</div>
-              </div>
-              <div className="col-6 col-md-3">
-                <div className="fw-bold" style={{ fontSize: "28px", color: "#600b56" }}>SRI</div>
-                <div className="text-muted small">Facturación electrónica</div>
-              </div>
-              <div className="col-6 col-md-3">
-                <div
-                  suppressHydrationWarning
-                  className="fw-bold"
-                  style={{ fontSize: "28px", color: "#600b56" }}
-                  data-counter-value="10"
-                  data-counter-suffix="+ años"
-                >
-                  0+ años
-                </div>
-                <div className="text-muted small">Experiencia</div>
-              </div>
-            </div>
-          </div>
+        <section aria-labelledby="faq-title">
+          <h2 id="faq-title">Preguntas frecuentes</h2>
+          {faqs.map((faq) => (
+            <details key={faq.question}>
+              <summary>{faq.question}</summary>
+              <p>{faq.answer}</p>
+            </details>
+          ))}
         </section>
 
-        {/* SERVICES — Galaxy Timeline */}
-        <section
-          id="servicios"
-          style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden" }}
-          onMouseMove={(e) => {
-            const r = e.currentTarget.getBoundingClientRect();
-            galaxyMouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
-          }}
-        >
-          {/* Particle canvas */}
-          <canvas ref={galaxyCanvasRef} style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }} />
-
-          <div className="container" style={{ position: "relative", zIndex: 2 }}>
-            {/* Header */}
-            <div className="text-center mb-5 animate-fadeUp">
-              <span style={{ textTransform: "uppercase", fontWeight: 700, background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
-                Qué hacemos
-              </span>
-              <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700, marginTop: "8px", marginBottom: "12px" }}>
-                Servicios digitales para empresas en Ecuador
-              </h2>
-              <p style={{ color: "#6b7280", maxWidth: "680px", fontSize: "17px", margin: "0 auto" }}>
-                Todo lo que tu empresa necesita para crecer online, con un único equipo y sin intermediarios.
-              </p>
-            </div>
-
-            {/* Timeline + panel: onMouseLeave aquí para que mover al panel no cierre */}
-            <div onMouseLeave={() => setHoveredService(null)}>
-              {/* Horizontal timeline */}
-              <div className="galaxy-timeline">
-                {services.map((s, i) => (
-                  <div
-                    key={i}
-                    className={`galaxy-node${hoveredService === i ? " galaxy-node--active" : ""}`}
-                    onMouseEnter={() => setHoveredService(i)}
-                  >
-                    <div className="galaxy-node__ring" />
-                    <div className="galaxy-node__dot">
-                      <i className={s.icon} />
-                    </div>
-                    <p className="galaxy-node__label">{s.title}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Expanded detail panel */}
-              <div
-                className={`galaxy-detail${hoveredService !== null ? " galaxy-detail--open" : ""}`}
-                data-cursor-noinvert="true"
-              >
-                {services.map((s, i) => (
-                  <div
-                    key={i}
-                    className={`galaxy-detail__card${hoveredService === i ? " galaxy-detail__card--visible" : ""}`}
-                  >
-                    {/* Left column */}
-                    <div className="galaxy-detail__left">
-                      <div className="galaxy-icon-wrap">
-                        <i className={s.icon} />
-                      </div>
-                      <h3 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "12px", lineHeight: 1.3, color: "#150e23" }}>
-                        {s.title}
-                      </h3>
-                      <p style={{ color: "#4b5563", fontSize: "15px", lineHeight: 1.75, margin: 0 }}>
-                        {s.text}
-                      </p>
-                    </div>
-                    {/* Vertical divider */}
-                    <div className="galaxy-vdivider" />
-                    {/* Right column */}
-                    <div className="galaxy-detail__right">
-                      <FeaturesParticles active={hoveredService === i} />
-                      <ul className="galaxy-features">
-                        {s.features.map((f, j) => (
-                          <li key={j}>{f}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* VIDEO SHOWCASE */}
-        <VideoShowcase />
-
-        {/* SCROLL-PIN SHOWCASE */}
-        <ScrollPinShowcase />
-
-        {/* STACK TIMELINE */}
-        <StackTimeline />
-
-        {/* THANOS TEXT */}
-        <ThanosTextSection />
-
-
-        {/* PRICING — card que sube encima de thanos */}
-        <section
-          id="presupuesto"
-          className="py-5"
-          style={{
-            scrollMarginTop: "16px",
-            paddingTop: "80px",
-            paddingBottom: "80px",
-            background: "#fff",
-            boxShadow: "0 -28px 72px rgba(21,14,35,0.18), 0 -4px 20px rgba(96,11,86,0.10)",
-            position: "relative",
-            zIndex: 2,
-            marginTop: "-80px",
-          }}
-        >
-          <div className="container">
-            <div className="text-center mb-5 animate-fadeUp">
-              <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
-                Tarifas en dólares
-              </span>
-              <h2 className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
-                Presupuestos transparentes, sin letra pequeña
-              </h2>
-              <p className="text-muted mx-auto" style={{ maxWidth: "650px", fontSize: "17px" }}>
-                Estos son nuestros puntos de partida. Cada proyecto se ajusta a tus necesidades reales con un presupuesto cerrado.
-              </p>
-            </div>
-            <div className="row g-4 justify-content-center">
-              {pricingPlans.map((plan, i) => (
-                <PlanCard key={i} plan={plan} index={i} />
+        <section aria-labelledby="comparacion-title">
+          <h2 id="comparacion-title">Undercodeec frente a otras opciones</h2>
+          <table>
+            <caption>Comparación de servicios de desarrollo web</caption>
+            <thead>
+              <tr>
+                <th scope="col">Característica</th>
+                <th scope="col">Undercodeec</th>
+                <th scope="col">Freelancer</th>
+                <th scope="col">Agencia</th>
+              </tr>
+            </thead>
+            <tbody>
+              {comparisonRows.map(([feature, undercodeec, freelancer, agency]) => (
+                <tr key={feature}>
+                  <th scope="row">{feature}</th>
+                  <td>{undercodeec}</td>
+                  <td>{freelancer}</td>
+                  <td>{agency}</td>
+                </tr>
               ))}
-            </div>
-          </div>
+            </tbody>
+          </table>
         </section>
 
-        {/* FAQ */}
-        <section className="py-5" style={{ background: "#ffffff", paddingTop: "80px", paddingBottom: "80px", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-            <img src={heroBackgroundPattern} alt="" aria-hidden="true" className="rotating-pattern-slow" style={{ width: "130%", height: "130%", objectFit: "cover", opacity: 0.08, filter: "brightness(0)", pointerEvents: "none" }} />
-          </div>
-          <div className="container" style={{ position: "relative", zIndex: 2 }}>
-            <div className="text-center mb-5 animate-fadeUp">
-              <span className="text-uppercase fw-bold" style={{ background: "linear-gradient(135deg, #150e23, #600B56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "2px", fontSize: "13px" }}>
-                Resolvemos dudas
-              </span>
-              <h2 className="mt-2 mb-3" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700 }}>
-                Preguntas Frecuentes sobre Sitios Web
-              </h2>
-            </div>
-            <div className="row justify-content-center">
-              <div className="col-lg-9 animate-fadeUp" style={{ transitionDelay: '200ms' }}>
-                {faqs.map((item, i) => (
-                  <div
-                    key={i}
-                    className="mb-3 rounded-3"
-                    style={{ background: "#fff", border: "1px solid #eee", overflow: "hidden" }}
-                  >
-                    <button
-                      type="button"
-                      className="w-100 text-start p-4 d-flex justify-content-between align-items-center"
-                      style={{
-                        background: openFaq === i ? "linear-gradient(135deg, #150e23, #600B56)" : "none",
-                        WebkitBackgroundClip: openFaq === i ? "text" : "unset",
-                        WebkitTextFillColor: openFaq === i ? "transparent" : "inherit",
-                        border: "none",
-                        fontWeight: 600,
-                        fontSize: "17px",
-                        color: openFaq === i ? "transparent" : "inherit",
-                      }}
-                      onClick={() => setOpenFaq(openFaq === i ? -1 : i)}
-                    >
-                      <span>{item.q}</span>
-                      <i className={`bi ${openFaq === i ? "bi-dash-circle" : "bi-plus-circle"}`} style={{ fontSize: "22px" }}></i>
-                    </button>
-                    {openFaq === i && (
-                      <div className="px-4 pb-4 text-muted" style={{ fontSize: "15px", lineHeight: 1.7 }}>
-                        {item.a}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* COMPARATIVA COMPETENCIA */}
-        <CompetenceTable />
-
-        {/* CTA FINAL */}
-        <section
-          id="contacto"
-          className="py-5 text-center text-white"
-          style={{
-            background: "#150e23",
-            paddingTop: "100px",
-            paddingBottom: "100px",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          <div className="lava-blob lava-blob-1" />
-          <div className="lava-blob lava-blob-2" />
-          <div className="lava-blob lava-blob-3" />
-          <div className="lava-blob lava-blob-4" />
-          <div className="lava-bubble" style={{ width: 20, height: 20, left: "8%",  animationDuration: "8s",   animationDelay: "0s"   }} />
-          <div className="lava-bubble" style={{ width: 14, height: 14, left: "20%", animationDuration: "11s",  animationDelay: "1.5s" }} />
-          <div className="lava-bubble" style={{ width: 26, height: 26, left: "33%", animationDuration: "9s",   animationDelay: "3s"   }} />
-          <div className="lava-bubble" style={{ width: 10, height: 10, left: "48%", animationDuration: "12s",  animationDelay: "0.5s" }} />
-          <div className="lava-bubble" style={{ width: 18, height: 18, left: "60%", animationDuration: "7s",   animationDelay: "4s"   }} />
-          <div className="lava-bubble" style={{ width: 16, height: 16, left: "73%", animationDuration: "10s",  animationDelay: "2s"   }} />
-          <div className="lava-bubble" style={{ width: 22, height: 22, left: "84%", animationDuration: "8.5s", animationDelay: "1s"   }} />
-          <div className="lava-bubble" style={{ width: 12, height: 12, left: "91%", animationDuration: "13s",  animationDelay: "3.5s" }} />
-          <div className="lava-bubble" style={{ width:  8, height:  8, left: "43%", animationDuration: "6s",   animationDelay: "5s"   }} />
-          <div className="lava-bubble" style={{ width: 30, height: 30, left: "15%", animationDuration: "14s",  animationDelay: "2.5s" }} />
-          <div className="container" style={{ position: "relative", zIndex: 2 }}>
-            <h2 className="mb-3 animate-fadeUp" style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 700 }}>
-              Únase a Undercodeec
-            </h2>
-            <p className="mb-4 mx-auto animate-fadeUp" style={{ fontSize: "18px", opacity: 0.95, maxWidth: "650px", transitionDelay: '100ms' }}>
-              Cuéntanos qué necesitas y en 24-48 h tienes un presupuesto cerrado en dólares, sin compromiso. Atendemos Quito, Sangolquí - Valle de los Chillos, Guayaquil, Cuenca y todo el Ecuador.
-            </p>
-            <div className="d-flex flex-wrap gap-3 justify-content-center animate-scaleUp" style={{ transitionDelay: '250ms' }}>
-              <a
-                href="https://wa.me/593999739534?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20desarrollo%20de%20p%C3%A1ginas%20web%20y%20los%20servicios%20que%20ofrecen.%20%C2%BFPodr%C3%ADan%20ayudarme%3F"
-                className="btn btn-light btn-lg fw-bold px-4 py-3"
-                style={{ borderRadius: "50px", color: "#600b56" }}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => {
-                  if (typeof window !== "undefined" && window.fbq) {
-                    window.fbq('track', 'Contact', {
-                      content_name: 'Clic WhatsApp',
-                      content_category: 'Chat Directo'
-                    });
-                  }
-                }}
-              >
-                <i className="bi bi-whatsapp me-2"></i>
-                Chatear por WhatsApp
-              </a>
-              <a
-                href="tel:+593999739534"
-                className="btn btn-outline-light btn-lg px-4 py-3"
-                style={{ borderRadius: "50px" }}
-                onClick={() => {
-                  if (typeof window !== "undefined" && window.fbq) {
-                    window.fbq('track', 'Contact', {
-                      content_name: 'Clic Llamada Telefonica',
-                      content_category: 'Llamada Directa'
-                    });
-                  }
-                }}
-              >
-                <i className="bi bi-telephone-fill me-2"></i>
-                    +593 999 739 534
-              </a>
-            </div>
-            <p className="mt-4 small" style={{ opacity: 0.8 }}>
-              Quito · Sangolquí - Valle de los Chillos · Cobertura nacional en Ecuador · Respuesta en 24 h
-            </p>
-          </div>
+        <section id="contacto">
+          <h2>Contacta a Undercodeec</h2>
+          <p>Atendemos proyectos de Quito, Guayaquil y todo el Ecuador.</p>
+          <p>
+            <a
+              href="https://wa.me/593999739534?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20m%C3%A1s%20informaci%C3%B3n%20sobre%20los%20servicios%20de%20Undercodeec."
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Chatear por WhatsApp
+            </a>
+          </p>
+          <p><a href="tel:+593999739534">Llamar al +593 999 739 534</a></p>
+          <p><a href="mailto:gerencia@undercodeec.com">Escribir a gerencia@undercodeec.com</a></p>
         </section>
       </main>
-
-      <style jsx global>{planCardGlobalStyles}</style>
     </>
   );
-};
-
-export default LandingEcuador;
+}
