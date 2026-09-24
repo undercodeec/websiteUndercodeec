@@ -69,12 +69,12 @@ test("root layout mounts Hermes instead of the web AI assistant", async () => {
   assert.doesNotMatch(layout, /googletagmanager\.com\/gtag\/js/);
 });
 
-test("uses the CSS orb fallback instead of WebGL for phone-sized WhatsApp controls", async () => {
+test("keeps UnderCodeec channel icons on the WebGL orb in mobile view", async () => {
   const button = await readFile("src/components/HermesWhatsAppButton/index.jsx", "utf8");
   const channel = await readFile("src/components/Navbars/UnderCodeec/UnderCodeecChannelCanvas.jsx", "utf8");
   const orb = await readFile("src/components/PrimaryOrb/PrimaryOrb.jsx", "utf8");
 
   assert.match(button, /<PrimaryOrb className="hermes-whatsapp-orb" color="#25D366" disableOnMobile\s*\/>/);
-  assert.match(channel, /<PrimaryOrb className=\{styles\.channelOrb\} color=\{color\} disableOnMobile\s*\/>/);
+  assert.match(channel, /<PrimaryOrb className=\{styles\.channelOrb\} color=\{color\}\s*\/>/);
   assert.match(orb, /disableOnMobile && window\.matchMedia\("\(max-width: 700px\)"\)\.matches/);
 });

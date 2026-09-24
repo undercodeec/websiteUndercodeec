@@ -1,0 +1,567 @@
+.content {
+  --ink: var(--primary-theme-ink);
+  --paper: var(--primary-theme-paper);
+  --line: var(--primary-theme-border);
+  --muted: var(--primary-theme-muted-ink);
+  color: var(--ink);
+  background: transparent;
+  font-family: var(--primary-font-family);
+  font-size: var(--primary-body-size);
+  overflow: clip;
+}
+
+/* El mismo tratamiento del H1 mantiene el texto legible mientras la burbuja
+   recorre las secciones de Ecuador. */
+:global(html:not(.dark)) .content :is(p, h3, strong, li, a, th, td, summary, caption),
+:global(html:not(.dark)) .content .headingCopy span,
+:global(html:not(.dark)) .content .metrics span,
+:global(html:not(.dark)) .content .cardMeta span,
+:global(html:not(.dark)) .content .faqList summary > span {
+  mix-blend-mode: difference;
+}
+
+:global(html:not(.dark)) .content .serviceCard li::before,
+:global(html:not(.dark)) .content .plan li::before {
+  mix-blend-mode: difference;
+}
+
+.experience,
+.services,
+.city,
+.pricing,
+.faq,
+.included,
+.contact {
+  padding: clamp(7rem, 13vw, 13rem) var(--primary-page-gutter);
+  border-bottom: 1px solid var(--line);
+}
+
+.sectionHeader,
+.cityContent,
+.contactGrid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.25em;
+}
+
+.sectionHeader {
+  align-items: start;
+  padding-bottom: clamp(4.5rem, 8vw, 8rem);
+}
+
+.sectionMeta,
+.headingCopy span,
+.cardMeta,
+.planMeta,
+.delivery li span,
+.faqList summary > span,
+.tableWrap th,
+.contactActions a {
+  font-size: .72rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.sectionMeta {
+  grid-column: 1 / 3;
+  margin: .35rem 0 0;
+}
+
+.titleBlend {
+  grid-column: 3 / 10;
+  color: var(--paper);
+  mix-blend-mode: difference;
+  user-select: none;
+}
+
+:global(html.dark) .titleBlend {
+  color: #fff;
+  mix-blend-mode: normal;
+}
+
+.sectionTitle {
+  max-width: 11ch;
+  margin: 0;
+  font-size: clamp(3.4rem, 6.7vw, 7.8rem);
+  font-weight: 400;
+  line-height: .94;
+  letter-spacing: -.05em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.headingWord,
+.characterClip,
+.character {
+  display: inline-block;
+}
+
+.headingWord { white-space: nowrap; }
+.characterClip { overflow: clip; vertical-align: top; }
+.character { will-change: transform, opacity; }
+
+.headingCopy {
+  grid-column: 10 / 13;
+  display: grid;
+  gap: 2.5rem;
+}
+
+.headingCopy p,
+.cityContent > div > p,
+.delivery > p,
+.contactGrid > p {
+  margin: 0;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+.headingCopy span { color: var(--ink); }
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  list-style: none;
+}
+
+.metrics li {
+  display: flex;
+  min-height: clamp(13rem, 22vw, 20rem);
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.25rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.metrics strong {
+  font-size: clamp(3.5rem, 7vw, 8rem);
+  font-weight: 400;
+  line-height: .82;
+  letter-spacing: -.065em;
+}
+
+.metrics span {
+  max-width: 13ch;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .86rem;
+  line-height: 1.35;
+}
+
+.serviceGrid,
+.planGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.serviceCard,
+.plan {
+  display: flex;
+  min-width: 0;
+  min-height: clamp(32rem, 47vw, 46rem);
+  flex-direction: column;
+  padding: 1.25rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.cardMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--muted);
+}
+
+.serviceCard h3,
+.plan h3,
+.delivery h3 {
+  margin: clamp(3rem, 6vw, 6rem) 0 1.25rem;
+  font-size: clamp(2rem, 3vw, 3.7rem);
+  font-weight: 400;
+  line-height: .95;
+  letter-spacing: -.045em;
+  text-transform: uppercase;
+}
+
+.serviceCard > p,
+.planDescription {
+  margin: 0;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .88rem;
+  line-height: 1.5;
+}
+
+.serviceCard ul,
+.plan ul {
+  display: grid;
+  gap: .65rem;
+  margin: 2rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .78rem;
+  line-height: 1.35;
+  list-style: none;
+}
+
+.serviceCard li,
+.plan li {
+  display: grid;
+  grid-template-columns: .75rem 1fr;
+  gap: .45rem;
+}
+
+.serviceCard li::before,
+.plan li::before {
+  content: "+";
+  color: var(--ink);
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  width: fit-content;
+  margin-top: auto;
+  padding-bottom: .55rem;
+  border-bottom: 1px solid currentColor;
+  color: inherit;
+  font-size: .75rem;
+  line-height: 1.2;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color .25s ease, gap .35s cubic-bezier(.16, 1, .3, 1);
+}
+
+.action:hover,
+.action:focus-visible {
+  gap: 2.75rem;
+  color: var(--primary-orb-wine);
+}
+
+:global(html.dark) .action:hover,
+:global(html.dark) .action:focus-visible { color: #fff; }
+
+.action:focus-visible,
+.contactActions a:focus-visible,
+.delivery a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.cityContent {
+  align-items: start;
+  padding-top: clamp(2rem, 4vw, 4rem);
+  border-top: 1px solid var(--line);
+}
+
+.cityLead {
+  grid-column: 2 / 8;
+  max-width: 15ch;
+  margin: 0;
+  font-size: clamp(2.2rem, 4.5vw, 5.2rem);
+  font-weight: 400;
+  line-height: .96;
+  letter-spacing: -.05em;
+  text-transform: uppercase;
+}
+
+.cityContent > div {
+  grid-column: 9 / 13;
+  display: grid;
+  gap: 2.25rem;
+  padding-top: 1rem;
+}
+
+.cityContent .action { margin-top: 0; }
+
+.planGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.plan { min-height: clamp(36rem, 53vw, 49rem); }
+.planMeta { margin: 0; color: var(--muted); }
+.plan h3 { max-width: 9ch; }
+
+.price,
+.previousPrice {
+  margin: 0;
+}
+
+.price {
+  display: flex;
+  align-items: end;
+  gap: .4rem;
+  font-size: .78rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.price strong {
+  font-size: clamp(3rem, 5vw, 5.5rem);
+  font-weight: 400;
+  line-height: .75;
+  letter-spacing: -.06em;
+}
+
+.previousPrice {
+  margin-top: 1rem;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .75rem;
+  line-height: 1.4;
+}
+
+.planDescription { margin-top: 2rem; }
+
+.delivery {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.25em;
+  margin-top: clamp(5rem, 10vw, 10rem);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.delivery h3 {
+  grid-column: 1 / 6;
+  max-width: 10ch;
+  margin: 0;
+}
+
+.delivery ul {
+  grid-column: 7 / 13;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+
+.delivery li {
+  display: grid;
+  grid-template-columns: minmax(9rem, .7fr) 1fr;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .8rem;
+  line-height: 1.45;
+}
+
+.delivery li span { color: var(--ink); }
+
+.delivery > p {
+  grid-column: 7 / 13;
+  margin-top: 2rem;
+}
+
+.delivery > p a,
+.contactGrid > p a {
+  color: inherit;
+  text-decoration-color: var(--ink);
+  text-underline-offset: .2em;
+}
+
+.faqList {
+  border-top: 1px solid var(--line);
+}
+
+.faqList details {
+  border-bottom: 1px solid var(--line);
+}
+
+.faqList summary {
+  display: grid;
+  grid-template-columns: 4rem 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.5rem 0;
+  cursor: pointer;
+  font-size: clamp(1.35rem, 2.3vw, 2.6rem);
+  line-height: 1.05;
+  letter-spacing: -.035em;
+  list-style: none;
+}
+
+.faqList summary::-webkit-details-marker { display: none; }
+.faqList summary::after { content: "+"; font-size: 1.5rem; line-height: 1; }
+.faqList details[open] summary::after { content: "−"; }
+.faqList summary > span { color: var(--muted); }
+
+.faqList details > p {
+  max-width: 46rem;
+  margin: 0 4rem 1.8rem auto;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border-top: 1px solid var(--line);
+}
+
+.tableWrap table {
+  width: 100%;
+  min-width: 42rem;
+  border-collapse: collapse;
+}
+
+.tableWrap caption {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .8rem;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.tableWrap th,
+.tableWrap td {
+  padding: 1rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.tableWrap th:first-child,
+.tableWrap td:first-child { padding-left: 0; }
+.tableWrap th:last-child,
+.tableWrap td:last-child { border-right: 0; }
+
+.tableWrap thead th { color: var(--muted); font-weight: 400; }
+
+.tableWrap tbody th {
+  width: 34%;
+  font-weight: 400;
+}
+
+.tableWrap td {
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: .88rem;
+  line-height: 1.45;
+}
+
+.contact { border-bottom: 0; }
+
+.contactGrid {
+  align-items: start;
+  padding-top: clamp(2rem, 4vw, 4rem);
+  border-top: 1px solid var(--line);
+}
+
+.contactGrid > p {
+  grid-column: 2 / 8;
+  max-width: 32rem;
+  font-size: 1rem;
+}
+
+.contactActions {
+  grid-column: 9 / 13;
+  display: grid;
+  gap: .9rem;
+}
+
+.contactActions .action { margin: 0 0 1.5rem; }
+
+.contactActions > a:not(.action) {
+  width: fit-content;
+  color: inherit;
+  font-size: .75rem;
+  text-decoration: none;
+  text-transform: none;
+  transition: color .25s ease;
+}
+
+.contactActions > a:not(.action):hover { color: var(--primary-orb-wine); }
+
+@media (max-width: 991px) {
+  .sectionHeader,
+  .cityContent,
+  .contactGrid,
+  .delivery { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+
+  .sectionMeta { grid-column: 1 / 3; }
+  .titleBlend { grid-column: 3 / 7; }
+  .headingCopy { grid-column: 7 / 9; }
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .serviceGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .serviceCard { min-height: 38rem; }
+  .cityLead { grid-column: 1 / 5; }
+  .cityContent > div { grid-column: 5 / 9; }
+  .delivery h3 { grid-column: 1 / 4; }
+  .delivery ul,
+  .delivery > p { grid-column: 4 / 9; }
+  .contactGrid > p { grid-column: 1 / 5; }
+  .contactActions { grid-column: 5 / 9; }
+}
+
+@media (max-width: 700px) {
+  .experience,
+  .services,
+  .city,
+  .pricing,
+  .faq,
+  .included,
+  .contact { padding-top: 7rem; padding-bottom: 7rem; }
+
+  .sectionHeader,
+  .cityContent,
+  .contactGrid,
+  .delivery { grid-template-columns: 1fr; row-gap: 2.5rem; }
+
+  .sectionHeader { padding-bottom: 4.5rem; }
+  .sectionMeta,
+  .titleBlend,
+  .headingCopy,
+  .cityLead,
+  .cityContent > div,
+  .delivery h3,
+  .delivery ul,
+  .delivery > p,
+  .contactGrid > p,
+  .contactActions { grid-column: 1; }
+
+  .titleBlend { max-width: 23rem; }
+  .sectionTitle { font-size: clamp(3rem, 13vw, 4.8rem); }
+  .headingCopy { max-width: 32rem; gap: 1rem; }
+  .metrics,
+  .serviceGrid,
+  .planGrid { grid-template-columns: 1fr; }
+  .metrics li { min-height: 15rem; }
+  .serviceCard,
+  .plan { min-height: auto; padding: 1rem; }
+  .serviceCard h3,
+  .plan h3 { margin-top: 4.5rem; }
+  .cityContent { padding-top: 1.5rem; }
+  .cityLead { max-width: 13ch; font-size: clamp(2.5rem, 11vw, 4rem); }
+  .cityContent > div { max-width: 34rem; padding: 0; }
+  .delivery { margin-top: 5rem; }
+  .delivery h3 { margin-bottom: 0; }
+  .delivery li { grid-template-columns: 1fr; gap: .45rem; }
+  .faqList summary { grid-template-columns: 2.5rem 1fr auto; font-size: clamp(1.2rem, 6vw, 1.75rem); }
+  .faqList details > p { margin-right: 0; margin-left: 2.5rem; font-size: .9rem; }
+  .tableWrap { margin-right: calc(var(--primary-page-gutter) * -1); margin-left: calc(var(--primary-page-gutter) * -1); }
+  .tableWrap caption,
+  .tableWrap table { margin: 0 var(--primary-page-gutter); width: calc(100% - (var(--primary-page-gutter) * 2)); }
+  .contactGrid > p { max-width: 34rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action,
+  .contactActions > a:not(.action) { transition: none; }
+}

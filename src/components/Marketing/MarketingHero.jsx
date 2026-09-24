@@ -8,7 +8,7 @@ import styles from "./MarketingHero.module.css";
 
 const HERO_LABEL = "Agencia de Marketing Digital y SEO para tu Negocio";
 const HERO_LINES = ["Marketing digital", "y SEO para", "tu negocio"];
-const HERO_SUMMARY = "Estrategia, contenido, SEO y medios conectados para convertir atención en crecimiento medible.";
+const HERO_SUMMARY = "Estrategias de marketing digital, posicionamiento SEO, gestión de redes sociales y publicidad en Google Ads y Meta Ads para empresas.";
 
 function AnimatedLine({ text }) {
   return (

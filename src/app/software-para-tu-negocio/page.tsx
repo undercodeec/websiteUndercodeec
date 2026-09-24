@@ -57,10 +57,10 @@ export default function SoftwareParaTuNegocioPage() {
         <PrimaryHeader />
         <main>
           <PrimaryServiceHero
-            label="Desarrollo de software a medida para impulsar tu negocio"
-            lines={["Software a medida", "para impulsar", "tu negocio"]}
+            label="Software empresarial a medida para tu negocio"
+            lines={["Software empresarial", "a medida para", "tu negocio"]}
             topMeta="Software / Automatización / Escalabilidad"
-            summary="CRM, inventarios, facturación y procesos conectados para convertir operaciones complejas en crecimiento."
+            summary="CRM, ERP, control de inventarios, facturación electrónica, punto de venta y automatización de procesos empresariales."
             bottomMeta="Tecnología diseñada para avanzar"
             titleId="software-hero-title"
           />

@@ -177,10 +177,10 @@ export default function PrimaryHeader() {
             </div>
           </div>
 
-          <a href="/#reserva_agenda" className={styles.cta} aria-label="Agendar reunión">
+          <Link href="/#reserva_agenda" className={styles.cta} aria-label="Agendar reunión">
             <span className={styles.ctaClip}><StaggerText text="Agendar reunión" /></span>
             <Arrow />
-          </a>
+          </Link>
         </nav>
 
         <div

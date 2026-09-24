@@ -1,4 +1,5 @@
-import Link from "next/link";
+import MarketingHero from "@/components/Marketing/MarketingHero";
+import EcuadorPrimaryContent from "./EcuadorPrimaryContent";
 
 const faqs = [
   {
@@ -164,8 +165,7 @@ const services = [
 const plans = [
   {
     name: "Landing Page",
-    price: "80",
-    originalPrice: "250",
+    price: "250",
     description:
       "Para autónomos y pequeños negocios que necesitan una presencia web clara para presentar su propuesta y captar contactos.",
     features: [
@@ -178,9 +178,8 @@ const plans = [
     ],
   },
   {
-    name: "Web Site Lanzamiento",
-    price: "120",
-    originalPrice: "360",
+    name: "Sitio Web",
+    price: "360",
     description:
       "Para empresas que necesitan presentar varios servicios e información desde un portal web completo.",
     features: [
@@ -194,8 +193,7 @@ const plans = [
   },
   {
     name: "Tienda Online",
-    price: "250",
-    originalPrice: "550",
+    price: "550",
     description:
       "Para negocios que requieren un ecommerce administrable y una operación de ventas acorde a su catálogo.",
     features: [
@@ -220,54 +218,6 @@ const includedRows = [
   ["Presupuesto", "Personalizado según funcionalidades e integraciones"],
 ];
 
-const organizationJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "@id": "https://undercodeec.com/#organization",
-  name: "UNDER CODEEC",
-  alternateName: "Undercodeec",
-  url: "https://undercodeec.com",
-  logo: "https://undercodeec.com/assets/img/undercode-logo.png",
-  description:
-    "Agencia de desarrollo web para empresas en Ecuador, con atención a proyectos de Quito, Guayaquil y otras ciudades del país.",
-  sameAs: [
-    "https://www.facebook.com/undercodeec",
-    "https://www.instagram.com/undercodeec/",
-  ],
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "sales",
-    email: "gerencia@undercodeec.com",
-    telephone: "+593-999-739-534",
-    availableLanguage: ["es"],
-    areaServed: "EC",
-  },
-};
-
-const professionalServiceJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  "@id": "https://undercodeec.com/ec/#professionalservice",
-  name: "Undercodeec",
-  url: "https://undercodeec.com/ec/",
-  image: "https://undercodeec.com/assets/img/undercode-logo.png",
-  telephone: "+593-999-739-534",
-  email: "gerencia@undercodeec.com",
-  priceRange: "$$",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "Sangolquí - Valle de los Chillos",
-    addressLocality: "Quito",
-    addressRegion: "Pichincha",
-    addressCountry: "EC",
-  },
-  areaServed: [
-    { "@type": "City", name: "Quito" },
-    { "@type": "City", name: "Guayaquil" },
-    { "@type": "Country", name: "Ecuador" },
-  ],
-};
-
 const webPageJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -283,7 +233,7 @@ const webPageJsonLd = {
     url: "https://undercodeec.com",
     name: "Undercodeec",
   },
-  about: { "@id": "https://undercodeec.com/ec/#professionalservice" },
+  about: { "@id": "https://undercodeec.com/ec/#web-development-service" },
 };
 
 const serviceJsonLd = {
@@ -343,8 +293,6 @@ const breadcrumbJsonLd = {
 };
 
 const schemas = [
-  organizationJsonLd,
-  professionalServiceJsonLd,
   webPageJsonLd,
   serviceJsonLd,
   faqJsonLd,
@@ -363,211 +311,20 @@ export default function LandingEcuador() {
       ))}
 
       <main>
-        <header>
-          <p>Agencia de desarrollo web para empresas en Ecuador</p>
-          <h1>Diseño de Páginas Web en Quito, Guayaquil y Ecuador</h1>
-          <p>
-            Creamos páginas web profesionales para empresas, emprendedores y
-            negocios en Ecuador. Somos una agencia de desarrollo web con
-            atención en Quito, Guayaquil y todo el país, especializada en
-            diseño web, tiendas online, aplicaciones móviles, software a medida
-            y posicionamiento SEO.
-          </p>
-          <p><a href="#presupuesto">Pide tu presupuesto gratis</a></p>
-          <p><Link href="/#demos">Ver portafolio</Link></p>
-          <ul>
-            <li>Presupuesto personalizado en 24 horas</li>
-            <li>Diseño adaptable a móviles y computadoras</li>
-            <li>SEO técnico integrado desde el desarrollo</li>
-            <li>Facturación electrónica SRI</li>
-          </ul>
-        </header>
-
-        <section aria-labelledby="experiencia-title">
-          <h2 id="experiencia-title">Experiencia y atención para tu proyecto</h2>
-          <ul>
-            <li>Más de 100 proyectos entregados</li>
-            <li>Presupuestos en 24 horas</li>
-            <li>Facturación electrónica SRI</li>
-            <li>Más de 10 años de experiencia</li>
-          </ul>
-        </section>
-
-        <section id="servicios" aria-labelledby="servicios-title">
-          <h2 id="servicios-title">Servicios digitales para empresas en Ecuador</h2>
-          <p>
-            Ayudamos a empresas y emprendimientos ecuatorianos a crear,
-            modernizar y escalar sus canales digitales. Nuestro equipo trabaja
-            en desarrollo web, aplicaciones móviles, ecommerce, software
-            empresarial, SEO y publicidad digital, con el desarrollo web como
-            especialidad principal de esta landing.
-          </p>
-          {services.map((service) => (
-            <article key={service.title}>
-              <h3>{service.title}</h3>
-              <p>{service.description}</p>
-              <ul>
-                {service.features.map((feature) => (
-                  <li key={feature}>{feature}</li>
-                ))}
-              </ul>
-              <p><Link href={service.href}>{service.linkText}</Link></p>
-            </article>
-          ))}
-        </section>
-
-        <section aria-labelledby="quito-title">
-          <h2 id="quito-title">Diseño de Páginas Web en Quito</h2>
-          <p>
-            Desarrollamos páginas web para empresas, profesionales, comercios y
-            emprendimientos en Quito y sus alrededores. Creamos sitios
-            corporativos, landing pages, tiendas online y plataformas web
-            adaptadas a cada negocio, con diseño responsive, optimización SEO y
-            herramientas orientadas a generar contactos y oportunidades
-            comerciales.
-          </p>
-          <p>
-            Si buscas una agencia de diseño web en Quito, revisamos contigo el
-            objetivo de la página, los contenidos y las funcionalidades
-            necesarias antes de preparar una propuesta. Puedes{" "}
-            <Link href="/contacto/">contactar a nuestro equipo en Ecuador</Link> para
-            solicitar información.
-          </p>
-        </section>
-
-        <section aria-labelledby="guayaquil-title">
-          <h2 id="guayaquil-title">Diseño de Páginas Web en Guayaquil</h2>
-          <p>
-            Creamos páginas web profesionales para empresas y negocios de
-            Guayaquil que necesitan captar clientes, presentar sus servicios,
-            vender por internet o digitalizar procesos. Desarrollamos páginas
-            corporativas, ecommerce, landing pages y soluciones web a medida
-            con atención remota para proyectos en Guayaquil y otras ciudades de
-            Ecuador.
-          </p>
-          <p>
-            El diseño web en Guayaquil se planifica según el modelo comercial,
-            el público, el catálogo y las herramientas que requiere cada
-            proyecto, sin necesidad de afirmar una presencia física local.
-          </p>
-        </section>
-
-        <section id="presupuesto" aria-labelledby="precios-title">
-          <h2 id="precios-title">Precios de Páginas Web en Ecuador</h2>
-          <p>
-            El precio de una página web en Ecuador depende del diseño, número
-            de secciones, funcionalidades, integraciones y alcance del
-            proyecto. Estos valores son precios referenciales de partida; cada
-            proyecto recibe un presupuesto personalizado.
-          </p>
-          {plans.map((plan) => {
-            const message = encodeURIComponent(
-              "Hola, quisiera solicitar un presupuesto del plan " + plan.name + ".",
-            );
-
-            return (
-              <article key={plan.name}>
-                <h3>{plan.name}</h3>
-                <p>
-                  Desde {"$"}{plan.price} USD. Precio referencial anterior: {"$"}
-                  {plan.originalPrice} USD.
-                </p>
-                <p>{plan.description}</p>
-                <ul>
-                  {plan.features.map((feature) => (
-                    <li key={feature}>{feature}</li>
-                  ))}
-                </ul>
-                <p>
-                  <a
-                    href={"https://wa.me/593999739534?text=" + message}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Solicitar presupuesto por WhatsApp
-                  </a>
-                </p>
-              </article>
-            );
-          })}
-          <h3>Tiempos según el alcance del proyecto</h3>
-          <ul>
-            <li>Presupuesto: aproximadamente 24 horas.</li>
-            <li>Landing page: puede iniciar desde 48 horas, según alcance y contenidos.</li>
-            <li>Sitio corporativo: normalmente entre 2 y 4 semanas.</li>
-            <li>Ecommerce, aplicaciones y software: según catálogo, integraciones y alcance.</li>
-          </ul>
-          <p>
-            Si necesitas dominio, correos corporativos o una configuración
-            específica, también contamos con <Link href="/hosting/">hosting para empresas</Link>.
-          </p>
-        </section>
-
-        <section aria-labelledby="faq-title">
-          <h2 id="faq-title">Preguntas frecuentes sobre páginas web en Ecuador</h2>
-          {faqs.map((faq) => (
-            <details key={faq.question}>
-              <summary>{faq.question}</summary>
-              <p>{faq.answer}</p>
-            </details>
-          ))}
-        </section>
-
-        <section aria-labelledby="incluye-title">
-          <h2 id="incluye-title">Qué incluye trabajar con Undercodeec</h2>
-          <table>
-            <caption>
-              Características que se definen según el plan y alcance de cada proyecto
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">Característica</th>
-                <th scope="col">Información</th>
-              </tr>
-            </thead>
-            <tbody>
-              {includedRows.map(([feature, detail]) => (
-                <tr key={feature}>
-                  <th scope="row">{feature}</th>
-                  <td>{detail}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-
-        <section aria-labelledby="recursos-title">
-          <h2 id="recursos-title">Recursos para empresas y emprendimientos</h2>
-          <p>
-            Puedes revisar nuestro <Link href="/blog/">blog de tecnología y negocios</Link>{" "}
-            para conocer contenidos relacionados con desarrollo web, marketing
-            digital y herramientas para empresas.
-          </p>
-        </section>
-
-        <section id="contacto" aria-labelledby="contacto-title">
-          <h2 id="contacto-title">Solicita tu Página Web en Ecuador</h2>
-          <p>
-            Trabajamos con empresas, profesionales y emprendimientos de Quito,
-            Guayaquil y otras ciudades de Ecuador. Cuéntanos qué necesitas y
-            prepararemos un presupuesto según las características de tu proyecto.
-          </p>
-          <p>
-            <a
-              href="https://wa.me/593999739534?text=Hola%2C%20quiero%20solicitar%20un%20presupuesto%20para%20una%20p%C3%A1gina%20web%20en%20Ecuador."
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Solicitar presupuesto por WhatsApp
-            </a>
-          </p>
-          <p><a href="tel:+593999739534">Llamar al +593 999 739 534</a></p>
-          <p>
-            <a href="mailto:gerencia@undercodeec.com">
-              Escribir a gerencia@undercodeec.com
-            </a>
-          </p>
-        </section>
+        <MarketingHero
+          label="Diseño de Páginas Web en Quito, Guayaquil y Ecuador"
+          lines={["Diseño de páginas", "web en Quito,", "Guayaquil y Ecuador"]}
+          topMeta="Diseño web / Desarrollo / Ecuador"
+          summary="Creamos páginas web profesionales para empresas de Quito, Guayaquil y todo Ecuador, con ecommerce, aplicaciones, software a medida y SEO."
+          bottomMeta="Páginas web para empresas ecuatorianas"
+          titleId="ecuador-hero-title"
+        />
+        <EcuadorPrimaryContent
+          faqs={faqs}
+          services={services}
+          plans={plans}
+          includedRows={includedRows}
+        />
       </main>
     </>
   );

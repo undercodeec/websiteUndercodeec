@@ -1,499 +1,1146 @@
-# Plan de implementación: atribución publicitaria en UnderCodeEC
+Quiero que realices una optimización SEO profunda de la landing page de Ecuador de mi proyecto Undercodeec.
 
-## Estado de implementación local
+IMPORTANTE: esta tarea NO consiste simplemente en agregar keywords al metadata. Debes revisar la página completa, entender su estructura actual, conservar su diseño UI/UX y sustituir/mejorar el contenido visible para que tenga una arquitectura SEO sólida orientada exclusivamente al mercado ecuatoriano.
 
-Actualizado el 17 de septiembre de 2026:
+La página objetivo es:
 
-- `IMPLEMENTADO`: Consent Mode v2 denegado por defecto, gestor de preferencias, carga condicionada de GTM y Meta Pixel, y eliminación de la carga directa duplicada de GA4.
-- `IMPLEMENTADO`: captura permitida de click IDs/UTM, conservación temporal condicionada, validación cerrada y exclusión de datos publicitarios cuando no existe consentimiento.
-- `IMPLEMENTADO`: BFF `/api/attribution/whatsapp`, autenticación servidor a servidor, timeout, validación, rate limit local de defensa y errores sanitizados.
-- `IMPLEMENTADO`: referencia opcional en el botón global y enlaces comerciales `wa.me`, con fallback sin referencia y exclusión del enlace para compartir el blog.
-- `IMPLEMENTADO`: sección `/admin/crm/publicidad` y cliente de endpoints publicitarios de Hermes, con estados verificado, estimado, pendiente y no disponible.
-- `PROBADO`: pruebas locales del frontend, backend, lint focalizado y build de producción.
-- `VERIFICADO EN CÓDIGO DE HERMES`: contrato HTTP real para intenciones, panel, mapeos, métricas, historial, hitos comerciales y revocación.
-- `PENDIENTE`: CMP/textos aprobados, rate limit compartido de infraestructura, prueba multidispositivo y revisión jurídica.
-- `NO DESPLEGADO`, `NO PROBADO CONTRA LA INSTANCIA REAL DE HERMES` y `NO VALIDADO CON GOOGLE`.
+`/ec/`
 
-## 1. Propósito
+El proyecto es Next.js.
 
-Implementar en este repositorio la parte web de la atribución de campañas de Google Ads que llevan al visitante desde UnderCodeEC hasta una conversación de WhatsApp atendida por Hermes.
+Antes de modificar nada, inspecciona:
 
-El alcance se limita a `D:\Documentos\undercodeec_nextjs`. Hermes es un sistema relacionado, pero independiente. Sus cambios internos no forman parte de este trabajo.
+* `src/app/ec/`
+* `src/app/ec/layout.tsx`
+* el componente/page que renderiza `/ec/`
+* componentes reutilizados por esa página
+* estilos asociados
+* metadata actual
+* Schema/JSON-LD existente
+* enlaces internos
+* componentes del header/footer
+* componentes de precios
+* FAQs
+* CTAs
+* cualquier componente compartido cuyo cambio pueda afectar otras rutas
+
+NO quiero rediseñar la página.
+
+Debes mantener:
+
+* diseño actual
+* estructura visual general
+* animaciones
+* colores
+* responsive
+* componentes existentes
+* botones
+* formularios
+* lógica
+* tracking
+* integraciones
+* WhatsApp
+* navegación
+
+El trabajo debe concentrarse en:
+
+1. SEO on-page.
+2. Contenido.
+3. Arquitectura semántica.
+4. Keywords.
+5. Intención de búsqueda.
+6. Metadata.
+7. Enlazado interno.
+8. Datos estructurados cuando corresponda.
+9. SEO local Ecuador/Quito/Guayaquil.
+10. Conversión.
+
+---
+
+# 1. OBJETIVO SEO PRINCIPAL
+
+La URL `/ec/` debe convertirse en la landing comercial principal de Undercodeec para Ecuador.
+
+La intención principal debe ser:
+
+**Diseño y desarrollo de páginas web para empresas en Ecuador**
+
+Los mercados geográficos prioritarios son:
+
+* Ecuador
+* Quito
+* Guayaquil
+
+No queremos posicionar esta página únicamente como “agencia digital”.
+
+El tema principal debe quedar claramente asociado a:
+
+* diseño web Ecuador
+* páginas web Ecuador
+* desarrollo web Ecuador
+* diseño web Quito
+* páginas web Quito
+* desarrollo web Quito
+* diseño web Guayaquil
+* páginas web Guayaquil
+* desarrollo web Guayaquil
 
-UnderCodeEC debe:
+Los servicios secundarios sirven para reforzar la autoridad comercial, pero NO deben quitar protagonismo al desarrollo web.
 
-- capturar los identificadores publicitarios y parámetros UTM recibidos por la web;
-- respetar el consentimiento antes de activar etiquetas o persistir información cuando corresponda;
-- solicitar al servidor una referencia opaca para el contacto por WhatsApp;
-- añadir la referencia al mensaje sin incluir datos publicitarios ni personales;
-- continuar abriendo WhatsApp si el servicio de atribución falla;
-- mostrar en el panel CRM los datos que Hermes exponga mediante una API autenticada;
-- conservar el diseño, SEO, accesibilidad y flujos actuales.
+---
 
-## 2. Límite del proyecto
+# 2. KEYWORDS PRINCIPALES
 
-### 2.1 Incluido en UnderCodeEC
+Trabaja estas keywords de forma natural.
 
-1. Auditar y corregir las etiquetas existentes en `src/app/layout.tsx`.
-2. Integrar una plataforma de consentimiento o conectarse explícitamente con la que se configure mediante GTM.
-3. Configurar Consent Mode v2 con estado denegado por defecto cuando sea aplicable.
-4. Capturar `gclid`, `gbraid`, `wbraid`, `utm_source`, `utm_medium`, `utm_campaign`, `utm_content` y `utm_term`.
-5. Conservar temporalmente la atribución en el navegador conforme al consentimiento y la retención aprobada.
-6. Crear un endpoint BFF del mismo origen para pedir a Hermes una referencia sin exponer secretos.
-7. Adaptar los CTA comerciales de WhatsApp para utilizar esa referencia.
-8. Medir el clic como interacción, sin declararlo conversación, lead o venta.
-9. Crear la pantalla `Publicidad y atribución` en `/admin/crm`, consumiendo endpoints autenticados de Hermes.
-10. Añadir pruebas del código de este repositorio y documentación de configuración, despliegue y rollback.
-
-### 2.2 Fuera de alcance: responsabilidad de Hermes
+NO hagas keyword stuffing.
 
-No se debe implementar aquí:
+No es necesario repetir literalmente cada keyword muchas veces.
 
-- cambios en NestJS, Prisma o PostgreSQL de Hermes;
-- modelos de atribución, conversión o sincronización de Hermes;
-- procesamiento del webhook de WhatsApp Cloud API;
-- resolución de referencias contra contactos, leads u oportunidades;
-- reglas de primer/último contacto o atribución por oportunidad;
-- cambios en la IA, handoff humano o pipeline comercial;
-- registro de reuniones, propuestas, contratos, pagos o ingresos en Hermes;
-- BullMQ, Redis, reintentos o idempotencia de trabajos de Hermes;
-- exportación de conversiones mediante Google Data Manager API;
-- consultas mediante Google Ads API;
-- credenciales privadas de Google Ads o Google Cloud;
-- cambios en campañas masivas de WhatsApp;
-- migraciones o despliegues del repositorio Hermes.
-
-Estas funciones solo aparecerán como contratos externos o dependencias de integración.
-
-### 2.3 Exclusiones adicionales
-
-- Crear o modificar campañas, presupuestos o pujas de Google Ads.
-- Remarketing y Customer Match.
-- Crear un CRM nuevo o duplicar datos comerciales en MySQL.
-- Crear leads o conversaciones al pulsar un enlace.
-- Acceder desde el navegador a Google Data Manager o Google Ads API.
-- Desplegar a producción sin autorización explícita.
+## Keywords principales
 
-## 3. Auditoría preliminar
+* páginas web en Ecuador
+* diseño de páginas web en Ecuador
+* diseño web Ecuador
+* desarrollo web Ecuador
+* páginas web Quito
+* diseño web Quito
+* desarrollo web Quito
+* páginas web Guayaquil
+* diseño web Guayaquil
+* desarrollo web Guayaquil
 
-Estado observado en el código local el 17 de septiembre de 2026; debe volver a verificarse antes de implementar.
+## Keywords comerciales secundarias
 
-### 3.1 Arquitectura reutilizable
+* agencia de diseño web Ecuador
+* agencia desarrollo web Ecuador
+* empresa de desarrollo web Ecuador
+* agencia de diseño web Quito
+* agencia desarrollo web Quito
+* empresa de desarrollo web Quito
+* crear página web Ecuador
+* creación de páginas web profesionales
+* página web profesional Ecuador
+* páginas web para empresas Ecuador
+* desarrollo de páginas web profesionales
+* presupuesto página web Ecuador
+* presupuesto página web Quito
+* precio página web Ecuador
+* cuánto cuesta una página web en Ecuador
 
-- Next.js 16 y React 19 en `src/`.
-- API Express 5 en `backend/server.js`.
-- Panel CRM en `src/app/admin/crm`.
-- Cliente de Hermes en `src/lib/hermes/api.js`.
-- Proxy de mismo origen en `src/app/api/hermes/[...path]/route.ts`.
-- URL privada configurada mediante `HERMES_API_URL`.
-- Pruebas del frontend con `node:test` en `tests/`.
-
-### 3.2 Medición y consentimiento
-
-`src/app/layout.tsx` carga globalmente:
-
-- Google Tag Manager `GTM-WX7HLGTV`;
-- Google Analytics 4 directo `G-99Z5CCZ3RK`;
-- Meta Pixel `1528924045213380`;
-- variantes `noscript` de GTM y Meta.
-
-No se encontró una CMP ni una inicialización explícita de Consent Mode v2. Las etiquetas se cargan sin esperar preferencias. Existe riesgo de doble medición si GTM también instala GA4; se debe inspeccionar el contenedor publicado antes de retirar o conservar la etiqueta directa.
-
-También hay llamadas dispersas a `ReactGA` y `window.fbq`. Deben pasar gradualmente por una sola capa que respete el consentimiento.
-
-### 3.3 Enlaces de WhatsApp
-
-El acceso global está en:
-
-- `src/components/HermesWhatsAppButton/index.jsx`
-- `src/components/HermesWhatsAppButton/config.mjs`
-
-Hay más enlaces `wa.me` en navegación, footers, landings, hosting, marketing y el asistente comercial. Los CTA de ventas deben participar en la atribución. El enlace para compartir una publicación del blog no es contacto comercial y queda excluido. El código legado o no montado no se modificará sin comprobar su uso.
-
-El botón global registra actualmente `WhatsAppHermesClick` en Meta Pixel, pero usa una URL estática y no solicita referencia.
-
-### 3.4 Integración con Hermes
-
-El proxy `/api/hermes/*` está orientado al CRM autenticado. La intención pública de WhatsApp debe usar un BFF específico, con payload permitido, límites y timeout propios; no debe exponer un token administrativo ni ampliar ciegamente el proxy genérico.
-
-El dashboard consume actualmente resumen, embudo, leads, conversaciones y campañas. No existe aún un contrato local para atribución o informes publicitarios.
-
-## 4. Arquitectura propuesta
-
-```text
-Visitante con click IDs/UTM
-        |
-        v
-UnderCodeEC (navegador)
-  - consentimiento
-  - captura permitida
-  - conservación temporal
-        |
-        | POST mismo origen
-        v
-UnderCodeEC BFF (Next.js)
-  - validación y timeout
-  - credencial servidor a servidor
-        |
-        v
-Hermes API (dependencia externa)
-  - persiste intención
-  - devuelve referencia UC-...
-        |
-        v
-UnderCodeEC abre WhatsApp
-  - con referencia si está disponible
-  - sin referencia si hubo un fallo
-```
-
-La confirmación de la conversación, su asociación comercial y cualquier envío a Google ocurren fuera de este repositorio.
-
-### 4.1 Componentes previstos
-
-Los nombres se ajustarán a las convenciones vigentes durante la implementación:
-
-- `src/components/Consent/ConsentProvider.*`: estado de consentimiento.
-- `src/components/Consent/ConsentBanner.*`: aceptar, rechazar y configurar.
-- `src/lib/analytics/consent.*`: Consent Mode v2.
-- `src/lib/analytics/events.*`: capa única de eventos.
-- `src/lib/attribution/params.*`: lista permitida y validación.
-- `src/lib/attribution/storage.*`: conservación temporal.
-- `src/components/AttributionBootstrap.*`: captura al entrar o navegar.
-- `src/app/api/attribution/whatsapp/route.ts`: BFF público limitado.
-- `src/components/HermesWhatsAppButton/*`: referencia y fallback.
-- `src/lib/hermes/api.js`: métodos autenticados del dashboard.
-- `src/app/admin/crm/publicidad/page.jsx`: pantalla publicitaria.
-- `src/app/admin/crm/_components/CrmShell.jsx`: entrada de navegación.
-
-No se creará una tabla local que replique atribuciones de Hermes. El navegador solo tendrá almacenamiento temporal; Hermes seguirá siendo la fuente de verdad comercial.
-
-## 5. Contrato externo verificado en el código de Hermes
-
-Contrato observado el 17 de septiembre de 2026 en el repositorio relacionado de Hermes. UnderCodeEC implementa únicamente el cliente y el adaptador; la verificación del código no equivale a una prueba contra la instancia desplegada.
-
-### 5.1 Registrar intención
-
-```http
-POST {HERMES_API_URL}/advertising/contact-intents
-X-Hermes-Attribution-Key: <AD_ATTRIBUTION_INTEGRATION_KEY de Hermes>
-Content-Type: application/json
-```
-
-```json
-{
-  "gclid": "valor-opcional",
-  "utmSource": "google",
-  "utmMedium": "cpc",
-  "utmCampaign": "valor-opcional",
-  "utmContent": "valor-opcional",
-  "utmTerm": "valor-opcional",
-  "landingPage": "https://undercodeec.com/es",
-  "visitedAt": "2026-09-17T18:30:00.000Z",
-  "consent": {
-    "analyticsStorage": "GRANTED",
-    "adStorage": "GRANTED",
-    "adUserData": "DENIED",
-    "adPersonalization": "DENIED",
-    "source": "UNDERCODEEC_WEB:valor-versionado",
-    "recordedAt": "2026-09-17T18:29:50.000Z"
-  }
-}
-```
-
-Respuesta:
-
-```json
-{
-  "reference": "UC-ABCDEFGHJKLMNPQRSTUVWX",
-  "expiresAt": "2026-09-18T18:30:00.000Z",
-  "messageSuffix": "Referencia: UC-ABCDEFGHJKLMNPQRSTUVWX"
-}
-```
-
-Propiedades verificadas:
-
-- la referencia es opaca, aleatoria y no contiene datos personales ni publicitarios;
-- cumple exactamente `^UC-[A-Z2-7]{22}$`;
-- Hermes controla expiración, unicidad y consumo;
-- una intención no equivale a conversación, lead o conversión confirmada;
-- no se devuelven datos personales.
-
-El BFF devolverá al navegador solo `reference` y `expiresAt`, con `Cache-Control: no-store`.
-
-### 5.2 Datos del dashboard
-
-Endpoints autenticados existentes:
-
-```text
-GET  /advertising/dashboard?from=YYYY-MM-DD&to=YYYY-MM-DD
-GET  /advertising/status
-PUT  /advertising/integration                         # ADMIN
-GET  /advertising/mappings
-PUT  /advertising/mappings                            # ADMIN
-GET  /advertising/metrics?from=YYYY-MM-DD&to=YYYY-MM-DD
-POST /advertising/metrics/sync                        # ADMIN
-GET  /advertising/leads/:leadId/history
-POST /advertising/leads/:leadId/events
-POST /advertising/contacts/:contactId/revoke          # ADMIN
-```
-
-`dashboard` devuelve `connectionStatus`, totales `verified`, datos opcionales `advertising` y ratios `calculated`. `status` expone configuración, credenciales configuradas, `realSendsEnabled`, mapeos y conteos de sincronización. La interfaz traduce valores `null` a “No disponible” y no accede directamente a Google; consultas, reconciliación y cálculos comerciales pertenecen a Hermes.
-
-## 6. Reglas de captura y privacidad
-
-1. Leer únicamente parámetros permitidos e ignorar el resto.
-2. Preservar valores válidos como fueron recibidos, aplicando límites de formato y longitud.
-3. No inventar click IDs cuando no existan.
-4. Guardar solo el `pathname` aprobado, no la URL completa con parámetros arbitrarios.
-5. No incluir nombre, teléfono, correo, formularios ni texto libre.
-6. No escribir click IDs, UTM o referencias en logs o errores.
-7. Emitir el consentimiento por defecto antes de cargar etiquetas:
-
-```js
-gtag("consent", "default", {
-  ad_storage: "denied",
-  analytics_storage: "denied",
-  ad_user_data: "denied",
-  ad_personalization: "denied"
-});
-```
-
-8. Bloquear también Meta Pixel antes del consentimiento aplicable.
-9. Dar igual visibilidad a aceptar y rechazar, permitir reabrir preferencias y revocar.
-10. Someter retención, base jurídica, textos y clasificación de tecnologías a revisión jurídica para España. Este plan no certifica cumplimiento.
-11. No sobrescribir una atribución válida con valores vacíos. La política final de primera/última visita depende de la regla acordada con Hermes.
-
-## 7. Comportamiento del CTA
-
-1. El visitante activa un CTA comercial.
-2. El sitio envía al BFF únicamente el payload permitido.
-3. Se aplica un timeout corto.
-4. Con referencia válida, se genera:
-
-   `Hola, quisiera obtener información sobre los servicios de Undercodeec. Referencia: UC-7K4M9Q2X`
-
-5. Se abre `https://wa.me/<numero>?text=<mensaje codificado>`.
-6. Ante timeout, error, rate limit o respuesta inválida, se abre WhatsApp con el texto original.
-7. `whatsapp_click` se registra solo como interacción y cuando el consentimiento lo permita.
-8. El sitio nunca registra `conversation_started`, `lead_qualified` ni una venta.
-
-La solución debe evitar el bloqueo de popups y probarse en iOS Safari, Android Chrome y escritorio.
-
-## 8. Seguridad del BFF
-
-- Solo `POST`.
-- Esquema cerrado y límites por campo.
-- Límite estricto del cuerpo y solo JSON.
-- Verificación de `Origin` y `Host`.
-- Timeout y cancelación de la llamada a Hermes.
-- `Cache-Control: no-store`.
-- Errores sanitizados.
-- Rate limiting en una capa compartida de producción, no solo en memoria.
-- Secreto independiente de los tokens del CRM.
-- Ningún secreto en variables `NEXT_PUBLIC_*`.
-
-Variables previstas:
-
-```dotenv
-HERMES_API_URL=
-HERMES_ATTRIBUTION_KEY=
-ATTRIBUTION_ALLOWED_ORIGINS=
-ATTRIBUTION_REQUEST_TIMEOUT_MS=
-NEXT_PUBLIC_CONSENT_POLICY_VERSION=
-```
-
-Se reutilizará `HERMES_API_URL` para evitar configuraciones contradictorias.
-
-## 9. Entregas
-
-### Entrega 0: decisiones previas
-
-- Revisar el contenedor GTM publicado.
-- Confirmar la CMP para España.
-- Mantener versionado el contrato verificado de la sección 5.
-- Definir retención, atribución y dominios de producción.
-- Clasificar los CTA como comerciales, compartir contenido o legado.
-- Confirmar el número comercial, porque el repositorio contiene números diferentes.
-
-### Entrega 1: consentimiento y medición
-
-- Establecer Consent Mode v2 antes de las etiquetas.
-- Integrar banner/CMP.
-- Evitar doble instalación de GA4.
-- Bloquear Meta y eventos no esenciales cuando corresponda.
-- Crear una API interna única de eventos.
-- Documentar configuración manual de GTM, GA4 y Meta.
-
-Criterio: aceptar, rechazar y revocar funcionan sin duplicar pageviews.
-
-### Entrega 2: captura
-
-- Implementar parseo permitido y límites.
-- Capturar en rutas públicas, incluidas `/es` y `/ec`.
-- Conservar temporalmente según consentimiento.
-- Evitar que navegación interna borre el origen válido.
-- Probar click IDs, UTM, ausencia de parámetros y entradas inválidas.
-
-Criterio: se construye un payload válido sin enviar todavía datos reales.
-
-### Entrega 3: referencia y WhatsApp
-
-- Crear el BFF.
-- Implementar cliente con timeout y fallback.
-- Adaptar primero `HermesWhatsAppButton`.
-- Migrar después los CTA comerciales activos a un helper común.
-- Excluir el botón de compartir publicaciones.
-
-Criterio: los CTA priorizados abren WhatsApp con referencia cuando Hermes responde y sin ella cuando falla.
-
-### Entrega 4: dashboard
-
-- Añadir `Publicidad y atribución` a la navegación.
-- Consumir endpoints autenticados de Hermes.
-- Mostrar inversión, conversaciones, leads, reuniones, propuestas, contratos e ingresos cuando existan.
-- Calcular ratios solo con datos, moneda y período compatibles.
-- Diferenciar verificado, estimado, pendiente y no disponible.
-- Mostrar `Pendiente de conexión` si Hermes no tiene métricas de Google.
-
-Criterio: funciona con mocks y con el contrato real, sin acceder directamente a Google.
-
-### Entrega 5: estabilización
-
-- Ejecutar pruebas, lint y build.
-- Revisar accesibilidad, responsive y regresiones.
-- Verificar que no haya secretos o click IDs en bundles y logs.
-- Documentar configuración, despliegue y rollback.
-- Preparar una prueba controlada sin desplegarla ni ejecutarla en producción sin autorización.
-
-## 10. Pruebas de UnderCodeEC
-
-### 10.1 Automatizadas
-
-1. Captura de cada parámetro permitido.
-2. Preservación de valores válidos y rechazo de entradas fuera de límite.
-3. Visita sin identificadores.
-4. Consentimiento aceptado, rechazado y revocado.
-5. Etiquetas bloqueadas antes del consentimiento.
-6. Ausencia de pageviews duplicados.
-7. Payload sin PII ni parámetros desconocidos.
-8. Respuesta válida del BFF.
-9. Timeout, `4xx`, `5xx` y JSON inválido de Hermes.
-10. Fallback sin referencia.
-11. Validación del formato de referencia.
-12. Doble clic desde la perspectiva del cliente.
-13. Exclusión del enlace para compartir el blog.
-14. `unavailable` mostrado como no disponible, no cero.
-15. Autenticación y expiración de sesión del dashboard.
-16. Regresión del botón de WhatsApp y CRM existentes.
-
-Hermes se simulará con mocks. Pruebas de webhook, Prisma, BullMQ, conversiones y Google API no pertenecen a este repositorio.
-
-### 10.2 Manuales
-
-#### Preparación obligatoria
-
-- Desplegar esta revisión de UnderCodeEC y configurar `HERMES_API_URL`, `HERMES_ATTRIBUTION_KEY`, `ATTRIBUTION_ALLOWED_ORIGINS` y `NEXT_PUBLIC_CONSENT_POLICY_VERSION`.
-- Confirmar que `HERMES_ATTRIBUTION_KEY` coincide con `AD_ATTRIBUTION_INTEGRATION_KEY` en Hermes.
-- Usar una cuenta CRM `ADMIN` para configuración y una `SALES_AGENT` para verificar restricciones de rol.
-- Mantener en Hermes `ADVERTISING_GOOGLE_SEND_ENABLED=false`. Para la prueba de validación, habilitar temporalmente `ADVERTISING_GOOGLE_SYNC_ENABLED=true` y `conversionSyncEnabled=true`.
-- El CRM puede mostrar `realSendsEnabled`, pero el endpoint de estado de Hermes no expone `ADVERTISING_GOOGLE_SYNC_ENABLED`; ese indicador debe verificarse en la configuración operativa de Hermes.
-- Mantener `metricsSyncEnabled=false` y no ejecutar “Sincronizar métricas” durante esta prueba controlada.
-
-#### Recorrido de interfaz CRM
-
-1. Iniciar sesión mediante OTP y confirmar que aparece `Publicidad y atribución` en la navegación.
-2. Abrir `/admin/crm/publicidad` y comprobar rango de fechas, resumen verificado, indicadores calculados, estado de conexión, configuración, mapeos y tabla de campañas.
-3. Verificar que, sin métricas, la interfaz dice `No disponible` o `PENDING_CONNECTION` y no muestra ceros inventados.
-4. Confirmar que el banner indica modo seguro y que `realSendsEnabled` está desactivado antes de cualquier prueba.
-5. Como `SALES_AGENT`, confirmar que configuración, mapeos, sincronización de métricas y revocación no son editables; el registro de hitos sí debe estar disponible.
-6. Abrir un lead y comprobar el panel `Atribución e hitos verificables`, el identificador enmascarado, consentimiento, referencia abreviada, historial y estado del trabajo de sincronización.
-7. Revisar escritorio, Android Chrome e iPhone Safari; incluir navegación, foco, formularios, scroll, tablas y textos largos.
-
-#### Flujo controlado extremo a extremo
-
-1. Entrar desde un clic real de Google Ads que incluya `gclid`, `gbraid` o `wbraid`.
-2. Aceptar la categoría publicitaria y verificar que Consent Mode informa `ad_user_data=GRANTED`.
-3. Pulsar un CTA comercial de WhatsApp y confirmar que el mensaje incluye una sola referencia con formato `UC-[A-Z2-7]{22}`.
-4. Enviar realmente el mensaje desde WhatsApp. Un clic sin mensaje enviado no cuenta como conversación.
-5. Esperar la confirmación de Hermes y abrir el lead correspondiente en el CRM.
-6. Cambiar la etapa del lead a `Calificado`; Hermes debe producir `LEAD_QUALIFIED` por sus reglas internas.
-7. Actualizar el panel del lead y confirmar que el historial muestra `LEAD_QUALIFIED`, `VALIDATED` y `validateOnly`.
-8. Volver a dejar `conversionSyncEnabled=false` y `ADVERTISING_GOOGLE_SYNC_ENABLED=false` al terminar.
-
-#### Casos negativos y privacidad
-
-- Rechazar consentimiento: no deben persistirse click IDs/UTM ni agregarse referencia al mensaje.
-- Reabrir preferencias, aceptar y revocar; las etiquetas deben responder al cambio sin duplicar pageviews.
-- Simular timeout, error `4xx`/`5xx` o Hermes no disponible: WhatsApp debe abrir con el mensaje original.
-- Pulsar dos veces el CTA: no debe filtrarse un click ID ni agregarse más de una referencia al texto.
-- Compartir una publicación del blog por WhatsApp: no debe solicitar ni adjuntar referencia comercial.
-- Confirmar en red, consola y logs que no aparecen secretos, click IDs completos, correo, teléfono ni texto libre.
-
-### 10.3 Comandos
-
-```powershell
-pnpm test
-pnpm lint
-pnpm build
-pnpm --dir backend test
-git diff --check
-```
-
-No se usarán credenciales productivas ni se enviarán conversiones ficticias.
-
-## 11. Criterios de aceptación
-
-UnderCodeEC puede marcarse como implementado cuando:
-
-- el consentimiento controla las etiquetas aprobadas;
-- no existe doble medición conocida de GA4;
-- solo se capturan parámetros permitidos;
-- el navegador no recibe secretos de Hermes o Google;
-- los CTA comerciales agregan una referencia válida;
-- un fallo no impide abrir WhatsApp;
-- un clic no se declara conversación, lead o venta;
-- el dashboard representa correctamente datos y ausencias;
-- pruebas, lint y build terminan correctamente;
-- variables y acciones manuales están documentadas.
-
-Esto no valida el flujo completo. La aceptación extremo a extremo requiere una campaña controlada, un mensaje realmente enviado, resolución en Hermes, un hito comercial y el diagnóstico de Google. Es una validación conjunta y externa.
-
-## 12. Estados de entrega
-
-- `IMPLEMENTADO`: el código existe en UnderCodeEC.
-- `PROBADO`: pasó pruebas locales o con mocks.
-- `DESPLEGADO`: está instalado en un entorno identificado.
-- `INTEGRADO CON HERMES`: se verificó contra una instancia real.
-- `VALIDADO CON GOOGLE`: Google confirmó o diagnosticó el evento.
-
-No se debe inferir un estado a partir de otro.
-
-## 13. Bloqueos externos
-
-1. Acceso de lectura o informe del contenedor GTM.
-2. Selección y configuración de la CMP.
-3. Revisión jurídica para España.
-4. Confirmación del número comercial de WhatsApp.
-5. Confirmación operativa de formato y expiración en la instancia desplegada.
-6. Secreto compartido y URL de la instancia real de Hermes.
-7. Dominios y rate limiting de producción.
-8. Entorno controlado para la prueba extremo a extremo.
-
-Estos bloqueos no autorizan cambios en Hermes desde este repositorio.
-
-## 14. Entrega final
-
-Se documentará:
-
-1. archivos modificados;
-2. decisiones de consentimiento y medición;
-3. versión del contrato de Hermes;
-4. variables de entorno sin secretos;
-5. pruebas y resultados;
-6. configuración manual pendiente;
-7. despliegue y rollback;
-8. riesgos y limitaciones;
-9. estado real según la sección 12;
-10. tareas que siguen perteneciendo a Hermes.
-
-No se realizarán commits, migraciones externas ni despliegues salvo solicitud explícita.
+## Servicios relacionados
+
+Utilizarlos como keywords secundarias y crear enlaces hacia sus páginas específicas cuando existan:
+
+* desarrollo de aplicaciones móviles Ecuador
+* desarrollo de apps Ecuador
+* aplicaciones móviles para empresas
+* desarrollo de software Ecuador
+* desarrollo de software a medida Ecuador
+* software empresarial Ecuador
+* software a medida Ecuador
+* CRM Ecuador
+* ERP Ecuador
+* automatización de procesos empresariales
+* ecommerce Ecuador
+* tiendas online Ecuador
+* tienda virtual Ecuador
+* SEO Ecuador
+* agencia SEO Ecuador
+* posicionamiento web Ecuador
+* Google Ads Ecuador
+* Meta Ads Ecuador
+* facturación electrónica SRI
+* hosting Ecuador
+
+IMPORTANTE:
+
+No debemos intentar posicionar `/ec/` como la página principal para todas estas keywords secundarias.
+
+Si el proyecto ya tiene páginas especializadas en:
+
+* aplicaciones móviles
+* software empresarial
+* marketing
+* SEO
+* hosting
+* ecommerce
+* otros servicios
+
+entonces `/ec/` debe introducir brevemente esos servicios y enlazar internamente hacia su página especializada.
+
+La finalidad es evitar canibalización SEO.
+
+---
+
+# 3. ARQUITECTURA SEMÁNTICA
+
+Revisa los headings actuales.
+
+Debe existir UN SOLO H1.
+
+El H1 recomendado es:
+
+# Diseño de Páginas Web en Quito, Guayaquil y Ecuador
+
+No agregues otro H1.
+
+Los bloques principales deberían utilizar H2.
+
+Los servicios individuales pueden utilizar H3.
+
+Mantén una jerarquía similar a:
+
+H1
+→ H2
+→ H3
+
+Nunca saltar arbitrariamente niveles de encabezados solo por estilos visuales.
+
+---
+
+# 4. HERO
+
+Actualmente el enfoque del hero es demasiado limitado.
+
+Sustituir el contenido visible por una versión similar a:
+
+Eyebrow:
+
+**Agencia de desarrollo web para empresas en Ecuador**
+
+H1:
+
+**Diseño de Páginas Web en Quito, Guayaquil y Ecuador**
+
+Descripción:
+
+**Creamos páginas web profesionales para empresas, emprendedores y negocios en Ecuador. Somos una agencia de desarrollo web con atención en Quito, Guayaquil y todo el país, especializada en diseño web, tiendas online, aplicaciones móviles, software a medida y posicionamiento SEO.**
+
+CTA principal:
+
+**Pide tu presupuesto gratis**
+
+CTA secundario:
+
+**Ver portafolio**
+
+Beneficios rápidos:
+
+* Presupuesto personalizado en 24 horas
+* Diseño adaptable a móviles y computadoras
+* SEO técnico integrado desde el desarrollo
+* Facturación electrónica SRI
+
+IMPORTANTE:
+
+Usar “computadoras” en lugar de “ordenadores” porque esta página está dirigida a Ecuador.
+
+No repetir “Ecuador” artificialmente en cada línea.
+
+---
+
+# 5. BLOQUE DE CONFIANZA / EXPERIENCIA
+
+Mantener la sección de experiencia existente, pero revisar el copy.
+
+Puede conservar:
+
+* Más de 100 proyectos entregados
+* Presupuestos en 24 horas
+* Facturación electrónica SRI
+* Más de 10 años de experiencia
+
+No inventar cifras nuevas.
+
+No introducir premios, certificaciones, clientes, oficinas o datos que no existan en el proyecto.
+
+---
+
+# 6. INTRODUCCIÓN DE SERVICIOS
+
+Cambiar el heading a algo como:
+
+## Servicios digitales para empresas en Ecuador
+
+Agregar un pequeño párrafo introductorio:
+
+**Ayudamos a empresas y emprendimientos ecuatorianos a crear, modernizar y escalar sus canales digitales. Nuestro equipo trabaja en desarrollo web, aplicaciones móviles, ecommerce, software empresarial, SEO y publicidad digital.**
+
+Debe quedar claro que la especialidad principal de esta landing sigue siendo desarrollo web.
+
+---
+
+# 7. SERVICIO: DISEÑO WEB
+
+Cambiar el heading actual por:
+
+### Diseño y Desarrollo Web en Ecuador
+
+Copy sugerido:
+
+**Diseñamos y desarrollamos páginas web profesionales para empresas, negocios y emprendedores en Quito, Guayaquil y todo Ecuador. Creamos sitios corporativos, landing pages, portales web y soluciones a medida optimizadas para usuarios y motores de búsqueda.**
+
+Bullets:
+
+* Diseño personalizado según la identidad de cada negocio
+* Sitios adaptados a celulares, tablets y computadoras
+* SEO técnico integrado desde el desarrollo
+* Optimización de rendimiento y experiencia de usuario
+* Integración con formularios, WhatsApp y herramientas empresariales
+* Dominio y hosting según el plan contratado
+
+No prometer tiempos irreales aquí.
+
+Si se conserva el dato de 2 a 4 semanas, aclarar que corresponde a proyectos web corporativos y que depende del alcance.
+
+---
+
+# 8. NUEVO BLOQUE LOCAL: QUITO
+
+Agregar una sección SEO local real.
+
+Heading:
+
+## Diseño de Páginas Web en Quito
+
+Copy:
+
+**Desarrollamos páginas web para empresas, profesionales, comercios y emprendimientos en Quito y sus alrededores. Creamos sitios corporativos, landing pages, tiendas online y plataformas web adaptadas a cada negocio, con diseño responsive, optimización SEO y herramientas orientadas a generar contactos y oportunidades comerciales.**
+
+Agregar dentro del texto de forma natural términos relacionados con:
+
+* diseño web Quito
+* páginas web Quito
+* desarrollo web Quito
+* agencia de diseño web Quito
+
+NO repetir las cuatro frases seguidas.
+
+No utilizar párrafos hechos únicamente para keywords.
+
+Si existe una página específica de contacto o servicios vinculada a Quito, enlazarla naturalmente.
+
+---
+
+# 9. NUEVO BLOQUE LOCAL: GUAYAQUIL
+
+Agregar una segunda sección.
+
+Heading:
+
+## Diseño de Páginas Web en Guayaquil
+
+Copy:
+
+**Creamos páginas web profesionales para empresas y negocios de Guayaquil que necesitan captar clientes, presentar sus servicios, vender por internet o digitalizar procesos. Desarrollamos páginas corporativas, ecommerce, landing pages y soluciones web a medida con atención remota para proyectos en Guayaquil y otras ciudades de Ecuador.**
+
+Trabajar naturalmente:
+
+* diseño web Guayaquil
+* páginas web Guayaquil
+* desarrollo web Guayaquil
+* tiendas online Guayaquil
+
+IMPORTANTE:
+
+No afirmar que Undercodeec tiene oficinas físicas en Guayaquil si eso no está documentado en el proyecto.
+
+Hablar de:
+
+* atención
+* cobertura
+* proyectos
+* clientes
+* servicio remoto
+
+No inventar dirección física.
+
+---
+
+# 10. APLICACIONES MÓVILES
+
+Cambiar el heading a:
+
+### Desarrollo de Aplicaciones Móviles en Ecuador
+
+Copy:
+
+**Desarrollamos aplicaciones móviles para empresas ecuatorianas en Android y iOS, desde el diseño UX/UI hasta la publicación en Play Store y App Store. Podemos trabajar con Flutter, React Native u otras tecnologías según las necesidades técnicas del proyecto.**
+
+Bullets:
+
+* Apps Android e iOS
+* Flutter o React Native según el proyecto
+* Diseño UX/UI
+* Integraciones con APIs y sistemas empresariales
+* Publicación en Play Store y App Store
+* Mantenimiento y evolución del producto
+
+Crear enlace interno hacia la página especializada de aplicaciones móviles si existe.
+
+Usar anchor descriptivo.
+
+Ejemplo:
+
+**Desarrollo de aplicaciones móviles**
+
+No usar repetidamente “clic aquí”.
+
+---
+
+# 11. SEO
+
+Cambiar el heading:
+
+### Posicionamiento SEO en Ecuador
+
+Copy:
+
+**Mejoramos la visibilidad de páginas web en Google mediante SEO técnico, contenido, arquitectura web y estrategias de posicionamiento orientadas al mercado ecuatoriano. Trabajamos búsquedas nacionales y locales para Quito, Guayaquil y otras ciudades del país.**
+
+Bullets:
+
+* Auditoría SEO técnica
+* Investigación de palabras clave
+* SEO local
+* Optimización de contenido
+* Arquitectura y enlazado interno
+* Seguimiento de posiciones y conversiones
+
+Crear enlace interno hacia la página específica de SEO/marketing si existe.
+
+---
+
+# 12. GOOGLE ADS Y META ADS
+
+Heading:
+
+### Google Ads y Meta Ads en Ecuador
+
+Copy:
+
+**Gestionamos campañas digitales orientadas a generar oportunidades comerciales en Ecuador mediante Google Ads y Meta Ads, utilizando seguimiento de conversiones y optimización basada en resultados.**
+
+Bullets:
+
+* Google Search
+* Display cuando el proyecto lo requiera
+* Meta Ads
+* Segmentación geográfica
+* Medición de conversiones
+* Optimización periódica
+
+No prometer ROAS determinado.
+
+No inventar porcentajes.
+
+---
+
+# 13. SOFTWARE
+
+Cambiar el heading a:
+
+### Desarrollo de Software a Medida en Ecuador
+
+Copy:
+
+**Desarrollamos software empresarial a medida para compañías y negocios en Ecuador. Creamos sistemas CRM, ERP, inventarios, gestión de ventas, automatización de procesos e integraciones con plataformas existentes.**
+
+Bullets:
+
+* CRM personalizados
+* ERP
+* Sistemas de inventario
+* Gestión de ventas
+* Automatización de procesos
+* Integraciones mediante API
+* Plataformas empresariales escalables
+
+Crear enlace interno hacia:
+
+`/software-para-tu-negocio/`
+
+si esa es la ruta correcta.
+
+Utilizar un anchor similar a:
+
+**desarrollo de software empresarial**
+
+---
+
+# 14. FACTURACIÓN ELECTRÓNICA
+
+Heading:
+
+### Facturación Electrónica SRI para Empresas
+
+Copy:
+
+**Integramos soluciones de facturación electrónica para empresas que necesitan conectar sus sistemas con los procesos requeridos por el SRI en Ecuador.**
+
+Mantener solo funcionalidades reales ya soportadas por el producto/servicio.
+
+Bullets actuales pueden mantenerse si son técnicamente correctos:
+
+* Comprobantes XML
+* Firma electrónica
+* Emisión y autorización
+* Integración con sistemas empresariales
+* Actualizaciones ante cambios técnicos
+
+No afirmar certificaciones especiales del SRI si no existen.
+
+---
+
+# 15. ECOMMERCE
+
+Crear o reforzar explícitamente una sección:
+
+### Diseño de Tiendas Online y Ecommerce en Ecuador
+
+Copy:
+
+**Creamos tiendas online para negocios ecuatorianos que necesitan vender productos o servicios por internet. Desarrollamos ecommerce administrables, adaptados a móviles y preparados para integrar pagos, inventarios, logística, WhatsApp y otras herramientas comerciales.**
+
+Trabajar naturalmente:
+
+* ecommerce Ecuador
+* tiendas online Ecuador
+* tienda virtual Ecuador
+* desarrollo ecommerce Ecuador
+
+Si existe una página específica de ecommerce, enlazarla.
+
+---
+
+# 16. SECCIÓN DE PRECIOS
+
+Cambiar:
+
+“Presupuestos transparentes”
+
+por:
+
+## Precios de Páginas Web en Ecuador
+
+Agregar introducción:
+
+**El precio de una página web en Ecuador depende del diseño, número de secciones, funcionalidades, integraciones y alcance del proyecto. Estos valores son precios referenciales de partida; cada proyecto recibe un presupuesto personalizado.**
+
+Esto debe ayudarnos a responder búsquedas como:
+
+* precio página web Ecuador
+* cuánto cuesta una página web en Ecuador
+* presupuesto página web Ecuador
+* presupuesto página web Quito
+
+No llenar el párrafo repitiendo las keywords.
+
+Mantener los planes existentes si sus precios siguen siendo válidos.
+
+---
+
+# 17. REVISAR INCONSISTENCIA DE TIEMPOS
+
+Actualmente existen mensajes potencialmente contradictorios:
+
+* entrega en 2 a 4 semanas
+* tiempo de entrega 24 a 48 horas
+
+Auditar esto.
+
+No quiero que parezca que todos los proyectos se entregan en 24–48 horas.
+
+Usar una comunicación coherente, por ejemplo:
+
+* Presupuesto: aproximadamente 24 horas
+* Landing Page: puede comenzar desde 48 horas dependiendo del alcance
+* Sitio corporativo: normalmente 2–4 semanas
+* Ecommerce: según catálogo e integraciones
+* Apps/software: según alcance
+
+No inventar fechas contractuales.
+
+Si los tiempos actuales están definidos en otra fuente del proyecto, priorizar esos datos.
+
+---
+
+# 18. FAQ SEO
+
+Expandir la sección FAQ.
+
+Mantener las preguntas útiles actuales y agregar nuevas.
+
+Quiero aproximadamente estas preguntas:
+
+1. ¿Cuánto cuesta crear una página web en Ecuador?
+2. ¿Cuánto cuesta una página web profesional en Quito?
+3. ¿Diseñan páginas web para empresas en Guayaquil?
+4. ¿Cuánto tiempo toma desarrollar una página web?
+5. ¿El dominio y hosting están incluidos?
+6. ¿Una página web incluye posicionamiento SEO?
+7. ¿Desarrollan tiendas online y ecommerce en Ecuador?
+8. ¿Desarrollan aplicaciones móviles para empresas ecuatorianas?
+9. ¿Crean software a medida, CRM o ERP?
+10. ¿Puedo solicitar un presupuesto de página web sin compromiso?
+
+Las respuestas deben:
+
+* ser útiles
+* tener aproximadamente 40–100 palabras cuando sea necesario
+* responder directamente
+* utilizar keywords de manera natural
+* no repetir el mismo texto de otras secciones
+* no hacer afirmaciones falsas
+
+No escribir respuestas de una sola línea únicamente para SEO.
+
+---
+
+# 19. TABLA COMPARATIVA
+
+Revisar:
+
+“Undercodeec frente a otras opciones”
+
+No utilizar afirmaciones genéricas engañosas sobre todos los freelancers o todas las agencias.
+
+Actualmente aparecen comparaciones como:
+
+* Agencia desde $1.000
+* soporte WhatsApp No
+* hosting No
+
+Eso podría no ser demostrable para todas las agencias.
+
+Quiero evitar afirmaciones absolutas sobre competidores.
+
+Reformular la tabla para convertirla en algo como:
+
+## Qué incluye trabajar con Undercodeec
+
+Comparar características de nuestros propios planes o mostrar directamente:
+
+* Diseño personalizado
+* Dominio
+* Hosting
+* SSL
+* Responsive
+* SEO inicial
+* WhatsApp
+* soporte
+* garantía
+* presupuesto personalizado
+
+Si se mantiene una comparación externa, utilizar lenguaje como:
+
+“Puede variar según proveedor”
+
+y nunca inventar precios o características universales de terceros.
+
+---
+
+# 20. CTA FINAL
+
+Cambiar heading a algo similar a:
+
+## Solicita tu Página Web en Ecuador
+
+Copy:
+
+**Trabajamos con empresas, profesionales y emprendimientos de Quito, Guayaquil y otras ciudades de Ecuador. Cuéntanos qué necesitas y prepararemos un presupuesto según las características de tu proyecto.**
+
+Mantener:
+
+* WhatsApp
+* teléfono
+* email
+
+CTA principal:
+
+**Solicitar presupuesto por WhatsApp**
+
+---
+
+# 21. TITLE SEO
+
+Revisar el metadata de `/ec/`.
+
+Quiero un title orientado a intención comercial.
+
+Propuesta principal:
+
+**Diseño de Páginas Web en Ecuador | Quito y Guayaquil | Undercodeec**
+
+Si supera los límites razonables según la implementación actual, optimizarlo sin perder:
+
+* páginas web
+* Ecuador
+* Quito
+* Guayaquil
+* Undercodeec
+
+No generar títulos artificialmente largos.
+
+---
+
+# 22. META DESCRIPTION
+
+Crear una description cercana a 150–160 caracteres, natural y comercial.
+
+Propuesta base:
+
+**Diseñamos páginas web profesionales en Ecuador para empresas de Quito, Guayaquil y todo el país. Desarrollo web, ecommerce, apps, software y SEO.**
+
+Puedes mejorarla si encuentras una redacción con mejor CTR manteniendo la intención.
+
+---
+
+# 23. CANONICAL
+
+Comprobar que `/ec/` tenga canonical correcto.
+
+Debe apuntar a la URL pública real de la landing de Ecuador.
+
+NO utilizar:
+
+`localhost`
+
+Revisar cómo construye canonical actualmente el proyecto y respetar esa arquitectura.
+
+---
+
+# 24. OPEN GRAPH
+
+Revisar:
+
+* og:title
+* og:description
+* og:url
+* og:image
+* locale
+
+Para la página Ecuador utilizar contenido coherente con `/ec/`.
+
+No cambiar imágenes si ya existe una imagen social válida.
+
+---
+
+# 25. HREFLANG
+
+Revisar si el proyecto tiene:
+
+* `/ec/`
+* `/es/`
+* página global
+
+Si existe implementación hreflang, verificar que Ecuador quede correctamente diferenciado.
+
+Usar configuración técnicamente correcta para español de Ecuador cuando corresponda:
+
+`es-EC`
+
+No inventar hreflang si la arquitectura internacional del proyecto utiliza otro sistema.
+
+Primero inspeccionar cómo está implementado.
+
+---
+
+# 26. ENLAZADO INTERNO
+
+Desde `/ec/`, crear enlaces naturales hacia páginas especializadas existentes.
+
+Investiga primero cuáles son las rutas reales.
+
+Probablemente existen páginas para:
+
+* aplicaciones móviles
+* software empresarial
+* marketing
+* hosting
+* contacto
+* servicios
+* blog
+
+NO inventes rutas.
+
+Utiliza únicamente rutas existentes.
+
+Anchors recomendados:
+
+* desarrollo de aplicaciones móviles
+* software empresarial a medida
+* posicionamiento SEO
+* marketing digital
+* hosting para empresas
+* nuestros servicios digitales
+
+No colocar enlaces excesivos.
+
+Cada enlace debe tener sentido contextual.
+
+---
+
+# 27. BLOG Y AUTORIDAD TEMÁTICA
+
+Si existe `/blog/`, desde la landing se puede incluir un enlace discreto hacia contenido relacionado con tecnología/negocios en Ecuador.
+
+No convertir la landing en un listado de artículos.
+
+La prioridad sigue siendo conversión.
+
+---
+
+# 28. DATOS ESTRUCTURADOS
+
+Audita JSON-LD existente.
+
+Implementar o corregir únicamente schemas válidos y que representen información real.
+
+Evaluar:
+
+* Organization
+* ProfessionalService
+* WebSite
+* WebPage
+* BreadcrumbList
+* Service
+
+FAQPage solamente si realmente aporta semántica y las preguntas/respuestas están visibles en la página.
+
+No implementar schemas duplicados si ya se generan globalmente.
+
+NO incluir:
+
+* AggregateRating falso
+* Review falso
+* dirección falsa
+* oficinas falsas
+* precios falsos
+* coordenadas inventadas
+
+No crear LocalBusiness con una dirección en Quito o Guayaquil si Undercodeec no tiene una oficina física documentada allí.
+
+Podemos indicar área de servicio Ecuador sin inventar presencia física.
+
+---
+
+# 29. SEO LOCAL SIN SPAM
+
+Quiero que Quito y Guayaquil aparezcan estratégicamente en:
+
+* H1
+* introducción
+* bloques locales
+* servicios cuando sea natural
+* FAQs
+* CTA final
+* metadata
+
+NO quiero frases como:
+
+“Diseño web Quito, páginas web Quito, agencia web Quito, desarrollo web Quito...”
+
+Nunca escribir listas de keywords dentro del contenido visible.
+
+Todo debe leerse como copy comercial profesional.
+
+---
+
+# 30. NO CANIBALIZAR OTRAS PÁGINAS
+
+Antes de modificar, revisar metadata y objetivo SEO de:
+
+* `/`
+* `/undercodeec/`
+* `/ec/`
+* `/servicios/`
+* `/aplicaciones-moviles/`
+* `/software-para-tu-negocio/`
+* `/marketing-para-tu-negocio/`
+* `/hosting/`
+* `/contacto/`
+* cualquier página ecommerce existente
+
+Quiero que `/ec/` sea principalmente:
+
+**landing comercial geográfica Ecuador**
+
+Mientras que las otras páginas deben seguir siendo:
+
+**landings especializadas por servicio**
+
+No copies bloques enteros de otras páginas.
+
+No dupliques titles/descriptions.
+
+---
+
+# 31. KEYWORD DENSITY
+
+No utilices un porcentaje fijo de densidad.
+
+Prioriza:
+
+* intención
+* semántica
+* claridad
+* entidades
+* cobertura temática
+* lenguaje natural
+* variaciones léxicas
+
+Usar singular y plural de forma natural:
+
+* página web
+* páginas web
+* diseño web
+* desarrollo web
+* sitio web
+* sitio corporativo
+* ecommerce
+* tienda online
+
+---
+
+# 32. CONTENIDO PARA PERSONAS
+
+El contenido debe responder claramente:
+
+* Qué hace Undercodeec
+* Para quién
+* En qué país
+* En qué ciudades
+* Qué servicios ofrece
+* Cuánto cuestan aproximadamente
+* Qué incluye el servicio
+* Cuánto puede tardar
+* Cómo solicitar presupuesto
+* Por qué contactar a Undercodeec
+
+SEO no debe empeorar la conversión.
+
+---
+
+# 33. EVITAR COPY GENÉRICO DE IA
+
+No utilizar expresiones repetitivas como:
+
+* “lleva tu negocio al siguiente nivel”
+* “en el mundo digital actual”
+* “transforma tu presencia digital”
+* “soluciones innovadoras de vanguardia”
+* “somos tu aliado estratégico”
+
+salvo que realmente aporten algo.
+
+Quiero copy:
+
+* concreto
+* comercial
+* profesional
+* ecuatoriano
+* natural
+* orientado a servicios
+
+---
+
+# 34. ACCESIBILIDAD Y SEMÁNTICA
+
+Sin cambiar el diseño:
+
+* verificar headings
+* alt de imágenes
+* labels
+* enlaces
+* botones
+* aria-label cuando corresponda
+* textos descriptivos
+
+No rellenar `alt` con keywords.
+
+Describir la imagen de verdad.
+
+---
+
+# 35. PERFORMANCE
+
+No introducir librerías nuevas únicamente para SEO.
+
+No agregar JavaScript innecesario.
+
+No afectar:
+
+* Core Web Vitals
+* LCP
+* CLS
+* INP
+
+Si el contenido nuevo requiere nuevos bloques, reutilizar componentes y estilos existentes.
+
+---
+
+# 36. RESPONSIVE
+
+Después de agregar los bloques Quito/Guayaquil y el contenido nuevo:
+
+revisar visualmente/estructuralmente:
+
+* desktop
+* tablet
+* móvil
+
+Evitar:
+
+* headings demasiado largos que rompan layout
+* overflow
+* cards desiguales
+* botones cortados
+* texto sobre imágenes ilegible
+
+---
+
+# 37. PRESERVAR FUNCIONALIDAD
+
+No romper:
+
+* formularios
+* WhatsApp
+* teléfono
+* correo
+* navegación
+* anchors
+* IDs
+* analytics
+* componentes interactivos
+
+Los links que actualmente apuntan a localhost deben revisarse.
+
+En producción NO deben existir enlaces tipo:
+
+`http://localhost:3000/...`
+
+Si estos valores están hardcodeados, sustituirlos por:
+
+* rutas relativas
+  o
+* URLs de producción obtenidas de configuración existente
+
+según la arquitectura del proyecto.
+
+Por ejemplo, preferir:
+
+`/ec/#presupuesto`
+
+en lugar de:
+
+`http://localhost:3000/ec/#presupuesto`
+
+---
+
+# 38. VERIFICACIÓN TÉCNICA
+
+Al terminar:
+
+ejecutar los comandos apropiados existentes en el proyecto:
+
+* lint
+* typecheck
+* tests relevantes
+* build
+
+No inventar comandos.
+
+Revisar `package.json`.
+
+Si alguno falla:
+
+investigar si el error fue introducido por tus cambios o ya existía.
+
+Corregir únicamente lo relacionado con esta tarea salvo que una corrección mínima sea necesaria para poder compilar.
+
+---
+
+# 39. REVISIÓN SEO FINAL
+
+Antes de considerar terminada la tarea, comprobar:
+
+### Metadata
+
+* Title único
+* Description única
+* canonical
+* Open Graph
+* Twitter metadata si existe
+* hreflang si corresponde
+
+### HTML
+
+* un solo H1
+* jerarquía H2/H3 correcta
+* links válidos
+* alt apropiados
+
+### Contenido
+
+* Ecuador claramente identificado
+* Quito claramente identificado
+* Guayaquil claramente identificado
+* intención principal = diseño/desarrollo web
+* servicios secundarios correctamente enlazados
+* precios claros
+* FAQs útiles
+* CTA visible
+
+### SEO
+
+* sin keyword stuffing
+* sin contenido oculto para buscadores
+* sin páginas doorway
+* sin keywords insertadas artificialmente
+* sin datos falsos
+* sin schema spam
+* sin canibalización evidente
+
+---
+
+# 40. ENTREGABLE FINAL
+
+Después de hacer los cambios, entrégame un reporte detallado con:
+
+1. Archivos modificados.
+2. Metadata anterior → metadata nueva.
+3. H1 anterior → H1 nuevo.
+4. H2/H3 nuevos.
+5. Nuevas secciones agregadas.
+6. Keywords principales utilizadas.
+7. Keywords secundarias utilizadas.
+8. Dónde fue utilizada cada keyword importante.
+9. Enlaces internos añadidos.
+10. Schema añadido/modificado.
+11. Cambios realizados en canonical/hreflang.
+12. Correcciones de enlaces localhost.
+13. Posibles problemas de canibalización detectados.
+14. Resultado de lint.
+15. Resultado de typecheck.
+16. Resultado de build.
+17. Cualquier recomendación SEO que hayas detectado pero que NO hayas implementado por estar fuera del alcance.
+
+---
+
+# REGLA FINAL
+
+No hagas cambios masivos en todo el proyecto.
+
+La tarea principal es:
+
+**optimizar `/ec/` como landing SEO y comercial para diseño/desarrollo web en Ecuador, con especial énfasis geográfico en Quito y Guayaquil.**
+
+Puedes modificar archivos compartidos únicamente si es necesario para metadata, schema o comportamiento correcto de esta página y si el cambio no altera negativamente otras rutas.
+
+Primero analiza la implementación existente.
+
+Después ejecuta los cambios.
+
+No quiero únicamente recomendaciones: quiero que realices la implementación completa en el código.

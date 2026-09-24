@@ -1,6 +1,6 @@
 import MainLayout from "@/layouts/Main";
 import { PrimaryHeader } from "@/components/Primary";
-import Header from "@/components/App/Header";
+import MarketingHero from "@/components/Marketing/MarketingHero";
 import MobileAppsPrimaryContent from "@/components/App/MobileAppsPrimaryContent";
 import ServiciosPrimaryFooter from "@/components/Servicios/ServiciosPrimaryFooter";
 import styles from "./MobileAppsPage.module.css";
@@ -48,7 +48,14 @@ export default function AplicacionesMovilesPage() {
         />
         <PrimaryHeader />
         <main>
-          <Header />
+          <MarketingHero
+            label="Desarrollo de Aplicaciones Móviles"
+            lines={["Desarrollo", "de Aplicaciones", "Móviles"]}
+            topMeta="Aplicaciones / Producto / Rendimiento"
+            summary="Desarrollo de aplicaciones móviles nativas y multiplataforma para Android e iOS."
+            bottomMeta="Tecnología móvil para tu negocio"
+            titleId="mobile-apps-hero-title"
+          />
           <MobileAppsPrimaryContent />
         </main>
         <ServiciosPrimaryFooter />
