@@ -1,0 +1,17 @@
+{
+  "name": "Dala",
+  "short_name": "Dala",
+  "description": "Your workoplace has the answer. Just ask Dala for it.",
+  "icons": [
+    {
+      "src": "images/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#000",
+  "background_color": "#000000",
+  "display": "standalone",
+  "start_url": "./index.html",
+  "scope": "./"
+}

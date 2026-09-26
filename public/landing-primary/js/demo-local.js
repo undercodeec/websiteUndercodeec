@@ -293,6 +293,12 @@
       services: ["● Producto digital", "△ Desarrollo Full Stack", "⁂ Plataforma web"],
     },
     {
+      name: "Dala — Demo interactivo",
+      image: "/demos/dala/images/dala-d.png",
+      href: "/demos/dala/index.html",
+      services: ["● Diseño web", "△ Desarrollo", "⁂ WebGL, partículas"],
+    },
+    {
       name: "Gunsmiths",
       image: "/landing-preview/img/demos/gunsmit.webp",
       href: "https://gunsmithsec.com/",
@@ -346,8 +352,12 @@
   if (featuredWorkGrid && !featuredWorkGrid.dataset.worksReady) {
     const visibleCards = [...featuredWorkGrid.querySelectorAll(":scope > .hcs-item-w:not([display-none])")];
 
-    if (visibleCards.length === featuredWorks.length - 1) {
-      featuredWorkGrid.prepend(visibleCards[0].cloneNode(true));
+    while (visibleCards.length > 0 && visibleCards.length < featuredWorks.length) {
+      const card = visibleCards[0].cloneNode(true);
+      card.removeAttribute("id");
+      card.querySelectorAll("[id]").forEach((element) => element.removeAttribute("id"));
+      featuredWorkGrid.append(card);
+      visibleCards.push(card);
     }
 
     [...featuredWorkGrid.querySelectorAll(":scope > .hcs-item-w:not([display-none])")]
