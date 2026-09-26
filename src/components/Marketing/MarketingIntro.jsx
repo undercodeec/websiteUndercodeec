@@ -33,7 +33,17 @@ function AnimatedHeading({ children, className, id }) {
   );
 }
 
-export default function MarketingIntro() {
+export default function MarketingIntro({
+  title = INTRO_TITLE,
+  meta = "02 / ¡Bienvenido!",
+  index = "02",
+  visualLabel = "Recorrido de inbound marketing desde los canales digitales hasta la conversión en ventas",
+  visualCaption = "Presencia digital / Contenido / Conversión",
+  lead = "Hoy las personas buscan productos y servicios en internet. Tu negocio necesita presencia digital para crecer.",
+  inboundMeta = "¿Qué es Inbound Marketing?",
+  inboundTitle = "Estrategias de posicionamiento web para atraer clientes",
+  inboundCopy = "Conecta con personas interesadas en lo que ofreces mediante SEO, contenido de valor y redes sociales. El inbound marketing convierte visitas en ventas reales para tu empresa.",
+}) {
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -99,23 +109,23 @@ export default function MarketingIntro() {
       aria-labelledby="marketing-intro-title"
     >
       <header className={styles.header}>
-        <p className={styles.meta} data-marketing-intro-reveal>02 / ¡Bienvenido!</p>
+        <p className={styles.meta} data-marketing-intro-reveal>{meta}</p>
         <div className={styles.titleBlend}>
           <AnimatedHeading
             id="marketing-intro-title"
             className={`primary-heading-b ${styles.title}`}
           >
-            {INTRO_TITLE}
+            {title}
           </AnimatedHeading>
         </div>
-        <p className={styles.index} data-marketing-intro-reveal>02</p>
+        <p className={styles.index} data-marketing-intro-reveal>{index}</p>
       </header>
 
       <div className={styles.content}>
         <figure
           className={styles.visual}
           data-marketing-intro-visual
-          aria-label="Recorrido de inbound marketing desde los canales digitales hasta la conversión en ventas"
+          aria-label={visualLabel}
         >
           <span className={`${styles.corner} ${styles.cornerTopLeft}`} aria-hidden="true">+</span>
           <span className={`${styles.corner} ${styles.cornerTopRight}`} aria-hidden="true">+</span>
@@ -126,22 +136,19 @@ export default function MarketingIntro() {
             <MarketingCanvas scene="intro" />
           </div>
 
-          <figcaption>Presencia digital / Contenido / Conversión</figcaption>
+          <figcaption>{visualCaption}</figcaption>
         </figure>
 
         <div className={styles.copy}>
           <p className={styles.lead} data-marketing-intro-reveal>
-            Hoy las personas buscan productos y servicios en internet. Tu negocio necesita
-            presencia digital para crecer.
+            {lead}
           </p>
 
           <div className={styles.inbound} data-marketing-intro-reveal>
-            <p className={styles.inboundMeta}>¿Qué es Inbound Marketing?</p>
-            <h3>Estrategias de posicionamiento web para atraer clientes</h3>
+            <p className={styles.inboundMeta}>{inboundMeta}</p>
+            <h3>{inboundTitle}</h3>
             <p>
-              Conecta con personas interesadas en lo que ofreces mediante SEO, contenido de
-              valor y redes sociales. El inbound marketing convierte visitas en ventas reales
-              para tu empresa.
+              {inboundCopy}
             </p>
           </div>
 

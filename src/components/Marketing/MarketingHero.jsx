@@ -42,6 +42,7 @@ export default function MarketingHero({
   bottomMeta = "Posicionamiento con propósito",
   index = "01",
   titleId = "marketing-hero-title",
+  regionMeta = "EC — 2026",
   animateAcrossPage = true,
 }) {
   const heroRef = useRef(null);
@@ -209,7 +210,7 @@ export default function MarketingHero({
 
       <div className={styles.topMeta} data-marketing-hero-reveal>
         <span>{topMeta}</span>
-        <span>EC — 2026</span>
+        <span>{regionMeta}</span>
       </div>
 
       <div className={styles.content}>

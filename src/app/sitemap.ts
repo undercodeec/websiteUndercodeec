@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/blog",
     "/contacto",
     "/ec",
+    "/es",
     "/hosting",
     "/marketing-para-tu-negocio",
     "/nuestra-trayectoria",
