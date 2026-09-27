@@ -136,7 +136,7 @@ export default function EcuadorPrimaryContent({ faqs, services, plans, includedR
         />
         <ul className={styles.metrics}>
           {metrics.map(([value, label]) => (
-            <li data-ecuador-reveal key={label}>
+            <li key={label}>
               <strong>{value}</strong>
               <span>{label}</span>
             </li>

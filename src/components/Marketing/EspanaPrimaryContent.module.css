@@ -1,0 +1,15 @@
+.grid .card {
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 1.25rem;
+}
+
+.grid .visual {
+  height: clamp(13rem, 17vw, 17rem);
+  background: color-mix(in srgb, var(--paper) 88%, var(--step-accent) 12%);
+  border: 1px solid color-mix(in srgb, var(--step-accent) 50%, var(--line));
+  border-radius: .75rem;
+}
+
+@media (max-width: 700px) {
+  .grid .visual { height: 15rem; }
+}

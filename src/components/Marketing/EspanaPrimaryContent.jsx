@@ -4,8 +4,10 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import MarketingCanvas from "./MarketingCanvas";
+import EspanaServiceCanvas from "./EspanaServiceCanvas";
 import { splitAnimatedWords } from "./marketingIntroText.mjs";
 import styles from "./MarketingPrimaryContent.module.css";
+import canvasStyles from "./EspanaPrimaryContent.module.css";
 
 const services = [
   {
@@ -110,14 +112,18 @@ function AnimatedHeading({ children, className, id }) {
   );
 }
 
-function ContentGrid({ items, withCanvas = false }) {
+function ContentGrid({ items, variant = "services" }) {
+  const scenes = {
+    process: ["analysis", "planning", "building", "measurement"],
+    faq: ["proposal", "business-software", "remote-work"],
+  };
   return (
-    <ol className={styles.journeyGrid}>
-      {items.map((item) => (
-        <li className={styles.journeyStep} data-espana-content-reveal key={item.number}>
+    <ol className={`${styles.journeyGrid} ${canvasStyles.grid}`}>
+      {items.map((item, index) => (
+        <li className={`${styles.journeyStep} ${canvasStyles.card}`} data-espana-content-reveal key={item.number}>
           <span className={styles.stepNumber}>{item.number}</span>
-          <div className={styles.stepVisual} aria-hidden="true">
-            {withCanvas ? <MarketingCanvas scene={item.scene} /> : null}
+          <div className={`${styles.stepVisual} ${canvasStyles.visual}`} aria-hidden="true">
+            <EspanaServiceCanvas title={item.title} sceneId={scenes[variant]?.[index]} />
           </div>
           <div className={styles.stepContent}>
             <h3>{item.title}</h3>
@@ -206,7 +212,7 @@ export default function EspanaPrimaryContent() {
           </AnimatedHeading>
           <p className={styles.sectionIndex} data-espana-content-reveal>04 áreas</p>
         </header>
-        <ContentGrid items={services} withCanvas />
+        <ContentGrid items={services} />
       </section>
 
       <section className={styles.conversion} data-marketing-content-section aria-labelledby="espana-seo-title">
@@ -255,7 +261,7 @@ export default function EspanaPrimaryContent() {
           </AnimatedHeading>
           <p className={styles.sectionIndex} data-espana-content-reveal>04 pasos</p>
         </header>
-        <ContentGrid items={processSteps} />
+        <ContentGrid items={processSteps} variant="process" />
       </section>
 
       <section className={styles.journey} data-marketing-content-section aria-labelledby="espana-faq-title">
@@ -266,7 +272,7 @@ export default function EspanaPrimaryContent() {
           </AnimatedHeading>
           <p className={styles.sectionIndex} data-espana-content-reveal>FAQ</p>
         </header>
-        <ContentGrid items={faqs} />
+        <ContentGrid items={faqs} variant="faq" />
       </section>
 
       <section className={styles.conversion} data-marketing-content-section aria-labelledby="espana-contact-title">
