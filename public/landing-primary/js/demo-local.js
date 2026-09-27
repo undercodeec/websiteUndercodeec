@@ -294,7 +294,7 @@
     },
     {
       name: "Dala — Demo interactivo",
-      image: "/demos/dala/images/dala-d.png",
+      image: "/assets/img/dala.png",
       href: "/demos/dala/index.html",
       services: ["● Diseño web", "△ Desarrollo", "⁂ WebGL, partículas"],
     },
