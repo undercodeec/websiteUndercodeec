@@ -359,6 +359,15 @@ export const hermesApi = {
   leads(params) {
     return request(`/leads${toQueryString(params)}`);
   },
+  /**
+   * Read-only Hermes meetings. All dates are ISO instants; timezone filters
+   * the stored meeting timezone and is independent of the display timezone.
+   * @param {{from: string, to: string, status?: 'PENDING'|'CONFIRMED'|'CANCELLED'|'FAILED', timezone?: string}} params
+   * @returns {Promise<{data: Array<{id: string, status: string, startAt: string, endAt: string, timezone: string, meetUrl: string|null, serviceContext: string|null, cancelledAt: string|null, contact: {id: string, name: string|null, company: string|null, email: string|null, phone: string|null, waId: string}, lead: {id: string, stage: string, productOfInterest: string|null}|null, conversation: {id: string, status: string}|null, task: {id: string, status: string, title: string}|null}>, range: {from: string, to: string}}>}
+   */
+  meetings({ from, to, status, timezone }) {
+    return request(`/meetings${toQueryString({ from, to, status, timezone })}`, { cache: "no-store" });
+  },
   lead(id) {
     return request(`/leads/${encodeURIComponent(id)}`);
   },

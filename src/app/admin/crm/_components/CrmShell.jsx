@@ -8,6 +8,7 @@ import {
   BarChart3,
   Bot,
   BriefcaseBusiness,
+  CalendarDays,
   ChevronRight,
   DatabaseZap,
   Inbox,
@@ -36,6 +37,7 @@ const NAV_ITEMS = [
   { href: "/admin/crm/publicidad", label: "Publicidad y atribución", icon: BarChart3 },
   { href: "/admin/crm/leads", label: "Pipeline", icon: Rows3 },
   { href: "/admin/crm/inbox", label: "Inbox", icon: Inbox },
+  { href: "/admin/crm/calendario", label: "Calendario", icon: CalendarDays },
   { href: "/admin/crm/campanas", label: "CampaÃ±as", icon: Send },
   { href: "/admin/crm/administracion", label: "Administración", icon: BriefcaseBusiness },
 ];
