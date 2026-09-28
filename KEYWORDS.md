@@ -70,26 +70,26 @@ Archivo: `src/app/ec/layout.tsx`
 
 Archivo: `src/app/es/layout.tsx`
 
-- diseño web España
-- desarrollo web Madrid
-- desarrollo web Barcelona
-- diseño web Valencia
-- agencia digital España
-- agencia SEO España
-- posicionamiento web España
-- posicionamiento en Google España
-- desarrollo de apps móviles España
-- desarrollo de aplicaciones móviles Madrid
-- apps para Android e iOS España
-- software empresarial España
-- software a medida España
-- facturación electrónica España
-- Verifactu
-- tienda online España
-- ecommerce España
-- Google Ads España
-- presupuesto desarrollo web España
-- transformación digital pymes España
+ diseño web España
+ desarrollo web Madrid
+ desarrollo web Barcelona
+ diseño web Valencia
+ agencia digital España
+ agencia SEO España
+ posicionamiento web España
+ posicionamiento en Google España
+ desarrollo de apps móviles España
+ desarrollo de aplicaciones móviles Madrid
+ apps para Android e iOS España
+ software empresarial España
+ software a medida España
+ facturación electrónica España
+ Verifactu
+ tienda online España
+ ecommerce España
+ Google Ads España
+ presupuesto desarrollo web España
+ transformación digital pymes España
 
 ---
 
@@ -97,18 +97,18 @@ Archivo: `src/app/es/layout.tsx`
 
 Archivo: `src/app/servicios/layout.tsx`
 
-- servicios de desarrollo web
-- servicios agencia digital
-- servicios desarrollo de aplicaciones móviles
-- servicios software empresarial a medida
-- servicios marketing digital
-- servicios posicionamiento SEO
-- servicios e-commerce
-- servicios CRM y ERP
-- servicios facturación electrónica
-- agencia de transformación digital
-- soluciones digitales empresas
-- consultoría tecnológica
+ servicios de desarrollo web
+ servicios agencia digital
+ servicios desarrollo de aplicaciones móviles
+ servicios software empresarial a medida
+ servicios marketing digital
+ servicios posicionamiento SEO
+ servicios e-commerce
+ servicios CRM y ERP
+ servicios facturación electrónica
+ agencia de transformación digital
+ soluciones digitales empresas
+ consultoría tecnológica
 
 ---
 
@@ -116,26 +116,26 @@ Archivo: `src/app/servicios/layout.tsx`
 
 Archivo: `src/app/aplicaciones-moviles/layout.tsx`
 
-- desarrollo de aplicaciones móviles
-- desarrollo de apps Android e iOS
-- empresa de desarrollo de apps
-- crear aplicación móvil para empresa
-- programadores de aplicaciones móviles
-- desarrollo de apps nativas
-- desarrollo de apps multiplataforma
-- desarrollo de apps Flutter React Native
-- aplicaciones móviles para empresas
-- diseño de apps móviles
-- desarrollo de apps e-commerce móvil
-- apps de delivery y logística
-- apps de gestión empresarial Android iOS
-- desarrollo de software móvil
-- presupuesto desarrollo de aplicaciones móviles
-- agencia de desarrollo de apps profesionales
-- aplicaciones móviles seguras y de alto rendimiento
-- publicar app en Play Store y App Store
-- diseño UX UI aplicaciones móviles
-- consultoría de desarrollo de apps
+ desarrollo de aplicaciones móviles
+ desarrollo de apps Android e iOS
+ empresa de desarrollo de apps
+ crear aplicación móvil para empresa
+ programadores de aplicaciones móviles
+ desarrollo de apps nativas
+ desarrollo de apps multiplataforma
+ desarrollo de apps Flutter React Native
+ aplicaciones móviles para empresas
+ diseño de apps móviles
+ desarrollo de apps e-commerce móvil
+ apps de delivery y logística
+ apps de gestión empresarial Android iOS
+ desarrollo de software móvil
+ presupuesto desarrollo de aplicaciones móviles
+ agencia de desarrollo de apps profesionales
+ aplicaciones móviles seguras y de alto rendimiento
+ publicar app en Play Store y App Store
+ diseño UX UI aplicaciones móviles
+ consultoría de desarrollo de apps
 
 ---
 
@@ -143,26 +143,26 @@ Archivo: `src/app/aplicaciones-moviles/layout.tsx`
 
 Archivo: `src/app/software-para-tu-negocio/layout.tsx`
 
-- software empresarial
-- software para pequeñas y medianas empresas
-- sistema de gestión empresarial
-- software CRM
-- CRM para gestión de ventas y clientes
-- sistema de control de inventarios
-- software de inventarios en la nube
-- facturación electrónica
-- software de facturación electrónica
-- sistema contable y administrativo
-- software ERP
-- desarrollo de software a medida
-- automatización de procesos empresariales
-- e-commerce para negocios
-- tienda online
-- sistema de ventas y punto de venta
-- software de gestión empresarial
-- transformación digital empresarial
-- soluciones tecnológicas para empresas
-- desarrollo de software personalizado
+ software empresarial
+ software para pequeñas y medianas empresas
+ sistema de gestión empresarial
+ software CRM
+ CRM para gestión de ventas y clientes
+ sistema de control de inventarios
+ software de inventarios en la nube
+ facturación electrónica
+ software de facturación electrónica
+ sistema contable y administrativo
+ software ERP
+ desarrollo de software a medida
+ automatización de procesos empresariales
+ e-commerce para negocios
+ tienda online
+ sistema de ventas y punto de venta
+ software de gestión empresarial
+ transformación digital empresarial
+ soluciones tecnológicas para empresas
+ desarrollo de software personalizado
 
 ---
 
@@ -170,26 +170,26 @@ Archivo: `src/app/software-para-tu-negocio/layout.tsx`
 
 Archivo: `src/app/marketing-para-tu-negocio/layout.tsx`
 
-- marketing digital
-- agencia de marketing digital
-- SEO
-- posicionamiento web
-- posicionamiento en Google
-- gestión de redes sociales
-- publicidad en Google Ads
-- publicidad en Meta Ads
-- inbound marketing
-- estrategias de marketing digital
-- análisis SEO para negocios
-- community manager
-- marketing de contenidos
-- branding digital
-- consultoría de marketing digital
-- campañas publicitarias digitales
-- crecimiento digital para empresas
-- agencia SEO
-- optimización para motores de búsqueda
-- publicidad online
+ marketing digital
+ agencia de marketing digital
+ SEO
+ posicionamiento web
+ posicionamiento en Google
+ gestión de redes sociales
+ publicidad en Google Ads
+ publicidad en Meta Ads
+ inbound marketing
+ estrategias de marketing digital
+ análisis SEO para negocios
+ community manager
+ marketing de contenidos
+ branding digital
+ consultoría de marketing digital
+ campañas publicitarias digitales
+ crecimiento digital para empresas
+ agencia SEO
+ optimización para motores de búsqueda
+ publicidad online
 
 ---
 
@@ -217,13 +217,13 @@ Archivo: `src/app/hosting/layout.tsx`
 Archivo: `src/app/contacto/layout.tsx`
 
 - contacto undercodeec
-- agencia desarrollo web Quito
-- contacto desarrollo de software Ecuador
-- presupuesto pagina web Quito
-- contactar agencia digital Ecuador
-- diseño web Sangolqui Valle de los Chillos
-- telefono agencia web Quito
-- ventas undercodeec
+ agencia desarrollo web Quito
+ contacto desarrollo de software Ecuador
+ presupuesto pagina web Quito
+ contactar agencia digital Ecuador
+ diseño web Sangolqui Valle de los Chillos
+ telefono agencia web Quito
+ ventas undercodeec
 
 ---
 
@@ -275,14 +275,14 @@ Archivo: `src/data/Blog/blog-grid.json`
 
 ### El Futuro del Desarrollo de Software y las Aplicaciones Móviles
 
-- desarrollo de software ecuador
-- desarrollo de software trabajo
-- carrera desarrollo de software
-- desarrollo de software
-- seguridad en aplicaciones moviles
-- aplicaciones moviles a medida
-- desarrollo apps android ios
-- desarrollo de páginas web
+ desarrollo de software ecuador
+ desarrollo de software trabajo
+ carrera desarrollo de software
+ desarrollo de software
+ seguridad en aplicaciones moviles
+ aplicaciones moviles a medida
+ desarrollo apps android ios
+ desarrollo de páginas web
 
 ### Guía 2026: El Impacto de la Inteligencia Artificial en el Marketing Digital
 
