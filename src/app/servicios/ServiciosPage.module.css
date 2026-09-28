@@ -1,4 +1,4 @@
-.page {
+.page[data-primary-page][data-services-page] {
   position: relative;
   background: transparent;
 }

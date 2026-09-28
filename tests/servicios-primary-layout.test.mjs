@@ -220,6 +220,15 @@ test("keeps the orb fallback visible until its WebGL texture is ready", async ()
   assert.match(orbStyles, /canvas\[data-primary-orb-texture-ready="false"\]\s*\{[\s\S]*?opacity:\s*0;/);
 });
 
+test("keeps the services page transparent above its fixed orb in production CSS order", async () => {
+  const styles = await readFile("src/app/servicios/ServiciosPage.module.css", "utf8");
+
+  assert.match(
+    styles,
+    /\.page\[data-primary-page\]\[data-services-page\]\s*\{[\s\S]*?background:\s*transparent;/,
+  );
+});
+
 test("removes the left scroll indicator and advances service cards faster with a smooth transition", async () => {
   const header = await readFile("src/components/Primary/PrimaryHeader.jsx", "utf8");
   const showcase = await readFile("src/components/Servicios/ServicesShowcase.jsx", "utf8");
