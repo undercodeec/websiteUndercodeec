@@ -201,6 +201,7 @@ export default function AdvertisingAttributionPage() {
   const campaigns = useMemo(() => groupCampaignMetrics(data.metrics), [data.metrics]);
   const dashboard = data.dashboard;
   const status = data.status;
+  const sendState = !status ? "unknown" : status.realSendsEnabled ? "enabled" : "disabled";
   const currency = dashboard?.advertising?.currency || status?.accountCurrency || "EUR";
   const metricValues = {
     investment: dashboard?.advertising?.spend ?? null,
@@ -314,16 +315,20 @@ export default function AdvertisingAttributionPage() {
         </section>
       )}
 
-      <section className={`crm-advertising-safety ${status?.realSendsEnabled ? "is-danger" : "is-safe"}`}>
-        {status?.realSendsEnabled ? <ShieldAlert size={23} /> : <CheckCircle2 size={23} />}
+      <section className={`crm-advertising-safety ${sendState === "enabled" ? "is-danger" : sendState === "disabled" ? "is-safe" : "is-unknown"}`}>
+        {sendState === "enabled" ? <ShieldAlert size={23} /> : sendState === "disabled" ? <CheckCircle2 size={23} /> : <AlertCircle size={23} />}
         <div>
           <strong>
-            {status?.realSendsEnabled
+            {sendState === "unknown"
+              ? "Estado de envíos desconocido: Hermes no confirmó la configuración"
+              : sendState === "enabled"
               ? "Atención: los envíos reales a Google están habilitados"
               : "Modo seguro: los envíos reales a Google están desactivados"}
           </strong>
           <span>
-            {status?.realSendsEnabled
+            {sendState === "unknown"
+              ? "Consulta el estado de Hermes antes de ejecutar pruebas o cambiar la integración."
+              : sendState === "enabled"
               ? "No ejecutes una prueba hasta confirmar explícitamente el alcance y la cuenta."
               : "Las pruebas pueden mantenerse en validación mientras Hermes conserve validateOnly."}
           </span>

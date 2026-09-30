@@ -29,6 +29,13 @@ test("ignores corrupt or obsolete stored preferences", () => {
   );
 });
 
+test("requires a fresh consent decision after 90 days", () => {
+  const now = new Date("2026-09-29T12:00:00.000Z");
+  const old = createConsentPreferences({ analytics: true, advertising: true },
+    new Date(now.getTime() - 91 * 24 * 60 * 60_000));
+  assert.equal(parseStoredConsent(JSON.stringify(old), now), null);
+});
+
 test("maps consent choices to all Consent Mode v2 signals", () => {
   assert.deepEqual(toGoogleConsent({ analytics: true, advertising: false }), {
     analytics_storage: "granted",

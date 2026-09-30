@@ -738,8 +738,8 @@ async function sendUserConfirmationEmail({ to, name, formLabel }) {
       subject: '✅ Recibimos tu solicitud - Undercodeec',
       html
     });
-  } catch (err) {
-    console.error('❌ Error sending user confirmation email:', err.message);
+  } catch {
+    console.error('❌ Error sending user confirmation email');
   }
 }
 
@@ -3909,8 +3909,8 @@ async function saveLeadToDB(formType, name, email, phone, data) {
     const result = await db.query(query, values);
     console.log(`✅ Lead saved to DB (${formType}), ID:`, result.rows[0].id);
     return result.rows[0].id;
-  } catch (error) {
-    console.error('❌ Error saving lead to DB:', error.message);
+  } catch {
+    console.error('❌ Error saving lead to DB');
     return null;
   }
 }
@@ -4652,16 +4652,23 @@ app.post('/api/send-contact', async (req, res) => {
   }
 
   try {
-    await saveLeadToDB('contacto', name, email, phone, req.body);
-    // Escape HTML para prevenir inyección en el email del negocio
-    const safe = escapeFieldsForHtml({ name, email, phone, option, message });
-    const html = `<h2>Nuevo Contacto</h2><p><b>Nombre:</b> ${safe.name}</p><p><b>Email:</b> ${safe.email}</p><p><b>Teléfono:</b> ${safe.phone}</p><p><b>Opción:</b> ${safe.option}</p><p><b>Mensaje:</b> ${safe.message}</p>`;
-    await transporter.sendMail({
-      from: `"Undercodeec Contacto" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_BUSINESS || process.env.EMAIL_USER,
-      subject: `Nuevo contacto web de ${safe.name}`,
-      html
-    });
+    const leadId = await saveLeadToDB('contacto', name, email, phone, req.body);
+    if (!leadId) {
+      return res.status(500).json({ status: 'error', message: 'No se pudo guardar el mensaje. Inténtalo de nuevo.' });
+    }
+    // El lead ya está guardado; un fallo SMTP no debe provocar su reenvío.
+    try {
+      const safe = escapeFieldsForHtml({ name, email, phone, option, message });
+      const html = `<h2>Nuevo Contacto</h2><p><b>Nombre:</b> ${safe.name}</p><p><b>Email:</b> ${safe.email}</p><p><b>Teléfono:</b> ${safe.phone}</p><p><b>Opción:</b> ${safe.option}</p><p><b>Mensaje:</b> ${safe.message}</p>`;
+      await transporter.sendMail({
+        from: `"Undercodeec Contacto" <${process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_BUSINESS || process.env.EMAIL_USER,
+        subject: `Nuevo contacto web de ${safe.name}`,
+        html
+      });
+    } catch {
+      console.error('Error enviando notificación de contacto; lead guardado');
+    }
     await sendUserConfirmationEmail({
       to: email,
       name,
@@ -4687,16 +4694,23 @@ app.post('/api/send-marketing', async (req, res) => {
   }
 
   try {
-    await saveLeadToDB('marketing', nombre, email, telefono, req.body);
-    // Escape HTML para prevenir inyección en el email del negocio
-    const safe = escapeFieldsForHtml({ nombre, email, telefono, empresa, objetivo, plan });
-    const html = `<h2>Nuevo Lead de Marketing</h2><p><b>Nombre:</b> ${safe.nombre}</p><p><b>Email:</b> ${safe.email}</p><p><b>Teléfono:</b> ${safe.telefono}</p><p><b>Empresa:</b> ${safe.empresa}</p><p><b>Objetivo:</b> ${safe.objetivo}</p><p><b>Plan de interés:</b> ${safe.plan}</p>`;
-    await transporter.sendMail({
-      from: `"Undercodeec Marketing" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_BUSINESS || process.env.EMAIL_USER,
-      subject: `Solicitud de Marketing: ${safe.nombre}`,
-      html
-    });
+    const leadId = await saveLeadToDB('marketing', nombre, email, telefono, req.body);
+    if (!leadId) {
+      return res.status(500).json({ success: false, error: 'No se pudo guardar la solicitud. Inténtalo de nuevo.' });
+    }
+    // Las dos notificaciones son independientes del éxito de la persistencia.
+    try {
+      const safe = escapeFieldsForHtml({ nombre, email, telefono, empresa, objetivo, plan });
+      const html = `<h2>Nuevo Lead de Marketing</h2><p><b>Nombre:</b> ${safe.nombre}</p><p><b>Email:</b> ${safe.email}</p><p><b>Teléfono:</b> ${safe.telefono}</p><p><b>Empresa:</b> ${safe.empresa}</p><p><b>Objetivo:</b> ${safe.objetivo}</p><p><b>Plan de interés:</b> ${safe.plan}</p>`;
+      await transporter.sendMail({
+        from: `"Undercodeec Marketing" <${process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_BUSINESS || process.env.EMAIL_USER,
+        subject: `Solicitud de Marketing: ${safe.nombre}`,
+        html
+      });
+    } catch {
+      console.error('Error enviando notificación de marketing; lead guardado');
+    }
     await sendUserConfirmationEmail({
       to: email,
       name: nombre,

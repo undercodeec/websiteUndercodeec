@@ -50,6 +50,7 @@ backend/uploads/
 /.codex-reference-footer-*/
 /.tmp-visual-qa/
 /CON
+/.unlighthouse/
 
 # Videos grandes — manejar directamente en VPS, no en git
 public/assets/img/video/

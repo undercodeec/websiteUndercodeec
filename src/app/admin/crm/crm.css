@@ -314,6 +314,7 @@
 .crm-advertising-safety { margin-bottom: 16px; padding: 15px 17px; display: flex; align-items: center; gap: 12px; border: 1px solid; border-radius: 12px; }
 .crm-advertising-safety div { display: flex; flex-direction: column; gap: 2px; }.crm-advertising-safety strong { font-size: 12px; }.crm-advertising-safety span { font-size: 11px; }
 .crm-advertising-safety.is-safe { color: #1d704c; border-color: #bfe5d1; background: #effbf5; }.crm-advertising-safety.is-danger { color: #9b3045; border-color: #efc5cd; background: #fff2f4; }
+.crm-advertising-safety.is-unknown { color: #765615; border-color: #ead7a9; background: #fff9e9; }
 .crm-advertising-metrics { margin-bottom: 18px; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; }
 .crm-advertising-card { min-height: 142px; padding: 17px; display: flex; flex-direction: column; border: 1px solid var(--crm-line); border-radius: 14px; background: #fff; }
 .crm-advertising-card-head { margin-bottom: 13px; display: flex; align-items: center; justify-content: space-between; color: var(--crm-brand); }

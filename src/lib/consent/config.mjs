@@ -1,6 +1,7 @@
 export const CONSENT_STORAGE_KEY = "undercodeec_consent_v1";
 export const CONSENT_POLICY_VERSION =
   process.env.NEXT_PUBLIC_CONSENT_POLICY_VERSION || "2026-09-17";
+export const CONSENT_MAX_AGE_MS = 90 * 24 * 60 * 60_000;
 
 export const DENIED_CONSENT = Object.freeze({
   analytics: false,
@@ -12,24 +13,27 @@ export const GRANTED_CONSENT = Object.freeze({
   advertising: true,
 });
 
-export function normalizeConsentPreferences(value) {
+export function normalizeConsentPreferences(value, now = new Date()) {
   if (!value || typeof value !== "object") return null;
   if (value.policyVersion !== CONSENT_POLICY_VERSION) return null;
   if (typeof value.analytics !== "boolean") return null;
   if (typeof value.advertising !== "boolean") return null;
+  const updatedAt = Date.parse(value.updatedAt);
+  if (!Number.isFinite(updatedAt) || updatedAt > now.getTime() + 5 * 60_000 ||
+    updatedAt < now.getTime() - CONSENT_MAX_AGE_MS) return null;
 
   return {
     analytics: value.analytics,
     advertising: value.advertising,
     policyVersion: value.policyVersion,
-    updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : null,
+    updatedAt: new Date(updatedAt).toISOString(),
   };
 }
 
-export function parseStoredConsent(rawValue) {
+export function parseStoredConsent(rawValue, now = new Date()) {
   if (!rawValue) return null;
   try {
-    return normalizeConsentPreferences(JSON.parse(rawValue));
+    return normalizeConsentPreferences(JSON.parse(rawValue), now);
   } catch {
     return null;
   }

@@ -193,6 +193,16 @@ fbq('consent','grant');fbq('init','1528924045213380');fbq('track','PageView');`}
         </section>
       )}
 
+      {mounted && !excludedPath && preferences && !settingsOpen && (
+        <button
+          className={styles.settingsToggle}
+          type="button"
+          onClick={openSettings}
+        >
+          Privacidad
+        </button>
+      )}
+
       {mounted && !excludedPath && settingsOpen && (
         <>
           <div className={styles.backdrop} aria-hidden="true" onClick={() => setSettingsOpen(false)} />

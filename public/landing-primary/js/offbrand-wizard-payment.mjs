@@ -2,6 +2,8 @@ import { formatBillingPhone, getBillingCountry } from "./offbrand-wizard-flow.mj
 
 const DEFAULT_API_URL = "https://api.undercodeec.com";
 const RECAPTCHA_SCRIPT_ID = "offbrand-recaptcha-enterprise";
+const CONSENT_STORAGE_KEY = "undercodeec_consent_v1";
+const CONSENT_POLICY_VERSION = "2026-09-17";
 
 let recaptchaScriptPromise;
 let recaptchaSiteKeyPromise;
@@ -113,6 +115,38 @@ function withContactAliases(data) {
   };
 }
 
+function measurementConsentIsGranted() {
+  try {
+    const preferences = JSON.parse(window.localStorage.getItem(CONSENT_STORAGE_KEY) || "null");
+    return preferences?.policyVersion === CONSENT_POLICY_VERSION
+      && (preferences.analytics === true || preferences.advertising === true);
+  } catch {
+    return false;
+  }
+}
+
+function recordConfirmedPurchase(request, payment) {
+  if (!payment?.clientTransactionId || !measurementConsentIsGranted()) return false;
+
+  const payload = createPaymentPayload(request);
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: "purchase",
+    ecommerce: {
+      transaction_id: payment.clientTransactionId,
+      value: payload.amount,
+      currency: "USD",
+      items: [{
+        item_id: payload.planId,
+        item_name: request.price.label,
+        price: payload.amount,
+        quantity: 1,
+      }],
+    },
+  });
+  return true;
+}
+
 export async function submitQuote(request) {
   const recaptchaToken = await getRecaptchaToken("WIZARD_GENERIC");
   const isGenericWizard = request.endpoint === "/api/save-wizard-data";
@@ -171,6 +205,7 @@ export async function openPayment(request, onComplete, onError) {
       if (!isTrustedPaymentMessage(event, popup, origins) || event.data?.type !== "PAYMENT_COMPLETED" || !event.data.success) return;
       window.removeEventListener("message", listener);
       popup.close();
+      recordConfirmedPurchase(request, payment);
       onComplete(payment.clientTransactionId);
     };
     window.addEventListener("message", listener);

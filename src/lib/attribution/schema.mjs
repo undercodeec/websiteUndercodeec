@@ -30,7 +30,8 @@ export function validateAttributionIntent(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
     return { ok: false, error: "invalid_payload" };
   }
-  if (!hasOnlyKeys(input, ["source", "landingPath", "occurredAt", "clickIds", "utm", "consent"])) {
+  if (input.schemaVersion === 2) return validateV2Intent(input);
+  if (!hasOnlyKeys(input, ["source", "landingPath", "occurredAt", "visitedAt", "clickIds", "utm", "consent"])) {
     return { ok: false, error: "unknown_field" };
   }
   if (input.source !== "undercodeec_web") {
@@ -41,6 +42,12 @@ export function validateAttributionIntent(input) {
   }
   if (!validDate(input.occurredAt)) {
     return { ok: false, error: "invalid_occurred_at" };
+  }
+  if (input.visitedAt !== undefined && !validDate(input.visitedAt)) {
+    return { ok: false, error: "invalid_visited_at" };
+  }
+  if (input.visitedAt !== undefined && Date.parse(input.visitedAt) > Date.parse(input.occurredAt)) {
+    return { ok: false, error: "visit_after_contact" };
   }
 
   if (!input.clickIds || typeof input.clickIds !== "object" || Array.isArray(input.clickIds)) {
@@ -113,6 +120,9 @@ export function validateAttributionIntent(input) {
       source: "undercodeec_web",
       landingPath: input.landingPath,
       occurredAt: new Date(input.occurredAt).toISOString(),
+      ...(input.visitedAt !== undefined ? {
+        visitedAt: adStorageGranted ? new Date(input.visitedAt).toISOString() : new Date(input.occurredAt).toISOString(),
+      } : {}),
       clickIds: safeClickIds,
       utm: safeUtm,
       consent: {
@@ -123,6 +133,73 @@ export function validateAttributionIntent(input) {
         capturedAt: new Date(consent.capturedAt).toISOString(),
         policyVersion,
       },
+    },
+  };
+}
+
+function validateV2Intent(input) {
+  if (!hasOnlyKeys(input, ["schemaVersion", "source", "occurredAt", "firstTouch", "lastTouch", "consent"])) {
+    return { ok: false, error: "unknown_field" };
+  }
+  if ((input.firstTouch === null) !== (input.lastTouch === null)
+    || input.firstTouch === undefined || input.lastTouch === undefined) {
+    return { ok: false, error: "invalid_touch_pair" };
+  }
+  const empty = {
+    landingPath: "/", visitedAt: input.occurredAt,
+    clickIds: { gclid: null, gbraid: null, wbraid: null },
+    utm: { source: null, medium: null, campaign: null, content: null, term: null },
+  };
+  const validateTouch = (touch) => {
+    if (touch === null) return { ok: true, value: null };
+    if (!touch || typeof touch !== "object" || Array.isArray(touch)
+      || !hasOnlyKeys(touch, ["landingPath", "visitedAt", "clickIds", "utm"])) {
+      return { ok: false, error: "invalid_touch" };
+    }
+    if (touch.visitedAt === undefined) return { ok: false, error: "invalid_visited_at" };
+    if (!touch.utm || typeof touch.utm !== "object" || Array.isArray(touch.utm)
+      || !hasOnlyKeys(touch.utm, ["id", "source", "medium", "campaign", "content", "term"])) {
+      return { ok: false, error: "invalid_utm" };
+    }
+    const id = optionalString(touch.utm.id, 256);
+    if (id === undefined) return { ok: false, error: "invalid_utm_id" };
+    const legacyUtm = { ...touch.utm };
+    delete legacyUtm.id;
+    const normalized = validateAttributionIntent({
+      source: input.source, landingPath: touch.landingPath, occurredAt: input.occurredAt,
+      visitedAt: touch.visitedAt, clickIds: touch.clickIds, utm: legacyUtm, consent: input.consent,
+    });
+    if (!normalized.ok) return normalized;
+    return {
+      ok: true,
+      value: {
+        landingPath: normalized.value.landingPath,
+        visitedAt: normalized.value.visitedAt,
+        clickIds: normalized.value.clickIds,
+        utm: { id: input.consent.adStorage === "granted" ? id : null, ...normalized.value.utm },
+      },
+    };
+  };
+  const base = validateAttributionIntent({
+    source: input.source, landingPath: empty.landingPath, occurredAt: input.occurredAt,
+    visitedAt: empty.visitedAt, clickIds: empty.clickIds, utm: empty.utm, consent: input.consent,
+  });
+  if (!base.ok) return base;
+  const first = validateTouch(input.firstTouch);
+  if (!first.ok) return first;
+  const last = validateTouch(input.lastTouch);
+  if (!last.ok) return last;
+  if (first.value && Date.parse(first.value.visitedAt) > Date.parse(last.value.visitedAt)) {
+    return { ok: false, error: "first_after_last" };
+  }
+  const allowed = input.consent.adStorage === "granted";
+  return {
+    ok: true,
+    value: {
+      schemaVersion: 2, source: base.value.source, occurredAt: base.value.occurredAt,
+      firstTouch: allowed ? first.value : null,
+      lastTouch: allowed ? last.value : null,
+      consent: base.value.consent,
     },
   };
 }
