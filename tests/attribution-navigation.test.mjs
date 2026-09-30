@@ -262,17 +262,23 @@ function staticPage(url, options = {}) {
   const values = options.values || new Map();
   const time = clock();
   const listeners = new Map(), controls = new Map(), requests = [];
+  const createdElements = [];
   const preferences = Object.hasOwn(options, "preferences") ? options.preferences : granted;
   const document = {
     readyState: "complete",
     getElementById: () => null, querySelector: () => null,
-    createElement: () => ({
-      setAttribute() {},
-      addEventListener(_name, callback) { if (this.id === "uc-consent-settings") controls.set("reopen", callback); },
-      querySelector(selector) {
-        return { addEventListener(_name, callback) { controls.set(selector, callback); }, checked: false };
-      },
-    }),
+    createElement: (tagName) => {
+      const element = {
+        tagName,
+        setAttribute() {},
+        addEventListener(_name, callback) { if (this.id === "uc-consent-settings") controls.set("reopen", callback); },
+        querySelector(selector) {
+          return { addEventListener(_name, callback) { controls.set(selector, callback); }, checked: false };
+        },
+      };
+      createdElements.push(element);
+      return element;
+    },
     head: { append() {}, appendChild() {} }, body: { append() {} },
     addEventListener(name, listener) { listeners.set(name, listener); },
   };
@@ -290,7 +296,7 @@ function staticPage(url, options = {}) {
     },
   }, { timeout: 1_000 });
   return {
-    values, time,
+    values, time, createdElements,
     async accept() { controls.get("[data-accept]")(); },
     reopen() { controls.get("reopen")(); },
     reject() { controls.get("[data-reject]")(); },
@@ -303,6 +309,15 @@ function staticPage(url, options = {}) {
     },
 };
 }
+
+test("static privacy control stays on the left away from the mobile menu", () => {
+  const h = staticPage("/");
+  const styles = h.createdElements.filter((element) => element.tagName === "style");
+  const style = styles.at(-1)?.textContent || "";
+
+  assert.match(style, /\.uc-consent-settings\s*\{[^}]*left:\s*1rem;/);
+  assert.match(style, /\.uc-consent-settings\s*\{[^}]*right:\s*auto;/);
+});
 
 test("static landing lets a prior visitor reopen consent and revoke Meta", () => {
   const calls = [];
