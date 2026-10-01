@@ -1,7 +1,7 @@
 import {
   CONSENT_STORAGE_KEY,
   parseStoredConsent,
-} from "@/lib/consent/config.mjs";
+} from "../consent/config.mjs";
 
 function measurementConsentIsGranted() {
   if (typeof window === "undefined") return false;

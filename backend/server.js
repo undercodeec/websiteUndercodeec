@@ -22,6 +22,11 @@ const {
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const db = require('./db');
 const { createPaymentStateStore } = require('./paymentStateStore');
+const {
+  buildApprovedTransferPurchase,
+  buildProjectFolderPayload,
+  isFirstTransferApproval,
+} = require('./transferApproval');
 const { emitInvoice, retryInvoice, listInvoices, getInvoice, formatInvoiceNumber } = require('./invoicing/invoiceService');
 const { getSriConfig, getMissingSriConfig, getMissingSigningConfig } = require('./invoicing/config');
 const { generateRidePdf } = require('./invoicing/ride');
@@ -66,6 +71,13 @@ const paymentState = createPaymentStateStore({ db });
 // entradas confirmadas se borran explicitamente en el webhook.
 const PENDING_ORDER_TTL_MS = 30 * 60 * 1000;
 const PENDING_ORDER_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+const GOOGLE_DRIVE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJJ91bFrS7VwdksBOfZluJZ6pLmwhdVw4TTOBsSWPtX2B91YqEa8OUXUPEHBFnCLmrvg/exec';
+
+function createProjectFolder(orderData, source) {
+  return axios.post(GOOGLE_DRIVE_SCRIPT_URL, buildProjectFolderPayload(orderData))
+    .catch((error) => console.error(`Error Google Script al crear carpeta desde ${source}:`, error.message));
+}
+
 setInterval(() => {
   paymentState.cleanup(PENDING_ORDER_TTL_MS).catch((error) => {
     console.error('Error limpiando estados de pago:', error.message);
@@ -4319,25 +4331,44 @@ app.post('/api/admin/payments/:id/status', adminAuth, async (req, res) => {
   }
 
   try {
-    const existing = await db.query('SELECT id FROM orders WHERE id = $1', [orderId]);
+    const existing = await db.query('SELECT * FROM orders WHERE id = $1', [orderId]);
     if (existing.rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Pago no encontrado' });
     }
-    await db.query('UPDATE orders SET payment_status = $1 WHERE id = $2', [status, orderId]);
+    const existingOrder = existing.rows[0];
+    const isApprovedTransfer = isFirstTransferApproval(existingOrder, status);
+
+    if (isApprovedTransfer) {
+      await db.query(
+        'UPDATE orders SET payment_status = $1, transaction_id = COALESCE(transaction_id, $2) WHERE id = $3',
+        [status, `transfer-${orderId}`, orderId],
+      );
+    } else {
+      await db.query('UPDATE orders SET payment_status = $1 WHERE id = $2', [status, orderId]);
+    }
     const updated = await db.query('SELECT * FROM orders WHERE id = $1', [orderId]);
+    const updatedOrder = updated.rows[0];
 
     // Al aprobar el pago, promover al usuario del asistente asociado (si existe) a tier cliente.
     if (status === 'approved') {
       let orderEmail = null;
       try {
-        const info = updated.rows[0]?.client_info;
+        const info = updatedOrder?.client_info;
         const parsed = typeof info === 'string' ? JSON.parse(info) : info;
         orderEmail = parsed?.email || null;
       } catch (_) { /* client_info no parseable */ }
       if (orderEmail) await promoteChatUserToClient(normalizeEmail(orderEmail));
     }
 
-    res.json({ success: true, data: updated.rows[0] });
+    if (isApprovedTransfer) {
+      void createProjectFolder(updatedOrder, 'aprobación de transferencia');
+    }
+
+    res.json({
+      success: true,
+      data: updatedOrder,
+      ...(isApprovedTransfer ? { purchaseEvent: buildApprovedTransferPurchase(updatedOrder) } : {}),
+    });
   } catch (error) {
     console.error('Error updating payment status:', error.message);
     res.status(500).json({ success: false, error: 'Error al actualizar el estado del pago' });

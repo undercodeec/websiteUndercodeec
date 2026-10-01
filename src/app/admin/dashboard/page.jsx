@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import InvoicesTab from './InvoicesTab';
+import { recordApprovedTransferPurchase } from '@/lib/analytics/transferPurchase.mjs';
 import '@/components/Slider/slider.css';
 
 const STATUS_STYLES = {
@@ -149,6 +150,7 @@ export default function AdminDashboard({ embedded = false }) {
       if (data.success) {
         setPayments(prev => prev.map(p => (p.id === paymentId ? { ...p, payment_status: newStatus } : p)));
         setSelectedPayment(prev => (prev && prev.id === paymentId ? { ...prev, payment_status: newStatus } : prev));
+        if (data.purchaseEvent) recordApprovedTransferPurchase(data.purchaseEvent);
       } else {
         alert(data.error || 'No se pudo actualizar el estado');
       }
