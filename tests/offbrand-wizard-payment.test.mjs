@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { isTrustedPaymentMessage, createPaymentPayload, openPayment } from "../public/landing-primary/js/offbrand-wizard-payment.mjs";
+import { isTrustedPaymentMessage, createPaymentPayload, getRecaptchaToken, openPayment } from "../public/landing-primary/js/offbrand-wizard-payment.mjs";
 
 test("creates a payment payload from the selected OFF+BRAND plan", () => {
   const payload = createPaymentPayload({
@@ -96,4 +96,38 @@ test("transfer flow includes reCAPTCHA and uploads a voucher before registering 
   assert.match(source, /getRecaptchaToken\("TRANSFERENCIA"\)/);
   assert.match(source, /\/api\/upload-voucher/);
   assert.match(source, /JSON\.stringify\(\{ recaptchaToken, orderData:/);
+});
+
+test("waits for the Enterprise runtime after the loader script fires", async (t) => {
+  const originalWindow = globalThis.window;
+  const originalDocument = globalThis.document;
+  const listeners = new Map();
+
+  globalThis.window = { __OFFBRAND_RECAPTCHA_SITE_KEY: "public-site-key" };
+  globalThis.document = {
+    getElementById: () => null,
+    createElement: () => ({
+      isConnected: false,
+      addEventListener: (event, callback) => listeners.set(event, callback),
+    }),
+    head: {
+      append: () => {
+        globalThis.window.grecaptcha = {
+          enterprise: {
+            ready(callback) {
+              this.execute = async () => "enterprise-token";
+              callback();
+            },
+          },
+        };
+        listeners.get("load")();
+      },
+    },
+  };
+  t.after(() => {
+    globalThis.window = originalWindow;
+    globalThis.document = originalDocument;
+  });
+
+  assert.equal(await getRecaptchaToken("WIZARD_GENERIC"), "enterprise-token");
 });

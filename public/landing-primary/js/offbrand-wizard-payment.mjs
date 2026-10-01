@@ -63,7 +63,7 @@ async function loadRecaptchaEnterprise(siteKey) {
   if (!recaptchaScriptPromise) {
     recaptchaScriptPromise = new Promise((resolve, reject) => {
       const script = document.getElementById(RECAPTCHA_SCRIPT_ID) || document.createElement("script");
-      const complete = () => window.grecaptcha?.enterprise?.execute
+      const complete = () => window.grecaptcha?.enterprise?.ready
         ? resolve(window.grecaptcha.enterprise)
         : reject(new Error("No fue posible inicializar ReCAPTCHA."));
       script.addEventListener("load", complete, { once: true });
@@ -74,6 +74,8 @@ async function loadRecaptchaEnterprise(siteKey) {
         script.async = true;
         script.defer = true;
         document.head.append(script);
+      } else if (window.grecaptcha?.enterprise?.ready) {
+        complete();
       }
     }).catch((error) => {
       recaptchaScriptPromise = undefined;
