@@ -203,14 +203,42 @@ export async function openPayment(request, onComplete, onError) {
     const popup = window.open(payment.paymentUrl, "PayPhonePayment", "width=600,height=700,resizable=yes,scrollbars=yes");
     if (!popup) throw new Error("El navegador bloqueó la ventana de pago.");
     const origins = ["https://pay.payphonetodoesposible.com", "https://api.undercodeec.com", window.location.origin];
-    const listener = (event) => {
-      if (!isTrustedPaymentMessage(event, popup, origins) || event.data?.type !== "PAYMENT_COMPLETED" || !event.data.success) return;
+    let completed = false;
+    let pollingTimer;
+    const cleanup = () => {
       window.removeEventListener("message", listener);
-      popup.close();
+      if (pollingTimer) clearInterval(pollingTimer);
+    };
+    const completePayment = () => {
+      if (completed) return;
+      completed = true;
+      cleanup();
+      if (!popup.closed) popup.close();
       recordConfirmedPurchase(request, payment);
       onComplete(payment.clientTransactionId);
     };
+    const listener = (event) => {
+      if (!isTrustedPaymentMessage(event, popup, origins) || event.data?.type !== "PAYMENT_COMPLETED" || !event.data.success) return;
+      completePayment();
+    };
     window.addEventListener("message", listener);
+    if (payment.paymentSessionToken) {
+      const checkPaymentStatus = async () => {
+        if (completed) return;
+        try {
+          const statusResponse = await fetch(`${getApiUrl()}/api/check-payment-status/${encodeURIComponent(payment.clientTransactionId)}`, {
+            headers: { Authorization: `Bearer ${payment.paymentSessionToken}` },
+          });
+          if (!statusResponse.ok) return;
+          const status = await statusResponse.json();
+          if (status.success === true && status.status === "Approved") completePayment();
+        } catch {
+          // El siguiente ciclo vuelve a consultar mientras la ventana permanezca abierta.
+        }
+      };
+      void checkPaymentStatus();
+      pollingTimer = setInterval(checkPaymentStatus, 2000);
+    }
   } catch (error) {
     onError(error);
   }

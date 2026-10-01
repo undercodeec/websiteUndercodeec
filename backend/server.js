@@ -1220,11 +1220,9 @@ async function validatePaymentSessionToken(clientTransactionId, providedToken) {
 // ============================================================================
 // WEBHOOK-APPROVED PAYMENTS CACHE
 // ============================================================================
-// PayPhone GET /api/Sale/ClientTransactionId/{id} returns 404 incluso para
-// transacciones aprobadas (solo responde por TransactionId numerico). El
-// webhook si recibe el TransactionId numerico y confirma Approved — guardamos
-// el resultado aqui para que el polling del frontend (check-payment-status)
-// cierre el popup sin depender del endpoint roto de PayPhone.
+// PayPhone consulta las transacciones creadas por el comercio mediante
+// /api/Sale/client/{clientTransactionId}. El webhook sigue funcionando como
+// confirmaciÃ³n inmediata para que el polling cierre el popup sin esperas.
 const WEBHOOK_APPROVAL_TTL_MS = 10 * 60 * 1000; // 10 min
 
 async function rememberWebhookApproval(clientTransactionId, payload) {
@@ -1359,8 +1357,7 @@ app.get('/api/check-payment-status/:clientTxId', async (req, res) => {
   }
 
   // FAST PATH: si el webhook ya confirmo Approved para este clientTxId, devolvemos
-  // inmediatamente sin consultar a PayPhone (su endpoint Sale/ClientTransactionId
-  // devuelve 404 incluso para transacciones aprobadas).
+  // inmediatamente sin consultar otra vez a PayPhone.
   const approved = await paymentState.getApproval(clientTxId, WEBHOOK_APPROVAL_TTL_MS);
   if (approved) {
     console.log(`✅ check-payment-status: fast-path webhook-approved para ${clientTxId}`);
@@ -1373,7 +1370,7 @@ app.get('/api/check-payment-status/:clientTxId', async (req, res) => {
 
   try {
     const response = await axios.get(
-      `https://pay.payphonetodoesposible.com/api/Sale/ClientTransactionId/${encodeURIComponent(clientTxId)}`,
+      `https://pay.payphonetodoesposible.com/api/Sale/client/${encodeURIComponent(clientTxId)}`,
       {
         headers: {
           Authorization: `Bearer ${TOKEN}`,
@@ -1437,7 +1434,7 @@ app.post('/api/payphone-webhook', async (req, res) => {
     // 1. Consultar estado actual de la transaccion en PayPhone
     let apiUrl = id
       ? `https://pay.payphonetodoesposible.com/api/Sale/${id}`
-      : `https://pay.payphonetodoesposible.com/api/Sale/ClientTransactionId/${clientTransactionId}`;
+      : `https://pay.payphonetodoesposible.com/api/Sale/client/${encodeURIComponent(clientTransactionId)}`;
 
     console.log(`🔍 Verifying webhook transaction: ${apiUrl}`);
 
@@ -3204,7 +3201,7 @@ app.post('/api/send-order-emails', async (req, res) => {
     // Verificar con PayPhone que el pago está Approved
     try {
       const payphoneResp = await axios.get(
-        `https://pay.payphonetodoesposible.com/api/Sale/ClientTransactionId/${encodeURIComponent(clientTransactionId)}`,
+        `https://pay.payphonetodoesposible.com/api/Sale/client/${encodeURIComponent(clientTransactionId)}`,
         {
           headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
           timeout: 10000
