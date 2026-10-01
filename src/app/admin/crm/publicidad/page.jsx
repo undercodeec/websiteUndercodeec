@@ -136,6 +136,7 @@ export default function AdvertisingAttributionPage() {
   const [integrationForm, setIntegrationForm] = useState({
     accountId: "",
     loginAccountId: "",
+    conversionCustomerId: "",
     conversionSyncEnabled: false,
     metricsSyncEnabled: false,
   });
@@ -170,6 +171,7 @@ export default function AdvertisingAttributionPage() {
       setIntegrationForm({
         accountId: status.accountId || "",
         loginAccountId: status.loginAccountId || "",
+        conversionCustomerId: status.conversionCustomerId || "",
         conversionSyncEnabled: Boolean(status.conversionSyncEnabled),
         metricsSyncEnabled: Boolean(status.metricsSyncEnabled),
       });
@@ -222,6 +224,9 @@ export default function AdvertisingAttributionPage() {
         ...(integrationForm.loginAccountId
           ? { loginAccountId: integrationForm.loginAccountId.replaceAll("-", "") }
           : {}),
+        conversionCustomerId: integrationForm.conversionCustomerId
+          ? integrationForm.conversionCustomerId.replaceAll("-", "")
+          : null,
         conversionSyncEnabled: integrationForm.conversionSyncEnabled,
         metricsSyncEnabled: integrationForm.metricsSyncEnabled,
       });
@@ -386,6 +391,7 @@ export default function AdvertisingAttributionPage() {
           <dl className="crm-advertising-sync">
             <div><dt>Métricas</dt><dd>{dashboard?.connectionStatus || "PENDING_CONNECTION"}</dd></div>
             <div><dt>Cuenta</dt><dd>{maskAccount(status?.accountId)}</dd></div>
+            <div><dt>Propietaria de conversiones</dt><dd>{maskAccount(status?.conversionCustomerId)}</dd></div>
             <div><dt>Credenciales Google</dt><dd>{status?.credentialsConfigured ? "Configuradas" : "Pendientes"}</dd></div>
             <div><dt>Conversión habilitada</dt><dd>{status?.conversionSyncEnabled ? "Sí" : "No"}</dd></div>
             <div><dt>Última conversión</dt><dd>{status?.lastConversionSyncAt ? new Date(status.lastConversionSyncAt).toLocaleString("es-ES") : "No disponible"}</dd></div>
@@ -415,7 +421,7 @@ export default function AdvertisingAttributionPage() {
                   value={integrationForm.accountId}
                   onChange={(event) => setIntegrationForm((current) => ({ ...current, accountId: event.target.value }))}
                   inputMode="numeric"
-                  pattern="[0-9-]{1,32}"
+                  pattern="[0-9]{10}"
                   required
                 />
               </label>
@@ -425,7 +431,17 @@ export default function AdvertisingAttributionPage() {
                   value={integrationForm.loginAccountId}
                   onChange={(event) => setIntegrationForm((current) => ({ ...current, loginAccountId: event.target.value }))}
                   inputMode="numeric"
-                  pattern="[0-9-]{0,32}"
+                  pattern="[0-9]{10}"
+                />
+              </label>
+              <label>
+                <span>ID de cuenta propietaria de conversiones (opcional para métricas)</span>
+                <input
+                  value={integrationForm.conversionCustomerId}
+                  onChange={(event) => setIntegrationForm((current) => ({ ...current, conversionCustomerId: event.target.value }))}
+                  inputMode="numeric"
+                  pattern="[0-9]{10}"
+                  placeholder="10 dígitos sin guiones"
                 />
               </label>
               <label className="crm-advertising-check">
@@ -445,7 +461,7 @@ export default function AdvertisingAttributionPage() {
                 <span>Habilitar métricas de solo lectura</span>
               </label>
               <p className="crm-advertising-help">
-                Estos controles no cambian las variables de entorno ni habilitan por sí solos envíos reales.
+                La cuenta propietaria es necesaria para preparar conversiones; no afecta las métricas de la cuenta publicitaria. Estos controles no cambian las variables de entorno ni habilitan por sí solos envíos reales.
               </p>
               <button className="crm-button is-primary" disabled={saving === "integration"}>
                 <Save size={16} />{saving === "integration" ? "Guardando…" : "Guardar configuración"}

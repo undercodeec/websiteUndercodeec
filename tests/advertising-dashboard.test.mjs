@@ -26,6 +26,8 @@ test("adds the advertising attribution area to the authenticated CRM", async () 
   assert.match(api, /revokeAdvertisingConsent\(contactId, reason\)/);
   assert.match(page, /Modo seguro:/);
   assert.match(page, /Mapeo de conversiones/);
+  assert.match(page, /conversionCustomerId: status\.conversionCustomerId/);
+  assert.match(page, /conversionCustomerId: integrationForm\.conversionCustomerId/);
   assert.match(page, /Métricas por campaña/);
   assert.match(page, /No disponible/);
   assert.doesNotMatch(page, /fetch\([^)]*google/i);
