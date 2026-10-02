@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
-import { ArrowRight, Bot, KeyRound, Mail } from "lucide-react";
+import Image from "next/image";
+import {
+  ArrowRight,
+  BarChart3,
+  KeyRound,
+  LockKeyhole,
+  Mail,
+  MessageCircle,
+} from "lucide-react";
 import { useCrmSession } from "../_components/CrmSession";
 import { apiErrorMessage } from "../_components/format";
 import { hermesApi } from "@/lib/hermes/api";
@@ -58,21 +66,52 @@ export default function CrmLoginPage() {
   return (
     <main className="crm-login-page">
       <section className="crm-login-story">
-        <div className="crm-login-brand"><span><Bot size={23} /></span>Hermes CRM</div>
-        <div className="crm-login-story-copy">
-          <span className="crm-eyebrow">Operacion comercial</span>
-          <h1>Cada conversacion, visible. Cada oportunidad, a tiempo.</h1>
-          <p>Observa como atiende Hermes, toma el control cuando un cliente lo necesita y mueve cada conversacion por el pipeline.</p>
+        <div className="crm-login-brand">
+          <Image
+            className="crm-login-brand-logo"
+            src="/assets/img/Logotipo Hermes CRM sobre transparencia.png"
+            alt="Hermes CRM"
+            width={2172}
+            height={724}
+            priority
+          />
         </div>
-        <div className="crm-login-signal"><i aria-hidden="true" /><div><strong>Hermes permanece activo</strong><span>Las conversaciones automaticas continuan en WhatsApp.</span></div></div>
+        <div className="crm-login-story-copy">
+          <span className="crm-login-eyebrow">OPERACIÓN COMERCIAL</span>
+          <h1>Acceso seguro a tu <span>operación comercial.</span></h1>
+          <p>Conversaciones, oportunidades y clientes en un solo lugar.</p>
+        </div>
+        <div className="crm-login-benefits" aria-label="Beneficios de Hermes CRM">
+          <div className="crm-login-benefit">
+            <span><MessageCircle size={18} aria-hidden="true" /></span>
+            <strong>Conversaciones<br />en un solo lugar</strong>
+          </div>
+          <div className="crm-login-benefit">
+            <span><BarChart3 size={18} aria-hidden="true" /></span>
+            <strong>Más oportunidades<br />de negocio</strong>
+          </div>
+          <div className="crm-login-benefit">
+            <span><LockKeyhole size={18} aria-hidden="true" /></span>
+            <strong>Información<br />siempre segura</strong>
+          </div>
+        </div>
       </section>
 
       <section className="crm-login-panel">
         <div className="crm-login-form-wrap">
-          <div className="crm-login-mobile-brand"><Bot size={21} />Hermes CRM</div>
-          <span className="crm-eyebrow">Acceso privado</span>
+          <div className="crm-login-mobile-brand">
+            <Image
+              className="crm-login-brand-logo"
+              src="/assets/img/Logotipo Hermes CRM sobre transparencia.png"
+              alt="Hermes CRM"
+              width={2172}
+              height={724}
+              priority
+            />
+          </div>
+          <span className="crm-login-eyebrow">ACCESO PRIVADO</span>
           <h2>Acceso de gerencia</h2>
-          <p>Solicita un codigo de un solo uso para entrar a Hermes CRM.</p>
+          <div className="crm-login-heading-rule" aria-hidden="true" />
 
           {expired && !error && <div className="crm-inline-alert">Tu sesion vencio. Inicia sesion nuevamente para continuar.</div>}
           {error && <div className="crm-inline-alert is-error" role="alert">{error}</div>}
@@ -84,7 +123,7 @@ export default function CrmLoginPage() {
                 <div className="crm-input-with-icon"><Mail size={18} aria-hidden="true" /><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" placeholder="tu@empresa.com" required disabled={loading} /></div>
               </label>
               <button type="submit" className="crm-button is-primary is-large" disabled={loading}>
-                {loading ? "Enviando codigo..." : "Enviar codigo de acceso"}{!loading && <ArrowRight size={18} />}
+                {loading ? "Enviando código..." : "Enviar código de acceso"}{!loading && <ArrowRight size={18} />}
               </button>
             </form>
           ) : (
@@ -104,6 +143,11 @@ export default function CrmLoginPage() {
               </button>
             </form>
           )}
+
+          <div className="crm-login-security-note">
+            <div aria-hidden="true"><LockKeyhole size={14} /></div>
+            <small>Solo los correos autorizados pueden recibir un código de acceso.</small>
+          </div>
 
           <small>Por seguridad, solo los correos autorizados reciben un código de acceso.</small>
         </div>

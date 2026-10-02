@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Bell,
   BellRing,
   BarChart3,
-  Bot,
   BriefcaseBusiness,
   CalendarDays,
   ChevronRight,
@@ -275,13 +275,14 @@ export default function CrmShell({ children }) {
         inert={sidebarCollapsed ? "" : undefined}
       >
         <div className="crm-brand">
-          <div className="crm-brand-mark">
-            <Bot size={22} aria-hidden="true" />
-          </div>
-          <div className="crm-brand-copy">
-            <strong>Hermes</strong>
-            <span>CRM conversacional</span>
-          </div>
+          <Image
+            className="crm-brand-logo"
+            src="/assets/img/Logotipo Hermes CRM sobre transparencia.png"
+            alt="Hermes CRM"
+            width={2172}
+            height={724}
+            priority
+          />
         </div>
 
         <nav className="crm-nav">
