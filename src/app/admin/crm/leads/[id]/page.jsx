@@ -50,6 +50,7 @@ export default function LeadDetailPage() {
   const id = String(params.id);
   const { user } = useCrmSession();
   const [lead, setLead] = useState(null);
+  const [transfer, setTransfer] = useState(null);
   const [advertisingHistory, setAdvertisingHistory] = useState([]);
   const [advertisingError, setAdvertisingError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -67,6 +68,9 @@ export default function LeadDetailPage() {
       ]);
       if (leadResult.status === "rejected") throw leadResult.reason;
       setLead(leadResult.value);
+      setTransfer(leadResult.value.conversation?.id
+        ? await hermesApi.transferByConversation(leadResult.value.conversation.id).catch(() => null)
+        : null);
       if (historyResult.status === "fulfilled") {
         setAdvertisingHistory(Array.isArray(historyResult.value) ? historyResult.value : []);
         setAdvertisingError("");
@@ -162,15 +166,23 @@ export default function LeadDetailPage() {
             id="lead-stage"
             value={lead.stage}
             onChange={handleStage}
-            disabled={saving}
+            disabled={saving || lead.stage === 'PAYMENT_REVIEW'}
           >
             {LEAD_STAGES.map((stage) => (
-              <option key={stage} value={stage}>{STAGE_META[stage].short}</option>
+              <option key={stage} value={stage} disabled={stage !== lead.stage && (['PAYMENT_PENDING', 'PAYMENT_REVIEW'].includes(stage) || stage === 'WON' && lead.stage === 'PAYMENT_PENDING')}>{STAGE_META[stage].short}</option>
             ))}
           </select>
           <StageBadge stage={lead.stage} meta={STAGE_META} />
         </div>
       </header>
+
+      {transfer && lead.conversation && <section className="crm-panel" style={{ marginBottom: 20, padding: 20 }}>
+        <strong>Transferencia bancaria: {transfer.status}</strong>
+        <p>Monto esperado: {transfer.currency} {transfer.amountExpected}. Comprobantes en el chat: {transfer.proofMessages?.length || 0}.</p>
+        <Link href={`/admin/crm/inbox?conversationId=${lead.conversation.id}`}>
+          Revisar transferencia en Inbox <ArrowUpRight size={16} />
+        </Link>
+      </section>}
 
       {openHandoff && (
         <section className="crm-handoff-banner">
@@ -254,6 +266,8 @@ export default function LeadDetailPage() {
                     <div>
                       <strong>{task.title}</strong>
                       <span>{task.description || task.type.replaceAll("_", " ")}</span>
+                      {task.type === 'PAYMENT_VERIFICATION' && lead.conversation?.id &&
+                        <Link href={`/admin/crm/inbox?conversationId=${lead.conversation.id}`}>Abrir comprobante en Inbox</Link>}
                     </div>
                     <time>{task.dueAt ? formatDate(task.dueAt, { withYear: true }) : "Sin fecha"}</time>
                   </article>

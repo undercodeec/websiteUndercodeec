@@ -4,6 +4,8 @@ export const LEAD_STAGES = [
   "QUALIFIED",
   "PROPOSAL",
   "NEGOTIATION",
+  "PAYMENT_PENDING",
+  "PAYMENT_REVIEW",
   "WON",
   "LOST",
 ];
@@ -14,6 +16,8 @@ export const STAGE_META = {
   QUALIFIED: { label: "Calificados", short: "Calificado", tone: "violet" },
   PROPOSAL: { label: "Propuesta", short: "Propuesta", tone: "amber" },
   NEGOTIATION: { label: "Negociación", short: "Negociación", tone: "orange" },
+  PAYMENT_PENDING: { label: "Pago pendiente", short: "Pago pendiente", tone: "amber" },
+  PAYMENT_REVIEW: { label: "Validación", short: "Validación", tone: "violet" },
   WON: { label: "Ganados", short: "Ganado", tone: "green" },
   LOST: { label: "Perdidos", short: "Perdido", tone: "red" },
 };

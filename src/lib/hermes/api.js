@@ -371,6 +371,35 @@ export const hermesApi = {
   lead(id) {
     return request(`/leads/${encodeURIComponent(id)}`);
   },
+  bankAccounts() {
+    return request('/bank-accounts');
+  },
+  createBankAccount(data) {
+    return request('/bank-accounts', { method: 'POST', body: data });
+  },
+  updateBankAccount(id, data) {
+    return request(`/bank-accounts/${encodeURIComponent(id)}`, { method: 'PUT', body: data });
+  },
+  transferByConversation(id) {
+    return request(`/transfers/conversation/${encodeURIComponent(id)}`);
+  },
+  startTransferReview(id) {
+    return request(`/transfers/${encodeURIComponent(id)}/start-review`, { method: 'POST', body: {} });
+  },
+  approveTransfer(id, data) {
+    return request(`/transfers/${encodeURIComponent(id)}/approve`, { method: 'POST', body: data });
+  },
+  rejectTransfer(id, data) {
+    return request(`/transfers/${encodeURIComponent(id)}/reject`, { method: 'POST', body: data });
+  },
+  async inboxMedia(conversationId, messageId) {
+    const token = getHermesToken();
+    const response = await fetch(`${API_BASE_URL}/conversations/${encodeURIComponent(conversationId)}/messages/${encodeURIComponent(messageId)}/media`, {
+      headers: { Authorization: `Bearer ${token}` }, cache: 'no-store',
+    });
+    if (!response.ok) throw new HermesApiError('No se pudo abrir el adjunto de WhatsApp.', { status: response.status });
+    return response.blob();
+  },
   updateLead(id, changes) {
     return request(`/leads/${encodeURIComponent(id)}`, {
       method: "PUT",

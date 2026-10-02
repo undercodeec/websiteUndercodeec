@@ -30,6 +30,7 @@ import {
   HERMES_CUSTOMER_MESSAGE_EVENT,
   hermesApi,
 } from "@/lib/hermes/api";
+import { useCrmSession } from '../_components/CrmSession';
 import { presentHermesIncident } from "@/lib/hermes/incidents.mjs";
 import {
   activeHandoff,
@@ -78,7 +79,40 @@ const RESOLUTION_OPTIONS = [
   },
 ];
 
+function InboxMedia({ conversationId, message }) {
+  const [url, setUrl] = useState('');
+  const [mime, setMime] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  useEffect(() => () => { if (url) URL.revokeObjectURL(url); }, [url]);
+  const open = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const blob = await hermesApi.inboxMedia(conversationId, message.id);
+      setMime(blob.type);
+      setUrl(URL.createObjectURL(blob));
+    } catch (requestError) {
+      setError(apiErrorMessage(requestError, 'Adjunto no disponible.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+  return <div className="crm-inbox-media">
+    {!url && <button type="button" className="crm-button is-secondary" onClick={open} disabled={loading}>
+      {loading ? 'Abriendo…' : `Ver ${message.type === 'IMAGE' ? 'imagen' : 'PDF'} en Inbox`}
+    </button>}
+    {url && mime.startsWith('image/') &&
+      // Blob URL is fetched with the CRM JWT and must not pass through Next Image optimization.
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={url} alt="Comprobante enviado por el cliente" style={{ maxWidth: '100%', maxHeight: 420 }} />}
+    {url && mime === 'application/pdf' && <iframe src={`${url}#toolbar=0`} title="Comprobante PDF" style={{ width: '100%', height: 420, border: 0 }} />}
+    {error && <span role="alert">{error}</span>}
+  </div>;
+}
+
 export default function InboxPage() {
+  const { user } = useCrmSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialConversationId = searchParams.get("conversationId") || "";
@@ -87,6 +121,10 @@ export default function InboxPage() {
   const [listMeta, setListMeta] = useState({ total: 0, totalPages: 1 });
   const [selectedId, setSelectedId] = useState(initialConversationId);
   const [conversation, setConversation] = useState(null);
+  const [transfer, setTransfer] = useState(null);
+  const [paymentReference, setPaymentReference] = useState('');
+  const [paymentNote, setPaymentNote] = useState('');
+  const [selectedProofId, setSelectedProofId] = useState('');
   const [messages, setMessages] = useState([]);
   const [messagePage, setMessagePage] = useState(1);
   const [messagePages, setMessagePages] = useState(1);
@@ -138,17 +176,22 @@ export default function InboxPage() {
   const loadConversation = useCallback(async (id, quiet = false) => {
     if (!id) {
       setConversation(null);
+      setTransfer(null);
       setMessages([]);
       return;
     }
     if (!quiet) setDetailLoading(true);
     setDetailError("");
     try {
-      const [detail, history] = await Promise.all([
+      const [detail, history, payment] = await Promise.all([
         hermesApi.conversation(id),
         hermesApi.messages(id, { page: 1, limit: 50 }),
+        hermesApi.transferByConversation(id),
       ]);
       setConversation(detail);
+      setTransfer(payment);
+      setSelectedProofId((current) => payment?.proofMessages?.some((proof) => proof.messageId === current)
+        ? current : payment?.proofMessages?.at(-1)?.messageId || '');
       setMessages(history?.data || []);
       setMessagePage(1);
       setMessagePages(history?.totalPages || 1);
@@ -290,6 +333,26 @@ export default function InboxPage() {
     } finally {
       setSending(false);
     }
+  };
+
+  const decidePayment = async (action) => {
+    if (!transfer || action === 'approve' && !paymentReference.trim()) return;
+    if (!window.confirm(action === 'approve' ? '¿Confirmar que el comprobante corresponde al pago?' : '¿Rechazar este comprobante?')) return;
+    setActionLoading(true);
+    try {
+      if (action === 'approve') {
+        const messageId = selectedProofId;
+        await hermesApi.approveTransfer(transfer.id, { expectedStatus: transfer.status,
+          reviewedProofMessageId: messageId, contractReference: paymentReference.trim(), reviewNote: paymentNote.trim() });
+      } else {
+        if (!paymentNote.trim()) throw new Error('Escribe el motivo del rechazo.');
+        await hermesApi.rejectTransfer(transfer.id, { expectedStatus: transfer.status, reviewNote: paymentNote.trim() });
+      }
+      await Promise.all([loadConversation(selectedId, true), loadConversations(true)]);
+      setToast({ tone: 'success', message: action === 'approve' ? 'Pago aprobado.' : 'Comprobante rechazado.' });
+    } catch (requestError) {
+      setToast({ tone: 'error', message: apiErrorMessage(requestError, 'No se pudo guardar la decisión.') });
+    } finally { setActionLoading(false); }
   };
 
   const takeHandoff = async () => {
@@ -454,7 +517,7 @@ export default function InboxPage() {
 
         <div className="crm-inbox-list-meta">
           <span>{listMeta.total} conversaciones</span>
-          {priorityOnly && <strong>Handoffs primero</strong>}
+          {priorityOnly && <strong>Handoffs y pagos por revisar</strong>}
         </div>
 
         <div className="crm-conversation-list">
@@ -490,6 +553,7 @@ export default function InboxPage() {
                         <><Bot size={13} />{CONVERSATION_STATUS[item.status] || item.status}</>
                       )}
                     </span>
+                    {item.paymentReviewTask && <span>Comprobante por validar</span>}
                     {item.hermesIncident && (
                       <span className="crm-hermes-incident-chip">
                         <AlertTriangle size={13} />Incidencia de Hermes
@@ -692,6 +756,11 @@ export default function InboxPage() {
                           {message.sentByUser?.name && ` · ${message.sentByUser.name}`}
                         </div>
                         <p>{message.content || `[${message.type || "Mensaje"}]`}</p>
+                        {message.sender === 'CONTACT' && ['IMAGE', 'DOCUMENT'].includes(message.type) &&
+                          <InboxMedia conversationId={selectedId} message={message} />}
+                        {transfer?.proofMessages?.some((proof) => proof.messageId === message.id) &&
+                          <label><input type="radio" name="payment-proof" checked={selectedProofId === message.id}
+                            onChange={() => setSelectedProofId(message.id)} /> Usar este comprobante para la decisión</label>}
                         <time>{formatDate(message.createdAt)}</time>
                       </article>
                     </div>
@@ -801,6 +870,29 @@ export default function InboxPage() {
                     Ver ficha <ArrowUpRight size={15} />
                   </Link>
                 </div>
+              </section>
+            )}
+
+            {transfer && (
+              <section className="crm-panel">
+                <span className="crm-context-label">Transferencia bancaria</span>
+                <p>Estado: <strong>{transfer.status}</strong></p>
+                <p>Monto esperado: {transfer.currency} {transfer.amountExpected}</p>
+                {transfer.proofMessages?.length > 0 && <p>{transfer.proofMessages.length} comprobante(s) en este chat. Revisa el último adjunto antes de decidir.</p>}
+                {['PROOF_RECEIVED', 'UNDER_REVIEW'].includes(transfer.status) && (
+                  <div>
+                    {transfer.status === 'PROOF_RECEIVED' && <button type="button" className="crm-button is-secondary" disabled={actionLoading} onClick={async () => {
+                      try { await hermesApi.startTransferReview(transfer.id); await loadConversation(selectedId, true); }
+                      catch (error) { setToast({ tone: 'error', message: apiErrorMessage(error, 'No se pudo iniciar la revisión.') }); }
+                    }}>Iniciar revisión</button>}
+                    {user?.role === 'ADMIN' && <>
+                      <label>Referencia de contrato<input value={paymentReference} onChange={(event) => setPaymentReference(event.target.value)} maxLength={128} /></label>
+                      <label>Nota o motivo de rechazo<textarea value={paymentNote} onChange={(event) => setPaymentNote(event.target.value)} maxLength={2000} /></label>
+                      <button type="button" className="crm-button is-primary" disabled={actionLoading || !paymentReference.trim() || !selectedProofId} onClick={() => decidePayment('approve')}>Aprobar pago</button>
+                      <button type="button" className="crm-button is-secondary" disabled={actionLoading || !paymentNote.trim()} onClick={() => decidePayment('reject')}>Rechazar</button>
+                    </>}
+                  </div>
+                )}
               </section>
             )}
           </>

@@ -119,6 +119,10 @@ export default function LeadsPipelinePage() {
     async (leadId, nextStage) => {
       const current = leads.find((lead) => lead.id === leadId);
       if (!current || current.stage === nextStage || updatingId) return;
+      if (current.stage === 'PAYMENT_REVIEW' || ['PAYMENT_PENDING', 'PAYMENT_REVIEW'].includes(nextStage) || (current.stage === 'PAYMENT_PENDING' && nextStage === 'WON')) {
+        setToast({ tone: 'error', message: 'La transferencia debe validarse desde el Inbox de la conversación.' });
+        return;
+      }
       const nextLabel = STAGE_META[nextStage]?.short || nextStage;
       if (
         !window.confirm(
