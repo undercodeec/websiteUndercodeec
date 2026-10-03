@@ -4,12 +4,11 @@ import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import {
   ArrowRight,
-  BarChart3,
   KeyRound,
   LockKeyhole,
   Mail,
-  MessageCircle,
 } from "lucide-react";
+import CrmLoginBrain from "./CrmLoginBrain";
 import { useCrmSession } from "../_components/CrmSession";
 import { apiErrorMessage } from "../_components/format";
 import { hermesApi } from "@/lib/hermes/api";
@@ -81,20 +80,7 @@ export default function CrmLoginPage() {
           <h1>Acceso seguro a tu <span>operación comercial.</span></h1>
           <p>Conversaciones, oportunidades y clientes en un solo lugar.</p>
         </div>
-        <div className="crm-login-benefits" aria-label="Beneficios de Hermes CRM">
-          <div className="crm-login-benefit">
-            <span><MessageCircle size={18} aria-hidden="true" /></span>
-            <strong>Conversaciones<br />en un solo lugar</strong>
-          </div>
-          <div className="crm-login-benefit">
-            <span><BarChart3 size={18} aria-hidden="true" /></span>
-            <strong>Más oportunidades<br />de negocio</strong>
-          </div>
-          <div className="crm-login-benefit">
-            <span><LockKeyhole size={18} aria-hidden="true" /></span>
-            <strong>Información<br />siempre segura</strong>
-          </div>
-        </div>
+        <CrmLoginBrain />
       </section>
 
       <section className="crm-login-panel">
