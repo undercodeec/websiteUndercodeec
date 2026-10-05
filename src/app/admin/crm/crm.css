@@ -762,6 +762,7 @@
   isolation: isolate;
   overflow: hidden;
   color: #11183d;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
   background:
     radial-gradient(circle at 3% 92%, rgba(117, 153, 255, .15), transparent 27rem),
     radial-gradient(circle at 96% 7%, rgba(150, 129, 255, .10), transparent 23rem),
@@ -805,12 +806,12 @@
 .crm-login-story-copy h1 { max-width: 620px; margin: 17px 0 0; color: #11183d; font-size: clamp(42px, 4.75vw, 70px); font-weight: 780; letter-spacing: -.058em; line-height: 1.04; }
 .crm-login-story-copy h1 span { display: block; background: linear-gradient(100deg, #3f7bff 2%, #6a63ff 88%); background-clip: text; -webkit-background-clip: text; color: transparent; }
 .crm-login-story-copy p { max-width: 460px; margin: 24px 0 0; color: #69738c; font-size: 16px; line-height: 1.65; }
-.crm-login-brain { width: min(100%, 600px); height: min(44vh, 400px); min-height: 290px; pointer-events: none; }
-.crm-login-brain iframe { display: block; width: 100%; height: 100%; border: 0; mix-blend-mode: difference; animation: crm-login-brain-colors 18s ease-in-out infinite; }
+.crm-login-brain { --crm-brain-half-width: clamp(90px, 9vw, 140px); width: min(100%, 760px); height: clamp(360px, 52vh, 560px); min-height: 340px; align-self: flex-start; margin: auto 0; transform: translateX(-10vw); pointer-events: auto; }
+.crm-login-brain iframe { display: block; width: calc(100% + var(--crm-brain-half-width) + var(--crm-brain-half-width)); margin-left: calc(0px - var(--crm-brain-half-width)); height: 100%; border: 0; background: transparent; visibility: hidden; pointer-events: auto; clip-path: inset(2px); transform: scale(1.1); transform-origin: center; animation: crm-login-brain-colors 18s ease-in-out -9s infinite; }
+.crm-login-brain.is-ready iframe { visibility: visible; }
 @keyframes crm-login-brain-colors {
-  0%, 100% { filter: grayscale(1) sepia(1) saturate(2.5) hue-rotate(0deg) contrast(1.45); }
-  33% { filter: grayscale(1) sepia(1) saturate(2.5) hue-rotate(35deg) contrast(1.45); }
-  66% { filter: grayscale(1) sepia(1) saturate(2.5) hue-rotate(-35deg) contrast(1.45); }
+  0%, 100% { filter: grayscale(1) sepia(1) saturate(2.5) contrast(1.15) invert(1) hue-rotate(0deg); }
+  50% { filter: grayscale(1) sepia(1) saturate(2.5) contrast(1.15) invert(1) hue-rotate(55deg); }
 }
 .crm-login-panel { min-height: 100dvh; padding: clamp(24px, 5vw, 78px); display: grid; place-items: center; }
 .crm-login-form-wrap { width: min(100%, 468px); padding: clamp(32px, 4.3vw, 54px); border: 1px solid #dce4f7; border-radius: 27px; background: rgba(255,255,255,.88); box-shadow: 0 24px 65px rgba(67, 83, 144, .11), 0 3px 12px rgba(67, 83, 144, .035); backdrop-filter: blur(14px); }
@@ -859,6 +860,8 @@
 .crm-modal form > footer { margin-top: 16px; display: flex; justify-content: flex-end; gap: 8px; }
 
 @media (max-width:1200px) {
+  .crm-login-brain { transform: translateX(-7vw); }
+  .crm-login-brain iframe { transform: scale(1.05); }
   .crm-inbox { grid-template-columns: 300px minmax(420px,1fr); }
   .crm-context-panel { display: none; }
   .crm-metric-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }

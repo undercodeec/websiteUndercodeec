@@ -75,11 +75,7 @@ export default function CrmLoginPage() {
             priority
           />
         </div>
-        <div className="crm-login-story-copy">
-          <span className="crm-login-eyebrow">OPERACIÓN COMERCIAL</span>
-          <h1>Acceso seguro a tu <span>operación comercial.</span></h1>
-          <p>Conversaciones, oportunidades y clientes en un solo lugar.</p>
-        </div>
+        
         <CrmLoginBrain />
       </section>
 

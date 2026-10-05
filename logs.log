@@ -1,25 +1,32 @@
-  location / {
-        if ($request_method = 'OPTIONS') {
-            add_header 'Access-Control-Allow-Origin' 'https://undercodeec.com' always;
-            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
-            add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always;
-            add_header 'Access-Control-Max-Age' 86400 always;
-            add_header 'Content-Length' 0;
-            add_header 'Content-Type' 'text/plain';
-            return 204;
-        }
+• Corrección completada: se movió únicamente el respaldo duplicado y Nginx fue recargado una vez tras validar la configuración.
 
-        proxy_pass http://localhost:3002;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
+  - Advertencias previas exactas:
+      - conflicting server name "undercodeec.com" on 0.0.0.0:80, ignored
+      - conflicting server name "www.undercodeec.com" on 0.0.0.0:80, ignored
+      - conflicting server name "api.undercodeec.com" on 0.0.0.0:80, ignored
+      - Las mismas tres advertencias en 0.0.0.0:443.
 
-    listen 443 ssl;
-    ssl_certificate /etc/letsencrypt/live/undercodeec.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/undercodeec.com/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-}
+  - Causa demostrada: /etc/nginx/sites-enabled/undercodeec.bak-20260903-212732, cargado por include /etc/nginx/sites-enabled/*, duplicaba los server_name
+    de /etc/nginx/sites-enabled/undercodeec para 80 y 443. No era enlace ni tenía referencias explícitas adicionales.
 
+  - Archivo movido a /root/nginx-disabled-backups/undercodeec.bak-20260903-212732
+      - SHA-256: 6561075b82dba13660a7c312c3e4a07084c6ca19d0623091ec323c1a9a84bd5a
+      - Permisos preservados: 644 root:root
+      - Directorio de archivo: 700 root:root
+
+  - /etc/nginx/sites-enabled/undercodeec no fue modificado. Tampoco se tocó CRM, API ni Hermes.
+  - nginx -t posterior: sintaxis correcta y prueba exitosa, sin advertencias de conflicto.
+  - Recarga ejecutada: systemctl reload nginx.
+
+  Validación posterior:
+
+  - Web local (3000): HTTP 200
+  - Asset de la release /var/www/releases/undercodeec-3ca3a8ec22b36c3822be0871fa41cfb30f88153a: /_next/static/chunks/d70479ad172553b6.js → HTTP 200
+  - PM2: web-undercodeec y api-undercodeec en línea.
+  - API sigue escuchando en 3002.
+  - Hermes sigue activo en Docker y escuchando en 127.0.0.1:3003.
+
+  Rollback exacto, si hiciera falta:
+
+  sudo mv -- /root/nginx-disabled-backups/undercodeec.bak-20260903-212732 /etc/nginx/sites-enabled/undercodeec.bak-20260903-212732
+  sudo nginx -t && sudo systemctl reload nginx
