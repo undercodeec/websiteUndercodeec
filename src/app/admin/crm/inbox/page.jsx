@@ -80,6 +80,15 @@ const RESOLUTION_OPTIONS = [
   },
 ];
 
+const FEEDBACK_REASONS = {
+  REPETITION: "Repetición",
+  WRONG_FACT: "Dato incorrecto",
+  MISSED_INTENT: "No entendió la intención",
+  NO_NEXT_STEP: "Faltó un siguiente paso",
+  TONE: "Tono inadecuado",
+  OTHER: "Otro motivo",
+};
+
 function InboxMedia({ conversationId, message }) {
   const [url, setUrl] = useState('');
   const [mime, setMime] = useState('');
@@ -127,6 +136,13 @@ export default function InboxPage() {
   const [paymentNote, setPaymentNote] = useState('');
   const [selectedProofId, setSelectedProofId] = useState('');
   const [messages, setMessages] = useState([]);
+  const [feedbackResult, setFeedbackResult] = useState(null);
+  const [feedbackError, setFeedbackError] = useState("");
+  const [feedbackOpenId, setFeedbackOpenId] = useState("");
+  const [feedbackReason, setFeedbackReason] = useState("REPETITION");
+  const [feedbackSuggestedReply, setFeedbackSuggestedReply] = useState("");
+  const [feedbackSavingId, setFeedbackSavingId] = useState("");
+  const [feedbackRequests, setFeedbackRequests] = useState({});
   const [messagePage, setMessagePage] = useState(1);
   const [messagePages, setMessagePages] = useState(1);
   const [search, setSearch] = useState("");
@@ -149,6 +165,11 @@ export default function InboxPage() {
   const [resolutionText, setResolutionText] = useState("");
   const [toast, setToast] = useState(null);
   const messagesEndRef = useRef(null);
+  const selectedIdRef = useRef(selectedId);
+
+  useEffect(() => {
+    selectedIdRef.current = selectedId;
+  }, [selectedId]);
 
   const loadConversations = useCallback(async (quiet = false) => {
     if (!quiet) setListLoading(true);
@@ -182,21 +203,31 @@ export default function InboxPage() {
       setConversation(null);
       setTransfer(null);
       setMessages([]);
+      setFeedbackResult(null);
+      setFeedbackError("");
       return;
     }
     if (!quiet) setDetailLoading(true);
     setDetailError("");
     try {
-      const [detail, history, payment] = await Promise.all([
+      const [detail, history, payment, feedback] = await Promise.all([
         hermesApi.conversation(id),
         hermesApi.messages(id, { page: 1, limit: 50 }),
         hermesApi.transferByConversation(id),
+        hermesApi.feedbackForConversation(id)
+          .then((value) => ({ value, error: "" }))
+          .catch((requestError) => ({
+            value: null,
+            error: apiErrorMessage(requestError, "No se pudo cargar el feedback."),
+          })),
       ]);
       setConversation(detail);
       setTransfer(payment);
       setSelectedProofId((current) => payment?.proofMessages?.some((proof) => proof.messageId === current)
         ? current : payment?.proofMessages?.at(-1)?.messageId || '');
       setMessages(history?.data || []);
+      setFeedbackResult(feedback.value);
+      setFeedbackError(feedback.error);
       setMessagePage(1);
       setMessagePages(history?.totalPages || 1);
       if (!quiet) {
@@ -269,6 +300,9 @@ export default function InboxPage() {
 
   const selectConversation = (id) => {
     setTakeoverOpen(false);
+    setFeedbackOpenId("");
+    setFeedbackResult(null);
+    setFeedbackError("");
     setSelectedId(id);
     const params = new URLSearchParams();
     params.set("conversationId", id);
@@ -282,6 +316,34 @@ export default function InboxPage() {
       selectedId ? loadConversation(selectedId, true) : Promise.resolve(),
     ]);
     setToast({ tone: "success", message: "Inbox actualizado." });
+  };
+
+  const submitFeedback = async (messageId, rating, event) => {
+    event?.preventDefault();
+    if (!selectedId || feedbackSavingId) return;
+    const conversationId = selectedId;
+    const details = rating === "BAD"
+      ? { reasonCode: feedbackReason, suggestedReply: feedbackSuggestedReply.trim() || undefined }
+      : {};
+    const fingerprint = JSON.stringify({ conversationId, messageId, rating, ...details });
+    const prior = feedbackRequests[messageId];
+    const requestKey = prior?.fingerprint === fingerprint ? prior.requestKey : crypto.randomUUID();
+    setFeedbackRequests((current) => ({ ...current, [messageId]: { fingerprint, requestKey } }));
+    setFeedbackSavingId(messageId);
+    try {
+      await hermesApi.createFeedback({ conversationId, messageId, rating, ...details, requestKey });
+      const result = await hermesApi.feedbackForConversation(conversationId);
+      if (selectedIdRef.current === conversationId) {
+        setFeedbackResult(result);
+        setFeedbackOpenId("");
+        setFeedbackSuggestedReply("");
+        setToast({ tone: "success", message: "Valoración guardada en este mensaje." });
+      }
+    } catch (requestError) {
+      setToast({ tone: "error", message: apiErrorMessage(requestError, "No se pudo guardar la valoración.") });
+    } finally {
+      setFeedbackSavingId("");
+    }
   };
 
   const loadOlderMessages = async () => {
@@ -773,6 +835,22 @@ export default function InboxPage() {
               </div>
             )}
 
+            {feedbackResult?.summary?.total > 0 && (
+              <div className="crm-feedback-summary" aria-label="Resumen de valoraciones de esta conversación">
+                <strong>Feedback: {feedbackResult.summary.total}</strong>
+                <span>Útiles {feedbackResult.summary.good} · Por corregir {feedbackResult.summary.bad}</span>
+                {Object.entries(feedbackResult.summary.reasons).map(([code, count]) => (
+                  <span key={code}>{FEEDBACK_REASONS[code] || code}: {count}</span>
+                ))}
+              </div>
+            )}
+            {feedbackError && (
+              <div className="crm-feedback-summary" role="alert">
+                <span>{feedbackError}</span>
+                <button type="button" onClick={() => loadConversation(selectedId, true)}>Reintentar</button>
+              </div>
+            )}
+
             <div className="crm-message-history">
               {messagePage < messagePages && (
                 <button
@@ -794,6 +872,9 @@ export default function InboxPage() {
               ) : (
                 messages.map((message, index) => {
                   const sender = SENDER_META[message.sender] || SENDER_META.SYSTEM;
+                  const ownFeedback = feedbackResult?.data?.find((item) =>
+                    item.messageId === message.id && item.userId === user?.id,
+                  );
                   const showDay =
                     index === 0 ||
                     new Date(messages[index - 1].createdAt).toDateString() !==
@@ -822,6 +903,39 @@ export default function InboxPage() {
                           <label><input type="radio" name="payment-proof" checked={selectedProofId === message.id}
                             onChange={() => setSelectedProofId(message.id)} /> Usar este comprobante para la decisión</label>}
                         <time>{formatDate(message.createdAt)}</time>
+                        {message.sender === "HERMES" && message.wamid && feedbackResult && (
+                          <div className="crm-message-feedback">
+                            {ownFeedback ? (
+                              <span>Tu valoración: {ownFeedback.rating === "GOOD" ? "útil" : `corregir · ${FEEDBACK_REASONS[ownFeedback.reasonCode] || ownFeedback.reasonCode}`}</span>
+                            ) : (
+                              <div className="crm-message-feedback-actions">
+                                <button type="button" disabled={Boolean(feedbackSavingId)} onClick={() => submitFeedback(message.id, "GOOD")}>Útil</button>
+                                <button type="button" disabled={Boolean(feedbackSavingId)} onClick={() => {
+                                  setFeedbackOpenId(message.id);
+                                  setFeedbackReason("REPETITION");
+                                  setFeedbackSuggestedReply("");
+                                }}>Corregir</button>
+                              </div>
+                            )}
+                            {feedbackOpenId === message.id && !ownFeedback && (
+                              <form className="crm-message-feedback-form" onSubmit={(event) => submitFeedback(message.id, "BAD", event)}>
+                                <label>Motivo
+                                  <select value={feedbackReason} onChange={(event) => setFeedbackReason(event.target.value)}>
+                                    {Object.entries(FEEDBACK_REASONS).map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+                                  </select>
+                                </label>
+                                <label>Respuesta sugerida (opcional)
+                                  <textarea value={feedbackSuggestedReply} onChange={(event) => setFeedbackSuggestedReply(event.target.value)} maxLength={2000} rows={3} placeholder="Describe una respuesta mejor, sin datos personales innecesarios" />
+                                </label>
+                                <small>La sugerencia queda en el CRM y no se envía al cliente.</small>
+                                <div>
+                                  <button type="button" onClick={() => setFeedbackOpenId("")}>Cancelar</button>
+                                  <button type="submit" disabled={Boolean(feedbackSavingId)}>{feedbackSavingId === message.id ? "Guardando…" : "Guardar valoración"}</button>
+                                </div>
+                              </form>
+                            )}
+                          </div>
+                        )}
                       </article>
                     </div>
                   );

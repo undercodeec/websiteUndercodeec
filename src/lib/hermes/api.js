@@ -417,6 +417,12 @@ export const hermesApi = {
       `/conversations/${encodeURIComponent(id)}/messages${toQueryString(params)}`,
     );
   },
+  feedbackForConversation(id) {
+    return request(`/feedback/conversation/${encodeURIComponent(id)}`);
+  },
+  createFeedback(data) {
+    return request('/feedback', { method: 'POST', body: data });
+  },
   reply(id, content) {
     return request(`/conversations/${encodeURIComponent(id)}/reply`, {
       method: "POST",
