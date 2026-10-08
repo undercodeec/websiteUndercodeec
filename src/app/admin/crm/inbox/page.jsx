@@ -32,6 +32,7 @@ import {
 } from "@/lib/hermes/api";
 import { useCrmSession } from '../_components/CrmSession';
 import { presentHermesIncident } from "@/lib/hermes/incidents.mjs";
+import { startHumanTakeover } from "@/lib/hermes/human-takeover.mjs";
 import {
   activeHandoff,
   CONVERSATION_STATUS,
@@ -385,18 +386,28 @@ export default function InboxPage() {
     if (!conversationId || !detail || actionLoading) return;
     setActionLoading(true);
     try {
-      await hermesApi.createHandoff(conversationId, takeoverReason, detail);
+      const result = await startHumanTakeover(hermesApi, {
+        conversationId,
+        reason: takeoverReason,
+        reasonDetail: detail,
+        userId: user?.id,
+      });
       setTakeoverOpen(false);
       setTakeoverDetail("");
-      await Promise.all([loadConversation(conversationId, true), loadConversations(true)]);
-      setToast({ tone: "success", message: "Control humano iniciado. Toma la atención para responder." });
+      if (result.assignedElsewhere) {
+        setToast({ tone: "error", message: "La atención ya está asignada a otro operador." });
+      } else if (result.taken) {
+        setToast({ tone: "success", message: "Tomaste la atención. Ya puedes responder si la ventana de 24 horas está abierta." });
+      } else {
+        setToast({ tone: "error", message: "Se inició el control humano, pero no se pudo confirmar la toma. Revisa el estado del handoff para reintentar." });
+      }
     } catch (requestError) {
       setToast({
         tone: "error",
         message: apiErrorMessage(requestError, "No se pudo iniciar el control humano."),
       });
-      await Promise.all([loadConversation(conversationId, true), loadConversations(true)]);
     } finally {
+      await Promise.allSettled([loadConversation(conversationId, true), loadConversations(true)]);
       setActionLoading(false);
     }
   };
@@ -855,7 +866,9 @@ export default function InboxPage() {
                       ? "Escribe una respuesta como operador…"
                       : conversation.status === "CLOSED"
                         ? "La conversación está cerrada"
-                        : "Toma el handoff para responder manualmente"
+                        : !windowOpen
+                          ? "La ventana de 24 horas está cerrada"
+                          : "Toma el handoff para responder manualmente"
                   }
                   maxLength={4096}
                   disabled={!canReplyManually || sending}
