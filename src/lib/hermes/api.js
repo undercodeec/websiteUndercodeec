@@ -435,6 +435,12 @@ export const hermesApi = {
       body: {},
     });
   },
+  createHandoff(conversationId, reason, reasonDetail) {
+    return request("/handoff", {
+      method: "POST",
+      body: { conversationId, reason, reasonDetail },
+    });
+  },
   takeHandoff(id) {
     return request(`/handoff/${encodeURIComponent(id)}/take`, {
       method: "PUT",

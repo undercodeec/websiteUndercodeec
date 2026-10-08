@@ -141,6 +141,9 @@ export default function InboxPage() {
   const [detailError, setDetailError] = useState("");
   const [reply, setReply] = useState("");
   const [resolutionOpen, setResolutionOpen] = useState(false);
+  const [takeoverOpen, setTakeoverOpen] = useState(false);
+  const [takeoverReason, setTakeoverReason] = useState("CUSTOM");
+  const [takeoverDetail, setTakeoverDetail] = useState("");
   const [resolutionAction, setResolutionAction] = useState("RETURN_TO_HERMES");
   const [resolutionText, setResolutionText] = useState("");
   const [toast, setToast] = useState(null);
@@ -264,6 +267,7 @@ export default function InboxPage() {
   }, [loadConversation, loadConversations, selectedId]);
 
   const selectConversation = (id) => {
+    setTakeoverOpen(false);
     setSelectedId(id);
     const params = new URLSearchParams();
     params.set("conversationId", id);
@@ -368,6 +372,30 @@ export default function InboxPage() {
         tone: "error",
         message: apiErrorMessage(requestError, "No se pudo tomar la atención."),
       });
+      await Promise.all([loadConversation(selectedId, true), loadConversations(true)]);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const createHandoff = async (event) => {
+    event.preventDefault();
+    const conversationId = selectedId;
+    const detail = takeoverDetail.trim();
+    if (!conversationId || !detail || actionLoading) return;
+    setActionLoading(true);
+    try {
+      await hermesApi.createHandoff(conversationId, takeoverReason, detail);
+      setTakeoverOpen(false);
+      setTakeoverDetail("");
+      await Promise.all([loadConversation(conversationId, true), loadConversations(true)]);
+      setToast({ tone: "success", message: "Control humano iniciado. Toma la atención para responder." });
+    } catch (requestError) {
+      setToast({
+        tone: "error",
+        message: apiErrorMessage(requestError, "No se pudo iniciar el control humano."),
+      });
+      await Promise.all([loadConversation(conversationId, true), loadConversations(true)]);
     } finally {
       setActionLoading(false);
     }
@@ -454,6 +482,11 @@ export default function InboxPage() {
 
   const handoff = activeHandoff(conversation);
   const replyWindow = conversation?.replyWindow;
+  const windowOpen = Boolean(
+    replyWindow?.isOpen &&
+    replyWindow.closesAt &&
+    new Date(replyWindow.closesAt).getTime() > Date.now(),
+  );
   const incidentPresentation = presentHermesIncident(
     conversation?.hermesIncident,
     conversation?.hermesReviewTask,
@@ -461,8 +494,9 @@ export default function InboxPage() {
   const canReplyManually = Boolean(
     conversation?.status === "HANDED_OFF" &&
       handoff &&
-      ["ASSIGNED", "IN_PROGRESS"].includes(handoff.status) &&
-      replyWindow?.isOpen,
+      handoff.status === "IN_PROGRESS" &&
+      handoff.assignedAgentId === user?.id &&
+      windowOpen,
   );
 
   return (
@@ -693,7 +727,7 @@ export default function InboxPage() {
                     {handoff.reasonDetail ? ` · ${handoff.reasonDetail}` : ""}
                   </span>
                 </div>
-                {handoff.status === "PENDING" ? (
+                {(handoff.status === "PENDING" || (handoff.status === "ASSIGNED" && handoff.assignedAgentId === user?.id)) ? (
                   <button
                     type="button"
                     onClick={takeHandoff}
@@ -701,7 +735,7 @@ export default function InboxPage() {
                   >
                     <UserRoundCheck size={16} />Tomar atención
                   </button>
-                ) : (
+                ) : handoff.assignedAgentId === user?.id ? (
                   <button
                     type="button"
                     onClick={() => setResolutionOpen(true)}
@@ -709,7 +743,22 @@ export default function InboxPage() {
                   >
                     Resolver <ChevronDown size={15} />
                   </button>
+                ) : (
+                  <span>Asignado a {handoff.assignedAgent?.name || "otro operador"}</span>
                 )}
+              </div>
+            )}
+
+            {conversation.status === "ACTIVE" && !handoff && (
+              <div className="crm-chat-handoff">
+                <ShieldCheck size={19} />
+                <div>
+                  <strong>Hermes atiende esta conversación</strong>
+                  <span>Inicia un handoff para atenderla desde Inbox.</span>
+                </div>
+                <button type="button" onClick={() => setTakeoverOpen(true)} disabled={actionLoading}>
+                  <UserRoundCheck size={16} />Tomar control humano
+                </button>
               </div>
             )}
 
@@ -776,12 +825,17 @@ export default function InboxPage() {
                   <LockKeyhole size={15} />
                   Conversación cerrada. Reábrela para que Hermes vuelva a atender.
                 </div>
-              ) : !handoff || !["ASSIGNED", "IN_PROGRESS"].includes(handoff.status) ? (
+              ) : handoff?.assignedAgentId && handoff.assignedAgentId !== user?.id ? (
+                <div className="crm-reply-window is-closed">
+                  <LockKeyhole size={15} />
+                  La atención está asignada a otro operador.
+                </div>
+              ) : !handoff || handoff.status !== "IN_PROGRESS" ? (
                 <div className="crm-reply-window is-closed">
                   <LockKeyhole size={15} />
                   La respuesta manual requiere un handoff tomado por un operador.
                 </div>
-              ) : replyWindow?.isOpen ? (
+              ) : windowOpen ? (
                 <div className="crm-reply-window is-open">
                   <Clock3 size={15} />
                   Ventana abierta hasta {formatDate(replyWindow.closesAt)}
@@ -817,7 +871,7 @@ export default function InboxPage() {
                   {sending ? "Enviando…" : "Enviar"}
                 </button>
               </div>
-              {!replyWindow?.isOpen && conversation.status !== "CLOSED" && (
+              {!windowOpen && conversation.status !== "CLOSED" && (
                 <label className="crm-template-placeholder">
                   <span>Plantilla aprobada</span>
                   <select disabled>
@@ -903,6 +957,42 @@ export default function InboxPage() {
           </div>
         )}
       </aside>
+
+      {takeoverOpen && conversation?.status === "ACTIVE" && !handoff && (
+        <div className="crm-modal-backdrop" role="presentation">
+          <div className="crm-modal" role="dialog" aria-modal="true" aria-labelledby="takeover-title">
+            <header>
+              <div>
+                <span className="crm-eyebrow">Control humano</span>
+                <h2 id="takeover-title">Tomar control humano</h2>
+              </div>
+              <button type="button" className="crm-icon-button" onClick={() => setTakeoverOpen(false)} aria-label="Cerrar">
+                <X size={19} />
+              </button>
+            </header>
+            <form onSubmit={createHandoff}>
+              <label className="crm-resolution-note">
+                <span>Motivo</span>
+                <select value={takeoverReason} onChange={(event) => setTakeoverReason(event.target.value)}>
+                  <option value="CUSTOM">Atención solicitada</option>
+                  <option value="INFO_ERROR">Error de información</option>
+                </select>
+              </label>
+              <label className="crm-resolution-note">
+                <span>Detalle interno</span>
+                <textarea value={takeoverDetail} onChange={(event) => setTakeoverDetail(event.target.value)}
+                  placeholder="Explica por qué un operador atenderá este chat" maxLength={2000} required rows={4} />
+              </label>
+              <footer>
+                <button type="button" className="crm-button is-secondary" onClick={() => setTakeoverOpen(false)}>Cancelar</button>
+                <button type="submit" className="crm-button is-primary" disabled={actionLoading || !takeoverDetail.trim()}>
+                  {actionLoading ? "Guardando…" : "Iniciar control humano"}
+                </button>
+              </footer>
+            </form>
+          </div>
+        </div>
+      )}
 
       {resolutionOpen && handoff && (
         <div className="crm-modal-backdrop" role="presentation">

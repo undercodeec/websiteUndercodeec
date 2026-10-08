@@ -46,6 +46,7 @@ async function proxyHermes(
   const isEventStream =
     request.method === "GET" && path.join("/") === "conversations/events";
   const isInboxMedia = request.method === 'GET' && path[0] === 'conversations' && path[2] === 'messages' && path[4] === 'media';
+  const isManualReply = request.method === 'POST' && path[0] === 'conversations' && path[2] === 'reply';
 
   const headers = new Headers();
   const authorization = request.headers.get("authorization");
@@ -62,7 +63,7 @@ async function proxyHermes(
       cache: "no-store",
       signal: isEventStream
         ? request.signal
-        : AbortSignal.timeout(isMediaUpload ? 60_000 : isInboxMedia ? 25_000 : 15_000),
+        : AbortSignal.timeout(isMediaUpload ? 60_000 : isManualReply ? 45_000 : isInboxMedia ? 25_000 : 15_000),
     };
     if (isMediaUpload) init.duplex = "half";
     const upstream = await fetch(target, init);
