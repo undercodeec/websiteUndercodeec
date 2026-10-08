@@ -20,6 +20,7 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 import { hermesApi } from "@/lib/hermes/api";
+import { canMoveLeadStage } from "@/lib/hermes/lead-stage-transitions.mjs";
 import {
   activeHandoff,
   LEAD_STAGES,
@@ -119,8 +120,8 @@ export default function LeadsPipelinePage() {
     async (leadId, nextStage) => {
       const current = leads.find((lead) => lead.id === leadId);
       if (!current || current.stage === nextStage || updatingId) return;
-      if (current.stage === 'PAYMENT_REVIEW' || ['PAYMENT_PENDING', 'PAYMENT_REVIEW'].includes(nextStage) || (current.stage === 'PAYMENT_PENDING' && nextStage === 'WON')) {
-        setToast({ tone: 'error', message: 'La transferencia debe validarse desde el Inbox de la conversación.' });
+      if (!canMoveLeadStage(current, nextStage)) {
+        setToast({ tone: 'error', message: 'Este cambio de etapa no está disponible. Los pagos se gestionan desde Inbox; una calificación incorrecta requiere corrección auditada.' });
         return;
       }
       const nextLabel = STAGE_META[nextStage]?.short || nextStage;
@@ -296,14 +297,17 @@ export default function LeadsPipelinePage() {
                   dragOverStage === stage ? "is-drag-over" : ""
                 }`}
                 onDragOver={(event) => {
-                  event.preventDefault();
-                  setDragOverStage(stage);
+                  const draggedLead = leads.find((lead) => lead.id === draggedId);
+                  if (canMoveLeadStage(draggedLead, stage)) {
+                    event.preventDefault();
+                    setDragOverStage(stage);
+                  }
                 }}
                 onDragLeave={() => setDragOverStage("")}
                 onDrop={(event) => {
                   event.preventDefault();
                   setDragOverStage("");
-                  if (draggedId) changeStage(draggedId, stage);
+                  if (canMoveLeadStage(leads.find((lead) => lead.id === draggedId), stage)) changeStage(draggedId, stage);
                   setDraggedId("");
                 }}
               >
@@ -347,7 +351,7 @@ export default function LeadsPipelinePage() {
                     disabled={updatingId === lead.id}
                     onChange={(event) => changeStage(lead.id, event.target.value)}
                   >
-                    {LEAD_STAGES.map((stage) => (
+                    {LEAD_STAGES.filter((stage) => stage === lead.stage || canMoveLeadStage(lead, stage)).map((stage) => (
                       <option key={stage} value={stage}>
                         {STAGE_META[stage].short}
                       </option>

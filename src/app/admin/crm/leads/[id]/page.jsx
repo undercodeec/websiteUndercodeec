@@ -22,6 +22,7 @@ import {
   Target,
 } from "lucide-react";
 import { hermesApi } from "@/lib/hermes/api";
+import { canMoveLeadStage } from "@/lib/hermes/lead-stage-transitions.mjs";
 import { useCrmSession } from "../../_components/CrmSession";
 import {
   HANDOFF_REASON,
@@ -69,7 +70,7 @@ export default function LeadDetailPage() {
       if (leadResult.status === "rejected") throw leadResult.reason;
       setLead(leadResult.value);
       setTransfer(leadResult.value.conversation?.id
-        ? await hermesApi.transferByConversation(leadResult.value.conversation.id).catch(() => null)
+        ? await hermesApi.transferByConversation(leadResult.value.conversation.id).catch(() => undefined)
         : null);
       if (historyResult.status === "fulfilled") {
         setAdvertisingHistory(Array.isArray(historyResult.value) ? historyResult.value : []);
@@ -111,6 +112,10 @@ export default function LeadDetailPage() {
   const handleStage = (event) => {
     const stage = event.target.value;
     if (stage === lead.stage) return;
+    if (!canMoveLeadStage(lead, stage, transfer)) {
+      setToast({ tone: "error", message: "Este cambio de etapa no está disponible. Los pagos se gestionan desde Inbox; una calificación incorrecta requiere corrección auditada." });
+      return;
+    }
     if (
       window.confirm(
         `¿Cambiar la etapa de este lead a “${STAGE_META[stage].short}”?`,
@@ -168,8 +173,8 @@ export default function LeadDetailPage() {
             onChange={handleStage}
             disabled={saving || lead.stage === 'PAYMENT_REVIEW'}
           >
-            {LEAD_STAGES.map((stage) => (
-              <option key={stage} value={stage} disabled={stage !== lead.stage && (['PAYMENT_PENDING', 'PAYMENT_REVIEW'].includes(stage) || stage === 'WON' && lead.stage === 'PAYMENT_PENDING')}>{STAGE_META[stage].short}</option>
+            {LEAD_STAGES.filter((stage) => stage === lead.stage || canMoveLeadStage(lead, stage, transfer)).map((stage) => (
+              <option key={stage} value={stage}>{STAGE_META[stage].short}</option>
             ))}
           </select>
           <StageBadge stage={lead.stage} meta={STAGE_META} />
