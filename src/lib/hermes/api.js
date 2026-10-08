@@ -426,6 +426,9 @@ export const hermesApi = {
   learningCandidates() {
     return request('/learning/candidates');
   },
+  decideLearningCandidate(id, data) {
+    return request(`/learning/candidates/${encodeURIComponent(id)}/decision`, { method: 'POST', body: data });
+  },
   reply(id, content) {
     return request(`/conversations/${encodeURIComponent(id)}/reply`, {
       method: "POST",

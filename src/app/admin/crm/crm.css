@@ -1144,3 +1144,7 @@
 .crm-learning-card dl > div { display: grid; grid-template-columns: minmax(7rem, 1fr) 2fr; gap: .75rem; }
 .crm-learning-card dt { color: #586875; }
 .crm-learning-card dd { margin: 0; }
+.crm-learning-decision { display: grid; gap: .5rem; border-top: 1px solid var(--crm-border, #d9e2e7); padding-top: .75rem; }
+.crm-learning-decision label { font-size: .8rem; font-weight: 700; }
+.crm-learning-decision textarea, .crm-learning-decision input { width: 100%; border: 1px solid var(--crm-border, #d9e2e7); border-radius: 8px; padding: .6rem; font: inherit; }
+.crm-learning-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
