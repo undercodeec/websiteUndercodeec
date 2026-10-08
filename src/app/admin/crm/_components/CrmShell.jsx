@@ -11,6 +11,7 @@ import {
   CalendarDays,
   ChevronRight,
   DatabaseZap,
+  Lightbulb,
   Inbox,
   Send,
   LayoutDashboard,
@@ -37,6 +38,7 @@ const NAV_ITEMS = [
   { href: "/admin/crm/publicidad", label: "Publicidad y atribución", icon: BarChart3 },
   { href: "/admin/crm/leads", label: "Pipeline", icon: Rows3 },
   { href: "/admin/crm/inbox", label: "Inbox", icon: Inbox },
+  { href: "/admin/crm/aprendizajes", label: "Aprendizajes", icon: Lightbulb, adminOnly: true },
   { href: "/admin/crm/calendario", label: "Calendario", icon: CalendarDays },
   { href: "/admin/crm/campanas", label: "CampaÃ±as", icon: Send },
   { href: "/admin/crm/administracion", label: "Administración", icon: BriefcaseBusiness },
@@ -287,7 +289,7 @@ export default function CrmShell({ children }) {
 
         <nav className="crm-nav">
           <span className="crm-nav-label">Espacio de trabajo</span>
-          {NAV_ITEMS.map((item) => {
+          {NAV_ITEMS.filter((item) => !item.adminOnly || user?.role === "ADMIN").map((item) => {
             const Icon = item.icon;
             const active = navIsActive(normalizedPathname, item);
             return (

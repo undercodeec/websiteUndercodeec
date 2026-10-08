@@ -1135,3 +1135,12 @@
   border-color: #ddd9ff !important; background: rgba(255,255,255,.82) !important;
   box-shadow: 0 8px 24px rgba(22,32,51,.035);
 }
+.crm-learning-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+.crm-learning-card { border: 1px solid var(--crm-border, #d9e2e7); border-radius: 14px; padding: 1.25rem; background: var(--crm-surface, #fff); display: grid; gap: .75rem; }
+.crm-learning-card-top { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.crm-learning-card h2 { margin: 0; font-size: 1.05rem; }
+.crm-learning-card p { margin: 0; line-height: 1.55; }
+.crm-learning-card dl { margin: 0; display: grid; gap: .5rem; }
+.crm-learning-card dl > div { display: grid; grid-template-columns: minmax(7rem, 1fr) 2fr; gap: .75rem; }
+.crm-learning-card dt { color: #586875; }
+.crm-learning-card dd { margin: 0; }

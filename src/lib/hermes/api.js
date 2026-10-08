@@ -423,6 +423,9 @@ export const hermesApi = {
   createFeedback(data) {
     return request('/feedback', { method: 'POST', body: data });
   },
+  learningCandidates() {
+    return request('/learning/candidates');
+  },
   reply(id, content) {
     return request(`/conversations/${encodeURIComponent(id)}/reply`, {
       method: "POST",
