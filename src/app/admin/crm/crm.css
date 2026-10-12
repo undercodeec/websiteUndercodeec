@@ -284,6 +284,7 @@
   background: #effbf5; box-shadow: var(--crm-shadow);
 }
 .crm-toast.is-error { color: #8d293a; border-color: #f2c6cd; background: #fff2f4; }
+.crm-toast.is-warning { color: #765216; border-color: #efd8a8; background: #fff8e9; }
 .crm-toast span { flex: 1; font-size: 12px; font-weight: 600; }
 .crm-toast button {
   width: 24px; height: 24px; padding: 0; display: grid; place-items: center;
@@ -540,6 +541,12 @@
 .crm-lead-stage-control { min-width: 150px; display: flex; align-items: flex-end; flex-direction: column; gap: 6px; }
 .crm-lead-stage-control label { color: var(--crm-muted); font-size: 9px; font-weight: 700; text-transform: uppercase; }
 .crm-lead-stage-control select { width: 150px; }
+.crm-lead-stage-control .crm-button { min-height: 30px; font-size: 11px; }
+.crm-stage-correction-form { display: grid; gap: 13px; }
+.crm-stage-correction-form label { display: grid; gap: 5px; font-size: 12px; font-weight: 700; }
+.crm-stage-correction-form select, .crm-stage-correction-form textarea { width: 100%; padding: 10px; border: 1px solid var(--crm-line); border-radius: 9px; }
+.crm-stage-correction-form textarea { min-height: 96px; resize: vertical; }
+.crm-stage-correction-note { margin: 0; color: #765216; font-size: 12px; line-height: 1.5; }
 .crm-handoff-banner {
   margin-bottom: 16px; padding: 13px 16px; display: flex; align-items: center; gap: 11px;
   color: #7c431d; border: 1px solid #f4d1b5; border-radius: 12px; background: #fff7f0;

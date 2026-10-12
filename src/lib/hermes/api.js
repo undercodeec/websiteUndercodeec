@@ -406,6 +406,12 @@ export const hermesApi = {
       body: changes,
     });
   },
+  correctLeadStage(id, correction) {
+    return request(`/leads/${encodeURIComponent(id)}/correct-stage`, {
+      method: "POST",
+      body: correction,
+    });
+  },
   conversations(params) {
     return request(`/conversations${toQueryString(params)}`);
   },
