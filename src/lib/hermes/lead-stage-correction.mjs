@@ -27,3 +27,49 @@ export function correctionWarning(reconciliation) {
   }
   return "";
 }
+
+export async function runLeadStageCorrection({ lead, targetStage, reasonCode, reason, requestKey }, {
+  correctStage,
+  onClose,
+  onRefresh,
+  onToast,
+  errorMessage,
+}) {
+  let result;
+  try {
+    result = await correctStage(lead.id, correctionPayload({
+      targetStage,
+      expectedCurrentStage: lead.stage,
+      reasonCode,
+      reason,
+      requestKey,
+    }));
+  } catch (error) {
+    if (error?.status === 409) {
+      onClose();
+      await onRefresh();
+      onToast({
+        tone: "error",
+        message: "La etapa del lead cambió o existe un conflicto publicitario. Actualiza los datos antes de intentar corregirla.",
+      });
+      return { status: "conflict" };
+    }
+    onToast({
+      tone: "error",
+      message: errorMessage(error, "No se pudo corregir la etapa. Puede reintentar con la misma solicitud."),
+    });
+    return { status: "error" };
+  }
+
+  onClose();
+  await onRefresh();
+  const warning = correctionWarning(result?.advertisingReconciliation);
+  const pendingCancelled = result?.advertisingReconciliation === "PENDING_CANCELLED"
+    ? " El evento publicitario pendiente fue neutralizado."
+    : "";
+  onToast({
+    tone: warning ? "warning" : "success",
+    message: `Etapa corregida de ${lead.stage} a ${targetStage}. La corrección quedó auditada.${pendingCancelled}${warning ? ` ${warning}` : ""}`,
+  });
+  return { status: "success", result };
+}

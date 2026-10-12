@@ -23,12 +23,8 @@ import {
 } from "lucide-react";
 import { hermesApi } from "@/lib/hermes/api";
 import { canMoveLeadStage } from "@/lib/hermes/lead-stage-transitions.mjs";
-import {
-  CORRECTION_REASONS,
-  correctionPayload,
-  correctionTargets,
-  correctionWarning,
-} from "@/lib/hermes/lead-stage-correction.mjs";
+import { correctionTargets } from "@/lib/hermes/lead-stage-correction.mjs";
+import LeadStageCorrectionModal from "../_components/LeadStageCorrectionModal";
 import { useCrmSession } from "../../_components/CrmSession";
 import {
   HANDOFF_REASON,
@@ -65,10 +61,6 @@ export default function LeadDetailPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
   const [correctionOpen, setCorrectionOpen] = useState(false);
-  const [correctionTarget, setCorrectionTarget] = useState("CONTACTED");
-  const [correctionReasonCode, setCorrectionReasonCode] = useState("TEST_CORRECTION");
-  const [correctionReason, setCorrectionReason] = useState("");
-  const [correctionRequestKey, setCorrectionRequestKey] = useState("");
 
   const loadLead = useCallback(async () => {
     setLoading(true);
@@ -145,49 +137,6 @@ export default function LeadDetailPage() {
     );
   };
 
-  const openStageCorrection = () => {
-    setCorrectionTarget(correctionTargets(lead?.stage, user?.role)[0] || "");
-    setCorrectionReasonCode("TEST_CORRECTION");
-    setCorrectionReason("");
-    setCorrectionRequestKey(crypto.randomUUID());
-    setCorrectionOpen(true);
-  };
-
-  const submitStageCorrection = async (event) => {
-    event.preventDefault();
-    if (!correctionTarget || correctionReason.trim().length < 8) return;
-    setSaving(true);
-    try {
-      const result = await hermesApi.correctLeadStage(id, correctionPayload({
-        targetStage: correctionTarget,
-        expectedCurrentStage: lead.stage,
-        reasonCode: correctionReasonCode,
-        reason: correctionReason,
-        requestKey: correctionRequestKey,
-      }));
-      setCorrectionOpen(false);
-      await loadLead();
-      const warning = correctionWarning(result.advertisingReconciliation);
-      setToast({
-        tone: warning ? "warning" : "success",
-        message: `Etapa corregida de ${lead.stage} a ${correctionTarget}. La corrección quedó auditada.${warning ? ` ${warning}` : ""}`,
-      });
-    } catch (requestError) {
-      if (requestError?.status === 409) {
-        setCorrectionOpen(false);
-        await loadLead();
-      }
-      setToast({
-        tone: "error",
-        message: requestError?.status === 409
-          ? "El lead o la exportación cambió. Revise el estado actualizado antes de intentar otra corrección."
-          : apiErrorMessage(requestError, "No se pudo corregir la etapa. Puede reintentar con la misma solicitud."),
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
   if (loading) return <LoadingState label="Abriendo la ficha del lead…" />;
   if (error) return <ErrorState message={error} onRetry={loadLead} />;
   if (!lead) return null;
@@ -233,7 +182,7 @@ export default function LeadDetailPage() {
           </select>
           <StageBadge stage={lead.stage} meta={STAGE_META} />
           {correctionTargets(lead.stage, user?.role).length > 0 && (
-            <button type="button" className="crm-button is-secondary" onClick={openStageCorrection} disabled={saving}>
+            <button type="button" className="crm-button is-secondary" onClick={() => setCorrectionOpen(true)} disabled={saving}>
               Corregir etapa
             </button>
           )}
@@ -241,39 +190,13 @@ export default function LeadDetailPage() {
       </header>
 
       {correctionOpen && (
-        <div className="crm-modal-backdrop" role="presentation">
-          <div className="crm-modal" role="dialog" aria-modal="true" aria-labelledby="stage-correction-title">
-            <header>
-              <h2 id="stage-correction-title">Corregir etapa</h2>
-              <button type="button" className="crm-icon-button" onClick={() => setCorrectionOpen(false)} disabled={saving} aria-label="Cerrar corrección">×</button>
-            </header>
-            <form className="crm-stage-correction-form" onSubmit={submitStageCorrection}>
-              <p className="crm-stage-correction-note">Esta acción corrige un estado registrado previamente y quedará auditada. No es una transición comercial normal.</p>
-              <label>Etapa actual<input value={STAGE_META[lead.stage]?.short || lead.stage} readOnly /></label>
-              <label>Etapa corregida
-                <select value={correctionTarget} onChange={(event) => { setCorrectionTarget(event.target.value); setCorrectionRequestKey(crypto.randomUUID()); }}>
-                  {correctionTargets(lead.stage, user?.role).map((stage) => (
-                    <option key={stage} value={stage}>{STAGE_META[stage]?.short || stage}</option>
-                  ))}
-                </select>
-              </label>
-              <label>Tipo de corrección
-                <select value={correctionReasonCode} onChange={(event) => { setCorrectionReasonCode(event.target.value); setCorrectionRequestKey(crypto.randomUUID()); }}>
-                  {Object.entries(CORRECTION_REASONS).map(([code, label]) => <option key={code} value={code}>{label}</option>)}
-                </select>
-              </label>
-              <label>Motivo interno
-                <textarea value={correctionReason} onChange={(event) => { setCorrectionReason(event.target.value); setCorrectionRequestKey(crypto.randomUUID()); }} minLength={8} maxLength={500} required placeholder="Explique por qué la etapa anterior era incorrecta" />
-              </label>
-              <footer>
-                <button type="button" className="crm-button is-secondary" onClick={() => setCorrectionOpen(false)} disabled={saving}>Cancelar</button>
-                <button type="submit" className="crm-button is-primary" disabled={saving || correctionReason.trim().length < 8}>
-                  {saving ? "Corrigiendo…" : "Confirmar corrección"}
-                </button>
-              </footer>
-            </form>
-          </div>
-        </div>
+        <LeadStageCorrectionModal
+          lead={lead}
+          role={user?.role}
+          onClose={() => setCorrectionOpen(false)}
+          onRefresh={loadLead}
+          onToast={setToast}
+        />
       )}
 
       {transfer && lead.conversation && <section className="crm-panel" style={{ marginBottom: 20, padding: 20 }}>

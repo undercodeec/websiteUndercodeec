@@ -507,6 +507,14 @@
 .crm-lead-card-name { min-width: 0; flex: 1; display: flex; flex-direction: column; }
 .crm-lead-card-name strong { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .crm-lead-card-name span { display: flex; align-items: center; gap: 4px; color: #8b94a3; font-size: 9px; }
+.crm-lead-card-actions { position: relative; flex: 0 0 auto; }
+.crm-lead-card-actions summary { width: 27px; height: 27px; display: grid; place-items: center; border-radius: 7px; color: #687386; cursor: pointer; font-size: 20px; line-height: 1; list-style: none; }
+.crm-lead-card-actions summary::-webkit-details-marker { display: none; }
+.crm-lead-card-actions summary:hover, .crm-lead-card-actions summary:focus-visible { color: var(--crm-brand); background: #f2f0ff; outline: none; }
+.crm-lead-card-menu { position: absolute; top: calc(100% + 4px); right: 0; z-index: 5; min-width: 150px; padding: 4px; border: 1px solid var(--crm-line); border-radius: 9px; background: #fff; box-shadow: 0 10px 26px rgba(30,42,62,.15); }
+.crm-lead-card-menu button { width: 100%; padding: 8px; border: 0; border-radius: 6px; background: transparent; color: var(--crm-ink); cursor: pointer; font: inherit; font-size: 10px; text-align: left; }
+.crm-lead-card-menu button:hover, .crm-lead-card-menu button:focus-visible { background: #f2f0ff; color: var(--crm-brand); }
+.crm-lead-card-menu button:disabled { color: #9aa2af; cursor: not-allowed; }
 .crm-drag-handle { color: #aab1bd; }
 .crm-lead-card-tags { margin: 10px 0 8px; display: flex; flex-wrap: wrap; gap: 5px; }
 .crm-lead-card-tags span {
@@ -877,6 +885,8 @@
 .crm-resolution-note { margin-top: 14px; display: block; }
 .crm-resolution-note textarea { width: 100%; height: auto; min-height: 92px; padding: 10px; resize: vertical; }
 .crm-modal form > footer { margin-top: 16px; display: flex; justify-content: flex-end; gap: 8px; }
+.crm-stage-correction-lead { margin: 0 0 10px; color: var(--crm-muted); }
+.crm-stage-correction-lead strong { color: var(--crm-ink); }
 
 @media (max-width:1200px) {
   .crm-login-brain { transform: translateX(-7vw); }

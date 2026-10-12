@@ -20,7 +20,10 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 import { hermesApi } from "@/lib/hermes/api";
+import { correctionTargets } from "@/lib/hermes/lead-stage-correction.mjs";
 import { canMoveLeadStage } from "@/lib/hermes/lead-stage-transitions.mjs";
+import { useCrmSession } from "../_components/CrmSession";
+import LeadStageCorrectionModal from "./_components/LeadStageCorrectionModal";
 import {
   activeHandoff,
   LEAD_STAGES,
@@ -61,6 +64,7 @@ function periodStart(period) {
 }
 
 export default function LeadsPipelinePage() {
+  const { user } = useCrmSession();
   const [leads, setLeads] = useState([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
@@ -73,6 +77,7 @@ export default function LeadsPipelinePage() {
   const [draggedId, setDraggedId] = useState("");
   const [dragOverStage, setDragOverStage] = useState("");
   const [toast, setToast] = useState(null);
+  const [correctionLead, setCorrectionLead] = useState(null);
 
   const loadLeads = useCallback(
     async (refresh = false) => {
@@ -327,6 +332,8 @@ export default function LeadsPipelinePage() {
                         key={lead.id}
                         lead={lead}
                         updating={updatingId === lead.id}
+                        role={user?.role}
+                        onCorrect={() => setCorrectionLead(lead)}
                         onDragStart={() => setDraggedId(lead.id)}
                         onDragEnd={() => {
                           setDraggedId("");
@@ -343,7 +350,7 @@ export default function LeadsPipelinePage() {
           <section className="crm-lead-mobile-list" aria-label="Lista de leads">
             {leads.map((lead) => (
               <article key={lead.id}>
-                <LeadCard lead={lead} updating={updatingId === lead.id} />
+                <LeadCard lead={lead} updating={updatingId === lead.id} role={user?.role} onCorrect={() => setCorrectionLead(lead)} />
                 <label>
                   <span>Mover etapa</span>
                   <select
@@ -364,6 +371,16 @@ export default function LeadsPipelinePage() {
         </>
       )}
 
+      {correctionLead && (
+        <LeadStageCorrectionModal
+          lead={correctionLead}
+          role={user?.role}
+          onClose={() => setCorrectionLead(null)}
+          onRefresh={() => loadLeads(true)}
+          onToast={setToast}
+        />
+      )}
+
       <Toast
         message={toast?.message}
         tone={toast?.tone}
@@ -373,14 +390,21 @@ export default function LeadsPipelinePage() {
   );
 }
 
-function LeadCard({ lead, updating, onDragStart, onDragEnd }) {
+function LeadCard({ lead, updating, role, onCorrect, onDragStart, onDragEnd }) {
   const handoff = activeHandoff(lead.conversation);
   const latestMessage = lead.conversation?.messages?.[0];
+  const canCorrect = correctionTargets(lead.stage, role).length > 0;
   return (
     <article
       className={`crm-lead-card ${updating ? "is-updating" : ""}`}
       draggable={Boolean(onDragStart) && !updating}
-      onDragStart={onDragStart}
+      onDragStart={(event) => {
+        if (event.target.closest(".crm-lead-card-actions")) {
+          event.preventDefault();
+          return;
+        }
+        onDragStart?.();
+      }}
       onDragEnd={onDragEnd}
     >
       <div className="crm-lead-card-top">
@@ -389,6 +413,17 @@ function LeadCard({ lead, updating, onDragStart, onDragEnd }) {
           <strong>{contactName(lead.contact)}</strong>
           <span><Phone size={13} />{contactPhone(lead.contact)}</span>
         </div>
+        {role === "ADMIN" && !updating && (
+          <details className="crm-lead-card-actions">
+            <summary aria-label={`Acciones de ${contactName(lead.contact)}`}>⋮</summary>
+            <div className="crm-lead-card-menu">
+              <button type="button" disabled={!canCorrect} title={canCorrect ? "" : "No hay una corrección de etapa disponible"} onClick={(event) => {
+                event.currentTarget.closest("details").open = false;
+                onCorrect();
+              }}>Corregir etapa</button>
+            </div>
+          </details>
+        )}
         {onDragStart && <GripVertical size={18} className="crm-drag-handle" />}
       </div>
 
