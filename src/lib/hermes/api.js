@@ -293,6 +293,21 @@ async function requestAdmin(path, options = {}) {
 }
 
 export const hermesApi = {
+  retentionPolicy() {
+    return request('/admin/retention-recovery-policy');
+  },
+  updateRetentionPolicy(data) {
+    return request('/admin/retention-recovery-policy', { method: 'PUT', body: data });
+  },
+  previewRetentionRotation(data) {
+    return request('/admin/retention-recovery-policy/rotation-preview', { method: 'POST', body: data });
+  },
+  runBackupNow() {
+    return request('/admin/retention-recovery-policy/backup', { method: 'POST', body: {} });
+  },
+  runRestoreCheckNow() {
+    return request('/admin/retention-recovery-policy/restore-check', { method: 'POST', body: {} });
+  },
   requestAccessCode(email) {
     return requestAdminCrmAuth("/api/crm/auth/request-code", { email });
   },

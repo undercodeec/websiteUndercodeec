@@ -1165,3 +1165,22 @@
 .crm-learning-decision label { font-size: .8rem; font-weight: 700; }
 .crm-learning-decision textarea, .crm-learning-decision input { width: 100%; border: 1px solid var(--crm-border, #d9e2e7); border-radius: 8px; padding: .6rem; font: inherit; }
 .crm-learning-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.crm-retention { padding: 24px; margin-bottom: 24px; }
+.crm-retention-head, .crm-retention-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.crm-retention-head p { margin: 6px 0 18px; }
+.crm-retention-stats, .crm-retention-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.crm-retention-stats { margin: 18px 0 26px; }
+.crm-retention-stats p { display: flex; flex-direction: column; gap: 5px; padding: 12px; margin: 0; border: 1px solid var(--crm-border, #334155); border-radius: 10px; }
+.crm-retention-stats span { overflow-wrap: anywhere; }
+.crm-retention-grid fieldset { display: flex; flex-direction: column; gap: 15px; min-width: 0; padding: 18px; border: 1px solid var(--crm-border, #334155); border-radius: 12px; }
+.crm-retention-grid legend { padding: 0 6px; font-weight: 700; }
+.crm-retention-field { display: flex; flex-direction: column; gap: 5px; }
+.crm-retention-field small { opacity: .7; }
+.crm-retention-input { display: flex; align-items: center; gap: 8px; }
+.crm-retention-input input { width: 110px; max-width: 100%; padding: 8px; border: 1px solid #64748b; border-radius: 7px; color: inherit; background: transparent; }
+.crm-retention-toggle { display: flex; align-items: center; gap: 8px; }
+.crm-retention-actions { justify-content: flex-start; margin: 18px 0; }
+.crm-retention-preview, .crm-retention-warning, .crm-retention-rules, .crm-retention-error, .crm-retention-notice { padding: 14px; border-radius: 9px; background: rgba(148, 163, 184, .12); }
+.crm-retention-error { color: #fecaca; background: rgba(127, 29, 29, .35); }
+.crm-retention-warning { color: #fde68a; }
+.crm-retention-rules ul { padding-left: 22px; }

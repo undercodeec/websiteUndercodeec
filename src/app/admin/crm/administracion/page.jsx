@@ -5,6 +5,7 @@ import AdminDashboard from "../../dashboard/page";
 import { PageHeader } from "../_components/Ui";
 import { useCrmSession } from '../_components/CrmSession';
 import { hermesApi } from '@/lib/hermes/api';
+import RetentionRecovery from './RetentionRecovery';
 
 const EMPTY_ACCOUNT = { label: '', bankName: '', accountHolder: '', holderIdentification: '',
   accountType: 'SAVINGS', accountNumber: '', currency: 'USD', instructions: '', priority: 0, isActive: true };
@@ -84,6 +85,7 @@ export default function UnifiedAdministrationPage() {
         description="Pagos, formularios, facturación, uso del asistente y configuración en el mismo panel de Hermes CRM."
       />
       <BankAccounts />
+      <RetentionRecovery />
       <AdminDashboard embedded />
     </>
   );
