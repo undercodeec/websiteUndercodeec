@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { hermesApi } from "@/lib/hermes/api";
 import { useCrmSession } from "../_components/CrmSession";
+import { availableBackupIntervals, STORAGE_BUDGET_WARNING } from "./retentionPolicyUi";
 
 const GiB = 1024 ** 3;
 const date = (value) => value ? new Date(value).toLocaleString("es-EC") : "Sin ejecuciones";
@@ -110,12 +111,12 @@ export default function RetentionRecovery() {
     {notice && <p className="crm-retention-notice" role="status">{notice}</p>}
     {!data || !draft ? <p>Cargando política…</p> : <>
       <div className="crm-retention-stats">
-        <p><strong>Backup periódico actual</strong><span>{data.policy.backupEnabled ? "Activado" : "Desactivado"}</span></p>
+        <p><strong>Backup periódico actual</strong><span>{data.policy.backupEnabled ? "Activado" : "Backups periódicos desactivados"}</span></p>
         <p><strong>Último backup</strong><span>{date(data.status.lastBackupAt)}</span></p>
         <p><strong>Próximo estimado</strong><span>{date(data.status.nextBackupAt)}</span></p>
         <p><strong>Último fallo</strong><span>{date(data.status.lastBackupFailureAt)}</span></p>
         <p><strong>Restore-check</strong><span>{date(data.status.lastRestoreCheckAt)}{data.status.lastRestoreCheckAt ? data.status.lastRestoreCheckPassed ? " · correcto" : " · fallido" : ""}</span></p>
-        <p><strong>Próximo restore-check</strong><span>{date(data.status.nextRestoreCheckAt)}</span></p>
+        <p><strong>Próximo restore-check</strong><span>{data.policy.restoreCheckEnabled ? date(data.status.nextRestoreCheckAt) : "Comprobaciones periódicas de restore desactivadas"}</span></p>
         <p><strong>Backups gestionados</strong><span>{data.status.managedCount} · {size(data.status.managedStorageBytes)}</span></p>
         <p><strong>Protegidos / heredados visibles</strong><span>{data.status.protectedCount} / {data.status.legacyCount} · {size(data.status.legacyStorageBytes)}</span></p>
         <p><strong>Disco libre</strong><span>{data.status.disk ? `${size(data.status.disk.freeBytes)} · ${data.status.disk.usedPercent}% usado` : "No disponible"}</span></p>
@@ -127,9 +128,17 @@ export default function RetentionRecovery() {
             <label className="crm-retention-toggle"><input type="checkbox" checked={draft.backupEnabled}
               onChange={(event) => change("backupEnabled", event.target.checked)} /> Activar backups periódicos</label>
             {field("backupIntervalHours", "Frecuencia", "horas")}
+            <label className="crm-retention-field"><span>Frecuencias habituales</span>
+              <select value={availableBackupIntervals(data.limits.backupIntervalHours).some(({ hours }) => hours === draft.backupIntervalHours) ? draft.backupIntervalHours : ""}
+                onChange={(event) => { if (event.target.value) change("backupIntervalHours", Number(event.target.value)); }}>
+                <option value="">Valor personalizado</option>
+                {availableBackupIntervals(data.limits.backupIntervalHours).map(({ hours, label }) => <option key={hours} value={hours}>{label}</option>)}
+              </select>
+            </label>
             {field("maximumBackupCount", "Máximo de backups periódicos", "backups")}
             {field("maximumBackupAgeDays", "Antigüedad máxima", "días")}
             {field("maximumBackupStorageGiB", "Presupuesto de almacenamiento gestionado", "GiB")}
+            <p className="crm-retention-warning">{STORAGE_BUDGET_WARNING}</p>
           </fieldset>
           <fieldset><legend>Verificación de recuperación</legend>
             <label className="crm-retention-toggle"><input type="checkbox" checked={draft.restoreCheckEnabled}
