@@ -1161,6 +1161,7 @@
 .crm-retention-field small { opacity: .7; }
 .crm-retention-input { display: flex; align-items: center; gap: 8px; }
 .crm-retention-input input { width: 110px; max-width: 100%; padding: 8px; border: 1px solid #64748b; border-radius: 7px; color: inherit; background: transparent; }
+.crm-retention-field select { width: 100%; max-width: 220px; padding: 8px; border: 1px solid #64748b; border-radius: 7px; color: var(--crm-ink); background: var(--crm-surface); }
 .crm-retention-toggle { display: flex; align-items: center; gap: 8px; }
 .crm-retention-actions { justify-content: flex-start; margin: 18px 0; }
 .crm-retention-preview, .crm-retention-warning, .crm-retention-rules, .crm-retention-error, .crm-retention-notice { padding: 14px; border-radius: 9px; background: rgba(148, 163, 184, .12); }
