@@ -296,12 +296,6 @@ html.dark [data-client-section].is-tools .home-client__grid-item:hover .tool-log
   filter: none;
 }
 
-@media (max-width: 700px) {
-  body:has([data-page="home"]) .page-w[overflow="clip"] {
-    overflow: visible;
-  }
-}
-
 .offbrand-services-menu:hover .offbrand-services-submenu,
 .offbrand-services-menu:focus-within .offbrand-services-submenu {
   opacity: 1;

@@ -228,15 +228,6 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
   );
 });
 
-test("keeps the root hero laterally free on mobile only", async () => {
-  const localStyles = await readFile("public/landing-primary/css/demo-local.css", "utf8");
-
-  assert.match(
-    localStyles,
-    /@media \(max-width: 700px\)\s*\{[\s\S]*body:has\(\[data-page="home"\]\) \.page-w\[overflow="clip"\]\s*\{\s*overflow:\s*visible;[\s\S]*\}/,
-  );
-});
-
 test("replaces the awards block with the root site's two-column plans content", async () => {
   const page = await readFile("public/landing-primary/index.html", "utf8");
   const localStyles = await readFile("public/landing-primary/css/demo-local.css", "utf8");

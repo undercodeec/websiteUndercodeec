@@ -34,3 +34,14 @@
 @media (pointer: coarse) {
   .hero-particles { pointer-events: none; }
 }
+
+@media (max-width: 767px) {
+  [data-page="home"] .hero-particles {
+    overflow: visible;
+  }
+
+  [data-page="home"] .hero-particles .webgpu-container {
+    left: 0;
+    width: 100%;
+  }
+}

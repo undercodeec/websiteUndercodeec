@@ -16,6 +16,7 @@
 
   const mount = (hero, clip = document.createElement('div')) => {
     if (!hero || clip.dataset.heroParticlesMounted === 'true') return () => {};
+    const rootLanding = !!hero.closest('[data-page="home"]');
     clip.dataset.heroParticlesMounted = 'true';
     clip.classList.add('hero-particles');
     clip.setAttribute('aria-hidden', 'true');
@@ -32,6 +33,14 @@
     let disposed = false;
     let experience;
     let fallbackCleanup = () => {};
+    const fitMobileCamera = () => {
+      if (!rootLanding || !experience?.particles?.cameras?.main) return;
+      const camera = experience.particles.cameras.main;
+      camera.position.z = window.innerWidth < 768 && host.clientWidth
+        ? Math.max(1.5, host.clientHeight / host.clientWidth)
+        : 1.5;
+    };
+    window.addEventListener('resize', fitMobileCamera, { passive: true });
     const clamp = (value) => Math.min(1, Math.max(0, value));
     const smoothstep = (start, end, value) => {
       const progress = clamp((value - start) / (end - start));
@@ -138,8 +147,10 @@
         const sin = Math.sin(rotation);
         const centerX = width / 2;
         const centerY = height * (width < 768 ? 0.38 : 0.46);
-        const sphereRadius = Math.min(width * (width < 768 ? 0.52 : 0.25), height * 0.22) * (width < 768 ? 1.35 : 1.5);
         const mobile = width < 768;
+        const sphereRadius = rootLanding && mobile
+          ? Math.min(width * 0.44, height * 0.22)
+          : Math.min(width * (mobile ? 0.52 : 0.25), height * 0.22) * (mobile ? 1.35 : 1.5);
         const exitStart = mobile ? 0.55 : 0.62;
         const exitEnd = mobile ? 0.95 : 0.98;
         const expansion = smoothstep(exitStart, exitEnd, scrollProgress);
@@ -213,7 +224,10 @@
           if (disposed) return;
           experience = window.__createHeroParticleExperience(
             host,
-            updateScrollTarget,
+            () => {
+              fitMobileCamera();
+              updateScrollTarget();
+            },
             () => { if (!disposed) startFallback(); },
           );
         })
@@ -225,6 +239,7 @@
       cancelAnimationFrame(scrollFrame);
       window.removeEventListener('scroll', updateScrollTarget);
       window.removeEventListener('resize', updateScrollTarget);
+      window.removeEventListener('resize', fitMobileCamera);
       fallbackCleanup();
       experience?.dispose();
       delete clip.dataset.heroParticlesMounted;
