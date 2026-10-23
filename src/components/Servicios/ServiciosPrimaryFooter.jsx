@@ -67,7 +67,7 @@ function FooterColumn({ title, links, label, secondaryLinks = [], className = ""
   return (
     <nav className={columnClassName} aria-label={label}>
       <p><span data-services-footer-heading>{title}</span></p>
-      <div className={styles.linkList}>{links.map((link) => <FooterLink key={link.href} link={link} />)}</div>
+      <div className={styles.linkList}>{links.map((link) => <FooterLink key={`${link.href}-${link.label}`} link={link} />)}</div>
       {secondaryLinks.length > 0 ? (
         <div className={`${styles.linkList} ${styles.secondaryList}`}>
           {secondaryLinks.map((link) => <FooterLink key={`${link.href}-${link.label}`} link={link} />)}
