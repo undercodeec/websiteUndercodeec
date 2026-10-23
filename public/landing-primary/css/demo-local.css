@@ -1387,8 +1387,40 @@ html.dark .offbrand-plan-selection-continue:focus-visible {
 }
 
 @media (max-width: 767px) {
-  [home-hero] .home-hero-tablet-text {
-    top: calc(50% - 6svh + var(--home-hero-mobile-title-offset));
+  [data-page="home"] [home-hero] > .c {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1.25rem;
+    min-height: 100svh;
+    padding-top: clamp(7rem, 17svh, 10rem);
+    padding-bottom: 3rem;
+  }
+
+  [home-hero] .home-hero-tablet-text.mbm-diff.is-2026 {
+    position: relative;
+    inset: auto;
+    width: calc(100vw - 2rem);
+    height: auto;
+    padding: 0;
+    transform: none !important;
+  }
+
+  [home-hero] .grid-main.is-home-hero {
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    padding: 0;
+  }
+
+  [home-hero] .hh-text-block.is--scroll {
+    position: static;
+    inset: auto;
+    width: min(100%, 34rem);
+    margin: 0;
+    padding: 0;
+    display: block;
   }
 }
 
