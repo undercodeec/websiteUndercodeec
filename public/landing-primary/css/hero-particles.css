@@ -27,7 +27,7 @@
   filter: none;
 }
 
-[data-page="home"] .hero-particles canvas.home-hero-particles-fallback {
+:is([data-page="home"], [data-primary-page]) .hero-particles canvas.home-hero-particles-fallback {
   filter: hue-rotate(125deg) saturate(.58);
 }
 
@@ -40,14 +40,14 @@
 }
 
 @media (max-width: 767px) {
-  [data-page="home"] .hero-particles {
+  :is([data-page="home"], [data-primary-page]) .hero-particles {
     inset: 0;
     height: 100%;
     overflow: hidden;
   }
 
-  [data-page="home"] .hero-particles .webgpu-container {
-    top: 20svh;
+  :is([data-page="home"], [data-primary-page]) .hero-particles .webgpu-container {
+    top: 0svh;
     left: 0;
     width: 100%;
     transform: translateX(5vw) scale(1.4);

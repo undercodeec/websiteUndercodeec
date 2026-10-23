@@ -17,6 +17,7 @@
   const mount = (hero, clip = document.createElement('div')) => {
     if (!hero || clip.dataset.heroParticlesMounted === 'true') return () => {};
     const rootLanding = !!hero.closest('[data-page="home"]');
+    const primaryHero = rootLanding || !!hero.closest('[data-primary-page]');
     clip.dataset.heroParticlesMounted = 'true';
     clip.classList.add('hero-particles');
     clip.setAttribute('aria-hidden', 'true');
@@ -34,7 +35,7 @@
     let experience;
     let fallbackCleanup = () => {};
     const fitMobileCamera = () => {
-      if (!rootLanding || !experience?.particles?.cameras?.main) return;
+      if (!primaryHero || !experience?.particles?.cameras?.main) return;
       const camera = experience.particles.cameras.main;
       const mobile = window.innerWidth < 768;
       camera.position.x = mobile ? -0.3 : 0;
@@ -64,13 +65,13 @@
       const exitEnd = mobile ? 0.95 : 0.98;
       const expansion = smoothstep(exitStart, exitEnd, scrollProgress);
       const visibility = 1 - smoothstep(exitStart, exitEnd, scrollProgress);
-      const baseOpacity = mobile && !rootLanding ? 0.65 : 0.8;
+      const baseOpacity = mobile && !primaryHero ? 0.65 : 0.8;
       clip.style.setProperty('--hero-particle-opacity', (visibility * baseOpacity).toFixed(3));
 
       const particles = experience?.particles?.particles;
       if (particles?.scrollExplosionUniform) {
         particles.scrollExplosionUniform.value = expansion * 0.9;
-        particles.instanceScaleUniform.value = (mobile ? (rootLanding ? 2 : 1.25) : 1) * (1 + expansion * 0.6);
+        particles.instanceScaleUniform.value = (mobile ? (primaryHero ? 2 : 1.25) : 1) * (1 + expansion * 0.6);
       }
       if (scrollProgress !== scrollTarget) scrollFrame = requestAnimationFrame(animateScroll);
     };
@@ -148,17 +149,17 @@
         const cos = Math.cos(rotation);
         const sin = Math.sin(rotation);
         const mobile = width < 768;
-        const centerX = width * (rootLanding && mobile ? 0.74 : 0.5);
+        const centerX = width * (primaryHero && mobile ? 0.74 : 0.5);
         const centerY = height * (width < 768 ? 0.38 : 0.46);
-        const sphereRadius = rootLanding && mobile
+        const sphereRadius = primaryHero && mobile
           ? Math.min(width * 0.72, height * 0.3)
           : Math.min(width * (mobile ? 0.52 : 0.25), height * 0.22) * (mobile ? 1.35 : 1.5);
         const exitStart = mobile ? 0.55 : 0.62;
         const exitEnd = mobile ? 0.95 : 0.98;
         const expansion = smoothstep(exitStart, exitEnd, scrollProgress);
         const spread = 1 + expansion * 1.4;
-        const nearColor = rootLanding ? '1, 83, 79' : '93, 40, 121';
-        const farColor = rootLanding ? '147, 230, 226' : '166, 88, 135';
+        const nearColor = primaryHero ? '1, 83, 79' : '93, 40, 121';
+        const farColor = primaryHero ? '147, 230, 226' : '166, 88, 135';
 
         for (const particle of particles) {
           const rotatedX = particle.x * cos - particle.z * sin;
