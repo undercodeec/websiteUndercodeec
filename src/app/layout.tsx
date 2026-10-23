@@ -4,7 +4,7 @@ import AttributionProvider from "@/components/Attribution/AttributionProvider";
 import CommercialWhatsAppAttribution from "@/components/Attribution/CommercialWhatsAppAttribution";
 import ConsentManager from "@/components/Consent/ConsentManager";
 import HermesWhatsAppButton from "@/components/HermesWhatsAppButton";
-import { PrimaryCursor, PrimaryPreloader } from "@/components/Primary";
+import { PrimaryCursor } from "@/components/Primary";
 import ThemeProvider from "@/components/Theme/ThemeProvider";
 import "@/styles/globals.css";
 import "@/styles/primary-system.css";
@@ -237,7 +237,6 @@ gtag('consent','default',{
           <ConsentManager>
             <AttributionProvider>
               <CommercialWhatsAppAttribution />
-              <PrimaryPreloader />
               <PrimaryCursor />
               <HermesWhatsAppButton />
               {children}

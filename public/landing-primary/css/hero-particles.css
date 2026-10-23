@@ -1,0 +1,36 @@
+.hero-particles {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: calc(100% + clamp(9rem, 18svh, 12rem));
+  overflow: hidden;
+  pointer-events: auto;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 38%, #000 65%, #000 82%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 38%, #000 65%, #000 82%, transparent 100%);
+}
+
+.hero-particles .webgpu-container {
+  position: absolute;
+  top: 16svh;
+  left: 10%;
+  width: 80%;
+  height: 140svh;
+}
+
+.hero-particles canvas {
+  display: block;
+  opacity: var(--hero-particle-opacity, .8) !important;
+  filter: hue-rotate(125deg) saturate(.58);
+}
+
+.hero-particles canvas.home-hero-particles-fallback {
+  filter: none;
+}
+
+[data-primary-page] .hero-particles {
+  pointer-events: none;
+}
+
+@media (pointer: coarse) {
+  .hero-particles { pointer-events: none; }
+}

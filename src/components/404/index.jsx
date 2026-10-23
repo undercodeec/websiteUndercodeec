@@ -10,7 +10,6 @@ export default function NotFoundHero() {
       bottomMeta="Volvamos a un lugar conocido"
       index="404"
       titleId="not-found-hero-title"
-      animateAcrossPage={false}
     />
   );
 }

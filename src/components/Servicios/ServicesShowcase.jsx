@@ -99,7 +99,7 @@ export default function ServicesShowcase() {
       if (document.body.classList.contains("primary-preloading")) {
         window.addEventListener("preloaderDone", revealTitle, { once: true });
         removePreloaderDoneListener = () => window.removeEventListener("preloaderDone", revealTitle);
-        revealFallback = window.setTimeout(revealTitle, 2500);
+        revealFallback = window.setTimeout(revealTitle, 8000);
       } else {
         revealTitle();
       }

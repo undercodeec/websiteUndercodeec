@@ -140,7 +140,9 @@
   const releasePage = (force = false) => {
     if (!force && introAnimationIsActive()) return false;
 
-    document.querySelector("[preloader]")?.remove();
+    const preloader = document.querySelector("[preloader]");
+    preloader?.remove();
+    if (preloader) window.dispatchEvent(new CustomEvent("homePreloaderDone"));
     document.body?.removeAttribute("data-start");
     document.body?.style.removeProperty("cursor");
     document.body?.style.removeProperty("opacity");

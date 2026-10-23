@@ -20,6 +20,16 @@ body {
   pointer-events: none !important;
 }
 
+/* The root landing page has no background orb or decorative rings. */
+body:has([data-page="home"]) [data-orb-wrap] {
+  display: none !important;
+}
+
+/* Keep the brand grid in the page source while hiding it from the home page. */
+[data-page="home"] section.s.is-hg {
+  display: none !important;
+}
+
 [data-orb] {
   border-radius: 50%;
   overflow: hidden;
@@ -100,6 +110,16 @@ body {
   filter: blur(4px);
 }
 
+html.light body:has([data-page="home"]) [home-hero] :is(.home-hero-tablet-text, .hh-text-block:not(.is--scroll)) {
+  color: #201527;
+  mix-blend-mode: normal;
+}
+
+html.light body:has([data-page="home"]) [home-hero] .hh-text-block.is--scroll {
+  color: #201527;
+  mix-blend-mode: normal;
+}
+
 [orb-outline] {
   border-color: transparent;
   background: conic-gradient(from 315deg, var(--offbrand-orb-navy) 0deg 40deg, var(--offbrand-orb-fuchsia) 96deg 140deg, var(--offbrand-orb-magenta) 205deg, var(--offbrand-orb-wine) 245deg, var(--offbrand-orb-purple) 305deg, var(--offbrand-orb-navy) 360deg);
@@ -153,6 +173,17 @@ body {
   white-space: normal;
   text-wrap: balance;
   line-height: 1.35;
+}
+
+body:has([data-page="home"]) [home-hero] {
+  position: relative;
+  isolation: isolate;
+}
+
+body:has([data-page="home"]) [home-hero] > .c {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .offbrand-services-menu {
@@ -1240,6 +1271,11 @@ html.dark .offbrand-plan-selection-continue:focus-visible {
     margin-inline: auto;
     font-size: clamp(2rem, 9.5vw, 3.25rem);
     line-height: 0.98;
+  }
+
+  [home-hero] .home-hero-tablet-text .h-display.is--hero-tablet.is-2026 {
+    font-size: 9vw;
+    white-space: nowrap;
   }
 
   [home-hero] .hh-text-block:not(.is--scroll) {

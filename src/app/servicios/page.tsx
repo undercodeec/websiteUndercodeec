@@ -3,7 +3,6 @@
 import MainLayout from "@/layouts/Main";
 import { PrimaryHeader } from "@/components/Primary";
 import ServicesHero from "@/components/Servicios/ServicesHero";
-import ServicesOrbBackground from "@/components/Servicios/ServicesOrbBackground";
 import ServicesShowcase, { ServicesCards } from "@/components/Servicios/ServicesShowcase";
 import About from "@/components/Saas/About";
 import Testimonials from "@/components/Saas/Testimonials";
@@ -16,7 +15,6 @@ export default function ServiciosPage() {
     <MainLayout>
       <PrimaryHeader />
       <div className={styles.page} data-services-page data-primary-page>
-        <ServicesOrbBackground />
         <main className="services-page style-5">
           <ServicesHero>
             <ServicesCards />

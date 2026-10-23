@@ -1,32 +1,297 @@
-• Corrección completada: se movió únicamente el respaldo duplicado y Nginx fue recargado una vez tras validar la configuración.
+Quiero que revises el repositorio LOCAL de Undercodeec y corrijas de forma segura qué artefactos generados/locales están siendo rastreados por Git o podrían volver a añadirse.
 
-  - Advertencias previas exactas:
-      - conflicting server name "undercodeec.com" on 0.0.0.0:80, ignored
-      - conflicting server name "www.undercodeec.com" on 0.0.0.0:80, ignored
-      - conflicting server name "api.undercodeec.com" on 0.0.0.0:80, ignored
-      - Las mismas tres advertencias en 0.0.0.0:443.
+IMPORTANTE:
+- Trabaja únicamente sobre el repositorio local.
+- No hagas cambios en producción/VPS.
+- No hagas `git push`.
+- No reescribas historial Git.
+- No uses `git filter-repo`, `git filter-branch` ni operaciones destructivas sobre el historial.
+- No elimines archivos de aplicación o producción sin demostrar primero que son artefactos locales/generados.
+- No modifiques dependencias, código funcional, configuración de producción ni archivos fuente que no estén relacionados con esta limpieza.
+- Al terminar, explícame exactamente qué cambiaste antes de cualquier commit.
+- Puedes modificar `.gitignore` y retirar archivos generados del tracking cuando corresponda.
 
-  - Causa demostrada: /etc/nginx/sites-enabled/undercodeec.bak-20260903-212732, cargado por include /etc/nginx/sites-enabled/*, duplicaba los server_name
-    de /etc/nginx/sites-enabled/undercodeec para 80 y 443. No era enlace ni tenía referencias explícitas adicionales.
+## CONTEXTO CONFIRMADO EN LA VPS
 
-  - Archivo movido a /root/nginx-disabled-backups/undercodeec.bak-20260903-212732
-      - SHA-256: 6561075b82dba13660a7c312c3e4a07084c6ca19d0623091ec323c1a9a84bd5a
-      - Permisos preservados: 644 root:root
-      - Directorio de archivo: 700 root:root
+En producción encontramos estas carpetas:
 
-  - /etc/nginx/sites-enabled/undercodeec no fue modificado. Tampoco se tocó CRM, API ni Hermes.
-  - nginx -t posterior: sintaxis correcta y prueba exitosa, sin advertencias de conflicto.
-  - Recarga ejecutada: systemctl reload nginx.
+- `.unlighthouse/` ≈ 26 MB
+- `.tokensave/` ≈ 16 MB
+- `.codebase-memory/` ≈ 1.2 MB
 
-  Validación posterior:
+Todas contenían artefactos generados/locales y estaban rastreadas por Git:
 
-  - Web local (3000): HTTP 200
-  - Asset de la release /var/www/releases/undercodeec-3ca3a8ec22b36c3822be0871fa41cfb30f88153a: /_next/static/chunks/d70479ad172553b6.js → HTTP 200
-  - PM2: web-undercodeec y api-undercodeec en línea.
-  - API sigue escuchando en 3002.
-  - Hermes sigue activo en Docker y escuchando en 127.0.0.1:3003.
+```text
+.unlighthouse: 167 archivos rastreados
+.tokensave: 6 archivos rastreados
+.codebase-memory: 3 archivos rastreados
+```
 
-  Rollback exacto, si hiciera falta:
+Contenido observado:
 
-  sudo mv -- /root/nginx-disabled-backups/undercodeec.bak-20260903-212732 /etc/nginx/sites-enabled/undercodeec.bak-20260903-212732
-  sudo nginx -t && sudo systemctl reload nginx
+### `.unlighthouse/`
+Reportes generados por Unlighthouse/Lighthouse:
+- screenshots
+- lighthouse.json
+- lighthouse.html
+- assets del reporte
+- archivos de auditoría
+
+Ya existía esta regla en `.gitignore` en la VPS:
+
+```gitignore
+/.unlighthouse/
+```
+
+Pero los archivos seguían apareciendo porque habían sido confirmados previamente en Git.
+
+### `.tokensave/`
+Contenía:
+
+```text
+.tokensave/branch-meta.json
+.tokensave/config.json
+.tokensave/sync.lock
+.tokensave/tokensave.db
+.tokensave/tokensave.db-shm
+.tokensave/tokensave.db-wal
+```
+
+Es claramente estado/base de datos de una herramienta local y no debe formar parte del repositorio.
+
+### `.codebase-memory/`
+Contenía:
+
+```text
+.codebase-memory/.gitattributes
+.codebase-memory/artifact.json
+.codebase-memory/graph.db.zst
+```
+
+Son artefactos de análisis/memoria local y tampoco deberían estar versionados.
+
+En la VPS añadimos provisionalmente:
+
+```gitignore
+/.tokensave/
+/.codebase-memory/
+```
+
+pero quiero que la corrección real se haga en LOCAL.
+
+También detectamos y eliminamos en VPS estos residuos NO rastreados:
+
+```text
+.next.pre-switch-20260903-205415/
+backend/server.js.pre-paymentSessions-fix-20260903-211106
+```
+
+Eran respectivamente:
+- backup antiguo de una compilación `.next`
+- backup puntual de `backend/server.js`
+
+Quiero que determines si conviene añadir patrones seguros a `.gitignore` para prevenir que backups equivalentes vuelvan a entrar.
+
+Ejemplos posibles, pero NO los añadas ciegamente:
+
+```gitignore
+/.next.pre-switch-*/
+*.pre-*
+```
+
+Analiza primero si un patrón global como `*.pre-*` podría excluir algo legítimo. Prefiere patrones específicos si existe riesgo.
+
+También encontramos una carpeta anidada redundante:
+
+```text
+undercodeec_nextjs/
+```
+
+En la VPS era una copia completa antigua del proyecto de aproximadamente 2.3 GB, incluyendo:
+
+- `node_modules` ≈ 1.8 GB
+- `backend` ≈ 184 MB
+- `out` ≈ 167 MB
+- `public` ≈ 113 MB
+
+Fue comprobado que producción NO dependía de ella y fue eliminada.
+
+PERO aquí debes tener especial cuidado:
+
+El proyecto original/local históricamente se ha llamado `undercodeec_nextjs`, por lo que NO debes añadir una regla que ignore el repositorio raíz por su nombre.
+
+Solo si existe una carpeta redundante `undercodeec_nextjs/` DENTRO del repositorio actual, analiza si realmente es una copia anidada antes de decidir ignorarla.
+
+## ARCHIVO QUE DEBE CONSERVARSE
+
+Existe este archivo:
+
+```text
+public/google97b669301d2a559d.html
+```
+
+Se utiliza realmente para verificación de Google.
+
+NO lo elimines ni lo añadas al `.gitignore`.
+
+Si existe localmente y actualmente no está versionado, indícame si debería incorporarse al repositorio para que sobreviva a los despliegues. Si no existe localmente, no inventes su contenido.
+
+## TAREAS
+
+### 1. Diagnóstico inicial
+
+Ejecuta y analiza, como mínimo:
+
+```bash
+git status --short
+git status --ignored --short
+git ls-files .unlighthouse .tokensave .codebase-memory
+```
+
+Revisa el `.gitignore` actual completo y busca reglas relacionadas con:
+
+```text
+.unlighthouse
+.tokensave
+.codebase-memory
+.next
+pre-switch
+pre-paymentSessions
+undercodeec_nextjs
+node_modules
+out
+```
+
+Comprueba también si existen actualmente estas rutas:
+
+```text
+.unlighthouse/
+.tokensave/
+.codebase-memory/
+.next.pre-switch-*/
+undercodeec_nextjs/
+public/google97b669301d2a559d.html
+```
+
+### 2. Determinar qué debe ignorarse
+
+Quiero como mínimo que estas tres categorías queden correctamente ignoradas:
+
+```gitignore
+/.unlighthouse/
+/.tokensave/
+/.codebase-memory/
+```
+
+Si alguna falta, añádela.
+
+No dupliques reglas existentes.
+
+Mantén `.gitignore` organizado y comenta brevemente estas reglas si resulta útil.
+
+### 3. Retirar artefactos generados del repositorio
+
+Si `.unlighthouse`, `.tokensave` o `.codebase-memory` contienen archivos rastreados actualmente, retíralos del tracking de Git.
+
+Preferencia:
+
+Si los artefactos pueden ser útiles localmente para herramientas de desarrollo, usa el equivalente seguro de:
+
+```bash
+git rm -r --cached ...
+```
+
+para retirarlos del repositorio pero mantener los archivos locales.
+
+Si alguna carpeta es puramente desechable y decides eliminarla físicamente, explícame primero por qué.
+
+El objetivo fundamental es que el próximo commit elimine esos artefactos del REPOSITORIO y que `.gitignore` impida que vuelvan a añadirse.
+
+### 4. Backups temporales
+
+Analiza los patrones:
+
+```text
+.next.pre-switch-*
+backend/server.js.pre-*
+```
+
+Si son claramente backups generados, añade reglas suficientemente específicas para que no vuelvan a entrar al repositorio.
+
+Evita reglas demasiado amplias.
+
+Por ejemplo, es preferible algo específico como:
+
+```gitignore
+/.next.pre-switch-*/
+/backend/server.js.pre-*
+```
+
+antes que ignorar indiscriminadamente todos los archivos `*.pre-*`, salvo que tengas evidencia de que ese patrón global es apropiado.
+
+### 5. Copia anidada `undercodeec_nextjs`
+
+Si existe una carpeta `undercodeec_nextjs/` dentro del repositorio:
+
+- determina si es una copia redundante/anidada;
+- comprueba que no sea parte de la aplicación actual;
+- revisa si está rastreada;
+- comprueba su contenido;
+- no la elimines ni la ignores solamente por el nombre.
+
+Si confirmas que es una copia accidental del propio proyecto, proponme cómo impedir que vuelva a añadirse.
+
+Si el repositorio local en sí se llama `undercodeec_nextjs`, NO ignores su raíz.
+
+### 6. Google Search Console
+
+Comprueba:
+
+```text
+public/google97b669301d2a559d.html
+```
+
+Si existe:
+- conservarlo;
+- verificar si está rastreado;
+- no ignorarlo;
+- si no está rastreado, recomendar incorporarlo al repositorio porque se usa en producción.
+
+No cambies su contenido.
+
+### 7. Validación final
+
+Después de realizar la limpieza, muestra:
+
+```bash
+git status --short
+git diff -- .gitignore
+git diff --cached --stat
+git diff --cached -- .gitignore
+git check-ignore -v .unlighthouse/test .tokensave/test .codebase-memory/test
+```
+
+Además comprueba que no hayas afectado archivos funcionales del proyecto.
+
+Si retiraste archivos del índice pero se conservaron localmente, verifica que aparecen como ignorados y no como nuevos archivos sin rastrear.
+
+## RESULTADO QUE ESPERO
+
+Quiero un informe final con:
+
+1. Qué reglas ya existían en `.gitignore`.
+2. Qué reglas agregaste.
+3. Qué directorios estaban rastreados por error.
+4. Cuántos archivos se retiraron del tracking por cada directorio.
+5. Si los archivos físicos se conservaron localmente o se eliminaron.
+6. Qué decidiste respecto a los backups `.next.pre-switch-*` y `backend/server.js.pre-*`.
+7. Qué encontraste respecto a una posible copia anidada `undercodeec_nextjs/`.
+8. Estado de `public/google97b669301d2a559d.html`.
+9. `git status --short` final.
+10. Cualquier riesgo o elemento que hayas decidido NO modificar.
+
+No hagas `git push`.
+
+No hagas reescritura del historial.
+
+No hagas cambios ajenos a esta limpieza.

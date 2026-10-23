@@ -50,7 +50,14 @@ backend/uploads/
 /.codex-reference-footer-*/
 /.tmp-visual-qa/
 /CON
+# Local development tool artifacts
 /.unlighthouse/
+/.tokensave/
+/.codebase-memory/
+
+# Temporary backups created during deployment switches
+/.next.pre-switch-*/
+/backend/server.js.pre-*
 
 # Videos grandes — manejar directamente en VPS, no en git
 public/assets/img/video/

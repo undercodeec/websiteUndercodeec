@@ -3,7 +3,7 @@
   display: grid;
   min-height: 100dvh;
   place-items: center;
-  overflow: clip;
+  overflow: visible;
   isolation: isolate;
   color: var(--primary-main-light);
   background: transparent;

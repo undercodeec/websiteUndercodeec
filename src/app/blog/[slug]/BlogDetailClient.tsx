@@ -46,7 +46,6 @@ export default function BlogDetailClient({ post }: { post?: BlogPostData }) {
                 summary={post.excerpt}
                 bottomMeta={post.author?.name || "Equipo Undercodeec"}
                 titleId={`blog-${post.slug}-title`}
-                animateAcrossPage={false}
               />
               <BlogPost post={post} />
             </>
