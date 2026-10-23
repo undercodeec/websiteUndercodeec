@@ -41,7 +41,9 @@
 
 @media (max-width: 767px) {
   [data-page="home"] .hero-particles {
-    overflow: visible;
+    inset: 0;
+    height: 100%;
+    overflow: hidden;
   }
 
   [data-page="home"] .hero-particles .webgpu-container {
