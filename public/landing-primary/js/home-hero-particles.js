@@ -62,7 +62,7 @@
       const exitEnd = mobile ? 0.95 : 0.98;
       const expansion = smoothstep(exitStart, exitEnd, scrollProgress);
       const visibility = 1 - smoothstep(exitStart, exitEnd, scrollProgress);
-      const baseOpacity = mobile ? 0.65 : 0.8;
+      const baseOpacity = mobile && !rootLanding ? 0.65 : 0.8;
       clip.style.setProperty('--hero-particle-opacity', (visibility * baseOpacity).toFixed(3));
 
       const particles = experience?.particles?.particles;
@@ -155,6 +155,8 @@
         const exitEnd = mobile ? 0.95 : 0.98;
         const expansion = smoothstep(exitStart, exitEnd, scrollProgress);
         const spread = 1 + expansion * 1.4;
+        const nearColor = rootLanding ? '1, 83, 79' : '93, 40, 121';
+        const farColor = rootLanding ? '147, 230, 226' : '166, 88, 135';
 
         for (const particle of particles) {
           const rotatedX = particle.x * cos - particle.z * sin;
@@ -178,8 +180,8 @@
           particle.offsetY += particle.velocityY;
 
           context.fillStyle = depth > 0.52
-            ? `rgba(93, 40, 121, ${0.35 + depth * 0.55})`
-            : `rgba(166, 88, 135, ${0.2 + depth * 0.45})`;
+            ? `rgba(${nearColor}, ${0.35 + depth * 0.55})`
+            : `rgba(${farColor}, ${0.2 + depth * 0.45})`;
           const size = (0.65 + depth * 1.25) * (1 + expansion * 1.1);
           context.fillRect(targetX + particle.offsetX, targetY + particle.offsetY, size, size);
         }
