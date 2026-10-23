@@ -45,6 +45,7 @@
   }
 
   [data-page="home"] .hero-particles .webgpu-container {
+    top: 20svh;
     left: 0;
     width: 100%;
   }
