@@ -23,6 +23,10 @@
   filter: hue-rotate(125deg) saturate(.58);
 }
 
+html.dark .hero-particles canvas {
+  filter: grayscale(1) brightness(0) invert(1);
+}
+
 .hero-particles canvas.home-hero-particles-fallback {
   filter: none;
 }
