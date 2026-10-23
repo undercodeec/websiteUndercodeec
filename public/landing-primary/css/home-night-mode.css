@@ -67,6 +67,10 @@ html.dark img[src="/landing-preview/img/img-call.png"] {
   filter: brightness(0) invert(1);
 }
 
+html.dark .hud-brand-logo {
+  filter: brightness(0) invert(1);
+}
+
 /* The HSC mark paints itself with an internal SVG gradient. Filtering the
    finished SVG ensures that paint remains solid white in night mode. */
 html.dark .s.is-hsc,
