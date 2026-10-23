@@ -1257,7 +1257,7 @@ html.dark .offbrand-plan-selection-continue:focus-visible {
   [home-hero] .grid-main.is-home-hero {
     --home-hero-mobile-title-offset: 2.5rem;
     min-height: 100svh;
-    padding: 5.5rem 1rem;
+    padding: 5.5rem 1rem calc(5.5rem + 12svh);
   }
 
   [home-hero] .hh-text-block {
@@ -1383,6 +1383,12 @@ html.dark .offbrand-plan-selection-continue:focus-visible {
     width: calc(100vw - 2rem);
     text-align: center;
     transform: translate(-50%, -50%) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  [home-hero] .home-hero-tablet-text {
+    top: calc(50% - 6svh + var(--home-hero-mobile-title-offset));
   }
 }
 
