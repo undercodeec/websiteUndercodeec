@@ -320,6 +320,9 @@ export const hermesApi = {
   funnel() {
     return request("/analytics/funnel");
   },
+  acquisitionSummary(params) {
+    return request(`/analytics/acquisition${toQueryString(params)}`);
+  },
   advertisingDashboard(params) {
     return request(`/advertising/dashboard${toQueryString(params)}`);
   },

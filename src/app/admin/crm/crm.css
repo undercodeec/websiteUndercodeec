@@ -1148,3 +1148,45 @@
 .crm-learning-decision label { font-size: .8rem; font-weight: 700; }
 .crm-learning-decision textarea, .crm-learning-decision input { width: 100%; border: 1px solid var(--crm-border, #d9e2e7); border-radius: 8px; padding: .6rem; font: inherit; }
 .crm-learning-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* WhatsApp acquisition evidence */
+.crm-origin-badge { display: inline-flex; align-items: center; gap: 6px; width: fit-content; padding: 5px 9px; border: 1px solid #d7dce7; border-radius: 999px; color: #4b5566; background: #f5f7fa; font-size: 10px; font-weight: 750; line-height: 1.2; white-space: nowrap; }
+.crm-origin-badge i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.crm-origin-badge.is-meta_ad { color: #4b39ab; border-color: #ded9ff; background: #f4f1ff; }
+.crm-origin-badge.is-organic { color: #176b54; border-color: #bfe8d7; background: #edfbf5; }
+.crm-origin-badge.is-compact { padding: 3px 7px; font-size: 9px; }
+.crm-origin-details { display: grid; gap: 10px; font-size: 11px; color: #5e6777; }
+.crm-origin-details-head { display: grid; justify-items: start; gap: 7px; }
+.crm-origin-details p { margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
+.crm-origin-details strong { color: var(--crm-ink); }
+.crm-origin-details small { color: #717b8b; line-height: 1.5; }
+.crm-origin-references { border-top: 1px solid var(--crm-line); padding-top: 10px; }
+.crm-origin-references ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+.crm-origin-references li { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; overflow-wrap: anywhere; }
+.crm-origin-references time { color: #7b8390; }
+.crm-origin-pagination { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px; color: #687386; font-size: 10px; }
+.crm-origin-pagination button { border: 1px solid #dfe2eb; border-radius: 8px; background: #fff; color: var(--crm-brand); padding: 6px 9px; cursor: pointer; }
+.crm-origin-pagination button:disabled { opacity: .45; cursor: default; }
+.crm-origin-filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; margin-bottom: 20px; }
+.crm-origin-filters label { display: grid; gap: 6px; color: #5e6878; font-size: 11px; font-weight: 700; }
+.crm-origin-filters input, .crm-origin-filters select { min-height: 38px; padding: 7px 10px; border: 1px solid #dfe2eb; border-radius: 9px; background: #fff; color: var(--crm-ink); font: inherit; }
+.crm-origin-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.crm-origin-kpis article { padding: 18px; display: grid; gap: 12px; }
+.crm-origin-kpis article > span { display: flex; gap: 7px; align-items: center; color: #697386; font-size: 10px; font-weight: 700; }
+.crm-origin-kpis article > strong { font-size: clamp(20px, 2vw, 29px); color: var(--crm-ink); }
+.crm-origin-grid { display: grid; grid-template-columns: minmax(260px, .9fr) minmax(320px, 1.1fr); gap: 16px; margin-bottom: 18px; }
+.crm-origin-grid > section { min-width: 0; padding: 20px; }
+.crm-origin-distribution { display: grid; gap: 16px; }
+.crm-origin-distribution > div > div:first-child { display: flex; justify-content: space-between; gap: 8px; color: #576273; font-size: 11px; margin-bottom: 6px; }
+.crm-origin-track, .crm-origin-daily-track { display: flex; overflow: hidden; height: 9px; border-radius: 999px; background: #eef0f5; }
+.crm-origin-track i, .crm-origin-daily-track i { display: block; height: 100%; min-width: 0; }
+.crm-origin-track .is-meta_ad, .crm-origin-daily-track .is-meta_ad { background: #7158d5; }
+.crm-origin-track .is-organic, .crm-origin-daily-track .is-organic { background: #36ac82; }
+.crm-origin-track .is-unknown, .crm-origin-daily-track .is-unknown { background: #aeb6c5; }
+.crm-origin-daily { max-height: 350px; overflow: auto; display: grid; gap: 8px; }
+.crm-origin-daily > div { display: grid; grid-template-columns: 83px 1fr 30px; gap: 9px; align-items: center; color: #697386; font-size: 10px; }
+.crm-origin-daily > div > strong { text-align: right; color: var(--crm-ink); }
+.crm-origin-ad-table { padding: 20px; }
+.crm-origin-empty { padding: 24px; margin-bottom: 18px; color: #687386; }
+.crm-origin-source-note { color: #697386; font-size: 11px; line-height: 1.6; margin: 16px 0 0; }
+@media (max-width: 860px) { .crm-origin-grid { grid-template-columns: 1fr; } }

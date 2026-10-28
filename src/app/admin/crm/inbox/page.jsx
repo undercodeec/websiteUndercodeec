@@ -31,6 +31,9 @@ import {
   hermesApi,
 } from "@/lib/hermes/api";
 import { useCrmSession } from '../_components/CrmSession';
+import OriginBadge from '../_components/OriginBadge';
+import AttributionDetails from '../_components/AttributionDetails';
+import { ORIGIN_OPTIONS } from '@/lib/hermes/meta-attribution.mjs';
 import { presentHermesIncident } from "@/lib/hermes/incidents.mjs";
 import { startHumanTakeover } from "@/lib/hermes/human-takeover.mjs";
 import {
@@ -148,6 +151,8 @@ export default function InboxPage() {
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search.trim());
   const [statusFilter, setStatusFilter] = useState("");
+  const [originFilter, setOriginFilter] = useState("");
+  const [conversationPage, setConversationPage] = useState(1);
   const [priorityOnly, setPriorityOnly] = useState(initialPriority);
   const [listLoading, setListLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -176,10 +181,11 @@ export default function InboxPage() {
     setListError("");
     try {
       const result = await hermesApi.conversations({
-        page: 1,
+        page: conversationPage,
         limit: 50,
         query: deferredSearch,
         status: statusFilter,
+        origin: originFilter,
         priorityOnly: priorityOnly || "",
       });
       const items = result?.data || [];
@@ -196,7 +202,7 @@ export default function InboxPage() {
     } finally {
       if (!quiet) setListLoading(false);
     }
-  }, [deferredSearch, priorityOnly, statusFilter]);
+  }, [conversationPage, deferredSearch, originFilter, priorityOnly, statusFilter]);
 
   const loadConversation = useCallback(async (id, quiet = false) => {
     if (!id) {
@@ -593,7 +599,7 @@ export default function InboxPage() {
         <div className="crm-inbox-filters">
           <SearchField
             value={search}
-            onChange={setSearch}
+            onChange={(value) => { setSearch(value); setConversationPage(1); setSelectedId(''); }}
             placeholder="Buscar contacto…"
             label="Buscar conversaciones"
           />
@@ -602,7 +608,7 @@ export default function InboxPage() {
               <span className="crm-sr-only">Estado</span>
               <select
                 value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
+                onChange={(event) => { setStatusFilter(event.target.value); setConversationPage(1); setSelectedId(''); }}
               >
                 <option value="">Todos los estados</option>
                 <option value="ACTIVE">Hermes activo</option>
@@ -611,10 +617,17 @@ export default function InboxPage() {
                 <option value="CLOSED">Cerradas</option>
               </select>
             </label>
+            <label>
+              <span className="crm-sr-only">Origen</span>
+              <select value={originFilter} onChange={(event) => { setOriginFilter(event.target.value); setConversationPage(1); setSelectedId(''); }}>
+                <option value="">Todos los orígenes</option>
+                {ORIGIN_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </label>
             <button
               type="button"
               className={priorityOnly ? "is-active" : ""}
-              onClick={() => setPriorityOnly((value) => !value)}
+              onClick={() => { setPriorityOnly((value) => !value); setConversationPage(1); setSelectedId(''); }}
               aria-pressed={priorityOnly}
             >
               <AlertTriangle size={15} />Prioridad
@@ -653,6 +666,7 @@ export default function InboxPage() {
                       <time>{relativeDate(item.updatedAt)}</time>
                     </div>
                     <p>{lastMessage(item)}</p>
+                    <OriginBadge attribution={item.attribution} compact />
                     <span>
                       {itemHandoff ? (
                         <><UserRoundCheck size={13} />Atención humana</>
@@ -672,6 +686,13 @@ export default function InboxPage() {
             })
           )}
         </div>
+        {listMeta.totalPages > 1 && (
+          <nav className="crm-origin-pagination" aria-label="Páginas de conversaciones">
+            <button type="button" disabled={conversationPage <= 1} onClick={() => { setConversationPage((page) => page - 1); setSelectedId(''); }}>Anterior</button>
+            <span>{conversationPage} de {listMeta.totalPages}</span>
+            <button type="button" disabled={conversationPage >= listMeta.totalPages} onClick={() => { setConversationPage((page) => page + 1); setSelectedId(''); }}>Siguiente</button>
+          </nav>
+        )}
       </aside>
 
       <section className="crm-chat-panel">
@@ -897,6 +918,7 @@ export default function InboxPage() {
                           {message.sentByUser?.name && ` · ${message.sentByUser.name}`}
                         </div>
                         <p>{message.content || `[${message.type || "Mensaje"}]`}</p>
+                        {message.attribution?.origin === 'meta_ad' && <OriginBadge attribution={message.attribution} compact />}
                         {message.sender === 'CONTACT' && ['IMAGE', 'DOCUMENT'].includes(message.type) &&
                           <InboxMedia conversationId={selectedId} message={message} />}
                         {transfer?.proofMessages?.some((proof) => proof.messageId === message.id) &&
@@ -1026,6 +1048,11 @@ export default function InboxPage() {
                 <div><dt>Inicio</dt><dd>{formatDate(conversation.createdAt, { withYear: true })}</dd></div>
                 <div><dt>Mensajes</dt><dd>{conversation._count?.messages || messages.length}</dd></div>
               </dl>
+            </section>
+
+            <section>
+              <span className="crm-context-label">Origen de conversación</span>
+              <AttributionDetails attribution={conversation.attribution} />
             </section>
 
             <section>

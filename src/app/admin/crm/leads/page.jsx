@@ -20,6 +20,8 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 import { hermesApi } from "@/lib/hermes/api";
+import { ORIGIN_OPTIONS } from '@/lib/hermes/meta-attribution.mjs';
+import OriginBadge from '../_components/OriginBadge';
 import { canMoveLeadStage } from "@/lib/hermes/lead-stage-transitions.mjs";
 import {
   activeHandoff,
@@ -48,6 +50,7 @@ const INITIAL_FILTERS = {
   hasHandoff: "",
   hermesReplied: "",
   period: "",
+  origin: "",
 };
 
 function periodStart(period) {
@@ -63,6 +66,7 @@ function periodStart(period) {
 export default function LeadsPipelinePage() {
   const [leads, setLeads] = useState([]);
   const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search.trim());
   const [filters, setFilters] = useState(INITIAL_FILTERS);
@@ -84,7 +88,7 @@ export default function LeadsPipelinePage() {
       setError("");
       try {
         const result = await hermesApi.leads({
-          page: 1,
+          page,
           limit: 100,
           query: deferredSearch,
           stage: filters.stage,
@@ -92,6 +96,7 @@ export default function LeadsPipelinePage() {
           hasHandoff: filters.hasHandoff,
           hermesReplied: filters.hermesReplied,
           from: periodStart(filters.period),
+          origin: filters.origin,
         });
         setLeads(result?.data || []);
         setTotal(result?.total || 0);
@@ -102,8 +107,10 @@ export default function LeadsPipelinePage() {
         setRefreshing(false);
       }
     },
-    [deferredSearch, filters],
+    [deferredSearch, filters, page],
   );
+
+  useEffect(() => { setPage(1); }, [deferredSearch, filters]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => loadLeads(), 120);
@@ -234,6 +241,13 @@ export default function LeadsPipelinePage() {
             </select>
           </label>
           <label>
+            <span className="crm-sr-only">Origen</span>
+            <select value={filters.origin} onChange={(event) => setFilters((value) => ({ ...value, origin: event.target.value }))}>
+              <option value="">Todos los orígenes</option>
+              {ORIGIN_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+          </label>
+          <label>
             <span className="crm-sr-only">Handoff</span>
             <select
               value={filters.hasHandoff}
@@ -361,6 +375,13 @@ export default function LeadsPipelinePage() {
               </article>
             ))}
           </section>
+          {total > 100 && (
+            <nav className="crm-origin-pagination" aria-label="Páginas de leads">
+              <button type="button" disabled={page <= 1} onClick={() => setPage((value) => value - 1)}>Anterior</button>
+              <span>{page} de {Math.ceil(total / 100)}</span>
+              <button type="button" disabled={page >= Math.ceil(total / 100)} onClick={() => setPage((value) => value + 1)}>Siguiente</button>
+            </nav>
+          )}
         </>
       )}
 
@@ -393,6 +414,7 @@ function LeadCard({ lead, updating, onDragStart, onDragEnd }) {
       </div>
 
       <div className="crm-lead-card-tags">
+        <OriginBadge attribution={lead.attribution} compact />
         {lead.conversation?.state?.detectedIntent && (
           <span><Bot size={13} />{lead.conversation.state.detectedIntent}</span>
         )}

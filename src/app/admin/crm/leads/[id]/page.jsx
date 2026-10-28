@@ -22,6 +22,7 @@ import {
   Target,
 } from "lucide-react";
 import { hermesApi } from "@/lib/hermes/api";
+import AttributionDetails from '../../_components/AttributionDetails';
 import { canMoveLeadStage } from "@/lib/hermes/lead-stage-transitions.mjs";
 import { useCrmSession } from "../../_components/CrmSession";
 import {
@@ -311,6 +312,10 @@ export default function LeadDetailPage() {
         </div>
 
         <aside className="crm-detail-aside">
+          <section className="crm-panel">
+            <div className="crm-panel-header"><div><span>Adquisición</span><h2>Origen del lead</h2></div></div>
+            <AttributionDetails attribution={lead.attribution} />
+          </section>
           <section className="crm-panel">
             <div className="crm-panel-header">
               <div><span>Valor comercial</span><h2>Indicadores</h2></div>
