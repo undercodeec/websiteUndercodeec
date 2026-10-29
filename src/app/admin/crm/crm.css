@@ -726,6 +726,9 @@
 .crm-message-sender { margin-bottom: 3px; display: flex; align-items: center; gap: 4px; color: #7b72da; font-size: 8px; font-weight: 750; }
 .crm-message.is-contact .crm-message-sender { color: #64748b; }.crm-message.is-human .crm-message-sender { color: #25825b; }
 .crm-message p { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; font-size: 10px; line-height: 1.5; }
+.crm-inbox-media { max-width: 100%; margin-top: 7px; }
+.crm-inbox-media audio { display: block; width: min(100%, 320px); max-width: 100%; }
+.crm-inbox-media a { display: inline-block; margin-top: 4px; font-size: 10px; }
 .crm-message time { margin-top: 3px; display: block; color: #9299a6; font-size: 7px; text-align: right; }
 .crm-feedback-summary { padding: 8px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 5px 12px; color: #5b6075; border-bottom: 1px solid var(--crm-line); background: #f8f7ff; font-size: 9px; }
 .crm-feedback-summary strong { color: #474285; }

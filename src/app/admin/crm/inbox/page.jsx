@@ -34,6 +34,7 @@ import { useCrmSession } from '../_components/CrmSession';
 import OriginBadge from '../_components/OriginBadge';
 import AttributionDetails from '../_components/AttributionDetails';
 import { ORIGIN_OPTIONS } from '@/lib/hermes/meta-attribution.mjs';
+import { inboxMediaKind } from '@/lib/hermes/inbox-media.mjs';
 import { presentHermesIncident } from "@/lib/hermes/incidents.mjs";
 import { startHumanTakeover } from "@/lib/hermes/human-takeover.mjs";
 import {
@@ -93,6 +94,7 @@ const FEEDBACK_REASONS = {
 };
 
 function InboxMedia({ conversationId, message }) {
+  const kind = inboxMediaKind(message);
   const [url, setUrl] = useState('');
   const [mime, setMime] = useState('');
   const [error, setError] = useState('');
@@ -106,20 +108,26 @@ function InboxMedia({ conversationId, message }) {
       setMime(blob.type);
       setUrl(URL.createObjectURL(blob));
     } catch (requestError) {
-      setError(apiErrorMessage(requestError, 'Adjunto no disponible.'));
+      setError(kind === 'audio'
+        ? 'No se pudo cargar el audio. La transcripción sigue visible.'
+        : apiErrorMessage(requestError, 'Adjunto no disponible.'));
     } finally {
       setLoading(false);
     }
   };
   return <div className="crm-inbox-media">
     {!url && <button type="button" className="crm-button is-secondary" onClick={open} disabled={loading}>
-      {loading ? 'Abriendo…' : `Ver ${message.type === 'IMAGE' ? 'imagen' : 'PDF'} en Inbox`}
+      {loading ? 'Abriendo…' : kind === 'audio' ? 'Escuchar audio' : `Ver ${kind === 'image' ? 'imagen' : 'PDF'} en Inbox`}
     </button>}
     {url && mime.startsWith('image/') &&
       // Blob URL is fetched with the CRM JWT and must not pass through Next Image optimization.
       // eslint-disable-next-line @next/next/no-img-element
       <img src={url} alt="Comprobante enviado por el cliente" style={{ maxWidth: '100%', maxHeight: 420 }} />}
     {url && mime === 'application/pdf' && <iframe src={`${url}#toolbar=0`} title="Comprobante PDF" style={{ width: '100%', height: 420, border: 0 }} />}
+    {url && kind === 'audio' && mime.startsWith('audio/') && <>
+      <audio controls preload="none" src={url}>Tu navegador no puede reproducir este audio.</audio>
+      <a href={url} download={`audio-${message.id}`}>Descargar audio</a>
+    </>}
     {error && <span role="alert">{error}</span>}
   </div>;
 }
@@ -919,7 +927,7 @@ export default function InboxPage() {
                         </div>
                         <p>{message.content || `[${message.type || "Mensaje"}]`}</p>
                         {message.attribution?.origin === 'meta_ad' && <OriginBadge attribution={message.attribution} compact />}
-                        {message.sender === 'CONTACT' && ['IMAGE', 'DOCUMENT'].includes(message.type) &&
+                        {inboxMediaKind(message) &&
                           <InboxMedia conversationId={selectedId} message={message} />}
                         {transfer?.proofMessages?.some((proof) => proof.messageId === message.id) &&
                           <label><input type="radio" name="payment-proof" checked={selectedProofId === message.id}
