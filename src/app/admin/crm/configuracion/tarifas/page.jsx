@@ -61,7 +61,9 @@ export default function TariffsPage() {
   const [audit, setAudit] = useState({});
   const [auditLoading, setAuditLoading] = useState({});
   const [expanded, setExpanded] = useState("");
+  const dialogRef = useRef(null);
   const confirmRef = useRef(null);
+  const triggerRef = useRef(null);
 
   const loadTariffs = useCallback(async () => {
     setLoading(true);
@@ -83,13 +85,14 @@ export default function TariffsPage() {
 
   useEffect(() => {
     if (!selected) return undefined;
+    const dialog = dialogRef.current;
+    if (dialog && !dialog.open) dialog.showModal();
     confirmRef.current?.focus();
-    const onEscape = (event) => {
-      if (event.key === "Escape" && !busy) setSelected(null);
+    return () => {
+      if (dialog?.open) dialog.close();
+      triggerRef.current?.focus();
     };
-    window.addEventListener("keydown", onEscape);
-    return () => window.removeEventListener("keydown", onEscape);
-  }, [selected, busy]);
+  }, [selected]);
 
   const showDetails = async (price) => {
     const nextId = expanded === price.id ? "" : price.id;
@@ -117,6 +120,7 @@ export default function TariffsPage() {
       const saved = await updatePromotionAndVerify(hermesApi, selected, nextState);
       setTariffs((current) => current.map((item) => item.id === saved.id ? { ...item, ...saved } : item));
       setAudit((current) => { const next = { ...current }; delete next[saved.id]; return next; });
+      setExpanded("");
       setNotice(`${saved.name} quedó ${saved.isActive ? "activa" : "inactiva"}. Estado verificado en Hermes.`);
       setSelected(null);
     } catch (requestFailure) {
@@ -170,7 +174,7 @@ export default function TariffsPage() {
                   <button type="button" className="crm-button is-secondary" aria-expanded={expanded === price.id} onClick={() => showDetails(price)}>
                     Características <ChevronDown size={15} aria-hidden="true" />
                   </button>
-                  {price.isPromotion && <button type="button" className={`crm-button ${price.isActive ? "is-danger" : "is-primary"}`} onClick={() => setSelected(price)} disabled={busy}>
+                  {price.isPromotion && <button type="button" className={`crm-button ${price.isActive ? "is-danger" : "is-primary"}`} onClick={(event) => { triggerRef.current = event.currentTarget; setSelected(price); }} disabled={busy}>
                     {price.isActive ? "Desactivar promoción" : "Activar promoción"}
                   </button>}
                 </div>
@@ -192,8 +196,7 @@ export default function TariffsPage() {
         </section>
       )}
 
-      {selected && <div className="crm-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) setSelected(null); }}>
-        <section className="crm-modal crm-tariff-modal" role="dialog" aria-modal="true" aria-labelledby="tariff-confirm-title">
+      {selected && <dialog ref={dialogRef} className="crm-modal crm-tariff-modal" aria-labelledby="tariff-confirm-title" onCancel={(event) => { event.preventDefault(); if (!busy) setSelected(null); }}>
           <header><h2 id="tariff-confirm-title">{selected.isActive ? "Desactivar" : "Activar"} promoción</h2><button type="button" className="crm-icon-button" aria-label="Cerrar" onClick={() => setSelected(null)} disabled={busy}><X size={18} /></button></header>
           <p>Confirma el cambio de estado de esta oferta comercial.</p>
           <dl>
@@ -207,8 +210,7 @@ export default function TariffsPage() {
             <button type="button" className="crm-button is-secondary" onClick={() => setSelected(null)} disabled={busy}>Cancelar</button>
             <button ref={confirmRef} type="button" className={`crm-button ${selected.isActive ? "is-danger" : "is-primary"}`} onClick={confirmChange} disabled={busy}>{busy ? "Guardando y verificando…" : selected.isActive ? "Confirmar desactivación" : "Confirmar activación"}</button>
           </footer>
-        </section>
-      </div>}
+      </dialog>}
     </>
   );
 }

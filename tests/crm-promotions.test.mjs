@@ -110,3 +110,9 @@ test('configuration navigation exposes the tariffs route to administrators', asy
   assert.match(source, /Tarifas y promociones/);
   assert.match(source, /adminOnly: true/);
 });
+
+test('confirmation uses a native modal dialog that contains keyboard focus', async () => {
+  const source = await readFile(new URL('../src/app/admin/crm/configuracion/tarifas/page.jsx', import.meta.url), 'utf8');
+  assert.match(source, /<dialog\b/);
+  assert.match(source, /\.showModal\(\)/);
+});

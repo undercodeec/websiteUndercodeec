@@ -55,5 +55,5 @@
 
 **Files:** `HERMES_CRM_PROMOTIONS_UI_IMPLEMENTATION_REPORT.md`.
 
-- [ ] Record architecture, commits, tests, release order, and remaining risks.
-- [ ] Verify clean branch status and no real promotion mutation.
+- [x] Record architecture, commits, tests, release order, and remaining risks.
+- [x] Verify clean branch status and no real promotion mutation.
