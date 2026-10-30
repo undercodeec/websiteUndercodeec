@@ -57,4 +57,10 @@ html.dark .hero-particles canvas {
     transform: translateX(5vw) scale(1.4);
     transform-origin: 74% 38%;
   }
+
+  [data-page="home"] .hero-particles .webgpu-container {
+    top: 12svh;
+    height: 100svh;
+    transform: none;
+  }
 }

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import "../../../public/landing-primary/css/hero-particles.css";
 
-const SCRIPT_URL = "/landing-primary/js/home-hero-particles.js?v=20261023-primary-mobile-canvas";
+const SCRIPT_URL = "/landing-primary/js/home-hero-particles.js?v=20261029-home-mobile-framing";
 
 export default function HeroParticles() {
   const clipRef = useRef(null);

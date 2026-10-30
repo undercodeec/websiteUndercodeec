@@ -1387,6 +1387,10 @@ html.dark .offbrand-plan-selection-continue:focus-visible {
 }
 
 @media (max-width: 767px) {
+  [data-page="home"] .spacer-10 {
+    display: none;
+  }
+
   [data-page="home"] [home-hero] > .c {
     display: flex;
     flex-direction: column;

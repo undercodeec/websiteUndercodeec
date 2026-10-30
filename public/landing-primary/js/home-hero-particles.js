@@ -38,7 +38,7 @@
       if (!primaryHero || !experience?.particles?.cameras?.main) return;
       const camera = experience.particles.cameras.main;
       const mobile = window.innerWidth < 768;
-      camera.position.x = mobile ? -0.3 : 0;
+      camera.position.x = mobile && !rootLanding ? -0.3 : 0;
       camera.position.z = mobile && host.clientWidth
         ? Math.max(1.5, host.clientHeight / host.clientWidth)
         : 1.5;
@@ -71,7 +71,7 @@
       const particles = experience?.particles?.particles;
       if (particles?.scrollExplosionUniform) {
         particles.scrollExplosionUniform.value = expansion * 0.9;
-        particles.instanceScaleUniform.value = (mobile ? (primaryHero ? 2 : 1.25) : 1) * (1 + expansion * 0.6);
+        particles.instanceScaleUniform.value = (mobile ? (rootLanding ? 1.3 : primaryHero ? 2 : 1.25) : 1) * (1 + expansion * 0.6);
       }
       if (scrollProgress !== scrollTarget) scrollFrame = requestAnimationFrame(animateScroll);
     };
@@ -149,10 +149,12 @@
         const cos = Math.cos(rotation);
         const sin = Math.sin(rotation);
         const mobile = width < 768;
-        const centerX = width * (primaryHero && mobile ? 0.74 : 0.5);
-        const centerY = height * (width < 768 ? 0.38 : 0.46);
+        const centerX = width * (primaryHero && mobile && !rootLanding ? 0.74 : 0.5);
+        const centerY = height * (mobile ? (rootLanding ? 0.55 : 0.38) : 0.46);
         const sphereRadius = primaryHero && mobile
-          ? Math.min(width * 0.72, height * 0.3)
+          ? rootLanding
+            ? Math.min(width * 0.48, height * 0.22)
+            : Math.min(width * 0.72, height * 0.3)
           : Math.min(width * (mobile ? 0.52 : 0.25), height * 0.22) * (mobile ? 1.35 : 1.5);
         const exitStart = mobile ? 0.55 : 0.62;
         const exitEnd = mobile ? 0.95 : 0.98;
