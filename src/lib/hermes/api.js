@@ -314,6 +314,21 @@ export const hermesApi = {
   profile() {
     return request("/auth/profile");
   },
+  priceLists() {
+    return request("/price-lists", { cache: "no-store" });
+  },
+  priceList(id) {
+    return request(`/price-lists/${encodeURIComponent(id)}`, { cache: "no-store" });
+  },
+  priceListAudit(id) {
+    return request(`/price-lists/${encodeURIComponent(id)}/audit`, { cache: "no-store" });
+  },
+  updatePriceListStatus(id, isActive) {
+    return request(`/price-lists/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      body: { isActive },
+    });
+  },
   overview() {
     return request("/analytics/crm-overview");
   },

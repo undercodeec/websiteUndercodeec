@@ -874,6 +874,44 @@
 .crm-resolution-note textarea { width: 100%; height: auto; min-height: 92px; padding: 10px; resize: vertical; }
 .crm-modal form > footer { margin-top: 16px; display: flex; justify-content: flex-end; gap: 8px; }
 
+/* Tarifas y promociones */
+.crm-tariffs-panel { padding: 0; overflow: hidden; }
+.crm-tariffs-summary { padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--crm-line); color: var(--crm-muted); font-size: 12px; }
+.crm-tariffs-summary > div { display: flex; align-items: center; gap: 9px; color: var(--crm-ink); }
+.crm-tariffs-list { display: grid; }
+.crm-tariff-card { padding: 18px 20px; border-bottom: 1px solid var(--crm-line); }
+.crm-tariff-card:last-child { border-bottom: 0; }
+.crm-tariff-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.crm-tariff-heading h2 { margin: 3px 0; color: var(--crm-ink); font-size: 17px; line-height: 1.3; }
+.crm-tariff-product, .crm-tariff-meta { display: block; color: var(--crm-muted); font-size: 11px; }
+.crm-tariff-product { color: var(--crm-brand); font-weight: 700; }
+.crm-tariff-value { display: flex; align-items: flex-end; flex-direction: column; gap: 7px; white-space: nowrap; }
+.crm-tariff-value strong { color: var(--crm-ink); font-size: 20px; }
+.crm-tariff-status, .crm-tariff-promo, .crm-tariff-base { padding: 4px 9px; border-radius: 999px; background: #f1f3f7; color: #5a6475; font-size: 11px; font-weight: 700; }
+.crm-tariff-status.is-active { background: #e8f7ef; color: #21734b; }
+.crm-tariff-promo { background: #f1edff; color: #5b4dc4; }
+.crm-tariff-actions { margin-top: 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.crm-tariff-actions .crm-button:first-of-type { margin-left: auto; }
+.crm-tariff-details { margin-top: 15px; padding: 15px; border-radius: 10px; background: #f8f9fc; }
+.crm-tariff-details dl, .crm-tariff-modal dl { margin: 0; display: grid; gap: 10px; }
+.crm-tariff-details dl { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.crm-tariff-details dt, .crm-tariff-modal dt { margin-bottom: 3px; color: var(--crm-muted); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.crm-tariff-details dd, .crm-tariff-modal dd { margin: 0; color: var(--crm-ink); font-size: 12px; overflow-wrap: anywhere; }
+.crm-tariff-audit { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--crm-line); color: var(--crm-muted); font-size: 11px; }
+.crm-tariff-modal > p { color: var(--crm-muted); font-size: 13px; line-height: 1.5; }
+.crm-tariff-modal dl { padding: 15px; border-radius: 10px; background: #f8f9fc; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.crm-tariff-modal .crm-tariff-warning { padding: 12px; display: flex; align-items: flex-start; gap: 9px; border-radius: 9px; background: #fff6e9; color: #7c5719; }
+.crm-tariff-modal footer { margin-top: 18px; display: flex; justify-content: flex-end; gap: 8px; }
+@media (max-width: 600px) {
+  .crm-tariff-heading { flex-direction: column; gap: 10px; }
+  .crm-tariff-value { width: 100%; align-items: center; flex-direction: row; justify-content: space-between; }
+  .crm-tariff-actions .crm-button:first-of-type { margin-left: 0; }
+  .crm-tariff-actions .crm-button { flex: 1 1 100%; }
+  .crm-tariff-details dl { grid-template-columns: 1fr; }
+  .crm-tariff-modal footer { flex-direction: column-reverse; }
+  .crm-tariff-modal footer .crm-button { width: 100%; }
+}
+
 @media (max-width:1200px) {
   .crm-login-brain { transform: translateX(-7vw); }
   .crm-login-brain iframe { transform: scale(1.05); }

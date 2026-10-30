@@ -19,9 +19,10 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Rows3,
+  Tags,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import {
   HERMES_CONVERSATION_READ_EVENT,
   HERMES_CUSTOMER_MESSAGE_EVENT,
@@ -43,6 +44,7 @@ const NAV_ITEMS = [
   { href: "/admin/crm/calendario", label: "Calendario", icon: CalendarDays },
   { href: "/admin/crm/campanas", label: "CampaÃ±as", icon: Send },
   { href: "/admin/crm/administracion", label: "Administración", icon: BriefcaseBusiness },
+  { href: "/admin/crm/configuracion/tarifas", label: "Tarifas y promociones", icon: Tags, adminOnly: true, section: "Configuración" },
 ];
 
 function navIsActive(pathname, item) {
@@ -294,17 +296,19 @@ export default function CrmShell({ children }) {
             const Icon = item.icon;
             const active = navIsActive(normalizedPathname, item);
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`crm-nav-entry ${active ? "is-active" : ""}`}
-                aria-current={active ? "page" : undefined}
-                title={sidebarCollapsed ? item.label : undefined}
-              >
-                <Icon size={19} aria-hidden="true" />
-                <span>{item.label}</span>
-                <ChevronRight size={16} className="crm-nav-chevron" />
-              </Link>
+              <Fragment key={item.href}>
+                {item.section && <span className="crm-nav-label">{item.section}</span>}
+                <Link
+                  href={item.href}
+                  className={`crm-nav-entry ${active ? "is-active" : ""}`}
+                  aria-current={active ? "page" : undefined}
+                  title={sidebarCollapsed ? item.label : undefined}
+                >
+                  <Icon size={19} aria-hidden="true" />
+                  <span>{item.label}</span>
+                  <ChevronRight size={16} className="crm-nav-chevron" />
+                </Link>
+              </Fragment>
             );
           })}
         </nav>
