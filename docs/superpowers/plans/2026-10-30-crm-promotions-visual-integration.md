@@ -35,7 +35,7 @@
 - [x] Add focused regression assertions for root landing mobile scope, framing, asset versions, and consent panel bounds.
 - [x] Run those assertions against the clean feature baseline and confirm failure.
 - [x] Apply the preserved patch after `git apply --check` and verify it reproduces the backed-up files.
-- [ ] Run the focused assertions and promotion tests; commit the visual integration.
+- [x] Run the focused assertions and promotion tests; commit the visual integration.
 
 ### Task 2: Verify and prepare publication
 
@@ -45,6 +45,6 @@
 
 - [x] Run frontend full suite, focused suite, changed-file lint, and build.
 - [x] Run backend focused/full Jest, E2E where isolated harness permits, build, and Prisma validate.
-- [ ] Check branch ancestry, remote heads, diffs, and worktree cleanliness.
-- [ ] Publish review branches with ordinary push and verify remote SHAs.
-- [ ] Record exact evidence, release order, rollback, and production checks in the report; commit and push the report.
+- [x] Check branch ancestry, remote heads, diffs, and worktree cleanliness.
+- [x] Publish review branches with ordinary push and verify remote SHAs.
+- [x] Record exact evidence, release order, rollback, and production checks in the report; commit and push the report.
