@@ -65,6 +65,8 @@ El procedimiento oficial `hermes-backend/scripts/run-a7-d16-e2e.mjs` usa `docker
 
 El backend se publicó con `git push -u origin feat/crm-promotions-api`; `git ls-remote` confirmó `ddfccbbf043b41dae66d42b8848dd8430005547e`. La línea piloto remota seguía en `fa537a90aeecda0efce1d3248354bc2dd647cbda`. El frontend se publicó con `git push -u origin feat/crm-promotions-visual-integration`; `git ls-remote` confirmó inicialmente el commit de implementación `80cf2a110d936fa0bf460139a9b476379dd8508c`. El informe se añade en un commit posterior de esa misma rama. `main` frontend seguía en `22bb11dc5231c6d1098f023e0213e75917ec4242`. Ninguna rama de publicación (`main` frontend ni piloto backend) se movió durante este trabajo.
 
+Los PRs en borrador no se pudieron abrir desde este entorno: `gh auth status` indicó que GitHub CLI no tiene una sesión iniciada. Las ramas remotas están disponibles para crear un PR frontend hacia `main` de `websiteUndercodeec` y un PR backend hacia `pilot/a7-d12-monitor-only-20261026` de `hermes_n8n`. No se fusionó ninguna rama.
+
 ## 6. Procedimiento de publicación y rollback
 
 1. Revisar y probar la rama backend `feat/crm-promotions-api` contra `pilot/a7-d12-monitor-only-20261026`. Su HEAD desciende del HEAD piloto remoto, por lo que puede integrarse por avance lineal tras la aprobación correspondiente. Verificar de nuevo el HEAD remoto antes de integrar; evitar `main` backend y force push.
