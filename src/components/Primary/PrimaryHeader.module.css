@@ -378,6 +378,20 @@
     width: clamp(4.25rem, 18vw, 5.25rem);
     height: clamp(4.25rem, 18vw, 5.25rem);
   }
+
+  /* Keep the menu control clear of the fixed consent choices from first paint. */
+  .menuOverlay {
+    top: 5.25rem;
+    bottom: auto;
+  }
+  .menuButton,
+  .menuBackground {
+    top: 0;
+    bottom: auto;
+  }
+  .menuContent {
+    padding-top: 3.5rem;
+  }
 }
 
 @media (max-width: 520px) {

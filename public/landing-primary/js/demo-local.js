@@ -137,12 +137,16 @@
   const introAnimationIsActive = () =>
     animationRuntimeReady() && document.body?.style.cursor === "progress";
 
+  let pageReleased = false;
   const releasePage = (force = false) => {
+    if (pageReleased) return true;
     if (!force && introAnimationIsActive()) return false;
 
     const preloader = document.querySelector("[preloader]");
     preloader?.remove();
     if (preloader) window.dispatchEvent(new CustomEvent("homePreloaderDone"));
+    pageReleased = true;
+    document.body?.classList.add("home-content-ready");
     document.body?.removeAttribute("data-start");
     document.body?.style.removeProperty("cursor");
     document.body?.style.removeProperty("opacity");
@@ -153,17 +157,23 @@
     return true;
   };
 
-  const waitForPreloader = () => {
-    if (!releasePage()) window.setTimeout(waitForPreloader, 250);
-  };
-
   document.addEventListener("click", (event) => {
     const link = event.target.closest?.('a[href="#"]');
     if (link) event.preventDefault();
   });
 
-  window.addEventListener("load", () => window.setTimeout(waitForPreloader, 250));
-  window.setTimeout(() => releasePage(true), 15000);
+  // This script sits at the end of the document. Wait for deferred scripts to
+  // initialize the intro, then reveal the page without waiting for every
+  // image, video, and third-party request to finish loading.
+  const revealOnDomReady = () => {
+    window.requestAnimationFrame(() => releasePage(true));
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", revealOnDomReady, { once: true });
+  } else {
+    revealOnDomReady();
+  }
+  window.setTimeout(() => releasePage(true), 4000);
 
   const tools = [
     ["n8n", "/assets/img/logos/log1.webp"],
@@ -290,13 +300,13 @@
     },
     {
       name: "Full Stack",
-      image: "/landing-preview/img/demos/FireShot%20Capture%20012%20-%20Demo%20-%20Full%20Stack%20-%20%5Bunderstudio.undercodeec.com%5D.png",
+      image: "/landing-preview/img/demos/understudio-full-stack.webp",
       href: "https://understudio.undercodeec.com/stack-demo",
       services: ["● Producto digital", "△ Desarrollo Full Stack", "⁂ Plataforma web"],
     },
     {
       name: "Dala — Demo interactivo",
-      image: "/assets/img/dala.png",
+      image: "/assets/img/dala-home.webp",
       href: "/demos/dala/index.html",
       services: ["● Diseño web", "△ Desarrollo", "⁂ WebGL, partículas"],
     },

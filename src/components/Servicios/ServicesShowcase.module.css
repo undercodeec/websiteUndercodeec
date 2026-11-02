@@ -85,10 +85,25 @@
 }
 
 .swiper {
+  --initial-slides-per-view: 6;
   width: 100%;
   overflow: visible !important;
   padding: 1.25rem 0 6.5rem !important;
 }
+
+/* Match the six prepended loop slides and first centered original before Swiper initializes. */
+.swiper:not(:global(.swiper-initialized)) :global(.swiper-wrapper) {
+  transform: translate3d(calc((100% - 100% / var(--initial-slides-per-view)) / 2 - 600% / var(--initial-slides-per-view)), 0, 0);
+}
+.swiper:not(:global(.swiper-initialized)) :global(.swiper-slide) {
+  width: calc(100% / var(--initial-slides-per-view));
+  flex: 0 0 calc(100% / var(--initial-slides-per-view));
+}
+
+@media (max-width: 1199px) { .swiper { --initial-slides-per-view: 4; } }
+@media (max-width: 990px) { .swiper { --initial-slides-per-view: 2.2; } }
+@media (max-width: 786px) { .swiper { --initial-slides-per-view: 1.35; } }
+@media (max-width: 479px) { .swiper { --initial-slides-per-view: 1.08; } }
 
 .slider :global(.swiper-wrapper) { align-items: flex-start; }
 
@@ -185,6 +200,12 @@
   .slider :global(.swiper-slide-active) { opacity: 1; transform: scale(1) translateY(0); }
   .card { min-height: 23rem; }
   .imageWrap img { width: clamp(3rem, 18vw, 3.75rem); height: clamp(3rem, 18vw, 3.75rem); }
+}
+
+.swiper:not(:global(.swiper-initialized)) :global(.swiper-slide:nth-child(7)) {
+  z-index: 2;
+  opacity: 1;
+  transform: scale(1) translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {

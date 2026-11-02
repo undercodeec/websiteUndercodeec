@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Script from "next/script";
 import navbarScrollEffect from "@/common/navbarScrollEffect";
 import MainLayout from "@/layouts/Main";
 import TopNav from "@/components/Navbars/TopNav";
@@ -18,6 +19,7 @@ export default function NoticiasPage() {
 
   return (
     <MainLayout>
+      <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />
       <TopNav style="5" />
       <Navbar navbarRef={navbarRef} bgTransparent={false} />
       <main className="blog-page style-5 color-5">

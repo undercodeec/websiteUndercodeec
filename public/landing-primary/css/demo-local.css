@@ -1352,6 +1352,41 @@ html.dark .offbrand-plan-selection-continue:focus-visible {
   }
 }
 
+/* Keep the first viewport visible while legacy scripts and images load. */
+body[data-start="hidden"] {
+  visibility: visible !important;
+}
+
+body [preloader] {
+  display: none !important;
+}
+
+body [data-page="home"] [home-hero] [split-hero] .char,
+body [data-page="home"] [home-hero] .hh-text-block .char,
+body [data-page="home"] [home-hero] .home-hero-tablet-text .char,
+body [data-page="home"] [home-hero] [hh-tb],
+body .hud-brand-w .hud-brand-link,
+body .hud-nav-w .hud-nav-flex {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+body.home-content-ready [data-page="home"] [home-hero] [split-hero] {
+  animation: home-content-appear .45s ease-out both;
+}
+
+@keyframes home-content-appear {
+  from { opacity: .35; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.home-content-ready [data-page="home"] [home-hero] [split-hero] {
+    animation: none;
+  }
+}
+
 /* Los enlaces añadidos al menú móvil usan exactamente las mismas clases y composición que los enlaces originales. */
 @media (max-width: 991px) {
   .offbrand-mobile-navigation {
@@ -1442,4 +1477,13 @@ html.dark .offbrand-plan-selection-continue:focus-visible {
 /* Remove the duplicate "Jun+tos" footer ornament from the source export. */
 #w-node-b2deac9f-48fc-2cd0-3331-af319f49ee16-9f49edfa {
   display: none !important;
+}
+
+@media (max-width: 767px) {
+  /* The fixed privacy notice covers the usual bottom-right menu position. */
+  .hud-menu-o {
+    bottom: max(14rem, 28svh) !important;
+    max-height: calc(100svh - max(14rem, 28svh) - 1rem);
+    overflow-y: auto;
+  }
 }

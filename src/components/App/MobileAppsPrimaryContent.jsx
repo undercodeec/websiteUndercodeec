@@ -114,6 +114,7 @@ function FAQList() {
 
 function ProductScreensCarousel() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const swiperRef = useRef(null);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -125,6 +126,13 @@ function ProductScreensCarousel() {
     return () => mediaQuery.removeEventListener("change", updateMotionPreference);
   }, []);
 
+  useEffect(() => {
+    const autoplay = swiperRef.current?.autoplay;
+    if (!autoplay) return;
+    if (prefersReducedMotion) autoplay.stop();
+    else if (!autoplay.running) autoplay.start();
+  }, [prefersReducedMotion]);
+
   return (
     <div
       className={styles.shotGrid}
@@ -134,11 +142,12 @@ function ProductScreensCarousel() {
     >
       <Swiper
         modules={[A11y, Autoplay, Keyboard]}
+        onSwiper={(swiper) => { swiperRef.current = swiper; }}
         className={styles.shotCarousel}
         dir="ltr"
         slidesPerView={5}
         centeredSlides
-        loop
+        rewind
         speed={prefersReducedMotion ? 0 : 1000}
         autoplay={prefersReducedMotion ? false : {
           delay: 3000,

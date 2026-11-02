@@ -4,11 +4,11 @@ import AttributionProvider from "@/components/Attribution/AttributionProvider";
 import CommercialWhatsAppAttribution from "@/components/Attribution/CommercialWhatsAppAttribution";
 import ConsentManager from "@/components/Consent/ConsentManager";
 import HermesWhatsAppButton from "@/components/HermesWhatsAppButton";
+import DeferredSiteStyles from "@/components/DeferredSiteStyles";
 import { PrimaryCursor } from "@/components/Primary";
 import ThemeProvider from "@/components/Theme/ThemeProvider";
 import "@/styles/globals.css";
 import "@/styles/primary-system.css";
-import "@/styles/trading-card.css";
 
 export const metadata: Metadata = {
   title: "Undercodeec - Diseño y Desarrollo de Páginas Web Profesional",
@@ -214,11 +214,6 @@ gtag('consent','default',{
         <link rel="stylesheet" href="/assets/css/lib/bootstrap.min.css" />
         <link rel="stylesheet" href="/assets/css/style.css" />
 
-        {/* Non-critical CSS — loaded async after main thread is free */}
-        <Script id="deferred-css" strategy="afterInteractive">
-          {`(function(){var s=['/assets/css/lib/all.min.css','/assets/css/lib/bootstrap-icons.css','/landing-preview/css/preview-style.css','/assets/css/animations.css'];s.forEach(function(h){var l=document.createElement('link');l.rel='stylesheet';l.href=h;document.head.appendChild(l);});})();`}
-        </Script>
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -233,6 +228,7 @@ gtag('consent','default',{
         />
       </head>
       <body suppressHydrationWarning={true}>
+        <DeferredSiteStyles />
         <ThemeProvider>
           <ConsentManager>
             <AttributionProvider>
@@ -240,7 +236,6 @@ gtag('consent','default',{
               <PrimaryCursor />
               <HermesWhatsAppButton />
               {children}
-              <Script src="/assets/js/lib/bootstrap.bundle.min.js" strategy="afterInteractive" />
             </AttributionProvider>
           </ConsentManager>
         </ThemeProvider>
