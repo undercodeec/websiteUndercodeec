@@ -1,13 +1,38 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import IsometricVoxelCard from "@/components/LandingShared/IsometricVoxelCard";
-import MobileAppCanvas from "./MobileAppCanvas";
-import WebDesignCanvas from "./WebDesignCanvas";
 import styles from "./PrimaryAbout.module.css";
+
+const IsometricVoxelCard = dynamic(() => import("@/components/LandingShared/IsometricVoxelCard"), { ssr: false });
+const MobileAppCanvas = dynamic(() => import("./MobileAppCanvas"), { ssr: false });
+const WebDesignCanvas = dynamic(() => import("./WebDesignCanvas"), { ssr: false });
+
+function DeferredCanvas({ kind, className }) {
+  const hostRef = useRef(null);
+  const [nearViewport, setNearViewport] = useState(false);
+
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) {
+      const frame = window.requestAnimationFrame(() => setNearViewport(true));
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      setNearViewport(true);
+      observer.disconnect();
+    }, { rootMargin: "600px 0px" });
+    observer.observe(hostRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const Canvas = kind === "software" ? IsometricVoxelCard : kind === "apps" ? MobileAppCanvas : WebDesignCanvas;
+  return <div ref={hostRef} className={className}>{nearViewport ? <Canvas /> : null}</div>;
+}
 
 const STORY_DATA = [
   {
@@ -171,19 +196,13 @@ export default function PrimaryAbout({ data }) {
 
               <figure className={styles.visual} data-primary-about-image aria-hidden="true">
                 {isSoftwareStory ? (
-                  <div className={styles.voxelCanvas}>
-                    <IsometricVoxelCard />
-                  </div>
+                  <DeferredCanvas kind="software" className={styles.voxelCanvas} />
                 ) : null}
                 {isAppsStory ? (
-                  <div className={styles.appCanvas}>
-                    <MobileAppCanvas />
-                  </div>
+                  <DeferredCanvas kind="apps" className={styles.appCanvas} />
                 ) : null}
                 {isWebStory ? (
-                  <div className={styles.webCanvas}>
-                    <WebDesignCanvas />
-                  </div>
+                  <DeferredCanvas kind="web" className={styles.webCanvas} />
                 ) : null}
                 <span className={`${styles.corner} ${styles.cornerTopLeft}`} aria-hidden="true">+</span>
                 <span className={`${styles.corner} ${styles.cornerTopRight}`} aria-hidden="true">+</span>

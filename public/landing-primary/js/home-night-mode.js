@@ -34,18 +34,24 @@
 
   const mountThemeToggle = () => {
     const menuContent = document.querySelector(".hud-menu-content");
-    if (!menuContent || menuContent.querySelector("[data-home-theme-toggle]")) return;
+    if (!menuContent) return;
 
-    const control = document.createElement("div");
-    control.className = "home-theme-control";
-    control.innerHTML = `
+    let button = menuContent.querySelector("[data-home-theme-toggle]");
+    if (!button) {
+      const control = document.createElement("div");
+      control.className = "home-theme-control";
+      control.innerHTML = `
       <button class="home-theme-toggle" type="button" data-home-theme-toggle aria-pressed="false">
         <span data-home-theme-label>Modo noche</span>
         <span class="home-theme-toggle__icon" data-home-theme-icon aria-hidden="true">☾</span>
       </button>
     `;
+      menuContent.append(control);
+      button = control.querySelector("button");
+    }
 
-    const button = control.querySelector("button");
+    if (button.dataset.themeBound) return;
+    button.dataset.themeBound = "true";
     button.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -54,7 +60,6 @@
       saveTheme(nextTheme);
     });
 
-    menuContent.append(control);
     applyTheme(getSavedTheme());
   };
 

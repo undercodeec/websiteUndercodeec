@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import Link from 'next/link';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import '@/styles/trading-card.css';
 
 const TradingCard = ({ demo, index }) => {
   const ref = useRef(null);

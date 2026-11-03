@@ -24,11 +24,11 @@ test('the root landing references the updated mobile assets', async () => {
     readFile('public/landing-primary/index.html', 'utf8'),
     readFile('src/components/HeroParticles/HeroParticles.jsx', 'utf8'),
   ]);
-  assert.match(html, /demo-local\.css\?v=20261029-mobile-spacers/);
-  assert.match(html, /hero-particles\.css\?v=20261029-home-mobile-framing/);
-  assert.match(html, /home-hero-particles\.js\?v=20261029-home-mobile-framing/);
-  assert.match(html, /consent-attribution\.js\?v=20261030-mobile-width/);
-  assert.match(component, /home-hero-particles\.js\?v=20261029-home-mobile-framing/);
+  assert.match(html, /demo-local\.css\?v=20261102-consent-menu/);
+  assert.match(html, /hero-particles\.css\?v=20261031-progressive-particles/);
+  assert.match(html, /home-hero-particles\.js\?v=20261031-progressive-particles/);
+  assert.match(html, /consent-attribution\.js\?v=20261031-compact-mobile/);
+  assert.match(component, /home-hero-particles\.js\?v=20261031-progressive-particles/);
 });
 
 test('the mobile privacy panel fits inside its declared viewport width', async () => {

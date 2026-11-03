@@ -205,16 +205,26 @@
 @media (max-width: 760px) {
   .banner {
     grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 18px;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .copy p {
+    font-size: .84rem;
+    line-height: 1.4;
   }
 
   .actions {
-    justify-content: stretch;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
   }
 
   .button {
-    flex: 1 1 130px;
+    min-width: 0;
+    padding: 8px 6px;
+    font-size: .65rem;
+    line-height: 1.2;
   }
 
 }

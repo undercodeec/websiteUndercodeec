@@ -37,7 +37,7 @@
 .footerLine { height: 1px; background: var(--primary-light-grey); }
 
 @media (max-width: 520px) {
-  .hero { min-height: 100svh; }
+  .hero { min-height: 70svh; }
   .cardsOverlay { bottom: 1.25rem; }
   .heroFooter { font-size: .62rem; }
 }

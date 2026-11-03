@@ -100,7 +100,7 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
     /searchParams\.set\("embed_domain", window\.location\.host\)/,
   );
 
-  assert.match(page, /<img[^>]+src="\/assets\/img\/undercode-logo\.png"[^>]+alt="Undercodeec"/);
+  assert.match(page, /<img[^>]+src="\/assets\/img\/undercode-logo-256\.webp"[^>]+alt="Undercodeec"/);
   assert.match(
     page,
     /Diseño de Páginas<\/h1>[\s\S]*Web Profesional<\/h1>[\s\S]*a Medida<\/h1>/,
@@ -208,9 +208,11 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
   for (const pageName of ["Nuestra trayectoria", "Blog", "Contáctanos"]) {
     assert.match(hudMenu, new RegExp(`>${pageName}<`));
   }
-  assert.doesNotMatch(hudMenu, />Inicio</);
-  assert.doesNotMatch(hudMenu, />Servicios</);
-  assert.doesNotMatch(hudMenu, />Aplicaciones Móviles</);
+  assert.match(hudMenu, /<nav class="offbrand-mobile-navigation" aria-label="Navegación principal">/);
+  assert.match(hudMenu, />Inicio</);
+  assert.match(hudMenu, />Servicios</);
+  assert.match(hudMenu, />Aplicaciones Móviles</);
+  assert.doesNotMatch(page, /<script[^>]+mobile-navigation\.js/);
   assert.doesNotMatch(page, /A different<\/h1>/i);
   assert.doesNotMatch(page, />Creative<\/h1>/i);
   assert.doesNotMatch(page, />approach<\/h1>/i);

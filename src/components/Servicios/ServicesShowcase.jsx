@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import Image from "next/image";
 import { Autoplay } from "swiper";
@@ -15,18 +15,38 @@ const SHOWCASE_TITLE = "Soluciones para hacer crecer tu negocio.";
 const SHOWCASE_TITLE_LINES = ["Soluciones para", "hacer crecer", "tu negocio."];
 
 export function ServicesCards() {
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const swiperRef = useRef(null);
+
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => setReducedMotion(preference.matches);
+    updatePreference();
+    preference.addEventListener("change", updatePreference);
+    return () => preference.removeEventListener("change", updatePreference);
+  }, []);
+
+  useEffect(() => {
+    const autoplay = swiperRef.current?.autoplay;
+    if (!autoplay) return;
+    if (reducedMotion) autoplay.stop();
+    else if (!autoplay.running) autoplay.start();
+  }, [reducedMotion]);
+
   return (
     <div className={`services-slider position-relative style-6 ${styles.slider}`}>
       <Swiper
         modules={[Autoplay]}
+        onSwiper={(swiper) => { swiperRef.current = swiper; }}
         className={styles.swiper}
         slidesPerView={6}
         centeredSlides
         spaceBetween={0}
         speed={850}
         loop
+        loopedSlides={6}
         grabCursor
-        autoplay={{ delay: 2200, disableOnInteraction: false, pauseOnMouseEnter: false }}
+        autoplay={reducedMotion ? false : { delay: 2200, disableOnInteraction: false, pauseOnMouseEnter: true }}
         onClick={(swiper) => swiper.autoplay.stop()}
         breakpoints={{
           0: { slidesPerView: 1.08 },
@@ -37,12 +57,20 @@ export function ServicesCards() {
         }}
       >
         {services.map((service, index) => (
-          <SwiperSlide key={service.info}>
+          <SwiperSlide key={service.info} data-swiper-autoplay={index === 0 ? 8000 : undefined}>
             <article className={styles.card} data-cursor-hover>
               <span className={styles.number}>{String(index + 1).padStart(2, "0")}</span>
 
               <div className={styles.imageWrap} aria-hidden="true">
-                <Image src={service.img} alt="" width={220} height={220} />
+                <Image
+                  src={service.img}
+                  alt=""
+                  width={220}
+                  height={220}
+                  sizes="(max-width: 480px) 70vw, (max-width: 991px) 40vw, 220px"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  fetchPriority={index === 0 ? "high" : undefined}
+                />
               </div>
 
               <div className={styles.cardContent}>

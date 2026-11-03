@@ -1,10 +1,9 @@
-"use client";
-
 import MainLayout from "@/layouts/Main";
 import { PrimaryHeader } from "@/components/Primary";
 import ServicesHero from "@/components/Servicios/ServicesHero";
 import ServicesShowcase, { ServicesCards } from "@/components/Servicios/ServicesShowcase";
-import About from "@/components/Saas/About";
+import PrimaryAbout from "@/components/Saas/About/PrimaryAbout";
+import aboutData from "@/data/Saas/about.json";
 import Testimonials from "@/components/Saas/Testimonials";
 import Pricing from "@/components/Saas/Pricing";
 import ServiciosPrimaryFooter from "@/components/Servicios/ServiciosPrimaryFooter";
@@ -20,7 +19,7 @@ export default function ServiciosPage() {
             <ServicesCards />
           </ServicesHero>
           <ServicesShowcase />
-          <About noPaddingTop={true} variant="primary" />
+          <PrimaryAbout data={aboutData} />
           <Testimonials />
           <Pricing />
         </main>

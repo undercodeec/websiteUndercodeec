@@ -33,7 +33,15 @@
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let disposed = false;
     let experience;
+    let gpuReady = false;
     let fallbackCleanup = () => {};
+    const syncGpuVisibility = () => {
+      if (!gpuReady) return;
+      const bounds = hero.getBoundingClientRect();
+      const onScreen = bounds.bottom > 0 && bounds.top < window.innerHeight;
+      experience?.particles?.render(!document.hidden && onScreen);
+    };
+    document.addEventListener('visibilitychange', syncGpuVisibility);
     const fitMobileCamera = () => {
       if (!primaryHero || !experience?.particles?.cameras?.main) return;
       const camera = experience.particles.cameras.main;
@@ -92,6 +100,8 @@
       fallbackStarted = true;
       experience?.dispose();
       experience = null;
+      gpuReady = false;
+      clip.classList.remove('hero-particles-canvas-ready');
       host.replaceChildren();
 
       const canvas = document.createElement('canvas');
@@ -100,7 +110,7 @@
       if (!context) return;
       host.append(canvas);
 
-      const count = window.matchMedia('(max-width: 767px)').matches ? 4500 : 6500;
+      const count = window.matchMedia('(max-width: 767px)').matches ? 2000 : 3500;
       const goldenAngle = Math.PI * (3 - Math.sqrt(5));
       const particles = Array.from({ length: count }, (_, index) => {
         const y = 1 - 2 * (index + 0.5) / count;
@@ -129,7 +139,7 @@
       const resize = () => {
         width = host.clientWidth;
         height = host.clientHeight;
-        pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        pixelRatio = Math.min(window.devicePixelRatio || 1, width < 768 ? 1.5 : 2);
         canvas.width = Math.round(width * pixelRatio);
         canvas.height = Math.round(height * pixelRatio);
         canvas.style.width = `${width}px`;
@@ -138,7 +148,7 @@
       };
       const draw = (now) => {
         frame = 0;
-        if (!visible || !width || !height) return;
+        if (!visible || document.hidden || !width || !height) return;
         if (!reducedMotion && now - lastFrame < 33) {
           frame = requestAnimationFrame(draw);
           return;
@@ -190,6 +200,7 @@
           const size = (0.65 + depth * 1.25) * (1 + expansion * 1.1);
           context.fillRect(targetX + particle.offsetX, targetY + particle.offsetY, size, size);
         }
+        clip.classList.add('hero-particles-canvas-ready');
         if (!reducedMotion) frame = requestAnimationFrame(draw);
       };
       const onPointerMove = (event) => {
@@ -204,14 +215,24 @@
       window.addEventListener('resize', resize, { passive: true });
       const observer = new IntersectionObserver(([entry]) => {
         visible = entry.isIntersecting;
-        if (visible && !frame) frame = requestAnimationFrame(draw);
+        if (visible && !document.hidden && !frame) frame = requestAnimationFrame(draw);
       });
+      const onVisibilityChange = () => {
+        if (document.hidden) {
+          cancelAnimationFrame(frame);
+          frame = 0;
+        } else if (visible && !frame) {
+          frame = requestAnimationFrame(draw);
+        }
+      };
+      document.addEventListener('visibilitychange', onVisibilityChange);
       observer.observe(hero);
       resize();
       frame = requestAnimationFrame(draw);
       fallbackCleanup = () => {
         cancelAnimationFrame(frame);
         observer.disconnect();
+        document.removeEventListener('visibilitychange', onVisibilityChange);
         window.removeEventListener('pointermove', onPointerMove);
         hero.removeEventListener('pointerleave', onPointerLeave);
         window.removeEventListener('resize', resize);
@@ -219,7 +240,7 @@
     };
 
     if (reducedMotion) {
-      startFallback();
+      clip.classList.add('hero-particles-static');
     } else {
       Promise.resolve()
         .then(() => navigator.gpu?.requestAdapter())
@@ -232,8 +253,11 @@
           experience = window.__createHeroParticleExperience(
             host,
             () => {
+              gpuReady = true;
+              clip.classList.add('hero-particles-canvas-ready');
               fitMobileCamera();
               updateScrollTarget();
+              syncGpuVisibility();
             },
             () => { if (!disposed) startFallback(); },
           );
@@ -247,9 +271,11 @@
       window.removeEventListener('scroll', updateScrollTarget);
       window.removeEventListener('resize', updateScrollTarget);
       window.removeEventListener('resize', fitMobileCamera);
+      document.removeEventListener('visibilitychange', syncGpuVisibility);
       fallbackCleanup();
       experience?.dispose();
       delete clip.dataset.heroParticlesMounted;
+      clip.classList.remove('hero-particles-canvas-ready', 'hero-particles-static');
       host.replaceChildren();
       if (createdClip) clip.remove();
     };
@@ -267,7 +293,13 @@
       mounted = true;
       observer?.disconnect();
       window.removeEventListener('homePreloaderDone', start);
-      mount(hero);
+      window.requestAnimationFrame(() => {
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(() => mount(hero), { timeout: 1500 });
+        } else {
+          window.setTimeout(() => mount(hero), 250);
+        }
+      });
     };
 
     if (!document.querySelector('[preloader]')) {

@@ -17,6 +17,20 @@
   height: 140svh;
 }
 
+.hero-particles .webgpu-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 43%, rgba(147, 230, 226, .24) 0%, rgba(1, 83, 79, .16) 18%, rgba(1, 83, 79, .06) 29%, transparent 44%);
+  opacity: 1;
+  transition: opacity .35s ease;
+  pointer-events: none;
+}
+
+.hero-particles.hero-particles-canvas-ready .webgpu-container::before {
+  opacity: 0;
+}
+
 .hero-particles canvas {
   display: block;
   opacity: var(--hero-particle-opacity, .8) !important;
