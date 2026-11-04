@@ -261,10 +261,10 @@ const HermesWhatsAppButton = () => {
           border: 0;
         }
 
-        @media (max-width: 700px) {
+        @media (max-width: 767px) {
           .hermes-whatsapp-button {
             right: 16px;
-            bottom: 82px;
+            bottom: calc(82px + env(safe-area-inset-bottom, 0px));
             width: 58px;
             height: 58px;
             visibility: visible;
@@ -278,6 +278,12 @@ const HermesWhatsAppButton = () => {
               inset 8px 9px 16px rgba(255, 255, 255, 0.2),
               inset -12px -14px 20px rgba(0, 0, 0, 0.18),
               0 8px 20px rgba(37, 211, 102, 0.34);
+          }
+
+          body:has(.hud-menu-w.is-open) .hermes-whatsapp-button {
+            visibility: hidden !important;
+            pointer-events: none !important;
+            opacity: 0 !important;
           }
         }
       `}</style>

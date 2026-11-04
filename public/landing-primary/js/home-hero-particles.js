@@ -5,7 +5,7 @@
     if (!bundlePromise) {
       bundlePromise = new Promise((resolve, reject) => {
         const script = document.createElement('script');
-        script.src = '/landing-primary/js/auros-hero-particles.bundle.js?v=20261023-shared-1';
+        script.src = '/landing-primary/js/auros-hero-particles.bundle.js?v=20261103-desktop-lite';
         script.onload = resolve;
         script.onerror = reject;
         document.head.append(script);
@@ -15,7 +15,7 @@
   };
 
   const mount = (hero, clip = document.createElement('div')) => {
-    if (!hero || clip.dataset.heroParticlesMounted === 'true') return () => {};
+    if (!hero || window.matchMedia('(max-width: 767px)').matches || clip.dataset.heroParticlesMounted === 'true') return () => {};
     const rootLanding = !!hero.closest('[data-page="home"]');
     const primaryHero = rootLanding || !!hero.closest('[data-primary-page]');
     clip.dataset.heroParticlesMounted = 'true';
@@ -31,6 +31,9 @@
     if (createdClip) hero.prepend(clip);
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const mobileMedia = window.matchMedia('(max-width: 767px)');
+    const lowPowerDesktop = navigator.connection?.saveData ||
+      (navigator.deviceMemory && navigator.deviceMemory <= 4 && navigator.hardwareConcurrency <= 4);
     let disposed = false;
     let experience;
     let gpuReady = false;
@@ -110,7 +113,7 @@
       if (!context) return;
       host.append(canvas);
 
-      const count = window.matchMedia('(max-width: 767px)').matches ? 2000 : 3500;
+      const count = 1400;
       const goldenAngle = Math.PI * (3 - Math.sqrt(5));
       const particles = Array.from({ length: count }, (_, index) => {
         const y = 1 - 2 * (index + 0.5) / count;
@@ -139,7 +142,7 @@
       const resize = () => {
         width = host.clientWidth;
         height = host.clientHeight;
-        pixelRatio = Math.min(window.devicePixelRatio || 1, width < 768 ? 1.5 : 2);
+        pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
         canvas.width = Math.round(width * pixelRatio);
         canvas.height = Math.round(height * pixelRatio);
         canvas.style.width = `${width}px`;
@@ -149,7 +152,7 @@
       const draw = (now) => {
         frame = 0;
         if (!visible || document.hidden || !width || !height) return;
-        if (!reducedMotion && now - lastFrame < 33) {
+        if (!reducedMotion && now - lastFrame < 42) {
           frame = requestAnimationFrame(draw);
           return;
         }
@@ -239,22 +242,57 @@
       };
     };
 
+    const onMobileChange = (event) => {
+      if (event.matches) disposeMount();
+    };
+    mobileMedia.addEventListener('change', onMobileChange);
+
+    const tuneDesktopGpu = () => {
+      const scene = experience?.particles;
+      if (!scene?.particles || !scene.renderer) return;
+
+      // The imported engine defaults to 40,960 simulated particles at up to 2x DPR.
+      scene.particles.parameters.particleCount = 16384;
+      scene.particles.parameters.simulationSpeed = 1.5;
+      scene.particles.updateParticleCount();
+      scene.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+      scene.resize(host.clientWidth, host.clientHeight);
+
+      const originalUpdate = scene.update;
+      let lastUpdate = 0;
+      const frameInterval = 1000 / 40;
+      scene.update = () => {
+        const now = performance.now();
+        if (lastUpdate && now - lastUpdate < frameInterval) return;
+        lastUpdate = lastUpdate ? now - ((now - lastUpdate) % frameInterval) : now;
+        originalUpdate();
+      };
+      // The engine may already have started its loop before onReady runs.
+      scene.render(false);
+    };
+
     if (reducedMotion) {
       clip.classList.add('hero-particles-static');
+    } else if (lowPowerDesktop) {
+      // Low power desktops use the 2D scene without downloading the WebGPU bundle.
+      startFallback();
     } else {
       Promise.resolve()
         .then(() => navigator.gpu?.requestAdapter())
         .then((adapter) => {
+          if (disposed || fallbackStarted) return;
           if (!adapter) throw new Error('WebGPU unavailable');
           return loadBundle();
         })
         .then(() => {
-          if (disposed) return;
+          if (disposed || fallbackStarted) return;
           experience = window.__createHeroParticleExperience(
             host,
             () => {
+              if (disposed || fallbackStarted) return;
               gpuReady = true;
               clip.classList.add('hero-particles-canvas-ready');
+              tuneDesktopGpu();
               fitMobileCamera();
               updateScrollTarget();
               syncGpuVisibility();
@@ -265,12 +303,14 @@
         .catch(() => { if (!disposed) startFallback(); });
     }
 
-    return () => {
+    const disposeMount = () => {
+      if (disposed) return;
       disposed = true;
       cancelAnimationFrame(scrollFrame);
       window.removeEventListener('scroll', updateScrollTarget);
       window.removeEventListener('resize', updateScrollTarget);
       window.removeEventListener('resize', fitMobileCamera);
+      mobileMedia.removeEventListener('change', onMobileChange);
       document.removeEventListener('visibilitychange', syncGpuVisibility);
       fallbackCleanup();
       experience?.dispose();
@@ -279,12 +319,31 @@
       host.replaceChildren();
       if (createdClip) clip.remove();
     };
+    return disposeMount;
   };
 
   window.mountHeroParticles = mount;
   const initHome = () => {
     const hero = document.querySelector('[data-page="home"] [home-hero]');
     if (!hero) return;
+
+    // The CSS grid stays behind the hero on every viewport; canvas renderers remain desktop only.
+    if (!hero.querySelector('.mobile-hero-grid')) {
+      const grid = document.createElement('div');
+      grid.className = 'mobile-hero-grid';
+      grid.setAttribute('aria-hidden', 'true');
+      for (const layer of ['base', 'offset']) {
+        const lines = document.createElement('div');
+        lines.className = `mobile-hero-grid__layer mobile-hero-grid__layer--${layer}`;
+        grid.append(lines);
+      }
+      for (const position of ['one', 'two', 'three', 'four']) {
+        const cell = document.createElement('span');
+        cell.className = `mobile-hero-grid__cell mobile-hero-grid__cell--${position}`;
+        grid.append(cell);
+      }
+      hero.prepend(grid);
+    }
 
     let mounted = false;
     let observer;

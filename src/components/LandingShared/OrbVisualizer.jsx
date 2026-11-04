@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 
-export default function OrbVisualizer({ speed = 1, waveIntensity = 1, showDots = true }) {
+function OrbVisualizer({ speed = 1, waveIntensity = 1, showDots = true }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -205,3 +206,5 @@ export default function OrbVisualizer({ speed = 1, waveIntensity = 1, showDots =
     />
   );
 }
+
+export default desktopCanvasOnly(OrbVisualizer);

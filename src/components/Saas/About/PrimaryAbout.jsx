@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useDesktopCanvas } from "@/components/DesktopCanvasOnly";
 import styles from "./PrimaryAbout.module.css";
 
 const IsometricVoxelCard = dynamic(() => import("@/components/LandingShared/IsometricVoxelCard"), { ssr: false });
@@ -14,8 +15,10 @@ const WebDesignCanvas = dynamic(() => import("./WebDesignCanvas"), { ssr: false 
 function DeferredCanvas({ kind, className }) {
   const hostRef = useRef(null);
   const [nearViewport, setNearViewport] = useState(false);
+  const desktop = useDesktopCanvas();
 
   useEffect(() => {
+    if (!desktop) return undefined;
     if (!("IntersectionObserver" in window)) {
       const frame = window.requestAnimationFrame(() => setNearViewport(true));
       return () => window.cancelAnimationFrame(frame);
@@ -28,10 +31,10 @@ function DeferredCanvas({ kind, className }) {
     }, { rootMargin: "600px 0px" });
     observer.observe(hostRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [desktop]);
 
   const Canvas = kind === "software" ? IsometricVoxelCard : kind === "apps" ? MobileAppCanvas : WebDesignCanvas;
-  return <div ref={hostRef} className={className}>{nearViewport ? <Canvas /> : null}</div>;
+  return <div ref={hostRef} className={className}>{desktop && nearViewport ? <Canvas /> : null}</div>;
 }
 
 const STORY_DATA = [

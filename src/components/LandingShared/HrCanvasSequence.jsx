@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import styles from "./HrCanvasSequence.module.css";
@@ -28,7 +29,7 @@ const SCRUB_END = 0.58; // fin del barrido de frames (luego el panel sube encima
 const DOCK_SPAN = 0.18; // tramo tras el scrub en el que el panel se acopla
 const DOCK_OFFSET = 0.62; // cuanto (fraccion de viewport) parte el panel oculto abajo
 
-export default function HrCanvasSequence() {
+function HrCanvasSequence() {
   const anchorRef = useRef(null);
   const wrapperRef = useRef(null);
   const canvasRef = useRef(null);
@@ -155,3 +156,5 @@ export default function HrCanvasSequence() {
     </>
   );
 }
+
+export default desktopCanvasOnly(HrCanvasSequence);

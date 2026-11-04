@@ -283,3 +283,14 @@
 @media (prefers-reduced-motion: reduce) {
   .action { transition: none; }
 }
+
+@media (max-width: 767px) {
+  .visual { display: none; }
+  .storyContent,
+  .storyReverse .storyContent { grid-column: 3 / -1; grid-row: 1; padding: 0; }
+}
+
+@media (max-width: 700px) {
+  .storyContent,
+  .storyReverse .storyContent { grid-column: 1; grid-row: auto; }
+}

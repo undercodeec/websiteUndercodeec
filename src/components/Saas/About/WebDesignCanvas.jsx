@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 
 const ASSET_URL = "/images/services/web-design-studio.png";
 const ACCENT = "99, 240, 122";
@@ -99,7 +100,7 @@ function drawProduct(context, image, width, height, elapsed, pointerX, pointerY,
   context.restore();
 }
 
-export default function WebDesignCanvas() {
+function WebDesignCanvas() {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -217,3 +218,5 @@ export default function WebDesignCanvas() {
     </div>
   );
 }
+
+export default desktopCanvasOnly(WebDesignCanvas);

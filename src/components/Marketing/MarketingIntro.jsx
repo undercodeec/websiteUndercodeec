@@ -49,6 +49,7 @@ export default function MarketingIntro({
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return undefined;
+    if (window.matchMedia("(max-width: 767px)").matches) return undefined;
 
     gsap.registerPlugin(ScrollTrigger);
 

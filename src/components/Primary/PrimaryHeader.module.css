@@ -379,18 +379,12 @@
     height: clamp(4.25rem, 18vw, 5.25rem);
   }
 
-  /* Keep the menu control clear of the fixed consent choices from first paint. */
   .menuOverlay {
-    top: 5.25rem;
-    bottom: auto;
-  }
-  .menuButton,
-  .menuBackground {
-    top: 0;
-    bottom: auto;
-  }
-  .menuContent {
-    padding-top: 3.5rem;
+    top: auto;
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    max-height: calc(100svh - 2rem - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
   }
 }
 

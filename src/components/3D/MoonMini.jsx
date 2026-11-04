@@ -3,6 +3,7 @@
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, OrbitControls, Center, Bounds } from "@react-three/drei";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 
 const MOON_URL = "/modelo-3D/luna-3d.glb";
 
@@ -72,4 +73,4 @@ const MoonMini = () => {
   );
 };
 
-export default MoonMini;
+export default desktopCanvasOnly(MoonMini);

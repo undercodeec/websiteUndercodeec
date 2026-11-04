@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 import { getEspanaServiceCanvasScene } from "./espanaServiceCanvasScenes.mjs";
 
 const ACCENTS = {
@@ -203,7 +204,7 @@ function drawProjectScene(context, scene, width, height, time, accent, colors) {
   text(context, captions[scene], width / 2, height * .91, colors.ink, "center");
 }
 
-export default function EspanaServiceCanvas({ title, sceneId }) {
+function EspanaServiceCanvas({ title, sceneId }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const scene = getEspanaServiceCanvasScene(title);
@@ -246,3 +247,5 @@ export default function EspanaServiceCanvas({ title, sceneId }) {
 
   return <div ref={containerRef} data-espana-service-canvas={resolvedId} style={{ width: "100%", height: "100%", overflow: "hidden" }}><canvas ref={canvasRef} aria-label={scene?.label ?? title} role="img" style={{ display: "block", width: "100%", height: "100%" }} /></div>;
 }
+
+export default desktopCanvasOnly(EspanaServiceCanvas);

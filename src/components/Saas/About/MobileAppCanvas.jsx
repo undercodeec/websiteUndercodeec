@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 import { createMobileAppScene } from "./mobileAppScene.mjs";
 
 const COLORS = {
@@ -521,7 +522,7 @@ function drawTouch(context, scene) {
   context.restore();
 }
 
-export default function MobileAppCanvas() {
+function MobileAppCanvas() {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -637,3 +638,5 @@ export default function MobileAppCanvas() {
     </div>
   );
 }
+
+export default desktopCanvasOnly(MobileAppCanvas);

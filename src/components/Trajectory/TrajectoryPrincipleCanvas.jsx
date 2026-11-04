@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 
 const INK = "29, 29, 29";
 const PAPER = "229, 228, 224";
@@ -135,7 +136,7 @@ function drawScene(context, scene, width, height, elapsed, reduceMotion) {
   if (scene === "03") drawSupport(context, width, height, elapsed, reduceMotion);
 }
 
-export default function TrajectoryPrincipleCanvas({ scene }) {
+function TrajectoryPrincipleCanvas({ scene }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -214,3 +215,5 @@ export default function TrajectoryPrincipleCanvas({ scene }) {
     </div>
   );
 }
+
+export default desktopCanvasOnly(TrajectoryPrincipleCanvas);

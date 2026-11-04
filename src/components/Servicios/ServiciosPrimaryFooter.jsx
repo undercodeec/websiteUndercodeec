@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import styles from "./ServiciosPrimaryFooter.module.css";
 
 const FOOTER_TITLE_LINES = ["¿Hacemos", "algo", "juntos?"];
@@ -98,11 +97,9 @@ export default function ServiciosPrimaryFooter() {
     const footer = footerRef.current;
     if (!footer) return undefined;
 
-    gsap.registerPlugin(ScrollTrigger);
-
-    let refreshFrame;
     let preloaderFallback;
-    let revealTrigger;
+    let revealObserver;
+    let revealTimeline;
     let removePreloaderDoneListener = () => {};
 
     const context = gsap.context(() => {
@@ -127,7 +124,7 @@ export default function ServiciosPrimaryFooter() {
 
         hasRevealed = true;
 
-        const revealTimeline = gsap.timeline();
+        revealTimeline = gsap.timeline();
         revealTimeline
           .to(titleLines, {
             yPercent: 0,
@@ -154,13 +151,16 @@ export default function ServiciosPrimaryFooter() {
         hasArmed = true;
         window.clearTimeout(preloaderFallback);
         removePreloaderDoneListener();
-        revealTrigger = ScrollTrigger.create({
-          trigger: footer,
-          start: "20% bottom",
-          once: true,
-          onEnter: revealFooter,
-        });
-        refreshFrame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
+        if (typeof IntersectionObserver === "undefined") {
+          revealFooter();
+          return;
+        }
+        revealObserver = new IntersectionObserver((entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          revealObserver.disconnect();
+          revealFooter();
+        }, { rootMargin: "0px 0px 20% 0px", threshold: 0 });
+        revealObserver.observe(footer);
       };
 
       if (document.body.classList.contains("primary-preloading")) {
@@ -175,8 +175,8 @@ export default function ServiciosPrimaryFooter() {
     return () => {
       removePreloaderDoneListener();
       window.clearTimeout(preloaderFallback);
-      window.cancelAnimationFrame(refreshFrame);
-      revealTrigger?.kill();
+      revealObserver?.disconnect();
+      revealTimeline?.kill();
       context.revert();
     };
   }, []);

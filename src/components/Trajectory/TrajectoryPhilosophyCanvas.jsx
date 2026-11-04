@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 
 const INK = "29, 29, 29";
 const PAPER = "229, 228, 224";
@@ -136,7 +137,7 @@ function drawScene(context, width, height, elapsed, pointerX, pointerY, reduceMo
   label(context, "MEJORAR", width * .86, railY - 14, { align: "right", size: 8 });
 }
 
-export default function TrajectoryPhilosophyCanvas() {
+function TrajectoryPhilosophyCanvas() {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -238,3 +239,5 @@ export default function TrajectoryPhilosophyCanvas() {
     </div>
   );
 }
+
+export default desktopCanvasOnly(TrajectoryPhilosophyCanvas);

@@ -1,7 +1,9 @@
+"use client";
 
 import React, { Suspense, useEffect, useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, OrbitControls } from '@react-three/drei';
+import desktopCanvasOnly from '@/components/DesktopCanvasOnly';
 
 const Model = ({ url }) => {
   const { scene } = useGLTF(url);
@@ -76,4 +78,4 @@ const HeroModel = ({ isActive = true }) => {
   );
 };
 
-export default HeroModel;
+export default desktopCanvasOnly(HeroModel);

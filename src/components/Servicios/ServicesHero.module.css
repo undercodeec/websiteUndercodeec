@@ -36,8 +36,30 @@
 
 .footerLine { height: 1px; background: var(--primary-light-grey); }
 
+@media (max-width: 767px) {
+  .hero {
+    display: block;
+    min-height: 0;
+    padding-top: 7rem;
+    color: var(--primary-theme-ink);
+  }
+  .cardsOverlay {
+    position: relative;
+    bottom: auto;
+    width: 100%;
+    max-width: 100vw;
+    overflow: hidden;
+  }
+  .heroFooter {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    margin: 1.25rem var(--primary-page-gutter) 0;
+    padding-bottom: 1.35rem;
+  }
+}
+
 @media (max-width: 520px) {
-  .hero { min-height: 70svh; }
-  .cardsOverlay { bottom: 1.25rem; }
   .heroFooter { font-size: .62rem; }
 }

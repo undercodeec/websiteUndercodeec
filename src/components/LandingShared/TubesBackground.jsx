@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 
 const randomColors = (count) =>
   new Array(count)
     .fill(0)
     .map(() => "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0"));
 
-export default function TubesBackground({ children, enableClickInteraction = true }) {
+function TubesBackground({ children, enableClickInteraction = true }) {
   const canvasRef = useRef(null);
   const tubesRef = useRef(null);
 
@@ -80,3 +81,5 @@ export default function TubesBackground({ children, enableClickInteraction = tru
     </div>
   );
 }
+
+export default desktopCanvasOnly(TubesBackground);

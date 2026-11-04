@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 
 const SCENES = {
   intro: { accent: "112, 0, 71", type: "ecosystem" },
@@ -327,7 +328,7 @@ function drawScene(context, scene, width, height, elapsed, pointerX, pointerY, r
   context.restore();
 }
 
-export default function MarketingCanvas({ scene }) {
+function MarketingCanvas({ scene }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -431,3 +432,5 @@ export default function MarketingCanvas({ scene }) {
     </div>
   );
 }
+
+export default desktopCanvasOnly(MarketingCanvas);

@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 
-export default function IsometricVoxelCard({ accent = "#63f07a", gridSize = 3, waveSpeed = 1, amplitude = 1 }) {
+function IsometricVoxelCard({ accent = "#63f07a", gridSize = 3, waveSpeed = 1, amplitude = 1 }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -199,3 +200,5 @@ export default function IsometricVoxelCard({ accent = "#63f07a", gridSize = 3, w
     </div>
   );
 }
+
+export default desktopCanvasOnly(IsometricVoxelCard);

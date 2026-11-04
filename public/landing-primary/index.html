@@ -419,6 +419,13 @@
 </style>
 
 
+<script>
+  try {
+    sessionStorage.removeItem("preloaderHasRun");
+    // Keep the original intro on every full load at its shorter return-visit pace.
+    localStorage.setItem("visited", "true");
+  } catch (_) {}
+</script>
 <script defer="" src="/landing-primary/js/ob.2026.index.23.js?v=20261101-preloader-guard"></script>
 
 
@@ -452,7 +459,7 @@
 
 
 
-<link rel="stylesheet" href="/landing-primary/css/demo-local.css?v=20261102-consent-menu"><link rel="stylesheet" href="/landing-primary/css/hero-particles.css?v=20261031-progressive-particles"><link rel="stylesheet" href="/landing-primary/css/home-night-mode.css?v=20261023-header-logo-white"><script src="/landing-primary/js/consent-attribution.js?v=20261031-compact-mobile" defer></script><script type="module" src="/landing-primary/js/whatsapp-floating.js"></script><script src="/landing-primary/js/home-night-mode.js" defer></script><script src="/landing-primary/js/responsive-orb-motion.js" defer></script><script src="/landing-primary/js/home-hero-particles.js?v=20261031-progressive-particles" defer></script><style>
+<link rel="stylesheet" href="/landing-primary/css/demo-local.css?v=20261103-mobile-grid"><link rel="stylesheet" href="/landing-primary/css/hero-particles.css?v=20261103-grid-all-heroes"><link rel="stylesheet" href="/landing-primary/css/home-night-mode.css?v=20261023-header-logo-white"><script src="/landing-primary/js/consent-attribution.js?v=20261031-compact-mobile" defer></script><script type="module" src="/landing-primary/js/whatsapp-floating.js"></script><script src="/landing-primary/js/home-night-mode.js" defer></script><script src="/landing-primary/js/responsive-orb-motion.js" defer></script><script src="/landing-primary/js/home-hero-particles.js?v=20261103-mobile-grid" defer></script><style>
   .hermes-whatsapp-button {
     position: fixed;
     right: 1.5em;
@@ -487,7 +494,7 @@
   .hermes-whatsapp-button:focus-visible { outline: 3px solid #111827; outline-offset: 3px; }
   .hermes-whatsapp-button svg { position: relative; z-index: 1; width: 28px; height: 28px; fill: currentColor; filter: drop-shadow(0 1px 2px rgba(0, 63, 31, .28)); }
   @media screen and (max-width: 479px) {
-    .hermes-whatsapp-button { right: 1rem; bottom: 5.5rem; width: 58px; height: 58px; }
+    .hermes-whatsapp-button { right: 1rem; bottom: calc(5.125rem + env(safe-area-inset-bottom, 0px)); width: 58px; height: 58px; }
   }
 </style></head><body data-start="hidden"><div class="embed"><div class="css-global w-embed"><style>
   /*  ---- ALL PAGES CSS  ---- */
@@ -1639,4 +1646,4 @@ display: none;}
   document.addEventListener('DOMContentLoaded', () => {
     runWelcome();
   });
-</script><script src="/landing-primary/js/demo-local.js?v=20261101-preloader-guard"></script><script type="module" src="/landing-primary/js/plan-selector.mjs"></script></body></html>
+</script><script src="/landing-primary/js/demo-local.js?v=20261103-preloader-hero-text"></script><script type="module" src="/landing-primary/js/plan-selector.mjs"></script></body></html>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 import gsap from "gsap";
 import { Draggable } from "gsap/Draggable";
 
@@ -8,7 +9,7 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(Draggable);
 }
 
-export default function JellySqueeze({
+function JellySqueeze({
   title = "Arrastra verticalmente para apachurrar",
   helper = "Suelta y mira cómo rebota",
   activeRef,
@@ -274,3 +275,5 @@ export default function JellySqueeze({
     </div>
   );
 }
+
+export default desktopCanvasOnly(JellySqueeze);

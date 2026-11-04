@@ -225,7 +225,7 @@ export default function EspanaPrimaryContent() {
         </header>
 
         <div className={styles.conversionGrid}>
-          <div className={styles.conversionCopy}>
+          <div className={`${styles.conversionCopy} ${canvasStyles.canvasCopy}`}>
             <p className={styles.conversionLead} data-espana-content-reveal>
               El posicionamiento web España requiere una base técnica sólida, contenido útil y mejora continua.
             </p>
@@ -240,7 +240,7 @@ export default function EspanaPrimaryContent() {
             </ul>
           </div>
 
-          <figure className={styles.conversionVisual} data-espana-content-visual>
+          <figure className={`${styles.conversionVisual} ${canvasStyles.canvasOnlyVisual}`} data-espana-content-visual>
             <span className={`${styles.corner} ${styles.cornerTopLeft}`} aria-hidden="true">+</span>
             <span className={`${styles.corner} ${styles.cornerTopRight}`} aria-hidden="true">+</span>
             <span className={`${styles.corner} ${styles.cornerBottomLeft}`} aria-hidden="true">+</span>
@@ -285,7 +285,7 @@ export default function EspanaPrimaryContent() {
         </header>
 
         <div className={styles.conversionGrid}>
-          <div className={styles.conversionCopy}>
+          <div className={`${styles.conversionCopy} ${canvasStyles.canvasCopy}`}>
             <p className={styles.conversionLead} data-espana-content-reveal>
               Cuéntanos qué necesita tu empresa.
             </p>
@@ -302,7 +302,7 @@ export default function EspanaPrimaryContent() {
             </a>
           </div>
 
-          <figure className={styles.conversionVisual} data-espana-content-visual>
+          <figure className={`${styles.conversionVisual} ${canvasStyles.canvasOnlyVisual}`} data-espana-content-visual>
             <span className={`${styles.corner} ${styles.cornerTopLeft}`} aria-hidden="true">+</span>
             <span className={`${styles.corner} ${styles.cornerTopRight}`} aria-hidden="true">+</span>
             <span className={`${styles.corner} ${styles.cornerBottomLeft}`} aria-hidden="true">+</span>

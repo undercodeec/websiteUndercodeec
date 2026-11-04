@@ -47,6 +47,7 @@ export default function MarketingHero({
   useEffect(() => {
     const hero = heroRef.current;
     if (!hero) return undefined;
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
     const characters = hero.querySelectorAll("[data-marketing-hero-character]");
     const revealItems = hero.querySelectorAll("[data-marketing-hero-reveal]");
     if (!characters.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
@@ -55,8 +56,8 @@ export default function MarketingHero({
     let revealFallback;
     let hasRevealed = false;
     const context = gsap.context(() => {
-      gsap.set(characters, { yPercent: 110, autoAlpha: 0 });
-      gsap.set(revealItems, { y: 22, autoAlpha: 0 });
+      gsap.set(characters, { yPercent: 105, autoAlpha: 0 });
+      gsap.set(revealItems, { y: 36, autoAlpha: 0 });
 
       const reveal = () => {
         if (hasRevealed) return;
@@ -66,14 +67,16 @@ export default function MarketingHero({
         gsap.timeline()
           .to(characters, {
             yPercent: 0, autoAlpha: 1, duration: 1, ease: "power4.inOut",
-            stagger: { each: .026, from: "random" },
-          }, .2)
+            stagger: { each: .025, from: "random" },
+          }, isMobile ? 0 : .2)
           .to(revealItems, {
-            y: 0, autoAlpha: 1, duration: .8, ease: "power3.out", stagger: .08,
-          }, .55);
+            y: 0, autoAlpha: 1, duration: .85, ease: "power4.out", stagger: .08,
+          }, isMobile ? .12 : .55);
       };
 
-      if (document.body.classList.contains("primary-preloading")) {
+      if (isMobile) {
+        reveal();
+      } else if (document.body.classList.contains("primary-preloading")) {
         window.addEventListener("preloaderDone", reveal, { once: true });
         removePreloaderDoneListener = () => window.removeEventListener("preloaderDone", reveal);
         revealFallback = window.setTimeout(reveal, 8000);

@@ -192,6 +192,14 @@
   .imageWrap img { width: clamp(3.25rem, 8vw, 4.25rem); height: clamp(3.25rem, 8vw, 4.25rem); }
 }
 
+@media (max-width: 767px) {
+  .heroTitleBlend {
+    color: var(--ink);
+    mix-blend-mode: normal;
+  }
+  .swiper { min-width: 0; overflow: hidden !important; }
+}
+
 @media (max-width: 640px) {
   .swiper { padding-bottom: 4.5rem !important; }
   .slider :global(.swiper-slide),

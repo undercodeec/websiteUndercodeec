@@ -19,16 +19,16 @@ test('mobile particle geometry distinguishes the root landing from other pages',
   assert.match(script, /rootLanding\s*\?\s*Math\.min\(width\s*\*\s*0\.48,\s*height\s*\*\s*0\.22\)/);
 });
 
-test('the root landing references the updated mobile assets', async () => {
+test('the root landing references the current hero assets', async () => {
   const [html, component] = await Promise.all([
     readFile('public/landing-primary/index.html', 'utf8'),
     readFile('src/components/HeroParticles/HeroParticles.jsx', 'utf8'),
   ]);
-  assert.match(html, /demo-local\.css\?v=20261102-consent-menu/);
-  assert.match(html, /hero-particles\.css\?v=20261031-progressive-particles/);
-  assert.match(html, /home-hero-particles\.js\?v=20261031-progressive-particles/);
+  assert.match(html, /demo-local\.css\?v=20261103-mobile-grid/);
+  assert.match(html, /hero-particles\.css\?v=20261103-grid-all-heroes/);
+  assert.match(html, /home-hero-particles\.js\?v=20261103-mobile-grid/);
   assert.match(html, /consent-attribution\.js\?v=20261031-compact-mobile/);
-  assert.match(component, /home-hero-particles\.js\?v=20261031-progressive-particles/);
+  assert.match(component, /home-hero-particles\.js\?v=20261103-mobile-grid/);
 });
 
 test('the mobile privacy panel fits inside its declared viewport width', async () => {

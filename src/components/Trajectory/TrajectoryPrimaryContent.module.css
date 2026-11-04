@@ -368,3 +368,10 @@
   .storyLine span { animation: none; }
   .capability { transition: none; }
 }
+
+@media (max-width: 767px) {
+  .philosophyMedia,
+  .principleVisual { display: none; }
+  .philosophyCopy { grid-column: 1 / -1; }
+  .principle { min-height: 16rem; grid-template-rows: auto 1fr; }
+}

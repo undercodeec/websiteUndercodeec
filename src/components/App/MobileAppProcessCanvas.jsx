@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import desktopCanvasOnly from "@/components/DesktopCanvasOnly";
 
 const STAGES = {
   "01": { accent: "112, 0, 71", type: "strategy" },
@@ -267,7 +268,7 @@ function drawScene(context, stage, width, height, elapsed, pointerX, pointerY, r
   context.restore();
 }
 
-export default function MobileAppProcessCanvas({ stage }) {
+function MobileAppProcessCanvas({ stage }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -381,3 +382,5 @@ export default function MobileAppProcessCanvas({ stage }) {
     </div>
   );
 }
+
+export default desktopCanvasOnly(MobileAppProcessCanvas);

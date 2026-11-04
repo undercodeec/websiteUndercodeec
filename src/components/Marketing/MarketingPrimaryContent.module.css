@@ -801,3 +801,8 @@
   .dialog[open]::backdrop,
   .dialogClosing::backdrop { animation: none; }
 }
+
+@media (max-width: 767px) {
+  .journeyStep { min-height: 18rem; grid-template-rows: auto 1fr; }
+  .stepVisual { display: none; }
+}

@@ -10,6 +10,9 @@ const positionNode = 'return mZ("position").mul(this.instanceScaleUniform).add(e
 let source = fs.readFileSync(input, 'utf8');
 
 for (const [original, replacement] of [
+  ['maxParticles=40960;gridSize1d=64;', 'maxParticles=16384;gridSize1d=48;'],
+  ['parameters={particleCount:40960,simulationSpeed:1}', 'parameters={particleCount:16384,simulationSpeed:1}'],
+  ['this.renderer.setPixelRatio(Jr.clamp(window.devicePixelRatio,1,2))', 'this.renderer.setPixelRatio(Jr.clamp(window.devicePixelRatio,1,1.25))'],
   [entry, 'window.__createHeroParticleExperience=(host,onReady,onError)=>{const experience=new $se;experience.parentElement=host;Hse.runTests().then(()=>{if(!host.isConnected)return;experience.setupWebGPU(onReady,onError)}).catch(onError);return experience};'],
   [initialization, 'this.particles.init().then(()=>{this.parentElement&&(this.viewportObserver=IE(this.parentElement,this.onElementInViewport)),this.onReady?.(this)}).catch(error=>this.onError?.(error))'],
   ['this.parentElement=document.querySelector(".webgpu-container"),this.parentElement&&(this.parentElement.classList.add("webgpu-app")', 'this.parentElement=this.parentElement||document.querySelector(".webgpu-container"),this.parentElement&&(this.parentElement.classList.add("webgpu-app")'],

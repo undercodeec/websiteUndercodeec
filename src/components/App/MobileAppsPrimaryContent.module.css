@@ -965,3 +965,8 @@
   .stage { min-height: 20rem; }
   .stageVisual { height: 8.5rem; }
 }
+
+@media (max-width: 767px) {
+  .stage { min-height: 17rem; grid-template-rows: auto 1fr; }
+  .stageVisual { display: none; }
+}

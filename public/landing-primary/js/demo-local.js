@@ -132,20 +132,41 @@
     window.requestAnimationFrame(scrollToReservation);
   }
 
-  const animationRuntimeReady = () => Boolean(window.SScroll);
-
-  const introAnimationIsActive = () =>
-    animationRuntimeReady() && document.body?.style.cursor === "progress";
-
   let pageReleased = false;
-  const releasePage = (force = false) => {
-    if (pageReleased) return true;
-    if (!force && introAnimationIsActive()) return false;
+  const preloader = document.querySelector("[preloader]");
+  let preloaderWasVisible = false;
+  let preloaderObserver;
 
-    const preloader = document.querySelector("[preloader]");
+  const setHeroCharacterDelays = () => {
+    const mobileTitle = window.matchMedia("(max-width: 991px)").matches;
+    const selector = mobileTitle
+      ? "[home-hero] .home-hero-tablet-text [split-hero] .char"
+      : "[home-hero] .hh-text-block:not(.is--scroll) [split-hero] .char";
+    const characters = Array.from(document.querySelectorAll(selector));
+    const order = characters.map((_, index) => index);
+    for (let index = order.length - 1; index > 0; index -= 1) {
+      const randomIndex = Math.floor(Math.random() * (index + 1));
+      [order[index], order[randomIndex]] = [order[randomIndex], order[index]];
+    }
+    order.forEach((characterIndex, sequence) => {
+      const character = characters[characterIndex];
+      if (!character.parentElement?.classList.contains("home-hero-character-clip")) {
+        const clip = document.createElement("span");
+        clip.className = "home-hero-character-clip";
+        character.before(clip);
+        clip.append(character);
+      }
+      character.style.setProperty("--home-hero-character-delay", `${sequence * 25}ms`);
+    });
+  };
+
+  const releasePage = () => {
+    if (pageReleased) return true;
+    preloaderObserver?.disconnect();
     preloader?.remove();
     if (preloader) window.dispatchEvent(new CustomEvent("homePreloaderDone"));
     pageReleased = true;
+    setHeroCharacterDelays();
     document.body?.classList.add("home-content-ready");
     document.body?.removeAttribute("data-start");
     document.body?.style.removeProperty("cursor");
@@ -162,18 +183,21 @@
     if (link) event.preventDefault();
   });
 
-  // This script sits at the end of the document. Wait for deferred scripts to
-  // initialize the intro, then reveal the page without waiting for every
-  // image, video, and third-party request to finish loading.
-  const revealOnDomReady = () => {
-    window.requestAnimationFrame(() => releasePage(true));
-  };
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", revealOnDomReady, { once: true });
+  // The legacy intro reveals and then fades the preloader. Release the page
+  // after that fade; retain a timeout in case the intro script fails.
+  if (preloader) {
+    const observePreloader = () => {
+      const visible = getComputedStyle(preloader).visibility === "visible";
+      if (visible) preloaderWasVisible = true;
+      else if (preloaderWasVisible) releasePage();
+    };
+    preloaderObserver = new MutationObserver(observePreloader);
+    preloaderObserver.observe(preloader, { attributes: true, attributeFilter: ["style", "class"] });
+    observePreloader();
   } else {
-    revealOnDomReady();
+    releasePage();
   }
-  window.setTimeout(() => releasePage(true), 4000);
+  window.setTimeout(releasePage, 11000);
 
   const tools = [
     ["n8n", "/assets/img/logos/log1.webp"],
