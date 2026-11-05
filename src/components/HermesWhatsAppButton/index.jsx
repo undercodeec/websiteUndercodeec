@@ -11,7 +11,7 @@ import {
   buildHermesWhatsAppUrl,
   HERMES_WHATSAPP_LINK_PROPS,
   isHermesWhatsAppHiddenPath,
-  trackHermesWhatsAppClick,
+  trackCommercialWhatsAppClick,
 } from "./config.mjs";
 
 const HermesWhatsAppButton = () => {
@@ -130,7 +130,10 @@ const HermesWhatsAppButton = () => {
     }
 
     if (preferences?.advertising) {
-      trackHermesWhatsAppClick(window.fbq, pathname);
+      trackCommercialWhatsAppClick(window.fbq, {
+        source: "hermes_whatsapp_button",
+        pagePath: pathname,
+      });
     }
 
     const popup = window.open("about:blank", "_blank");

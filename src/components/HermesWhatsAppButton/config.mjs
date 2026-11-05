@@ -24,11 +24,13 @@ export const isHermesWhatsAppHiddenPath = (pathname) =>
     (prefix) => pathname === prefix || pathname?.startsWith(`${prefix}/`),
   );
 
-export const trackHermesWhatsAppClick = (tracker, pagePath) => {
-  if (typeof tracker === "function") {
-    tracker("trackCustom", "WhatsAppHermesClick", {
-      source: "hermes_whatsapp_button",
-      page_path: pagePath || "/",
-    });
-  }
+export const isCommercialWhatsAppTrackingPath = (pathname) =>
+  !isHermesWhatsAppHiddenPath(pathname);
+
+export const trackCommercialWhatsAppClick = (tracker, { source, pagePath }) => {
+  if (typeof tracker !== "function" || !isCommercialWhatsAppTrackingPath(pagePath)) return;
+  tracker("trackCustom", "WhatsAppCommercialClick", {
+    source,
+    page_path: pagePath || "/",
+  });
 };

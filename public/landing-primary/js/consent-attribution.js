@@ -236,6 +236,12 @@
     if (preferences?.analytics || preferences?.advertising) {
       window.dataLayer.push({ event: "whatsapp_click", contact_method: "whatsapp", source: "commercial_whatsapp_link", page_path: window.location.pathname || "/" });
     }
+    if (preferences?.advertising && typeof window.fbq === "function") {
+      const path = window.location.pathname || "/";
+      if (!["/admin", "/contratos", "/undercodeec"].some((prefix) => path === prefix || path.startsWith(`${prefix}/`))) {
+        window.fbq("trackCustom", "WhatsAppCommercialClick", { source: "commercial_whatsapp_link", page_path: path });
+      }
+    }
     const destination = await attributedWhatsAppUrl(url.toString());
     delete anchor.dataset.attributionPending;
     if (popup && !popup.closed) popup.location.replace(destination);

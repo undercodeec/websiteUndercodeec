@@ -327,6 +327,26 @@ test("static landing lets a prior visitor reopen consent and revoke Meta", () =>
   assert.deepEqual(calls, [["consent", "revoke"]]);
 });
 
+test("static landing sends one commercial WhatsApp Meta event with advertising consent", async () => {
+  const calls = [];
+  const h = staticPage("/", { fbq: (...args) => calls.push(args) });
+  await h.click();
+  assert.deepEqual(JSON.parse(JSON.stringify(calls)), [["trackCustom", "WhatsAppCommercialClick", {
+    source: "commercial_whatsapp_link",
+    page_path: "/",
+  }]]);
+});
+
+test("static landing does not send a commercial Meta event without advertising consent", async () => {
+  const calls = [];
+  const h = staticPage("/", {
+    preferences: { ...granted, advertising: false },
+    fbq: (...args) => calls.push(args),
+  });
+  await h.click();
+  assert.deepEqual(calls, []);
+});
+
 test("static landing preserves visit time until the WhatsApp contact", async () => {
   const h = staticPage("/?gclid=A");
   h.time.advance(30_000);

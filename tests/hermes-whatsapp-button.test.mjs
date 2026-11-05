@@ -4,8 +4,9 @@ import test from "node:test";
 import {
   buildHermesWhatsAppUrl,
   HERMES_WHATSAPP_LINK_PROPS,
+  isCommercialWhatsAppTrackingPath,
   isHermesWhatsAppHiddenPath,
-  trackHermesWhatsAppClick,
+  trackCommercialWhatsAppClick,
 } from "../src/components/HermesWhatsAppButton/config.mjs";
 
 test("builds the approved WhatsApp conversation URL", () => {
@@ -38,20 +39,41 @@ test("hides the Hermes entrypoint on internal route prefixes", () => {
   assert.equal(isHermesWhatsAppHiddenPath("/recursos-humanos/solicitudes"), false);
 });
 
-test("uses secure new-tab attributes and tracks only the Hermes click event", () => {
+test("uses secure new-tab attributes and tracks a commercial WhatsApp click", () => {
   assert.deepEqual(HERMES_WHATSAPP_LINK_PROPS, {
     target: "_blank",
     rel: "noopener noreferrer",
   });
 
   const calls = [];
-  trackHermesWhatsAppClick((...args) => calls.push(args), "/servicios");
+  trackCommercialWhatsAppClick((...args) => calls.push(args), {
+    source: "hermes_whatsapp_button",
+    pagePath: "/servicios",
+  });
 
-  assert.deepEqual(calls, [["trackCustom", "WhatsAppHermesClick", {
+  assert.deepEqual(calls, [["trackCustom", "WhatsAppCommercialClick", {
     source: "hermes_whatsapp_button",
     page_path: "/servicios",
   }]]);
-  assert.doesNotThrow(() => trackHermesWhatsAppClick(undefined, "/servicios"));
+  assert.doesNotThrow(() => trackCommercialWhatsAppClick(undefined, {
+    source: "commercial_whatsapp_link",
+    pagePath: "/",
+  }));
+});
+
+test("excludes internal routes from commercial WhatsApp Meta tracking", () => {
+  const calls = [];
+  for (const path of ["/admin", "/admin/crm", "/contratos", "/contratos/123", "/undercodeec", "/undercodeec/contacto"]) {
+    assert.equal(isCommercialWhatsAppTrackingPath(path), false, path);
+    trackCommercialWhatsAppClick((...args) => calls.push(args), {
+      source: "commercial_whatsapp_link",
+      pagePath: path,
+    });
+  }
+  assert.deepEqual(calls, []);
+  for (const path of ["/", "/servicios", "/administracion", "/contratos-publicos"]) {
+    assert.equal(isCommercialWhatsAppTrackingPath(path), true, path);
+  }
 });
 
 test("root layout mounts Hermes instead of the web AI assistant", async () => {

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useConsent } from "@/components/Consent/ConsentManager";
 import { useAttribution } from "./AttributionProvider";
+import { trackCommercialWhatsAppClick } from "@/components/HermesWhatsAppButton/config.mjs";
 import {
   isCommercialWhatsAppUrl,
   resolveAttributedWhatsAppUrl,
@@ -35,6 +36,13 @@ export default function CommercialWhatsAppAttribution() {
           contact_method: "whatsapp",
           source: "commercial_whatsapp_link",
           page_path: pathname || "/",
+        });
+      }
+
+      if (preferences?.advertising) {
+        trackCommercialWhatsAppClick(window.fbq, {
+          source: "commercial_whatsapp_link",
+          pagePath: pathname,
         });
       }
 
