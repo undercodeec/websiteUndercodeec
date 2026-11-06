@@ -49,3 +49,24 @@ test("contains the approved Black Friday landing-page benefits and one WhatsApp 
   assert.match(component, /sessionStorage\.setItem\(DISMISSAL_KEY, "true"\)/);
   assert.match(component, /event\.key === "Escape"/);
 });
+
+test("mounts the Black Friday modal in the root page using the preloader-ready state", async () => {
+  const page = await readFile("src/app/page.tsx", "utf8");
+
+  assert.match(page, /import BlackFridayLandingModal from "@\/components\/BlackFridayLandingModal\/BlackFridayLandingModal"/);
+  assert.match(page, /<BlackFridayLandingModal isPageReady=\{isReady\}\s*\/>/);
+});
+
+test("uses a responsive overlay and a rectangular WhatsApp CTA", async () => {
+  const styles = await readFile(
+    "src/components/BlackFridayLandingModal/BlackFridayLandingModal.module.css",
+    "utf8",
+  );
+
+  assert.match(styles, /\.backdrop\s*\{/);
+  assert.match(styles, /\.dialog\s*\{[\s\S]*max-height:/);
+  assert.match(styles, /\.benefits\s*\{[\s\S]*overflow-y:\s*auto/);
+  assert.match(styles, /\.whatsappButton\s*\{[\s\S]*border-radius:\s*12px/);
+  assert.match(styles, /@media\s*\(max-width:\s*640px\)/);
+  assert.match(styles, /prefers-reduced-motion:\s*reduce/);
+});
