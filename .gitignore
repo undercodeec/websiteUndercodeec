@@ -43,6 +43,7 @@ next-env.d.ts
 
 # Local isolated worktrees
 /.worktrees/
+/.superpowers/
 
 # Previous root page retained locally for recovery only.
 /.local-archive/

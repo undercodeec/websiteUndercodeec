@@ -1,0 +1,203 @@
+.backdrop {
+  position: fixed;
+  z-index: 2147483000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow-y: auto;
+  background: rgba(13, 5, 20, 0.72);
+  backdrop-filter: blur(12px);
+  animation: fadeIn 240ms ease-out;
+}
+
+.dialog {
+  position: relative;
+  display: flex;
+  width: min(100%, 660px);
+  max-height: min(760px, calc(100dvh - 48px));
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 88% 7%, rgba(186, 39, 161, 0.36), transparent 35%),
+    linear-gradient(145deg, #2c0b39 0%, #12071c 100%);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.52);
+  color: #fff;
+  animation: riseIn 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.closeButton {
+  position: absolute;
+  z-index: 1;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+.closeButton:focus-visible,
+.whatsappButton:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.eyebrow {
+  margin: 0;
+  padding: 28px 64px 0 32px;
+  color: #f7a9ea;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+.dialog h2 {
+  max-width: 430px;
+  margin: 16px 32px 0;
+  font-size: clamp(1.85rem, 4vw, 2.85rem);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.price {
+  display: flex;
+  align-items: flex-start;
+  margin: 10px 32px 0;
+  color: #fff;
+  font-size: clamp(3.1rem, 8vw, 5.2rem);
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  line-height: 0.9;
+  text-shadow: 0 12px 30px rgba(235, 85, 206, 0.32);
+}
+
+.price span {
+  margin-top: 0.12em;
+  margin-right: 0.12em;
+  color: #f59ee6;
+  font-size: 0.44em;
+  letter-spacing: -0.02em;
+}
+
+.summary {
+  margin: 16px 32px 0;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.benefits {
+  display: grid;
+  gap: 9px;
+  margin: 22px 32px 0;
+  padding: 0 4px 0 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+.benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.benefits svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #66e792;
+}
+
+.whatsappButton {
+  display: flex;
+  width: calc(100% - 64px);
+  min-height: 56px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 24px 32px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #25d366, #16ae50);
+  box-shadow: 0 12px 28px rgba(20, 178, 81, 0.32);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: filter 160ms ease, transform 160ms ease;
+}
+
+.whatsappButton:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 640px) {
+  .backdrop {
+    padding: 12px;
+  }
+
+  .dialog {
+    max-height: calc(100dvh - 24px);
+    border-radius: 20px;
+  }
+
+  .eyebrow {
+    padding: 24px 52px 0 22px;
+  }
+
+  .dialog h2,
+  .price,
+  .summary,
+  .benefits {
+    margin-left: 22px;
+    margin-right: 22px;
+  }
+
+  .benefits {
+    max-height: 32dvh;
+  }
+
+  .whatsappButton {
+    width: calc(100% - 44px);
+    margin: 20px 22px 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .dialog,
+  .closeButton,
+  .whatsappButton {
+    animation: none;
+    transition: none;
+  }
+}
