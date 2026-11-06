@@ -50,6 +50,21 @@ test("contains the approved Black Friday landing-page benefits and one WhatsApp 
   assert.match(component, /event\.key === "Escape"/);
 });
 
+test("contains keyboard focus inside the dialog and exposes scrollable benefits to keyboard users", async () => {
+  const component = await readFile(
+    "src/components/BlackFridayLandingModal/BlackFridayLandingModal.jsx",
+    "utf8",
+  );
+
+  assert.match(component, /const dialogRef = useRef\(null\)/);
+  assert.match(component, /const FOCUSABLE_SELECTOR =/);
+  assert.match(component, /if \(event\.key === "Tab"\)/);
+  assert.match(component, /event\.preventDefault\(\);/);
+  assert.match(component, /ref=\{dialogRef\}/);
+  assert.match(component, /tabIndex=\{0\}/);
+  assert.match(component, /aria-label="Beneficios incluidos en la oferta"/);
+});
+
 test("mounts the Black Friday modal in the root page using the preloader-ready state", async () => {
   const page = await readFile("src/app/page.tsx", "utf8");
 

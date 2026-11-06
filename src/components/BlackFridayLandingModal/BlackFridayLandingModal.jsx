@@ -6,6 +6,11 @@ import { buildBlackFridayLandingWhatsAppUrl } from "./config.mjs";
 import styles from "./BlackFridayLandingModal.module.css";
 
 const DISMISSAL_KEY = "undercodeec-black-friday-landing-modal-dismissed";
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "[tabindex]:not([tabindex=\"-1\"])",
+].join(", ");
 
 const benefits = [
   "Landing page de una sola sección",
@@ -30,6 +35,7 @@ export default function BlackFridayLandingModal({ isPageReady }) {
     }
   });
   const [isOpen, setIsOpen] = useState(false);
+  const dialogRef = useRef(null);
   const closeButtonRef = useRef(null);
   const previousFocusRef = useRef(null);
 
@@ -70,6 +76,26 @@ export default function BlackFridayLandingModal({ isPageReady }) {
 
     const handleKeyDown = (event) => {
       if (event.key === "Escape") dismiss();
+
+      if (event.key === "Tab") {
+        const focusableElements = dialogRef.current?.querySelectorAll(FOCUSABLE_SELECTOR);
+        if (!focusableElements?.length) {
+          event.preventDefault();
+          return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        const activeElement = document.activeElement;
+
+        if (event.shiftKey && activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        } else if (!event.shiftKey && activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -87,6 +113,7 @@ export default function BlackFridayLandingModal({ isPageReady }) {
       }}
     >
       <section
+        ref={dialogRef}
         className={styles.dialog}
         role="dialog"
         aria-modal="true"
@@ -110,7 +137,11 @@ export default function BlackFridayLandingModal({ isPageReady }) {
           Todo lo que necesitas para empezar a captar prospectos en línea.
         </p>
 
-        <ul className={styles.benefits}>
+        <ul
+          className={styles.benefits}
+          tabIndex={0}
+          aria-label="Beneficios incluidos en la oferta"
+        >
           {benefits.map((benefit) => (
             <li key={benefit}>
               <Check aria-hidden="true" size={16} strokeWidth={3} />
