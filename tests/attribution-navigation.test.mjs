@@ -300,8 +300,8 @@ function staticPage(url, options = {}) {
     async accept() { controls.get("[data-accept]")(); },
     reopen() { controls.get("reopen")(); },
     reject() { controls.get("[data-reject]")(); },
-    async click() {
-      const anchor = { href: "https://wa.me/593999739534?text=Test", dataset: {} };
+    async click(href = "https://wa.me/593999739534?text=Test") {
+      const anchor = { href, dataset: {} };
       const before = requests.length;
       await listeners.get("click")({ button: 0, target: { closest: () => anchor }, preventDefault() {} });
       assert.equal(requests.length, before + 1);
@@ -331,6 +331,20 @@ test("static landing sends one commercial WhatsApp Meta event with advertising c
   const calls = [];
   const h = staticPage("/", { fbq: (...args) => calls.push(args) });
   await h.click();
+  assert.deepEqual(JSON.parse(JSON.stringify(calls)), [["trackCustom", "WhatsAppCommercialClick", {
+    source: "commercial_whatsapp_link",
+    page_path: "/",
+  }]]);
+});
+
+test("Black Friday modal WhatsApp uses the same commercial Meta event as the floating button", async () => {
+  const page = readFileSync(new URL("../public/landing-primary/index.html", import.meta.url), "utf8");
+  const promoLink = page.match(/<a class="black-friday-modal__whatsapp" href="([^"]+)"/);
+  assert.ok(promoLink, "the root landing must contain the promotional WhatsApp link");
+
+  const calls = [];
+  const h = staticPage("/", { fbq: (...args) => calls.push(args) });
+  await h.click(promoLink[1]);
   assert.deepEqual(JSON.parse(JSON.stringify(calls)), [["trackCustom", "WhatsAppCommercialClick", {
     source: "commercial_whatsapp_link",
     page_path: "/",

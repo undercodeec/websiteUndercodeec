@@ -88,7 +88,7 @@ void main() {
 const mapRange = (value, inMin, inMax, outMin, outMax) => outMin + ((value - inMin) * (outMax - outMin)) / (inMax - inMin);
 const randomBetween = (min, max) => min + Math.random() * (max - min);
 
-export function createPrimaryOrb(viewport, { color, textureUrl = "/landing-primary/images/ob_texture-old.webp" } = {}) {
+export function createPrimaryOrb(viewport, { color, shape = "sphere", textureUrl = "/landing-primary/images/ob_texture-old.webp" } = {}) {
   if (!viewport) throw new Error("PrimaryOrb requires a viewport element.");
   const renderer = new WebGLRenderer({ antialias: true, alpha: true });
   const gl = renderer.getContext();
@@ -97,7 +97,7 @@ export function createPrimaryOrb(viewport, { color, textureUrl = "/landing-prima
   if (!targetType) { renderer.dispose(); throw new Error("PrimaryOrb requires floating-point render targets."); }
 
   renderer.setPixelRatio(window.devicePixelRatio || 1); renderer.setClearColor(0x000000, 0); renderer.domElement.setAttribute("aria-hidden", "true"); renderer.domElement.dataset.primaryOrbTextureReady = "false"; viewport.appendChild(renderer.domElement);
-  const camera = new PerspectiveCamera(60, 1, 0.1, 2); camera.position.z = 2.4;
+  const camera = new PerspectiveCamera(60, 1, 0.1, shape === "rectangle" ? 4 : 2); camera.position.z = 2.4;
   const scene = new Scene(); const raycaster = new Raycaster(); const clock = new Clock(); const mousePosition = new Vector2(-1, -1); const normalizedMousePosition = new Vector2(-1, -1);
   const renderTargetOptions = { format: RGBAFormat, type: targetType, wrapS: RepeatWrapping, wrapT: RepeatWrapping, depthBuffer: false, stencilBuffer: false };
   const interactionTarget = new WebGLRenderTarget(256, 256, renderTargetOptions); const simulationTarget = new WebGLRenderTarget(128, 128, renderTargetOptions);
@@ -105,13 +105,13 @@ export function createPrimaryOrb(viewport, { color, textureUrl = "/landing-prima
   const simulationMaterial = new RawShaderMaterial({ vertexShader: fullscreenVertexShader, fragmentShader: simulationFragmentShader, uniforms: { texture: { value: interactionTarget.texture }, size: { value: new Vector2(interactionTarget.width / 2, interactionTarget.height / 2) } } });
   const renderingMaterial = new RawShaderMaterial({ vertexShader: sphereVertexShader, fragmentShader: sphereFragmentShader, transparent: true, uniforms: { texture: { value: simulationTarget.texture }, matcapTexture: { value: null }, matcapTexture2: { value: null }, textureMix: { value: 0 }, colorTint: { value: new Color(color || "#ffffff") }, colorTintAmount: { value: color ? 1 : 0 }, size: { value: new Vector2(simulationTarget.width, simulationTarget.height) }, eye: { value: new Vector3().copy(camera.position).normalize() }, lightDirection: { value: new Vector3() }, angle: { value: Math.PI / 2 } } });
   const fboScene = new Scene(); const fboPlane = new Mesh(new PlaneGeometry(2, 2), interactionMaterial); fboScene.add(fboPlane);
-  const sphere = new Mesh(new SphereGeometry(1, 100, 100, 0, Math.PI), renderingMaterial); scene.add(sphere);
+  const surface = new Mesh(shape === "rectangle" ? new PlaneGeometry(2, 2, 100, 100) : new SphereGeometry(1, 100, 100, 0, Math.PI), renderingMaterial); scene.add(surface);
   let appliedWidth = 0; let appliedHeight = 0; let angle = Math.PI / 2; let angleDirection = 1; let frameId; let disposed = false; let pulseTimeout;
-  const resize = () => { const width = viewport.offsetWidth; const height = viewport.offsetHeight; if (!width || !height || (width === appliedWidth && height === appliedHeight)) return; appliedWidth = width; appliedHeight = height; renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); };
+  const resize = () => { const width = viewport.offsetWidth; const height = viewport.offsetHeight; if (!width || !height || (width === appliedWidth && height === appliedHeight)) return; appliedWidth = width; appliedHeight = height; renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); if (shape === "rectangle") { const halfHeight = Math.tan((camera.fov * Math.PI) / 360) * camera.position.z; surface.scale.set(halfHeight * camera.aspect * 1.08, halfHeight * 1.08, 1); } };
   const onMouseMove = (event) => mousePosition.set(event.clientX, event.clientY); const onMouseDown = () => { interactionMaterial.uniforms.mouseDown.value = true; }; const onMouseUp = () => { interactionMaterial.uniforms.mouseDown.value = false; };
   const render = () => {
     if (disposed) return; resize(); const bounds = viewport.getBoundingClientRect(); normalizedMousePosition.set(mapRange((mousePosition.x - bounds.left) / bounds.width, 0, 1, -1, 1), mapRange((mousePosition.y - bounds.top) / bounds.height, 0, 1, 1, -1));
-    if (normalizedMousePosition.x !== -1 && normalizedMousePosition.y !== -1) { raycaster.setFromCamera(normalizedMousePosition, camera); const intersection = raycaster.intersectObject(sphere)[0]; if (intersection?.uv) interactionMaterial.uniforms.center.value.copy(intersection.uv); else interactionMaterial.uniforms.center.value.set(-1, -1); }
+    if (normalizedMousePosition.x !== -1 && normalizedMousePosition.y !== -1) { raycaster.setFromCamera(normalizedMousePosition, camera); const intersection = raycaster.intersectObject(surface)[0]; if (intersection?.uv) interactionMaterial.uniforms.center.value.copy(intersection.uv); else interactionMaterial.uniforms.center.value.set(-1, -1); }
     interactionMaterial.uniforms.time.value = clock.getElapsedTime(); angle += 0.01 * angleDirection; if (angle > Math.PI - 0.5 || angle < 0.5) angleDirection *= -1; renderingMaterial.uniforms.lightDirection.value.set(Math.cos(angle), Math.sin(angle), 1); renderingMaterial.uniforms.angle.value = angle;
     fboPlane.material = interactionMaterial; renderer.setRenderTarget(interactionTarget); renderer.render(fboScene, camera); fboPlane.material = simulationMaterial; renderer.setRenderTarget(simulationTarget); renderer.render(fboScene, camera); renderer.setRenderTarget(null); renderer.render(scene, camera); frameId = window.requestAnimationFrame(render);
   };
@@ -119,5 +119,5 @@ export function createPrimaryOrb(viewport, { color, textureUrl = "/landing-prima
   const textureLoader = new TextureLoader(); let matcapTexture;
   textureLoader.load(textureUrl, (texture) => { if (disposed) { texture.dispose(); return; } matcapTexture = texture; renderingMaterial.uniforms.matcapTexture.value = texture; renderingMaterial.uniforms.matcapTexture2.value = texture; renderer.domElement.dataset.primaryOrbTextureReady = "true"; });
   window.addEventListener("resize", resize); window.addEventListener("mousemove", onMouseMove, { passive: true }); window.addEventListener("mousedown", onMouseDown); window.addEventListener("mouseup", onMouseUp); resize(); clock.start(); frameId = window.requestAnimationFrame(render);
-  return { destroy() { disposed = true; clock.stop(); window.cancelAnimationFrame(frameId); window.clearInterval(pulseInterval); window.clearTimeout(pulseTimeout); window.removeEventListener("resize", resize); window.removeEventListener("mousemove", onMouseMove); window.removeEventListener("mousedown", onMouseDown); window.removeEventListener("mouseup", onMouseUp); matcapTexture?.dispose(); interactionTarget.dispose(); simulationTarget.dispose(); sphere.geometry.dispose(); fboPlane.geometry.dispose(); interactionMaterial.dispose(); simulationMaterial.dispose(); renderingMaterial.dispose(); renderer.dispose(); renderer.domElement.remove(); } };
+  return { destroy() { disposed = true; clock.stop(); window.cancelAnimationFrame(frameId); window.clearInterval(pulseInterval); window.clearTimeout(pulseTimeout); window.removeEventListener("resize", resize); window.removeEventListener("mousemove", onMouseMove); window.removeEventListener("mousedown", onMouseDown); window.removeEventListener("mouseup", onMouseUp); matcapTexture?.dispose(); interactionTarget.dispose(); simulationTarget.dispose(); surface.geometry.dispose(); fboPlane.geometry.dispose(); interactionMaterial.dispose(); simulationMaterial.dispose(); renderingMaterial.dispose(); renderer.dispose(); renderer.domElement.remove(); } };
 }

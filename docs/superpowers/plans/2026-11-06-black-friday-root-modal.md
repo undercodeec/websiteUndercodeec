@@ -121,3 +121,18 @@ Use the existing purple, glass and bright green visual language. Keep the dialog
 
 Run: `node --test tests/black-friday-landing-modal.test.mjs && pnpm lint && pnpm test`
 Expected: all commands exit 0.
+
+## Delivery correction: static root landing
+
+The root route is rewritten in `next.config.ts` to `public/landing-primary/index.html`; it does not render `src/app/page.tsx` in the browser. The production implementation therefore lives in the static landing served at `/`:
+
+- `public/landing-primary/index.html`: modal markup plus stylesheet and script references.
+- `public/landing-primary/css/black-friday-modal.css`: responsive overlay, scrollable benefit list, rectangular WhatsApp CTA and privacy-panel handling while the dialog is open.
+- `public/landing-primary/js/black-friday-modal.js`: listens for the static `homePreloaderDone` event, waits exactly 3000 ms, and manages close, focus trapping, Escape, backdrop and scroll lock.
+- `tests/black-friday-static-modal.test.mjs`: verifies the static delivery contract.
+
+The static implementation opens once per page load after preload completion. Closing it does not persist a dismissal flag, so a fresh root-page load still shows the requested promotion.
+
+## Visual adjustment requested after delivery
+
+The current root modal intentionally omits the "Incluye" section and all benefit rows. It keeps the $80,00 offer, uses the root site's Ataero font and white type, and reveals its title with the same staggered character animation as the root hero. The only commercial action reads "Escríbenos para saber más" and places the existing animated WhatsApp orb inside the rectangular CTA. The modal remains dark and opens three seconds after `homePreloaderDone`.
