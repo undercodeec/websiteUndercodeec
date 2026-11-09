@@ -86,5 +86,5 @@ test("starts the desktop pointer motion promptly and shows a click on WhatsApp",
   assert.match(styles, /\.black-friday-modal__whatsapp::after\s*\{/);
   assert.match(styles, /@keyframes black-friday-button-click/);
   assert.match(page, /black-friday-modal\.css\?v=20261106-pointer-motion/);
-  assert.match(page, /black-friday-modal\.js\?v=20261106-pointer-motion/);
+  assert.match(page, /black-friday-modal\.js\?v=20261109-mobile-pointer/);
 });

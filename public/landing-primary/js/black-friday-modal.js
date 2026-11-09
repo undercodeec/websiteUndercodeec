@@ -19,13 +19,28 @@
 
   const getFocusableElements = () => Array.from(dialog.querySelectorAll(focusableSelector));
 
+  // Layout offsets ignore the entrance transforms on the message and CTA.
+  const positionInDialog = (element) => {
+    let left = 0;
+    let top = 0;
+    let current = element;
+    while (current && current !== dialog) {
+      left += current.offsetLeft;
+      top += current.offsetTop;
+      current = current.offsetParent;
+    }
+    return current === dialog ? { left, top } : null;
+  };
+
   const updatePointerJourney = () => {
     if (!pointer || !pointerAnchor || !whatsappButton || modal.hidden) return;
 
-    const start = pointerAnchor.getBoundingClientRect();
-    const target = whatsappButton.getBoundingClientRect();
-    pointer.style.setProperty("--black-friday-pointer-x", `${target.left + target.width * 0.8 - start.left - 3}px`);
-    pointer.style.setProperty("--black-friday-pointer-y", `${target.top + target.height * 0.5 - start.top - 2}px`);
+    const anchorPosition = positionInDialog(pointerAnchor);
+    const buttonPosition = positionInDialog(whatsappButton);
+    const start = anchorPosition && buttonPosition ? anchorPosition : pointerAnchor.getBoundingClientRect();
+    const target = anchorPosition && buttonPosition ? buttonPosition : whatsappButton.getBoundingClientRect();
+    pointer.style.setProperty("--black-friday-pointer-x", `${target.left + whatsappButton.offsetWidth * 0.5 - start.left - 3}px`);
+    pointer.style.setProperty("--black-friday-pointer-y", `${target.top + whatsappButton.offsetHeight * 0.5 - start.top - 2}px`);
   };
 
   const titleCharacters = [];
@@ -87,15 +102,13 @@
 
     hasOpened = true;
     modal.hidden = false;
+    updatePointerJourney();
     modal.setAttribute("data-title-ready", "");
     previouslyFocused = document.activeElement;
     document.body.classList.add("black-friday-modal-open");
     window.lenis?.stop?.();
     window.SScroll?.stop?.();
-    window.requestAnimationFrame(() => {
-      closeButton.focus();
-      updatePointerJourney();
-    });
+    window.requestAnimationFrame(() => closeButton.focus());
   };
 
   const scheduleModal = () => {
