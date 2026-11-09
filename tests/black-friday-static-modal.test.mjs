@@ -45,8 +45,16 @@ test("uses the root font, white copy, hero title animation, and floating WhatsAp
   assert.match(styles, /\.black-friday-modal\[data-title-ready\] \.black-friday-modal__price/);
   assert.match(styles, /\.black-friday-modal\[data-title-ready\] \.black-friday-modal__whatsapp/);
   assert.match(styles, /font-size:\s*clamp\(38px,\s*5vw,\s*62px\)/);
-  assert.match(styles, /body\.black-friday-modal-open \.uc-consent/);
+  assert.doesNotMatch(styles, /body\.black-friday-modal-open \.uc-consent[\s\S]*visibility:\s*hidden/);
   assert.match(styles, /@media\s*\(max-width:\s*640px\)/);
+});
+
+test("keeps privacy controls visible above the Black Friday modal", async () => {
+  const styles = await readFile("public/landing-primary/css/black-friday-modal.css", "utf8");
+  const consent = await readFile("public/landing-primary/js/consent-attribution.js", "utf8");
+
+  assert.doesNotMatch(styles, /body\.black-friday-modal-open \.uc-consent[\s\S]*pointer-events:\s*none/);
+  assert.match(consent, /\.uc-consent-settings\s*\{[^}]*z-index:\s*2147483647/);
 });
 
 test("renders the modal's WebGL effect as a rectangle without changing floating orbs", async () => {
@@ -85,6 +93,6 @@ test("starts the desktop pointer motion promptly and shows a click on WhatsApp",
   assert.match(styles, /\.black-friday-modal\[data-title-ready\] \.black-friday-modal__pointer\s*\{[^}]*animation:\s*black-friday-pointer-trip 3\.2s [^;]* 0s infinite/);
   assert.match(styles, /\.black-friday-modal__whatsapp::after\s*\{/);
   assert.match(styles, /@keyframes black-friday-button-click/);
-  assert.match(page, /black-friday-modal\.css\?v=20261106-pointer-motion/);
+  assert.match(page, /black-friday-modal\.css\?v=20261109-consent-layer/);
   assert.match(page, /black-friday-modal\.js\?v=20261109-mobile-pointer/);
 });

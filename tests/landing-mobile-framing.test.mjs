@@ -27,7 +27,7 @@ test('the root landing references the current hero assets', async () => {
   assert.match(html, /demo-local\.css\?v=20261103-mobile-grid/);
   assert.match(html, /hero-particles\.css\?v=20261103-grid-all-heroes/);
   assert.match(html, /home-hero-particles\.js\?v=20261103-mobile-grid/);
-  assert.match(html, /consent-attribution\.js\?v=20261031-compact-mobile/);
+  assert.match(html, /consent-attribution\.js\?v=20261109-consent-layer/);
   assert.match(component, /home-hero-particles\.js\?v=20261103-mobile-grid/);
 });
 

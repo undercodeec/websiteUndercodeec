@@ -347,12 +347,6 @@ body.black-friday-modal-open {
   overflow: hidden !important;
 }
 
-body.black-friday-modal-open .uc-consent,
-body.black-friday-modal-open .uc-consent-settings {
-  visibility: hidden;
-  pointer-events: none;
-}
-
 @media (max-width: 640px) {
   .black-friday-modal {
     padding: 12px;
