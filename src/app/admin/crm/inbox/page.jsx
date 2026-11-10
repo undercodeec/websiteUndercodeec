@@ -38,6 +38,12 @@ import { inboxMediaKind } from '@/lib/hermes/inbox-media.mjs';
 import { presentHermesIncident } from "@/lib/hermes/incidents.mjs";
 import { startHumanTakeover } from "@/lib/hermes/human-takeover.mjs";
 import {
+  conversationActivityAt,
+  createInboxRequestGuard,
+  inboxPageWithinTotal,
+  sortInboxConversations,
+} from "@/lib/hermes/inbox-order.mjs";
+import {
   activeHandoff,
   CONVERSATION_STATUS,
   HANDOFF_REASON,
@@ -140,7 +146,7 @@ export default function InboxPage() {
   const initialPriority = searchParams.get("priorityOnly") === "true";
   const [conversations, setConversations] = useState([]);
   const [listMeta, setListMeta] = useState({ total: 0, totalPages: 1 });
-  const [selectedId, setSelectedId] = useState(initialConversationId);
+  const [selectedId, updateSelectedId] = useState(initialConversationId);
   const [conversation, setConversation] = useState(null);
   const [transfer, setTransfer] = useState(null);
   const [paymentReference, setPaymentReference] = useState('');
@@ -179,12 +185,38 @@ export default function InboxPage() {
   const [toast, setToast] = useState(null);
   const messagesEndRef = useRef(null);
   const selectedIdRef = useRef(selectedId);
+  const selectionGenerationRef = useRef(0);
+  const listRequestsRef = useRef(null);
+  if (!listRequestsRef.current) listRequestsRef.current = createInboxRequestGuard();
+  const detailRequestsRef = useRef(null);
+  if (!detailRequestsRef.current) detailRequestsRef.current = createInboxRequestGuard();
+  const olderRequestsRef = useRef(null);
+  if (!olderRequestsRef.current) olderRequestsRef.current = createInboxRequestGuard();
 
-  useEffect(() => {
-    selectedIdRef.current = selectedId;
-  }, [selectedId]);
+  const setSelectedId = useCallback((value) => {
+    const id = typeof value === "function" ? value(selectedIdRef.current) : value;
+    if (id === selectedIdRef.current) return;
+    // Invalidate synchronously, including A -> B -> A before requests settle.
+    selectedIdRef.current = id;
+    selectionGenerationRef.current += 1;
+    detailRequestsRef.current.invalidate();
+    olderRequestsRef.current.invalidate();
+    setConversation(null);
+    setTransfer(null);
+    setMessages([]);
+    setReply("");
+    setSending(false);
+    setDetailError("");
+    setDetailLoading(Boolean(id));
+    setLoadingOlder(false);
+    setMessagePage(1);
+    setMessagePages(1);
+    updateSelectedId(id);
+  }, []);
 
   const loadConversations = useCallback(async (quiet = false) => {
+    const requests = listRequestsRef.current;
+    const requestVersion = requests.next();
     if (!quiet) setListLoading(true);
     setListError("");
     try {
@@ -196,7 +228,13 @@ export default function InboxPage() {
         origin: originFilter,
         priorityOnly: priorityOnly || "",
       });
-      const items = result?.data || [];
+      if (!requests.isCurrent(requestVersion)) return;
+      const validPage = inboxPageWithinTotal(conversationPage, result?.totalPages);
+      if (validPage !== conversationPage) {
+        setConversationPage(validPage);
+        return; // Reload with the same filters; never accept an out-of-range page.
+      }
+      const items = sortInboxConversations(result?.data || []);
       setConversations(items);
       setListMeta({
         total: result?.total || 0,
@@ -204,21 +242,29 @@ export default function InboxPage() {
       });
       setSelectedId((current) => current || items[0]?.id || "");
     } catch (requestError) {
+      if (!requests.isCurrent(requestVersion)) return;
       setListError(
         apiErrorMessage(requestError, "No se pudieron cargar las conversaciones."),
       );
     } finally {
-      if (!quiet) setListLoading(false);
+      if (requests.isCurrent(requestVersion)) setListLoading(false);
     }
-  }, [conversationPage, deferredSearch, originFilter, priorityOnly, statusFilter]);
+  }, [conversationPage, deferredSearch, originFilter, priorityOnly, statusFilter, setSelectedId]);
 
   const loadConversation = useCallback(async (id, quiet = false) => {
+    if (id !== selectedIdRef.current) return;
+    const requests = detailRequestsRef.current;
+    const requestVersion = requests.next();
+    const isCurrent = () => selectedIdRef.current === id && requests.isCurrent(requestVersion);
+    olderRequestsRef.current.invalidate();
+    setLoadingOlder(false);
     if (!id) {
       setConversation(null);
       setTransfer(null);
       setMessages([]);
       setFeedbackResult(null);
       setFeedbackError("");
+      setDetailLoading(false);
       return;
     }
     if (!quiet) setDetailLoading(true);
@@ -235,6 +281,9 @@ export default function InboxPage() {
             error: apiErrorMessage(requestError, "No se pudo cargar el feedback."),
           })),
       ]);
+      if (!isCurrent()) return;
+      olderRequestsRef.current.invalidate();
+      setLoadingOlder(false);
       setConversation(detail);
       setTransfer(payment);
       setSelectedProofId((current) => payment?.proofMessages?.some((proof) => proof.messageId === current)
@@ -251,21 +300,29 @@ export default function InboxPage() {
         );
       }
     } catch (requestError) {
+      if (!isCurrent()) return;
       setDetailError(
         apiErrorMessage(requestError, "No se pudo abrir la conversación."),
       );
     } finally {
-      setDetailLoading(false);
+      if (isCurrent()) setDetailLoading(false);
     }
   }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(loadConversations, 120);
-    return () => window.clearTimeout(timer);
+    const requests = listRequestsRef.current;
+    return () => {
+      window.clearTimeout(timer);
+      requests.invalidate();
+    };
   }, [loadConversations]);
 
   useEffect(() => {
     loadConversation(selectedId);
+    const details = detailRequestsRef.current;
+    const older = olderRequestsRef.current;
+    return () => { details.invalidate(); older.invalidate(); };
   }, [loadConversation, selectedId]);
 
   useEffect(() => {
@@ -361,35 +418,46 @@ export default function InboxPage() {
   };
 
   const loadOlderMessages = async () => {
-    if (!selectedId || loadingOlder || messagePage >= messagePages) return;
+    if (!selectedId || conversation?.id !== selectedId || detailLoading || loadingOlder || messagePage >= messagePages) return;
+    const id = selectedId;
+    const requests = olderRequestsRef.current;
+    const requestVersion = requests.next();
+    const isCurrent = () => selectedIdRef.current === id && requests.isCurrent(requestVersion);
     setLoadingOlder(true);
     try {
       const nextPage = messagePage + 1;
-      const result = await hermesApi.messages(selectedId, {
+      const result = await hermesApi.messages(id, {
         page: nextPage,
         limit: 50,
       });
+      if (!isCurrent()) return;
       setMessages((items) => [...(result?.data || []), ...items]);
       setMessagePage(nextPage);
       setMessagePages(result?.totalPages || messagePages);
     } catch (requestError) {
+      if (!isCurrent()) return;
       setToast({
         tone: "error",
         message: apiErrorMessage(requestError, "No se cargaron los mensajes anteriores."),
       });
     } finally {
-      setLoadingOlder(false);
+      if (isCurrent()) setLoadingOlder(false);
     }
   };
 
   const sendReply = async (event) => {
     event.preventDefault();
     const content = reply.trim();
-    if (!content || !canReplyManually) return;
+    if (!content || !canReplyManually || selectedIdRef.current !== selectedId) return;
+    const id = selectedId;
+    const selectionGeneration = selectionGenerationRef.current;
+    const isCurrent = () => selectedIdRef.current === id && selectionGenerationRef.current === selectionGeneration;
     setSending(true);
     try {
-      const message = await hermesApi.reply(selectedId, content);
-      setMessages((items) => [...items, message]);
+      const message = await hermesApi.reply(id, content);
+      if (!isCurrent()) return;
+      // A concurrent detail refresh may already include this acknowledged send.
+      setMessages((items) => items.some((item) => item.id === message.id) ? items : [...items, message]);
       setReply("");
       setConversation((value) => ({
         ...value,
@@ -402,6 +470,7 @@ export default function InboxPage() {
       );
       loadConversations();
     } catch (requestError) {
+      if (!isCurrent()) return;
       const templateRequired =
         requestError?.code === "WHATSAPP_TEMPLATE_REQUIRED";
       setToast({
@@ -412,7 +481,7 @@ export default function InboxPage() {
       });
       if (templateRequired) loadConversation(selectedId, true);
     } finally {
-      setSending(false);
+      if (isCurrent()) setSending(false);
     }
   };
 
@@ -579,7 +648,8 @@ export default function InboxPage() {
     conversation?.hermesReviewTask,
   );
   const canReplyManually = Boolean(
-    conversation?.status === "HANDED_OFF" &&
+    conversation?.id === selectedId && !detailLoading &&
+      conversation?.status === "HANDED_OFF" &&
       handoff &&
       handoff.status === "IN_PROGRESS" &&
       handoff.assignedAgentId === user?.id &&
@@ -671,7 +741,7 @@ export default function InboxPage() {
                   <div className="crm-conversation-list-copy">
                     <div>
                       <strong>{contactName(item.contact)}</strong>
-                      <time>{relativeDate(item.updatedAt)}</time>
+                      <time>{relativeDate(conversationActivityAt(item))}</time>
                     </div>
                     <p>{lastMessage(item)}</p>
                     <OriginBadge attribution={item.attribution} compact />
