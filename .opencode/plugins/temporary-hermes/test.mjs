@@ -38,20 +38,24 @@ assert.equal(before.effect, "deny")
 h.addChild() // El especialista puede existir antes de vincular Hermes.
 await h.commands.get("vincular-hermes").execute({ sessionID: "main" })
 assert.deepEqual(h.updates.slice(-2).map((update) => update.sessionID), ["main", "child"])
-assert(h.updates.at(-1).permissions.some((r) => r.action === "edit" && r.resource.endsWith("hermes-backend/*") && r.effect === "allow"))
+assert(h.updates.at(-1).permissions.some((r) => r.action === "edit" && r.resource === "D:/Documentos/Hermes/*" && r.effect === "allow"))
+assert(h.updates.at(-1).permissions.some((r) => r.action === "read" && r.resource === "D:/Documentos/Hermes/*" && r.effect === "allow"))
 assert(h.updates.at(-1).permissions.some((r) => r.action === "shell" && r.resource === "*" && r.effect === "allow"))
 for (const [sessionID, agent, action, resource, expected] of [
   ["main", "undercode-coordinator", "read", backend, "allow"],
   ["child", "hermes-backend", "edit", backend, "allow"],
   ["child", "undercode-crm", "edit", backend, "allow"],
   ["child", "undercode-qa", "edit", backend, "allow"],
-  ["child", "hermes-backend", "edit", web, "deny"],
-  ["child", "hermes-backend", "edit", `${backend}/../../../Hermes-web/example.ts`, "deny"],
+  ["child", "hermes-backend", "edit", web, "allow"],
+  ["child", "hermes-backend", "edit", `${backend}/../../../Hermes-web/example.ts`, "allow"],
   ["child", "hermes-backend", "edit", "D:/Documentos/Hermes/hermes-backend/.env", "allow"],
   ["child", "hermes-backend", "edit", "D:/Documentos/Hermes/hermes-backend/.opencode/agents/hermes-backend.md", "allow"],
   ["child", "hermes-backend", "edit", "D:/Documentos/Hermes/hermes-backend/AGENTS.md", "allow"],
   ["child", "hermes-backend", "edit", "D:/Documentos/Hermes/hermes-backend/test/schema.sql", "allow"],
-  ["child", "hermes-backend", "edit", "D:/Documentos/Hermes/hermes-backend/.git/config", "deny"],
+  ["child", "hermes-backend", "edit", "D:/Documentos/Hermes/hermes-backend/.git/config", "allow"],
+  ["child", "undercode-qa", "read", "D:/Documentos/Hermes/AGENTS.md", "allow"],
+  ["child", "undercode-qa", "edit", "D:/Documentos/Hermes/AGENTS.md", "allow"],
+  ["child", "undercode-qa", "read", "D:/Documentos/Hermes/opencode.jsonc", "allow"],
   ["fresh", "hermes-backend", "read", backend, "deny"],
   ["main", "undercode-coordinator", "read", main, "allow"],
 ]) {
@@ -65,6 +69,9 @@ assert.equal(inheritedDeny.effect, "allow")
 const externalDeny = deniedEvent("child", "hermes-backend", "external_directory", "D:/Documentos/Hermes/hermes-backend/test")
 await h.check(externalDeny)
 assert.equal(externalDeny.effect, "allow")
+const rootExternal = deniedEvent("child", "undercode-qa", "external_directory", "D:/Documentos/Hermes/AGENTS.md")
+await h.check(rootExternal)
+assert.equal(rootExternal.effect, "allow")
 await plugin.setup(h.ctx) // Una recarga del plugin debe conservar el permiso temporal de esta sesión.
 const afterReload = deniedEvent("child", "hermes-backend", "edit", backend)
 await h.check(afterReload)
@@ -88,6 +95,9 @@ for (const [resource, expected] of [[web, "allow"], [backend, "deny"]]) {
   await webHarness.check(e)
   assert.equal(e.effect, expected)
 }
+const webCannotReadRoot = event("child", "hermes-web", "read", "D:/Documentos/Hermes/AGENTS.md")
+await webHarness.check(webCannotReadRoot)
+assert.equal(webCannotReadRoot.effect, "deny")
 assert(webHarness.updates.at(-1).permissions.some((r) => r.action === "shell" && r.effect === "allow"))
 await plugin.setup(webHarness.ctx)
 const webReloaded = deniedEvent("child", "hermes-web", "read", web)
