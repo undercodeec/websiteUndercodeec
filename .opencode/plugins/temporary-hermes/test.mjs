@@ -22,7 +22,7 @@ function harness() {
       synthetic: async () => {},
     },
   }
-  return { ctx, commands, updates, addChild: () => sessions.set("child", { id: "child", parentID: "main" }), check: (event) => evaluate(event) }
+  return { ctx, commands, updates, addChild: () => sessions.set("child", { id: "child", parentID: "main" }), setMainPermissions: (permissions) => { sessions.get("main").permissions = permissions }, check: (event) => evaluate(event) }
 }
 
 const h = harness()
@@ -79,4 +79,50 @@ await plugin.setup(restarted.ctx)
 const resumed = event("main", "hermes-backend", "read", backend)
 await restarted.check(resumed)
 assert.equal(resumed.effect, "deny")
+const webHarness = harness()
+await plugin.setup(webHarness.ctx)
+webHarness.addChild()
+await webHarness.commands.get("vincular-hermes-web").execute({ sessionID: "main" })
+for (const [resource, expected] of [[web, "allow"], [backend, "deny"]]) {
+  const e = deniedEvent("child", "hermes-web", "edit", resource)
+  await webHarness.check(e)
+  assert.equal(e.effect, expected)
+}
+assert(webHarness.updates.at(-1).permissions.some((r) => r.action === "shell" && r.effect === "allow"))
+await plugin.setup(webHarness.ctx)
+const webReloaded = deniedEvent("child", "hermes-web", "read", web)
+await webHarness.check(webReloaded)
+assert.equal(webReloaded.effect, "allow")
+await webHarness.commands.get("vincular-hermes").execute({ sessionID: "main" })
+for (const resource of [web, backend]) {
+  const e = deniedEvent("child", "hermes-web", "edit", resource)
+  await webHarness.check(e)
+  assert.equal(e.effect, "allow")
+}
+await webHarness.commands.get("desvincular-hermes").execute({ sessionID: "main" })
+const webStillLinked = deniedEvent("child", "hermes-web", "edit", web)
+await webHarness.check(webStillLinked)
+assert.equal(webStillLinked.effect, "allow")
+const backendRevoked = event("child", "hermes-web", "edit", backend)
+await webHarness.check(backendRevoked)
+assert.equal(backendRevoked.effect, "deny")
+await webHarness.commands.get("desvincular-hermes-web").execute({ sessionID: "main" })
+const webRevoked = event("child", "hermes-web", "edit", web)
+await webHarness.check(webRevoked)
+assert.equal(webRevoked.effect, "deny")
+const legacy = harness()
+legacy.setMainPermissions([
+  { action: "undercode_link_active", resource: "*", effect: "allow" },
+  { action: "external_directory", resource: "D:/Documentos/Hermes/Hermes-web/*", effect: "deny" },
+  { action: "read", resource: "D:/Documentos/Hermes/Hermes-web/*", effect: "deny" },
+])
+legacy.addChild()
+await plugin.setup(legacy.ctx)
+await legacy.commands.get("vincular-hermes-web").execute({ sessionID: "main" })
+for (const resource of [web, backend]) {
+  const e = deniedEvent("main", "hermes-web", "read", resource)
+  await legacy.check(e)
+  assert.equal(e.effect, "allow")
+}
+assert(!legacy.updates.at(-1).permissions.some((r) => r.action === "external_directory" && r.resource.endsWith("Hermes-web/*") && r.effect === "deny"))
 console.log("Comprobaciones simuladas de permisos: OK")
