@@ -18,8 +18,10 @@ test('trajectory uses the canonical home team instead of placeholder profiles', 
   assert.equal((team.match(/class="home-team__member"/g) ?? []).length, 4);
 });
 
-test('the team section copied to trajectory contains its unique described help', () => {
+test('trajectory reuses the team section and its visually hidden accessible help', () => {
   const home = readFileSync(new URL('../public/landing-primary/index.html', import.meta.url), 'utf8');
+  const page = readFileSync(new URL('../src/app/nuestra-trayectoria/page.tsx', import.meta.url), 'utf8');
+  const styles = readFileSync(new URL('../public/landing-primary/css/home-team.css', import.meta.url), 'utf8');
   const team = home.match(/<section class="s home-team"[\s\S]*?<\/section>/)?.[0];
   assert.ok(team);
   const descriptionId = team.match(/class="home-team__grid"[\s\S]*?aria-describedby="([^"]+)"/)?.[1];
@@ -28,4 +30,6 @@ test('the team section copied to trajectory contains its unique described help',
   assert.equal(help.length, 1, 'the referenced help must exist exactly once inside the reused section');
   assert.equal(help[0][1].replace(/\s+/g, ' ').trim(),
     'Haz clic o toca el equipo para abrir sus perfiles. Para cerrar, aleja el ratón o toca fuera. Con teclado, usa Tab para abrir y Esc o Tab para salir.');
+  assert.match(page, /import "\.\.\/\.\.\/\.\.\/public\/landing-primary\/css\/home-team\.css"/);
+  assert.match(styles, /\.home-team__help\s*\{[^}]*clip-path:\s*inset\(50%\)/);
 });

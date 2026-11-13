@@ -204,8 +204,14 @@ function assertTeamHelp(html) {
   assert.match(html, /<p id="home-team-help" class="home-team__help">Haz clic o toca el equipo para abrir sus perfiles\. Para cerrar, aleja el ratón o toca fuera\. Con teclado, usa Tab para abrir y Esc o Tab para salir\.<\/p>/);
 }
 
-test('team region references unique accessible interaction help', () => {
+test('team region references unique visually hidden accessible interaction help', () => {
   assertTeamHelp(home);
+  const rule = styles.match(/\.home-team__help\s*\{([^}]*)\}/)?.[1];
+  assert.ok(rule);
+  for (const declaration of ['position: absolute', 'width: 1px', 'height: 1px', 'overflow: hidden', 'clip-path: inset(50%)']) {
+    assert.ok(rule.includes(declaration), `missing visually hidden declaration: ${declaration}`);
+  }
+  assert.doesNotMatch(rule, /display:\s*none|visibility:\s*hidden/);
 });
 
 test('first entry starts at Stefany after offscreen time; re-entry preserves slide', () => {
