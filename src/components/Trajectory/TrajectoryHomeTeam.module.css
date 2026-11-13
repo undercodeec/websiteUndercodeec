@@ -1,0 +1,7 @@
+.team {
+  padding: clamp(7rem, 13vw, 13rem) var(--primary-page-gutter);
+  border-bottom: 1px solid var(--line);
+}
+
+.team :global(.home-team) { padding: 0; }
+.team :global(.h-eyebrow) { font-size: .72rem; line-height: 1.1; text-transform: uppercase; }

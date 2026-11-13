@@ -131,16 +131,20 @@ test('portrait boxes contain complete, centered images without distortion', () =
   assert.match(styles, /\.home-team__photo img\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;[^}]*object-fit:\s*contain;[^}]*object-position:\s*center/);
 });
 
-function carouselHarness({ fail = false, reduced = false, animated = false, visible = true, observer = true } = {}) {
+function carouselHarness({ fail = false, reduced = false, animated = false, visible = true, observer = true, trajectory = false } = {}) {
   class Node {
     constructor() { this.events = {}; this.attrs = {}; this.dataset = {}; }
     addEventListener(type, fn) { (this.events[type] ??= []).push(fn); }
+    removeEventListener(type, fn) { this.events[type] = (this.events[type] ?? []).filter(item => item !== fn); }
     fire(type, event = {}) { for (const fn of this.events[type] ?? []) fn(event); }
     setAttribute(key, value) { this.attrs[key] = value; }
+    getAttribute(key) { return this.attrs[key] ?? null; }
     removeAttribute(key) { delete this.attrs[key]; }
   }
   const cards = Array.from({ length: 4 }, () => new Node());
   const grid = new Node();
+  grid.setAttribute('aria-describedby', 'home-team-help');
+  const help = new Node();
   let inView = visible;
   grid.getBoundingClientRect = () => inView === 'edge'
     ? { left: 0, right: 100, top: 600, bottom: 700, width: 100, height: 100 }
@@ -155,11 +159,12 @@ function carouselHarness({ fail = false, reduced = false, animated = false, visi
     cards.forEach(card => Object.assign(card, { getBoundingClientRect: rect, animate, offsetWidth: 100, offsetHeight: 100 }));
   }
   const classes = new Set();
-  grid.classList = { add: c => classes.add(c), remove: c => classes.delete(c), contains: c => classes.has(c), toggle: (c, force) => force ? classes.add(c) : classes.delete(c) };
+  grid.classList = { add: c => classes.add(c), remove: (...names) => names.forEach(c => classes.delete(c)), contains: c => classes.has(c), toggle: (c, force) => force ? classes.add(c) : classes.delete(c) };
   grid.querySelectorAll = () => cards;
   grid.contains = node => node === grid;
   const section = new Node();
-  section.querySelector = selector => selector === '.home-team__grid' ? grid : null;
+  section.closest = () => trajectory ? section : null;
+  section.querySelector = selector => selector === '.home-team__grid' ? grid : selector === '.home-team__help' ? help : null;
   section.contains = node => node === grid;
   const document = new Node();
   Object.assign(document, { readyState: 'complete', hidden: false, querySelector: () => section });
@@ -173,7 +178,7 @@ function carouselHarness({ fail = false, reduced = false, animated = false, visi
     if (fail) throw new Error('matchMedia failed');
     return query.includes('reduced-motion') ? preference : hover;
   } });
-  if (observer) window.IntersectionObserver = class { constructor(fn) { intersection = fn; } observe() {} };
+  if (observer) window.IntersectionObserver = class { constructor(fn) { intersection = fn; } observe() {} disconnect() {} };
   let interval;
   let nextTimeout = 0;
   const timeouts = new Map();
@@ -185,7 +190,7 @@ function carouselHarness({ fail = false, reduced = false, animated = false, visi
     setTimeout(fn) { const id = ++nextTimeout; timeouts.set(id, fn); return id; },
     clearTimeout(id) { timeouts.delete(id); },
   });
-  return { section, grid, cards, preference, document, log,
+  return { section, grid, cards, preference, document, window, help, log,
     setVisible(value) { inView = value; if (observer) intersection(); else window.fire('scroll'); },
     move(value, event = 'scroll') { inView = value; window.fire(event); },
     notifyObserver() { intersection?.(); },
@@ -275,6 +280,31 @@ test('timer advances, focus shows all cards and blur resumes, reduced motion cha
   assert.equal(h.timer.delay, 3000);
   h.section.fire('pointerleave', { pointerType: 'mouse' });
   assert.equal(h.timer.delay, 3000);
+});
+
+test('shared carousel mounts, updates its accessible description and cleans up on remount', () => {
+  const h = carouselHarness({ trajectory: true });
+  assert.equal(h.timer, undefined, 'trajectory is not auto-initialized');
+  const cleanup = h.window.initHomeTeamCarousel(h.section);
+  assert.equal(h.timer.delay, 3000);
+  assert.equal(h.grid.getAttribute('aria-describedby'), 'home-team-help');
+  h.preference.matches = true; h.preference.fire('change');
+  assert.equal(h.help.hidden, true);
+  assert.equal(h.grid.getAttribute('aria-describedby'), null);
+  assert.equal(h.grid.classList.contains('is-carousel'), false);
+  h.preference.matches = false; h.preference.fire('change');
+  assert.equal(h.help.hidden, false);
+  assert.equal(h.grid.getAttribute('aria-describedby'), 'home-team-help');
+  cleanup();
+  assert.equal(h.timer, undefined);
+  assert.equal(h.grid.classList.contains('is-carousel'), false);
+  assert.equal(h.document.events.pointerdown.length, 0);
+  assert.equal(h.preference.events.change.length, 0);
+  const cleanupAgain = h.window.initHomeTeamCarousel(h.section);
+  assert.equal(h.document.events.pointerdown.length, 1);
+  h.timer.fn();
+  assert.equal(h.cards[1].dataset.position, 'active');
+  cleanupAgain();
 });
 
 test('mouse hover keeps rotating; click opens and leaving closes, while touch stays open', () => {
@@ -405,7 +435,7 @@ test('GET / serves the static landing with its reachable team stylesheet', {
   assert.match(await css.text(), /\.home-team__grid\s*\{\s*display:\s*grid/);
   assert.equal(href, '/landing-primary/css/home-team.css?v=20261112-team-6');
   const script = normalized.match(/<script src="([^\"]*\/js\/home-team-motion\.js(?:\?[^\"]*)?)" defer>/)?.[1];
-  assert.equal(script, '/landing-primary/js/home-team-motion.js?v=20261112-team-9');
+  assert.equal(script, '/landing-primary/js/home-team-motion.js?v=20261113-team-10');
   const js = await fetch(new URL(script, origin), { redirect: 'manual' });
   assert.equal(js.status, 200);
   assert.match(js.headers.get('content-type') ?? '', /javascript/);

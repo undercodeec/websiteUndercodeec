@@ -3,7 +3,7 @@
 (() => {
   const init = () => {
     const section = document.querySelector(".home-team");
-    if (!section || !window.IntersectionObserver || !Element.prototype.animate) return;
+    if (!section || section.closest?.('[data-trajectory-page]') || !window.IntersectionObserver || !Element.prototype.animate) return;
 
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (preference.matches) return;
@@ -83,8 +83,7 @@
 
 // The original grid remains readable without JavaScript and with reduced motion.
 (() => {
-  const init = () => {
-    const section = document.querySelector('.home-team');
+  const init = (section) => {
     const grid = section?.querySelector('.home-team__grid');
     const help = section?.querySelector('.home-team__help');
     const cards = grid ? [...grid.querySelectorAll('.home-team__member')] : [];
@@ -97,6 +96,25 @@
     let pointerCleanup;
     let transitions = [];
     let initialized = false;
+    let observer;
+    const listeners = [];
+    const description = grid.getAttribute?.('aria-describedby');
+    const listen = (target, type, handler, options) => {
+      target.addEventListener(type, handler, options);
+      listeners.push(() => target.removeEventListener(type, handler, options));
+    };
+    const cleanup = () => {
+      clearInterval(timer);
+      clearTimeout(pointerCleanup);
+      observer?.disconnect();
+      listeners.forEach(remove => remove());
+      transitions.forEach(animation => animation.cancel());
+      grid.classList.remove('is-carousel', 'is-layout-changing');
+      grid.removeAttribute('tabindex');
+      if (description) grid.setAttribute('aria-describedby', description);
+      if (help) help.hidden = false;
+      cards.forEach((card) => { delete card.dataset.position; });
+    };
     try {
       const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
       // Observe the cards, not the taller section heading: a visitor must see
@@ -150,7 +168,11 @@
       };
       const update = () => {
         clearInterval(timer);
-        if (help) help.hidden = preference.matches;
+        if (help) {
+          help.hidden = preference.matches;
+          if (preference.matches) grid.removeAttribute('aria-describedby');
+          else if (description) grid.setAttribute('aria-describedby', description);
+        }
         if (preference.matches || focused || opened) {
           changeLayout(false);
           if (preference.matches && !focused) grid.removeAttribute('tabindex');
@@ -166,45 +188,45 @@
           }, 3000);
         }
       };
-      section.addEventListener('pointerleave', (event) => {
+      listen(section, 'pointerleave', (event) => {
         if (event.pointerType === 'mouse' && opened === 'mouse') { opened = null; update(); }
       });
-      section.addEventListener('focusin', () => {
+      listen(section, 'focusin', () => {
         // Selecting text can focus the region with a mouse; only keyboard focus
         // should keep the list open after the pointer leaves.
         if (pointerType !== 'mouse') focused = true;
         update();
       });
-      section.addEventListener('focusout', (event) => {
+      listen(section, 'focusout', (event) => {
         if (!section.contains(event.relatedTarget)) { focused = false; opened = null; update(); }
       });
-      grid.addEventListener('pointerdown', (event) => {
+      listen(grid, 'pointerdown', (event) => {
         clearPointer();
         pointerType = event.pointerType;
         // A mouse click need not focus this reading region. Keyboard focus is untouched.
         if (pointerType === 'mouse' && grid.classList.contains('is-carousel')) event.preventDefault();
       });
-      grid.addEventListener('click', (event) => {
+      listen(grid, 'click', (event) => {
         opened = event.detail === 0 ? 'keyboard' : (pointerType || 'touch');
         clearPointer();
         update();
       });
-      document.addEventListener('pointerdown', (event) => {
+      listen(document, 'pointerdown', (event) => {
         if (!section.contains(event.target)) { opened = null; focused = false; update(); }
       });
       // A drag may end outside the grid without dispatching click. Never let
       // that stale pointer modality suppress the next keyboard focus.
-      document.addEventListener('pointerup', (event) => {
+      listen(document, 'pointerup', (event) => {
         clearTimeout(pointerCleanup);
         if (!grid.contains(event.target)) clearPointer();
         // Click follows pointerup synchronously; an in-grid drag may have no
         // click at all. Clear in the next task for later assistive focus.
         else pointerCleanup = setTimeout(clearPointer, 0);
       });
-      document.addEventListener('pointercancel', clearPointer);
-      document.addEventListener('keydown', clearPointer, true);
-      window.addEventListener('blur', clearPointer);
-      section.addEventListener('keydown', (event) => {
+      listen(document, 'pointercancel', clearPointer);
+      listen(document, 'keydown', clearPointer, true);
+      listen(window, 'blur', clearPointer);
+      listen(section, 'keydown', (event) => {
         if (event.key === 'Escape' && (opened || focused)) {
           opened = null;
           focused = false;
@@ -212,8 +234,8 @@
           update();
         }
       });
-      document.addEventListener('visibilitychange', update);
-      preference.addEventListener('change', update);
+      listen(document, 'visibilitychange', update);
+      listen(preference, 'change', update);
       // A threshold-zero observer can fire at exact edge contact but not again
       // for the first positive pixel. Scroll/resize checks always supplement it.
       let visible = isVisible();
@@ -222,20 +244,23 @@
         if (next !== visible) { visible = next; update(); }
       };
       if (window.IntersectionObserver) {
-        const observer = new window.IntersectionObserver(checkVisibility, { threshold: 0 });
+        observer = new window.IntersectionObserver(checkVisibility, { threshold: 0 });
         observer.observe(grid);
       }
-      window.addEventListener('scroll', checkVisibility, { passive: true });
-      window.addEventListener('resize', checkVisibility);
+      listen(window, 'scroll', checkVisibility, { passive: true });
+      listen(window, 'resize', checkVisibility);
       update();
       initialized = true;
     } catch (_) {
-      clearInterval(timer);
-      grid.classList.remove('is-carousel');
-      grid.removeAttribute('tabindex');
-      cards.forEach((card) => { delete card.dataset.position; });
+      cleanup();
     }
+    return cleanup;
   };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
+  window.initHomeTeamCarousel = init;
+  const initHome = () => {
+    const section = document.querySelector('.home-team');
+    if (section && !section.closest?.('[data-trajectory-page]')) init(section);
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initHome, { once: true });
+  else initHome();
 })();

@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Code2, Layers3, MonitorSmartphone, PenTool } from "lucide-react";
 import TrajectoryPhilosophyCanvas from "./TrajectoryPhilosophyCanvas";
 import TrajectoryPrincipleCanvas from "./TrajectoryPrincipleCanvas";
+import TrajectoryHomeTeam from "./TrajectoryHomeTeam";
 import styles from "./TrajectoryPrimaryContent.module.css";
 
 const principles = [
@@ -19,27 +20,6 @@ const capabilities = [
   { title: "Aplicaciones móviles", description: "Productos intuitivos para iOS y Android, preparados para crecer.", icon: Layers3 },
   { title: "E-commerce", description: "Experiencias de compra conectadas con pagos, inventario y operación.", icon: PenTool },
   { title: "Software a medida", description: "Sistemas que automatizan procesos y centralizan decisiones importantes.", icon: Code2 },
-];
-
-const teamMembers = [
-  {
-    name: "Sofia Andrade",
-    role: "Direccion creativa",
-    profile: "Transforma las ideas de cada marca en experiencias digitales claras, cercanas y memorables.",
-    education: "Diseno visual y especializacion en experiencia de usuario.",
-  },
-  {
-    name: "Daniel Mena",
-    role: "Desarrollo tecnologico",
-    profile: "Convierte los objetivos de negocio en productos solidos, escalables y preparados para evolucionar.",
-    education: "Ingenieria de software y formacion continua en tecnologias web.",
-  },
-  {
-    name: "Valeria Cruz",
-    role: "Estrategia digital",
-    profile: "Alinea las necesidades de las personas y los negocios para orientar cada proyecto con proposito.",
-    education: "Marketing digital y gestion de proyectos.",
-  },
 ];
 
 function SectionHeading({ number, eyebrow, title, copy, id }) {
@@ -96,7 +76,7 @@ function AnimatedNumber({ value, suffix = "", duration = 1800 }) {
   );
 }
 
-export default function TrajectoryPrimaryContent() {
+export default function TrajectoryPrimaryContent({ teamHtml }) {
   const surfaceRef = useRef(null);
 
   useEffect(() => {
@@ -177,34 +157,7 @@ export default function TrajectoryPrimaryContent() {
         </div>
       </section>
 
-      <section className={styles.team} aria-labelledby="trajectory-team-title">
-        <SectionHeading
-          number="04"
-          eyebrow="Equipo"
-          id="trajectory-team-title"
-          title="Personas que dan vida a cada proyecto."
-          copy="Un equipo que combina estrategia, creatividad y tecnologia en cada entrega."
-        />
-        <div className={styles.teamGrid}>
-          {teamMembers.map(({ name, role, profile, education }, index) => (
-            <article className={styles.teamMember} data-trajectory-reveal key={index}>
-              <div className={styles.memberPhoto} role="img" aria-label={`Espacio para foto de ${name}`}>
-                <span>Foto</span>
-              </div>
-              <div className={styles.memberMeta}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <span>{role}</span>
-              </div>
-              <h3>{name}</h3>
-              <p className={styles.memberProfile}>{profile}</p>
-              <p className={styles.memberEducation}>
-                <span>Formacion</span>
-                {education}
-              </p>
-            </article>
-          ))}
-        </div>
-      </section>
+      <TrajectoryHomeTeam html={teamHtml} />
 
       <section className={styles.capabilities} aria-labelledby="trajectory-capabilities-title">
         <SectionHeading
