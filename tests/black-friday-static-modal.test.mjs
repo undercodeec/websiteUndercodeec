@@ -9,7 +9,7 @@ test("serves the simplified Black Friday offer from the static root landing", as
   assert.match(page, /data-black-friday-modal/);
   assert.match(page, /aria-label="Precio especial 80 dólares"/);
   assert.match(page, /<span>\$<\/span><strong>80,00<\/strong>/);
-  const promoLink = page.match(/<a class="black-friday-modal__whatsapp" href="([^"]+)"/);
+  const promoLink = page.match(/<a\s+class="black-friday-modal__whatsapp"\s+href="([^"]+)"/);
   assert.ok(promoLink);
   assert.equal(new URL(promoLink[1]).searchParams.get("text"), "hola quiero mas informacion de la promocion de $80.00");
   assert.match(page, /black-friday-modal\.js/);
@@ -74,7 +74,7 @@ test("points from the Black Friday message to WhatsApp and respects reduced moti
   const styles = await readFile("public/landing-primary/css/black-friday-modal.css", "utf8");
   const script = await readFile("public/landing-primary/js/black-friday-modal.js", "utf8");
 
-  assert.match(page, /¡Aprovecha esta mega promoción de Black Friday y haz que tu negocio destaque!/);
+  assert.match(page, /¡Aprovecha esta mega promoción de Black Friday y haz que tu\s+negocio destaque!/);
   assert.match(page, /class="black-friday-modal__pointer"[^>]*aria-hidden="true"/);
   assert.match(page, /class="black-friday-modal__pointer-anchor"/);
   assert.match(styles, /@keyframes black-friday-pointer-trip/);

@@ -155,9 +155,9 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
     page.indexOf('<div pointer-auto="" class="hud-nav-w">'),
     page.indexOf('<div pointer-auto="" class="hud-scroll-w">'),
   );
-  assert.match(desktopHeader, />Inicio</);
-  assert.match(desktopHeader, />Servicios</);
-  assert.match(desktopHeader, />Agendar Reunión</);
+  assert.match(desktopHeader, />\s*Inicio\s*</);
+  assert.match(desktopHeader, />\s*Servicios\s*</);
+  assert.match(desktopHeader, />\s*Agendar Reunión\s*</);
   assert.match(desktopHeader, /href="\/#reserva_agenda"/);
   assert.match(localScript, /const reservationAnchorId = "reserva_agenda";/);
   assert.match(localScript, /calendarSurface\.className = "offbrand-calendar-surface"/);
@@ -197,21 +197,21 @@ test("uses the root site's hero, logo, navigation, and service submenus", async 
   assert.match(desktopHeader, /href="\/aplicaciones-moviles"/);
   assert.match(desktopHeader, /href="\/marketing-para-tu-negocio"/);
   assert.match(desktopHeader, /href="\/software-para-tu-negocio"/);
-  assert.doesNotMatch(desktopHeader, />Nuestra trayectoria</);
-  assert.doesNotMatch(desktopHeader, />Blog</);
-  assert.doesNotMatch(desktopHeader, />Contáctanos</);
+  assert.doesNotMatch(desktopHeader, />\s*Nuestra trayectoria\s*</);
+  assert.doesNotMatch(desktopHeader, />\s*Blog\s*</);
+  assert.doesNotMatch(desktopHeader, />\s*Contáctanos\s*</);
 
   const hudMenu = page.slice(
     page.indexOf('<div class="hud-menu-o">'),
     page.indexOf('<div class="hud-menu-socials">'),
   );
   for (const pageName of ["Nuestra trayectoria", "Blog", "Contáctanos"]) {
-    assert.match(hudMenu, new RegExp(`>${pageName}<`));
+    assert.match(hudMenu, new RegExp(`>\\s*${pageName}\\s*<`));
   }
-  assert.match(hudMenu, /<nav class="offbrand-mobile-navigation" aria-label="Navegación principal">/);
-  assert.match(hudMenu, />Inicio</);
-  assert.match(hudMenu, />Servicios</);
-  assert.match(hudMenu, />Aplicaciones Móviles</);
+  assert.match(hudMenu, /<nav\s+class="offbrand-mobile-navigation"\s+aria-label="Navegación principal"\s*>/);
+  assert.match(hudMenu, />\s*Inicio\s*</);
+  assert.match(hudMenu, />\s*Servicios\s*</);
+  assert.match(hudMenu, />\s*Aplicaciones Móviles\s*</);
   assert.doesNotMatch(page, /<script[^>]+mobile-navigation\.js/);
   assert.doesNotMatch(page, /A different<\/h1>/i);
   assert.doesNotMatch(page, />Creative<\/h1>/i);

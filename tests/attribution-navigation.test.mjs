@@ -339,7 +339,7 @@ test("static landing sends one commercial WhatsApp Meta event with advertising c
 
 test("Black Friday modal WhatsApp uses the same commercial Meta event as the floating button", async () => {
   const page = readFileSync(new URL("../public/landing-primary/index.html", import.meta.url), "utf8");
-  const promoLink = page.match(/<a class="black-friday-modal__whatsapp" href="([^"]+)"/);
+  const promoLink = page.match(/<a\s+class="black-friday-modal__whatsapp"\s+href="([^"]+)"/);
   assert.ok(promoLink, "the root landing must contain the promotional WhatsApp link");
 
   const calls = [];
