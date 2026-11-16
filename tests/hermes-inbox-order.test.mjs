@@ -51,13 +51,15 @@ function inboxHarness(api) {
     useDeferredValue(value) { return value; },
   };
   const source = readFileSync(new URL('../src/app/admin/crm/inbox/page.jsx', import.meta.url), 'utf8')
-    .replace('  if (listLoading && !conversations.length) {', `
+    .replace(/  if \(listLoading && !conversations.length\) \{[\s\S]*?(?=  const handoff = activeHandoff\(conversation\);)/, '')
+    .replace(/  return \(\r?\n    <div className=\{`crm-inbox/, `
       return __capture({ selectedId, conversation, messages, transfer, detailError,
         detailLoading, loadingOlder, listError, listLoading, conversations, listMeta,
         conversationPage, statusFilter, originFilter, priorityOnly, deferredSearch, toast,
+        reply, sending, setReply, sendReply,
         setSelectedId, setStatusFilter, setOriginFilter, setPriorityOnly, setSearch,
-        setConversationPage, loadConversations, loadConversation, loadOlderMessages });
-      if (listLoading && !conversations.length) {`);
+         setConversationPage, loadConversations, loadConversation, loadOlderMessages });
+       return (\n    <div className={\`crm-inbox`);
   const compiled = ts.transpileModule(source, { compilerOptions: {
     jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022,
   } }).outputText;
@@ -69,6 +71,8 @@ function inboxHarness(api) {
     '@/lib/hermes/inbox-order.mjs': { conversationActivityAt, createInboxRequestGuard, inboxPageWithinTotal, sortInboxConversations },
     '../_components/CrmSession': { useCrmSession: () => ({ user: { id: 'synthetic-operator' } }) },
     '../_components/format': { apiErrorMessage: (error) => error.message },
+    '../_components/constants': { activeHandoff: (conversation) => conversation?.handoffs?.[0] },
+    '@/lib/hermes/incidents.mjs': { presentHermesIncident: () => null },
   };
   vm.runInNewContext(compiled, {
     exports, URLSearchParams, window: { setTimeout() {} },
@@ -199,6 +203,56 @@ test('real Inbox older-history callbacks cannot insert messages or errors into a
   older.reject(new Error('stale history failure')); await staleFailure; h.render();
   assert.equal(h.state.toast.message, 'current B history failure');
   assert.equal(h.state.loadingOlder, false);
+});
+
+test('pending send from an earlier A selection cannot affect A after A-B-A, including draft and loading', async () => {
+  const sends = [];
+  const detail = (id) => ({ id, status: 'HANDED_OFF', replyWindow: { isOpen: true, closesAt: '2099-01-01' },
+    handoffs: [{ status: 'IN_PROGRESS', assignedAgentId: 'synthetic-operator' }] });
+  const h = inboxHarness({
+    conversation: async (id) => detail(id), messages: async () => ({ data: [], totalPages: 1 }),
+    transferByConversation: async () => null, feedbackForConversation: async () => null,
+    reply: () => { const d = deferred(); sends.push(d); return d.promise; },
+    conversations: async () => ({ data: [], total: 0, totalPages: 1 }),
+  });
+  h.state.setSelectedId('a'); h.render(); await h.state.loadConversation('a'); h.render();
+  h.state.setReply('first send'); h.render();
+  const old = h.state.sendReply({ preventDefault() {} }); h.render();
+  assert.equal(h.state.sending, true);
+  h.state.setSelectedId('b'); h.render(); h.state.setSelectedId('a'); h.render();
+  await h.state.loadConversation('a'); h.render();
+  h.state.setReply('new draft'); h.render();
+  const current = h.state.sendReply({ preventDefault() {} }); h.render();
+  sends[0].resolve({ id: 'old-send' }); await old; h.render();
+  assert.equal(h.state.reply, 'new draft');
+  assert.equal(h.state.sending, true);
+  assert.equal(h.state.messages.length, 0);
+  assert.equal(h.state.conversation.updatedAt, undefined);
+  sends[1].reject(new Error('current send failed')); await current; h.render();
+  assert.equal(h.state.sending, false);
+  assert.equal(h.state.reply, 'new draft');
+  assert.equal(h.state.toast.message, 'current send failed');
+});
+
+test('send acknowledgement does not duplicate a message already loaded by detail refresh', async () => {
+  const ack = deferred();
+  let history = [];
+  const h = inboxHarness({
+    conversation: async () => ({ id: 'a', status: 'HANDED_OFF', replyWindow: { isOpen: true, closesAt: '2099-01-01' },
+      handoffs: [{ status: 'IN_PROGRESS', assignedAgentId: 'synthetic-operator' }] }),
+    messages: async () => ({ data: history }), transferByConversation: async () => null,
+    feedbackForConversation: async () => null, reply: () => ack.promise,
+    conversations: async () => ({ data: [], total: 0, totalPages: 1 }),
+  });
+  h.state.setSelectedId('a'); h.render(); await h.state.loadConversation('a'); h.render();
+  h.state.setReply('send'); h.render(); const send = h.state.sendReply({ preventDefault() {} });
+  history = [{ id: 'ack', content: 'send' }];
+  await h.state.loadConversation('a', true); h.render();
+  ack.resolve(history[0]); await send; h.render();
+  assert.equal(h.state.messages.length, 1);
+  assert.equal(h.state.messages[0].id, 'ack');
+  assert.equal(h.state.reply, '');
+  assert.equal(h.state.sending, false);
 });
 const ids = (items) => items.map(({ id }) => id);
 

@@ -185,6 +185,7 @@ export default function InboxPage() {
   const [toast, setToast] = useState(null);
   const messagesEndRef = useRef(null);
   const selectedIdRef = useRef(selectedId);
+  const selectionGenerationRef = useRef(0);
   const listRequestsRef = useRef(null);
   if (!listRequestsRef.current) listRequestsRef.current = createInboxRequestGuard();
   const detailRequestsRef = useRef(null);
@@ -197,12 +198,14 @@ export default function InboxPage() {
     if (id === selectedIdRef.current) return;
     // Invalidate synchronously, including A -> B -> A before requests settle.
     selectedIdRef.current = id;
+    selectionGenerationRef.current += 1;
     detailRequestsRef.current.invalidate();
     olderRequestsRef.current.invalidate();
     setConversation(null);
     setTransfer(null);
     setMessages([]);
     setReply("");
+    setSending(false);
     setDetailError("");
     setDetailLoading(Boolean(id));
     setLoadingOlder(false);
@@ -447,11 +450,14 @@ export default function InboxPage() {
     const content = reply.trim();
     if (!content || !canReplyManually || selectedIdRef.current !== selectedId) return;
     const id = selectedId;
+    const selectionGeneration = selectionGenerationRef.current;
+    const isCurrent = () => selectedIdRef.current === id && selectionGenerationRef.current === selectionGeneration;
     setSending(true);
     try {
       const message = await hermesApi.reply(id, content);
-      if (selectedIdRef.current !== id) return;
-      setMessages((items) => [...items, message]);
+      if (!isCurrent()) return;
+      // A concurrent detail refresh may already include this acknowledged send.
+      setMessages((items) => items.some((item) => item.id === message.id) ? items : [...items, message]);
       setReply("");
       setConversation((value) => ({
         ...value,
@@ -464,7 +470,7 @@ export default function InboxPage() {
       );
       loadConversations();
     } catch (requestError) {
-      if (selectedIdRef.current !== id) return;
+      if (!isCurrent()) return;
       const templateRequired =
         requestError?.code === "WHATSAPP_TEMPLATE_REQUIRED";
       setToast({
@@ -475,7 +481,7 @@ export default function InboxPage() {
       });
       if (templateRequired) loadConversation(selectedId, true);
     } finally {
-      setSending(false);
+      if (isCurrent()) setSending(false);
     }
   };
 
