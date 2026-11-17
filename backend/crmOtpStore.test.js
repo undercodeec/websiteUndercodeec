@@ -1,7 +1,22 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
 const { createCrmOtpStore } = require('./crmOtpStore');
+
+async function installTestSchema(pool) {
+  // Strip introductory SQL comments, without discarding the CREATE that follows.
+  const sql = fs.readFileSync(path.join(__dirname, 'sql', '20261117_crm_auth_otp.sql'), 'utf8')
+    .split('\n').filter((line) => !line.trimStart().startsWith('--')).join('\n');
+  for (const statement of sql.split(';').map((part) => part.trim()).filter(Boolean)) await pool.query(statement);
+}
+
+test('missing migrated tables fail closed instead of triggering runtime DDL', async () => {
+  const pool = { query: async () => { throw new Error('missing table'); } };
+  const store = createCrmOtpStore({ pool });
+  await assert.rejects(store.request({ ip: 'loopback', email: 'ignored', hash: null }), /missing table/);
+});
 
 // Explicit opt-in: never run destructive integration tests against an existing DB.
 const enabled = process.env.CRM_OTP_TEST_DB === 'crm_otp_test' && process.env.CRM_OTP_TEST_PORT;
@@ -17,6 +32,7 @@ test('MySQL OTP persists across instances and is consumed by exactly one verifie
   const ip = crypto.randomUUID();
   const hash = crypto.createHash('sha256').update(crypto.randomUUID()).digest('hex');
   try {
+    await installTestSchema(pool);
     assert.equal(await a.request({ ip, email, hash }), 'sent');
     assert.equal(await b.request({ ip, email, hash }), 'cooldown');
     const results = await Promise.all(Array.from({ length: 8 }, (_, i) => (i % 2 ? a : b)
@@ -43,6 +59,7 @@ test('MySQL request limits are shared and spoofable headers are not inputs', { s
   const b = createCrmOtpStore({ pool, config: { ipMaxRequests: 2 } });
   const ip = crypto.randomUUID();
   try {
+    await installTestSchema(pool);
     const results = await Promise.all([a, b, a, b].map((store) => store.request({ ip, email: 'other', hash: null })));
     assert.equal(results.filter((result) => result === 'ignored').length, 2);
     assert.equal(results.filter((result) => result === 'limited').length, 2);
@@ -62,6 +79,7 @@ test('expired and revoked codes cannot be verified, including from another insta
   const ip = crypto.randomUUID();
   const hash = crypto.createHash('sha256').update('test').digest('hex');
   try {
+    await installTestSchema(pool);
     assert.equal(await a.request({ ip, email, hash }), 'sent');
     await a.revoke(email, hash);
     assert.equal(await b.verify({ ip, email, candidateHash: hash }), 'invalid');
@@ -99,6 +117,7 @@ test('mobile route returns only a one-use proof while web keeps its admin token'
     return { status: response.status, body: await response.json() };
   };
   try {
+    await installTestSchema(pool);
     const request = await post('/request-code', { email: CRM_OPERATOR_EMAIL }, { 'x-forwarded-for': '1.2.3.4' });
     assert.equal(request.status, 200);
     assert.match(sentCode, /^\d{8}$/);
