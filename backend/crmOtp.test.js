@@ -33,3 +33,12 @@ test('emite una prueba Hermes de vida corta con audiencia restringida', () => {
   assert.equal(payload.role, 'ADMIN');
   assert.equal(payload.exp - payload.iat, 120);
 });
+
+test('separa las audiencias de las pruebas web y movil', () => {
+  const proof = signCrmProof({ email: CRM_OPERATOR_EMAIL, jti: 'mobile-jti',
+    secret: 'shared-secret', audience: 'hermes-crm-mobile' });
+  const payload = JSON.parse(Buffer.from(proof.split('.')[1], 'base64url').toString('utf8'));
+  assert.equal(payload.aud, 'hermes-crm-mobile');
+  assert.throws(() => signCrmProof({ email: CRM_OPERATOR_EMAIL, jti: 'invalid',
+    secret: 'shared-secret', audience: 'other' }), /Audiencia/);
+});

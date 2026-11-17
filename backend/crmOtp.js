@@ -19,12 +19,13 @@ function hashCrmOtp(code, secret) {
   return crypto.createHmac('sha256', secret).update(String(code)).digest('hex');
 }
 
-function signCrmProof({ email, jti, now = Date.now(), secret, ttlSeconds = 120 }) {
+function signCrmProof({ email, jti, now = Date.now(), secret, ttlSeconds = 120, audience = 'hermes-crm' }) {
   if (!secret) throw new Error('CRM_HERMES_PROOF_SECRET es requerido');
+  if (!['hermes-crm', 'hermes-crm-mobile'].includes(audience)) throw new Error('Audiencia CRM no permitida');
   const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
   const payload = Buffer.from(JSON.stringify({
     iss: 'undercodeec-admin',
-    aud: 'hermes-crm',
+    aud: audience,
     sub: normalizeCrmEmail(email),
     role: 'ADMIN',
     jti,
