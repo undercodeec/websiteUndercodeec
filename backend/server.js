@@ -11,14 +11,8 @@ const puppeteer = require('puppeteer'); // Advanced scraping for design context
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const {
-  CRM_OPERATOR_EMAIL,
-  createCrmOtp,
-  hashCrmOtp,
-  isCrmOperator,
-  normalizeCrmEmail,
-  signCrmProof,
-} = require('./crmOtp');
+const { createCrmAuthRouter } = require('./crmAuthRoutes');
+const { createCrmOtpStore } = require('./crmOtpStore');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const db = require('./db');
 const { createPaymentStateStore } = require('./paymentStateStore');
@@ -932,16 +926,16 @@ function clearAttempts(map, key) {
 // and issues its own CRM JWT. The same successful OTP also creates an admin
 // session so the unified panel can query payments, forms, invoices and usage.
 // ============================================================================
-const crmOtpRecords = new Map(); // email -> { hash, expiresAt, attempts }
-const crmOtpRequestCooldown = new Map(); // email -> timestamp
-const crmOtpIpRequests = new Map(); // ip -> { windowStart, count }
-const crmOtpVerifyAttempts = new Map(); // email|ip -> { count, lockUntil }
-const CRM_OTP_TTL_MS = Number(process.env.CRM_OTP_TTL_MS) || (10 * 60 * 1000);
-const CRM_OTP_COOLDOWN_MS = Number(process.env.CRM_OTP_COOLDOWN_MS) || (60 * 1000);
-const CRM_OTP_MAX_ATTEMPTS = Number(process.env.CRM_OTP_MAX_ATTEMPTS) || 5;
-const CRM_OTP_LOCK_MS = Number(process.env.CRM_OTP_LOCK_MS) || (15 * 60 * 1000);
-const CRM_OTP_IP_WINDOW_MS = 15 * 60 * 1000;
-const CRM_OTP_IP_MAX_REQUESTS = Number(process.env.CRM_OTP_IP_MAX_REQUESTS) || 5;
+const crmOtpStore = createCrmOtpStore({
+  pool: db.pool,
+  config: {
+    ttlMs: process.env.CRM_OTP_TTL_MS,
+    cooldownMs: process.env.CRM_OTP_COOLDOWN_MS,
+    maxAttempts: process.env.CRM_OTP_MAX_ATTEMPTS,
+    lockMs: process.env.CRM_OTP_LOCK_MS,
+    ipMaxRequests: process.env.CRM_OTP_IP_MAX_REQUESTS,
+  },
+});
 
 function getCrmOtpHashSecret() {
   const secret = process.env.CRM_OTP_HASH_SECRET;
@@ -953,18 +947,6 @@ function getCrmHermesProofSecret() {
   const secret = process.env.CRM_HERMES_PROOF_SECRET;
   if (!secret) throw new Error('CRM_HERMES_PROOF_SECRET es requerido');
   return secret;
-}
-
-function consumeCrmOtpIpRequest(ip) {
-  const now = Date.now();
-  const record = crmOtpIpRequests.get(ip) || { windowStart: now, count: 0 };
-  if (now - record.windowStart >= CRM_OTP_IP_WINDOW_MS) {
-    record.windowStart = now;
-    record.count = 0;
-  }
-  record.count += 1;
-  crmOtpIpRequests.set(ip, record);
-  return record.count <= CRM_OTP_IP_MAX_REQUESTS;
 }
 
 async function sendCrmAccessCodeEmail({ to, code }) {
@@ -984,92 +966,13 @@ async function sendCrmAccessCodeEmail({ to, code }) {
   });
 }
 
-app.post('/api/crm/auth/request-code', async (req, res) => {
-  const email = normalizeCrmEmail(req.body?.email);
-  const ip = getClientIp(req);
-  const genericResponse = { success: true, message: 'Si el acceso esta autorizado, enviaremos un codigo al correo indicado.' };
-
-  if (!consumeCrmOtpIpRequest(ip)) {
-    return res.status(429).json({ success: false, error: 'Demasiadas solicitudes. Espera unos minutos antes de intentar de nuevo.' });
-  }
-  if (!isCrmOperator(email)) return res.json(genericResponse);
-
-  const now = Date.now();
-  if (now - (crmOtpRequestCooldown.get(email) || 0) < CRM_OTP_COOLDOWN_MS) {
-    // Keep the response identical so repeated requests cannot reveal which
-    // email address is the configured CRM operator.
-    return res.json(genericResponse);
-  }
-
-  let code;
-  try {
-    code = createCrmOtp();
-    const hash = hashCrmOtp(code, getCrmOtpHashSecret());
-    await sendCrmAccessCodeEmail({ to: CRM_OPERATOR_EMAIL, code });
-    crmOtpRecords.set(email, { hash, expiresAt: now + CRM_OTP_TTL_MS, attempts: 0 });
-    crmOtpRequestCooldown.set(email, now);
-    crmOtpVerifyAttempts.delete(`${email}|${ip}`);
-    return res.json(genericResponse);
-  } catch (error) {
-    console.error('[CRM_AUTH] Error emitiendo codigo:', error.message);
-    return res.status(500).json({ success: false, error: 'No se pudo procesar la solicitud de acceso.' });
-  }
-});
-
-app.post('/api/crm/auth/verify-code', (req, res) => {
-  const email = normalizeCrmEmail(req.body?.email);
-  const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
-  const ip = getClientIp(req);
-  const attemptKey = `${email}|${ip}`;
-  const invalid = () => res.status(400).json({ success: false, error: 'Codigo invalido o expirado. Solicita uno nuevo.' });
-
-  if (isLocked(crmOtpVerifyAttempts, attemptKey)) {
-    return res.status(429).json({ success: false, error: 'Demasiados intentos. Solicita un nuevo codigo mas tarde.' });
-  }
-  if (!isCrmOperator(email) || !/^\d{8}$/.test(code)) {
-    registerAttempt(crmOtpVerifyAttempts, attemptKey, CRM_OTP_MAX_ATTEMPTS, CRM_OTP_LOCK_MS);
-    return invalid();
-  }
-
-  const record = crmOtpRecords.get(email);
-  if (!record || record.expiresAt <= Date.now()) {
-    crmOtpRecords.delete(email);
-    registerAttempt(crmOtpVerifyAttempts, attemptKey, CRM_OTP_MAX_ATTEMPTS, CRM_OTP_LOCK_MS);
-    return invalid();
-  }
-
-  let matches = false;
-  try {
-    matches = safeStringEqual(hashCrmOtp(code, getCrmOtpHashSecret()), record.hash);
-  } catch (error) {
-    console.error('[CRM_AUTH] Error verificando codigo:', error.message);
-    return res.status(500).json({ success: false, error: 'No se pudo validar el acceso.' });
-  }
-  if (!matches) {
-    record.attempts += 1;
-    registerAttempt(crmOtpVerifyAttempts, attemptKey, CRM_OTP_MAX_ATTEMPTS, CRM_OTP_LOCK_MS);
-    if (record.attempts >= CRM_OTP_MAX_ATTEMPTS || isLocked(crmOtpVerifyAttempts, attemptKey)) {
-      crmOtpRecords.delete(email);
-    }
-    return invalid();
-  }
-
-  // Consume before creating the proof: the same OTP cannot produce two proofs.
-  crmOtpRecords.delete(email);
-  crmOtpVerifyAttempts.delete(attemptKey);
-  try {
-    const proof = signCrmProof({
-      email,
-      jti: crypto.randomUUID(),
-      secret: getCrmHermesProofSecret(),
-    });
-    const adminToken = createAdminSession(email);
-    return res.json({ success: true, proof, adminToken });
-  } catch (error) {
-    console.error('[CRM_AUTH] Error firmando prueba Hermes:', error.message);
-    return res.status(500).json({ success: false, error: 'No se pudo completar el acceso.' });
-  }
-});
+app.use('/api/crm/auth', createCrmAuthRouter({
+  store: crmOtpStore,
+  hashSecret: getCrmOtpHashSecret,
+  proofSecret: getCrmHermesProofSecret,
+  sendCode: sendCrmAccessCodeEmail,
+  createAdminSession,
+}));
 
 async function sendAdminPasswordResetEmail({ to, code }) {
   await transporter.sendMail({
@@ -1097,15 +1000,7 @@ setInterval(() => {
   for (const [token, rec] of adminSessions.entries()) {
     if (rec.expiresAt <= now) adminSessions.delete(token);
   }
-  for (const [email, rec] of crmOtpRecords.entries()) {
-    if (rec.expiresAt <= now) crmOtpRecords.delete(email);
-  }
-  for (const [email, requestedAt] of crmOtpRequestCooldown.entries()) {
-    if (now - requestedAt > CRM_OTP_LOCK_MS) crmOtpRequestCooldown.delete(email);
-  }
-  for (const [ip, rec] of crmOtpIpRequests.entries()) {
-    if (now - rec.windowStart > CRM_OTP_IP_WINDOW_MS) crmOtpIpRequests.delete(ip);
-  }
+  crmOtpStore.cleanup().catch((error) => console.error('[CRM_AUTH] Error limpiando limites:', error.message));
 }, 10 * 60 * 1000).unref?.();
 
 // ============================================================================
