@@ -18,20 +18,10 @@ function createCrmOtpStore({ pool, config = {} }) {
   function ready() {
     if (!initialized) {
       initialized = (async () => {
-        await pool.query(`CREATE TABLE IF NOT EXISTS crm_auth_otp (
-          email VARCHAR(255) PRIMARY KEY,
-          code_hash CHAR(64) NULL,
-          expires_at BIGINT NOT NULL DEFAULT 0,
-          requested_at BIGINT NOT NULL DEFAULT 0,
-          attempts INT NOT NULL DEFAULT 0
-        )`);
-        await pool.query(`CREATE TABLE IF NOT EXISTS crm_auth_limits (
-          limit_key CHAR(64) PRIMARY KEY,
-          window_start BIGINT NOT NULL DEFAULT 0,
-          attempts INT NOT NULL DEFAULT 0,
-          lock_until BIGINT NOT NULL DEFAULT 0,
-          INDEX idx_crm_auth_limits_window (window_start)
-        )`);
+        // Schema changes belong to a verified migration, never a login request.
+        // Fail closed if either table or its SELECT permission is missing.
+        await pool.query('SELECT email FROM crm_auth_otp LIMIT 0');
+        await pool.query('SELECT limit_key FROM crm_auth_limits LIMIT 0');
       })().catch((error) => {
         initialized = undefined;
         throw error;
