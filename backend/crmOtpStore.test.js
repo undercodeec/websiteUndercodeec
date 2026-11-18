@@ -18,6 +18,19 @@ test('missing migrated tables fail closed instead of triggering runtime DDL', as
   await assert.rejects(store.request({ ip: 'loopback', email: 'ignored', hash: null }), /missing table/);
 });
 
+test('a pre-existing OTP table missing a required column fails closed before issuing a code', async () => {
+  const statements = [];
+  const pool = { query: async (statement) => {
+    statements.push(statement);
+    throw new Error('Unknown column code_hash');
+  } };
+  const store = createCrmOtpStore({ pool });
+  await assert.rejects(store.request({ ip: 'loopback', email: 'operator@example.test', hash: 'synthetic' }), /Unknown column code_hash/);
+  assert.equal(statements.length, 1);
+  assert.match(statements[0], /code_hash.*expires_at.*requested_at.*attempts/);
+  assert.ok(statements.every((statement) => /^SELECT /i.test(statement)));
+});
+
 // Explicit opt-in: never run destructive integration tests against an existing DB.
 const enabled = process.env.CRM_OTP_TEST_DB === 'crm_otp_test' && process.env.CRM_OTP_TEST_PORT;
 
