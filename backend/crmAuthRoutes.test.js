@@ -98,6 +98,35 @@ test('HTTP contract: web and mobile consume the same OTP, with distinct signed p
   });
 });
 
+test('isolated router factory can use an entirely synthetic operator without changing production identity', async () => {
+  const operatorEmail = 'local-operator@example.test';
+  let hash;
+  let code;
+  await withApi({
+    operatorEmail,
+    store: {
+      request: async ({ email, hash: candidate }) => { assert.equal(email, operatorEmail); hash = candidate; return candidate ? 'sent' : 'ignored'; },
+      verify: async ({ candidateHash }) => {
+        if (!hash || candidateHash !== hash) return 'invalid';
+        hash = null;
+        return 'verified';
+      },
+    },
+    sendCode: async (message) => { assert.equal(message.to, operatorEmail); code = message.code; },
+    createAdminSession: () => assert.fail('mobile must not create admin sessions'),
+  }, async (post) => {
+    assert.equal((await post('/request-code', { email: operatorEmail })).status, 200);
+    const result = await post('/mobile/verify-code', { email: operatorEmail, code });
+    assert.equal(result.status, 200);
+    assert.equal(JSON.parse(Buffer.from(result.body.proof.split('.')[1], 'base64url')).sub, operatorEmail);
+    assert.equal((await post('/mobile/verify-code', { email: operatorEmail, code })).status, 400);
+  });
+});
+
+test('router factory rejects a blank operator override instead of authorizing an empty email', () => {
+  assert.throws(() => createCrmAuthRouter({ operatorEmail: '   ' }), /operator email is required/);
+});
+
 test('HTTP contract: peer IP (not forwarded header) reaches limits, and 429 is returned', async () => {
   const ips = [];
   await withApi({
