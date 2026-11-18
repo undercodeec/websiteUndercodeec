@@ -1,9 +1,14 @@
 const express = require('express');
 const crypto = require('crypto');
-const { CRM_OPERATOR_EMAIL, createCrmOtp, hashCrmOtp, isCrmOperator, normalizeCrmEmail, signCrmProof } = require('./crmOtp');
+const { CRM_OPERATOR_EMAIL, createCrmOtp, hashCrmOtp, normalizeCrmEmail, signCrmProof } = require('./crmOtp');
 
-function createCrmAuthRouter({ store, hashSecret, proofSecret, sendCode, createAdminSession }) {
+// `operatorEmail` is an internal router-factory dependency for isolated tests;
+// server.js does not pass an override, preserving the sole configured operator.
+function createCrmAuthRouter({ store, hashSecret, proofSecret, sendCode, createAdminSession, operatorEmail = CRM_OPERATOR_EMAIL }) {
   const router = express.Router();
+  const allowedEmail = normalizeCrmEmail(operatorEmail);
+  if (!allowedEmail) throw new Error('CRM operator email is required');
+  const isAllowed = (email) => normalizeCrmEmail(email) === allowedEmail;
 
   router.post('/request-code', async (req, res) => {
     const email = normalizeCrmEmail(req.body?.email);
@@ -11,7 +16,7 @@ function createCrmAuthRouter({ store, hashSecret, proofSecret, sendCode, createA
     // Never use an untrusted X-Forwarded-For header as a rate-limit key.
     const ip = req.socket.remoteAddress || 'unknown';
     try {
-      const allowed = isCrmOperator(email);
+      const allowed = isAllowed(email);
       const code = allowed ? createCrmOtp() : null;
       const hash = allowed ? hashCrmOtp(code, hashSecret()) : null;
       const result = await store.request({ ip, email, hash });
@@ -20,7 +25,7 @@ function createCrmAuthRouter({ store, hashSecret, proofSecret, sendCode, createA
       }
       if (result === 'sent') {
         try {
-          await sendCode({ to: CRM_OPERATOR_EMAIL, code });
+          await sendCode({ to: allowedEmail, code });
         } catch (error) {
           await store.revoke(email, hash);
           throw error;
@@ -41,7 +46,7 @@ function createCrmAuthRouter({ store, hashSecret, proofSecret, sendCode, createA
       try {
         // Fail closed before consuming a code if proof signing is unavailable.
         const secret = proofSecret();
-        const candidateHash = isCrmOperator(email) && /^\d{8}$/.test(code)
+        const candidateHash = isAllowed(email) && /^\d{8}$/.test(code)
           ? hashCrmOtp(code, hashSecret()) : null;
         const proof = signCrmProof({ email, jti: crypto.randomUUID(), secret,
           audience: mobile ? 'hermes-crm-mobile' : 'hermes-crm' });
