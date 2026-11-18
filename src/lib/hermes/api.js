@@ -314,8 +314,14 @@ export const hermesApi = {
   profile() {
     return request("/auth/profile");
   },
-  revokeAllMobileAccess() {
-    return request("/auth/mobile/revoke-all", { method: "POST", cache: "no-store" });
+  async revokeAllMobileAccess() {
+    const result = await request("/auth/mobile/revoke-all", { method: "POST", cache: "no-store" });
+    // Hermes returns a count (zero is valid); a 200 with a malformed body is
+    // not evidence that remote revocation was confirmed.
+    if (!Number.isSafeInteger(result?.revokedSessions) || result.revokedSessions < 0) {
+      throw new HermesApiError("No se pudo confirmar la revocacion remota.");
+    }
+    return result;
   },
   priceLists() {
     return request("/price-lists", { cache: "no-store" });

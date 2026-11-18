@@ -17,7 +17,7 @@ test("revoke-all uses the current Hermes web JWT only when invoked", async () =>
   };
   globalThis.fetch = async (url, options) => {
     calls.push({ url, options });
-    return new Response(JSON.stringify({ revoked: true }), {
+    return new Response(JSON.stringify({ revokedSessions: 0 }), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
@@ -25,7 +25,7 @@ test("revoke-all uses the current Hermes web JWT only when invoked", async () =>
 
   try {
     assert.equal(calls.length, 0);
-    await hermesApi.revokeAllMobileAccess();
+    assert.deepEqual(await hermesApi.revokeAllMobileAccess(), { revokedSessions: 0 });
     assert.equal(calls.length, 1);
     assert.equal(calls[0].url, "/api/hermes/auth/mobile/revoke-all");
     assert.equal(calls[0].options.method, "POST");
@@ -33,6 +33,23 @@ test("revoke-all uses the current Hermes web JWT only when invoked", async () =>
     assert.equal(calls[0].options.headers.get("Authorization"), "Bearer web-jwt");
     assert.equal(calls[0].options.body, undefined);
     assert.equal(calls[0].options.headers.has("Content-Type"), false);
+  } finally {
+    globalThis.window = originalWindow;
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("revoke-all never claims success from an unconfirmed 200 response", async () => {
+  const originalWindow = globalThis.window;
+  const originalFetch = globalThis.fetch;
+  globalThis.window = { sessionStorage: { getItem: () => "web-jwt" } };
+  try {
+    for (const body of [{ revoked: true }, { revokedSessions: -1 }, {}]) {
+      globalThis.fetch = async () => new Response(JSON.stringify(body), {
+        status: 200, headers: { "content-type": "application/json" },
+      });
+      await assert.rejects(hermesApi.revokeAllMobileAccess(), HermesApiError);
+    }
   } finally {
     globalThis.window = originalWindow;
     globalThis.fetch = originalFetch;
