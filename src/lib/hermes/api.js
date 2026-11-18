@@ -542,6 +542,9 @@ export const hermesApi = {
 };
 
 export const adminApi = {
+  activity() {
+    return requestAdmin("/api/admin/activity", { method: "POST" });
+  },
   profile() {
     return requestAdmin("/api/admin/profile");
   },

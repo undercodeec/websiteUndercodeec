@@ -869,18 +869,12 @@ async function ensureAdminUser() {
 // db.js crea las tablas al conectar; pequeño delay para que admin_users exista
 setTimeout(() => { ensureAdminUser(); }, 3000);
 
-// Sesiones de admin: token aleatorio → { expiresAt }
-const adminSessions = new Map();
-const ADMIN_SESSION_TTL_MS = 2 * 60 * 60 * 1000; // 2 horas
+// Sesiones locales: solo la interacción humana explícita renueva el plazo.
+const { createAdminSessions } = require('./adminSessions');
+const adminSessions = createAdminSessions();
 
 function createAdminSession(email) {
-  const token = crypto.randomBytes(32).toString('hex');
-  adminSessions.set(token, {
-    email,
-    expiresAt: Date.now() + ADMIN_SESSION_TTL_MS,
-    createdAt: Date.now()
-  });
-  return token;
+  return adminSessions.create(email);
 }
 
 // Intentos fallidos por email (login y verify)
@@ -996,10 +990,7 @@ async function sendAdminPasswordResetEmail({ to, code }) {
 
 // Limpieza periódica de sesiones expiradas (cada 10 min)
 setInterval(() => {
-  const now = Date.now();
-  for (const [token, rec] of adminSessions.entries()) {
-    if (rec.expiresAt <= now) adminSessions.delete(token);
-  }
+  adminSessions.cleanup();
   crmOtpStore.cleanup().catch((error) => console.error('[CRM_AUTH] Error limpiando limites:', error.message));
 }, 10 * 60 * 1000).unref?.();
 
@@ -3834,15 +3825,19 @@ const adminAuth = (req, res, next) => {
   if (!session) {
     return res.status(401).json({ success: false, error: 'Sesión inválida o expirada' });
   }
-  if (session.expiresAt <= Date.now()) {
-    adminSessions.delete(token);
-    return res.status(401).json({ success: false, error: 'Sesión expirada' });
-  }
-  // Rolling refresh: extender expiración en cada uso
-  session.expiresAt = Date.now() + ADMIN_SESSION_TTL_MS;
   req.adminSession = session;
+  req.adminToken = token;
   next();
 };
+
+// Solo llamadas generadas desde eventos humanos del cliente (no profile,
+// refresh, polling ni visibilidad/reanudación del dispositivo) renuevan el plazo.
+app.post('/api/admin/activity', adminAuth, (req, res) => {
+  if (!adminSessions.recordHumanActivity(req.adminToken)) {
+    return res.status(401).json({ success: false, error: 'Sesión inválida o expirada' });
+  }
+  return res.json({ success: true });
+});
 
 // Verification Codes Store
 let activeVerificationCodes = {};

@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import InvoicesTab from './InvoicesTab';
 import { recordApprovedTransferPurchase } from '@/lib/analytics/transferPurchase.mjs';
+import { useAdminHumanActivity } from '@/lib/useAdminHumanActivity';
 import '@/components/Slider/slider.css';
 
 const STATUS_STYLES = {
@@ -79,6 +80,18 @@ export default function AdminDashboard({ embedded = false }) {
     sessionStorage.removeItem('hermesCrmUser');
     router.push('/admin/crm/login');
   }, [router]);
+
+  const sendHumanActivity = useCallback(async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+    const response = await fetch(`${apiUrl}/api/admin/activity`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }
+    });
+    if (response.status === 401) handleSessionExpired();
+    if (!response.ok) throw new Error('No se pudo registrar actividad');
+  }, [apiUrl, handleSessionExpired]);
+  // In embedded mode the CRM provider already owns the input listener.
+  useAdminHumanActivity(!embedded, sendHumanActivity);
 
   const fetchData = useCallback(async (isRefresh = false) => {
     const token = localStorage.getItem('adminToken');

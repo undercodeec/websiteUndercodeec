@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useAdminHumanActivity } from "@/lib/useAdminHumanActivity";
 import {
   adminApi,
   clearHermesSession,
@@ -29,6 +30,7 @@ export function CrmSessionProvider({ children }) {
   const isLoginRoute = normalizedPathname === "/admin/crm/login";
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState("checking");
+  useAdminHumanActivity(status === "authenticated", adminApi.activity);
 
   const logout = useCallback(
     (reason = "") => {
