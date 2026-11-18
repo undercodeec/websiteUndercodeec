@@ -314,6 +314,9 @@ export const hermesApi = {
   profile() {
     return request("/auth/profile");
   },
+  revokeAllMobileAccess() {
+    return request("/auth/mobile/revoke-all", { method: "POST", cache: "no-store" });
+  },
   priceLists() {
     return request("/price-lists", { cache: "no-store" });
   },
