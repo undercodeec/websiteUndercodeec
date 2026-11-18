@@ -32,12 +32,15 @@ test('a pre-existing OTP table missing a required column fails closed before iss
 });
 
 // Explicit opt-in: never run destructive integration tests against an existing DB.
-const enabled = process.env.CRM_OTP_TEST_DB === 'crm_otp_test' && process.env.CRM_OTP_TEST_PORT;
+const testDb = process.env.CRM_OTP_TEST_DB;
+const enabled = /^crm_otp_test_[a-f0-9]{32}$/.test(testDb || '') &&
+  /^\d+$/.test(process.env.CRM_OTP_TEST_PORT || '') &&
+  process.env.CRM_OTP_TEST_USER === 'crm_otp_test' && Boolean(process.env.CRM_OTP_TEST_PASSWORD);
 
 test('MySQL OTP persists across instances and is consumed by exactly one verifier', { skip: !enabled }, async () => {
   const mysql = require('mysql2/promise');
   const pool = mysql.createPool({ host: '127.0.0.1', port: Number(process.env.CRM_OTP_TEST_PORT),
-    user: 'root', password: process.env.CRM_OTP_TEST_PASSWORD, database: 'crm_otp_test', connectionLimit: 10 });
+    user: 'crm_otp_test', password: process.env.CRM_OTP_TEST_PASSWORD, database: testDb, connectionLimit: 10 });
   const options = { pool, config: { ttlMs: 500, cooldownMs: 200, maxAttempts: 3, lockMs: 1500, ipMaxRequests: 10 } };
   const a = createCrmOtpStore(options);
   const b = createCrmOtpStore(options);
@@ -45,6 +48,8 @@ test('MySQL OTP persists across instances and is consumed by exactly one verifie
   const ip = crypto.randomUUID();
   const hash = crypto.createHash('sha256').update(crypto.randomUUID()).digest('hex');
   try {
+    const [tables] = await pool.query('SHOW TABLES');
+    assert.equal(tables.length, 0, 'refusing to test against an existing schema');
     await installTestSchema(pool);
     assert.equal(await a.request({ ip, email, hash }), 'sent');
     assert.equal(await b.request({ ip, email, hash }), 'cooldown');
@@ -67,7 +72,7 @@ test('MySQL OTP persists across instances and is consumed by exactly one verifie
 test('MySQL request limits are shared and spoofable headers are not inputs', { skip: !enabled }, async () => {
   const mysql = require('mysql2/promise');
   const pool = mysql.createPool({ host: '127.0.0.1', port: Number(process.env.CRM_OTP_TEST_PORT),
-    user: 'root', password: process.env.CRM_OTP_TEST_PASSWORD, database: 'crm_otp_test' });
+    user: 'crm_otp_test', password: process.env.CRM_OTP_TEST_PASSWORD, database: testDb });
   const a = createCrmOtpStore({ pool, config: { ipMaxRequests: 2 } });
   const b = createCrmOtpStore({ pool, config: { ipMaxRequests: 2 } });
   const ip = crypto.randomUUID();
@@ -84,7 +89,7 @@ test('MySQL request limits are shared and spoofable headers are not inputs', { s
 test('expired and revoked codes cannot be verified, including from another instance', { skip: !enabled }, async () => {
   const mysql = require('mysql2/promise');
   const pool = mysql.createPool({ host: '127.0.0.1', port: Number(process.env.CRM_OTP_TEST_PORT),
-    user: 'root', password: process.env.CRM_OTP_TEST_PASSWORD, database: 'crm_otp_test' });
+    user: 'crm_otp_test', password: process.env.CRM_OTP_TEST_PASSWORD, database: testDb });
   const options = { pool, config: { ttlMs: 100, cooldownMs: 100, ipMaxRequests: 10 } };
   const a = createCrmOtpStore(options);
   const b = createCrmOtpStore(options);
@@ -111,7 +116,7 @@ test('mobile route returns only a one-use proof while web keeps its admin token'
   const { createCrmAuthRouter } = require('./crmAuthRoutes');
   const { CRM_OPERATOR_EMAIL } = require('./crmOtp');
   const pool = mysql.createPool({ host: '127.0.0.1', port: Number(process.env.CRM_OTP_TEST_PORT),
-    user: 'root', password: process.env.CRM_OTP_TEST_PASSWORD, database: 'crm_otp_test' });
+    user: 'crm_otp_test', password: process.env.CRM_OTP_TEST_PASSWORD, database: testDb });
   const store = createCrmOtpStore({ pool, config: { cooldownMs: 150, ipMaxRequests: 10, maxAttempts: 20 } });
   const app = express();
   app.use(express.json());
