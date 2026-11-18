@@ -20,8 +20,10 @@ function createCrmOtpStore({ pool, config = {} }) {
       initialized = (async () => {
         // Schema changes belong to a verified migration, never a login request.
         // Fail closed if either table or its SELECT permission is missing.
-        await pool.query('SELECT email FROM crm_auth_otp LIMIT 0');
-        await pool.query('SELECT limit_key FROM crm_auth_limits LIMIT 0');
+        // Check every column used by the runtime, not only the two table names:
+        // CREATE TABLE IF NOT EXISTS does not detect a pre-existing partial schema.
+        await pool.query('SELECT email, code_hash, expires_at, requested_at, attempts FROM crm_auth_otp LIMIT 0');
+        await pool.query('SELECT limit_key, window_start, attempts, lock_until FROM crm_auth_limits LIMIT 0');
       })().catch((error) => {
         initialized = undefined;
         throw error;
