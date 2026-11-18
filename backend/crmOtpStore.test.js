@@ -99,14 +99,15 @@ test('mobile route returns only a one-use proof while web keeps its admin token'
   const { CRM_OPERATOR_EMAIL } = require('./crmOtp');
   const pool = mysql.createPool({ host: '127.0.0.1', port: Number(process.env.CRM_OTP_TEST_PORT),
     user: 'root', password: process.env.CRM_OTP_TEST_PASSWORD, database: 'crm_otp_test' });
-  const store = createCrmOtpStore({ pool, config: { cooldownMs: 150, ipMaxRequests: 10 } });
+  const store = createCrmOtpStore({ pool, config: { cooldownMs: 150, ipMaxRequests: 10, maxAttempts: 20 } });
   const app = express();
   app.use(express.json());
-  let sentCode;
+  const sentCodes = [];
+  let failMail = false;
   let sessions = 0;
   app.use('/api/crm/auth', createCrmAuthRouter({ store,
     hashSecret: () => 'test-hash-secret', proofSecret: () => 'test-proof-secret',
-    sendCode: async ({ code }) => { sentCode = code; },
+    sendCode: async ({ code }) => { sentCodes.push(code); if (failMail) throw new Error('fake SMTP failure'); },
     createAdminSession: () => { sessions++; return 'web-only-session'; },
   }));
   const server = app.listen(0, '127.0.0.1');
@@ -120,20 +121,43 @@ test('mobile route returns only a one-use proof while web keeps its admin token'
     await installTestSchema(pool);
     const request = await post('/request-code', { email: CRM_OPERATOR_EMAIL }, { 'x-forwarded-for': '1.2.3.4' });
     assert.equal(request.status, 200);
-    assert.match(sentCode, /^\d{8}$/);
-    const mobile = await post('/mobile/verify-code', { email: CRM_OPERATOR_EMAIL, code: sentCode });
+    assert.match(sentCodes[0], /^\d{8}$/);
+    const mobile = await post('/mobile/verify-code', { email: CRM_OPERATOR_EMAIL, code: sentCodes[0] });
     assert.equal(mobile.status, 200);
     assert.deepEqual(Object.keys(mobile.body).sort(), ['proof', 'success']);
     assert.equal(sessions, 0);
     assert.equal(JSON.parse(Buffer.from(mobile.body.proof.split('.')[1], 'base64url')).aud, 'hermes-crm-mobile');
-    assert.equal((await post('/verify-code', { email: CRM_OPERATOR_EMAIL, code: sentCode })).status, 400);
+    assert.equal((await post('/verify-code', { email: CRM_OPERATOR_EMAIL, code: sentCodes[0] })).status, 400);
+    assert.equal((await post('/mobile/verify-code', { email: CRM_OPERATOR_EMAIL, code: sentCodes[0] })).status, 400);
     await new Promise((resolve) => setTimeout(resolve, 170));
     await post('/request-code', { email: CRM_OPERATOR_EMAIL });
-    const web = await post('/verify-code', { email: CRM_OPERATOR_EMAIL, code: sentCode });
+    const web = await post('/verify-code', { email: CRM_OPERATOR_EMAIL, code: sentCodes[1] });
     assert.deepEqual(Object.keys(web.body).sort(), ['adminToken', 'proof', 'success']);
     assert.equal(web.body.adminToken, 'web-only-session');
     assert.equal(JSON.parse(Buffer.from(web.body.proof.split('.')[1], 'base64url')).aud, 'hermes-crm');
     assert.equal(sessions, 1);
+    assert.equal((await post('/mobile/verify-code', { email: CRM_OPERATOR_EMAIL, code: sentCodes[1] })).status, 400);
+    await new Promise((resolve) => setTimeout(resolve, 170));
+    await post('/request-code', { email: CRM_OPERATOR_EMAIL });
+    const competing = await Promise.all(['/verify-code', '/mobile/verify-code'].map((route) =>
+      post(route, { email: CRM_OPERATOR_EMAIL, code: sentCodes[2] })));
+    assert.deepEqual(competing.map(({ status }) => status).sort(), [200, 400]);
+    assert.equal(sessions, 1 + Number(competing[0].status === 200));
+    await new Promise((resolve) => setTimeout(resolve, 170));
+    failMail = true;
+    const logError = console.error;
+    console.error = () => {};
+    let failed;
+    try {
+      failed = await post('/request-code', { email: CRM_OPERATOR_EMAIL });
+    } finally {
+      console.error = logError;
+    }
+    assert.equal(failed.status, 500);
+    assert.equal(failed.body.success, false);
+    assert.equal((await post('/mobile/verify-code', { email: CRM_OPERATOR_EMAIL, code: sentCodes[3] })).status, 400);
+    assert.equal((await post('/verify-code', { email: CRM_OPERATOR_EMAIL, code: sentCodes[3] })).status, 400);
+    assert.equal(sessions, 1 + Number(competing[0].status === 200));
   } finally {
     await new Promise((resolve) => server.close(resolve));
     await pool.end();
