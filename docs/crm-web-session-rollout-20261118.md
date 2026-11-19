@@ -36,3 +36,7 @@ Hermes replicas. Rollback to an older Hermes binary requires new logins.
 
 Hermes commit `951772c` rejects **all old untyped JWTs of the configured CRM operator** and prevents that operator's password login/registration; an OTP re-login is required at cutover. Legacy password JWTs of **other accounts** retain their prior seven-day policy and are outside this operator-scoped guarantee. Do not advertise a universal 24-hour policy or mistake builds,
 PRs or published images for production deployment.
+
+## Revisión de dependencias del candidato
+
+La API candidata fija `proxy-addr` transitivo de Express en `2.0.8` mediante el lockfile (`npm update proxy-addr --package-lock-only`), corrigiendo el aviso crítico de suplantación de IP por IPv4-mapped IPv6 frente al `2.0.7` bloqueado previamente. `npm ci --ignore-scripts` y las pruebas backend (27 aprobadas, 4 omitidas) pasaron. `npm audit --omit=dev` todavía reporta **8 moderadas y 22 altas, 0 críticas**: esta corrección focalizada no resuelve el resto ni acredita inmunidad a explotación. Revisar el alcance de cada aviso antes de una distribución más amplia; no usar `audit fix --force` sin pruebas de compatibilidad.
