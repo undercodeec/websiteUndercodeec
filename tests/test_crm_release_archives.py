@@ -42,6 +42,25 @@ class ReleaseArchiveTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'byte-for-byte'):
                 module.verify_files(COMMIT, path, 'api', (SOURCE,))
 
+    def test_archive_rejects_secret_paths_and_symlinks(self):
+        import io
+        for name, symlink in [('api/backend/.env', False),
+                              ('api/backend/../../.env', False),
+                              ('api/backend/server.js', True)]:
+            with self.subTest(name=name, symlink=symlink), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / 'unsafe.tar.gz'
+                with tarfile.open(path, 'w:gz') as tar:
+                    header = tarfile.TarInfo(name)
+                    if symlink:
+                        header.type = tarfile.SYMTYPE
+                        header.linkname = '.env'
+                        tar.addfile(header)
+                    else:
+                        header.size = 1
+                        tar.addfile(header, io.BytesIO(b'x'))
+                with self.assertRaisesRegex(RuntimeError, 'Unsafe|Non-regular'):
+                    module.verify_files(COMMIT, path, 'api', (SOURCE,))
+
 
 if __name__ == '__main__':
     unittest.main()
