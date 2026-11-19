@@ -1,7 +1,7 @@
 # CRM web sessions — integration contract (2026-11-18)
 
 This client requires the Hermes web-session implementation described in
-`hermes-backend/docs/crm-web-human-sessions-20261118.txt`. Do **not** deploy
+`hermes-backend/docs/crm-web-human-sessions-20261118.md`. Do **not** deploy
 the new Hermes backend alone: an older client cannot rotate its five-minute
 access tokens. Apply the additive `web_sessions` migration first, then roll
 out the matching Hermes backend and this client together without mixed-version
@@ -34,7 +34,5 @@ Hermes replicas. Rollback to an older Hermes binary requires new logins.
   linkage and a separate design. Until then the UI is fail-closed, not proof
   of universal backend revocation.
 
-Existing seven-day legacy Hermes JWTs (including password `/auth/login`
-clients) remain a rollout bypass until a separate migration/revocation plan
-is approved. Do not advertise a universal 24-hour policy or mistake builds,
+Hermes commit `951772c` rejects **all old untyped JWTs of the configured CRM operator** and prevents that operator's password login/registration; an OTP re-login is required at cutover. Legacy password JWTs of **other accounts** retain their prior seven-day policy and are outside this operator-scoped guarantee. Do not advertise a universal 24-hour policy or mistake builds,
 PRs or published images for production deployment.
