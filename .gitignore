@@ -52,6 +52,8 @@ backend/uploads/
 /.tmp-visual-qa/
 /CON
 # Local development tool artifacts
+__pycache__/
+*.py[cod]
 /.unlighthouse/
 /.tokensave/
 /.codebase-memory/
