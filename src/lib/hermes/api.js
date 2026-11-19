@@ -9,10 +9,18 @@ const ADMIN_API_BASE_URL = (
 
 export const HERMES_TOKEN_KEY = "hermesCrmToken";
 export const HERMES_USER_KEY = "hermesCrmUser";
+export const HERMES_REFRESH_KEY = "hermesCrmRefreshToken";
+export const HERMES_DEADLINE_KEY = "hermesCrmExpiresAt";
 export const ADMIN_TOKEN_KEY = "adminToken";
 export const HERMES_SESSION_EXPIRED_EVENT = "hermes:session-expired";
 export const HERMES_CUSTOMER_MESSAGE_EVENT = "hermes:customer-message";
 export const HERMES_CONVERSATION_READ_EVENT = "hermes:conversation-read";
+
+export function parseHermesDeadline(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z$/.test(value)) return 0;
+  const time = Date.parse(value);
+  return Number.isSafeInteger(time) && time > 0 ? time : 0;
+}
 
 function readStoredValue(key) {
   if (typeof window === "undefined") return null;
@@ -38,6 +46,26 @@ export function getHermesToken() {
   return readStoredValue(HERMES_TOKEN_KEY);
 }
 
+export function getHermesRefreshToken() {
+  return readStoredValue(HERMES_REFRESH_KEY);
+}
+
+export function getHermesDeadline() {
+  const value = Number(readStoredValue(HERMES_DEADLINE_KEY));
+  return Number.isSafeInteger(value) && value > 0 ? value : 0;
+}
+
+function webAccessExpiry(token) {
+  try {
+    const claims = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return claims.typ === "web" && Number.isSafeInteger(claims.exp) ? claims.exp * 1000 : 0;
+  } catch { return 0; }
+}
+
+export function getHermesAccessDeadline() {
+  return webAccessExpiry(getHermesToken() || "");
+}
+
 export function getAdminToken() {
   if (typeof window === "undefined") return null;
   return window.localStorage.getItem(ADMIN_TOKEN_KEY);
@@ -53,17 +81,82 @@ export function getStoredHermesUser() {
   }
 }
 
-export function saveHermesSession(accessToken, user, adminToken) {
+export function saveHermesSession(accessToken, user, adminToken, refreshToken, expiresAt) {
+  const deadline = parseHermesDeadline(expiresAt);
+  if (!accessToken || !refreshToken || deadline <= Date.now()) {
+    throw new HermesApiError("Hermes no confirmo la sesion web.");
+  }
   window.sessionStorage.setItem(HERMES_TOKEN_KEY, accessToken);
   window.sessionStorage.setItem(HERMES_USER_KEY, JSON.stringify(user));
+  window.sessionStorage.setItem(HERMES_REFRESH_KEY, refreshToken);
+  window.sessionStorage.setItem(HERMES_DEADLINE_KEY, String(deadline));
   window.localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
 }
 
 export function clearHermesSession() {
   if (typeof window === "undefined") return;
+  clearHermesAccess();
+  window.localStorage.removeItem(ADMIN_TOKEN_KEY);
+}
+
+export function clearHermesAccess() {
+  if (typeof window === "undefined") return;
   window.sessionStorage.removeItem(HERMES_TOKEN_KEY);
   window.sessionStorage.removeItem(HERMES_USER_KEY);
-  window.localStorage.removeItem(ADMIN_TOKEN_KEY);
+  window.sessionStorage.removeItem(HERMES_REFRESH_KEY);
+  window.sessionStorage.removeItem(HERMES_DEADLINE_KEY);
+}
+
+let refreshInFlight = null;
+let logoutInFlight = null;
+
+function storeRotatedWebSession(session, expectedRefresh) {
+  if (getHermesRefreshToken() !== expectedRefresh) throw new HermesApiError("La sesion Hermes cambio durante la renovacion.");
+  const deadline = parseHermesDeadline(session?.expiresAt);
+  if (!session?.accessToken || !session?.refreshToken || deadline <= Date.now()) {
+    throw new HermesApiError("Hermes no confirmo la renovacion web.");
+  }
+  window.sessionStorage.setItem(HERMES_TOKEN_KEY, session.accessToken);
+  window.sessionStorage.setItem(HERMES_REFRESH_KEY, session.refreshToken);
+  window.sessionStorage.setItem(HERMES_DEADLINE_KEY, String(Math.max(getHermesDeadline(), deadline)));
+  if (session.user) window.sessionStorage.setItem(HERMES_USER_KEY, JSON.stringify(session.user));
+  window.dispatchEvent(new CustomEvent("hermes:token-rotated"));
+  return session;
+}
+
+export function refreshHermesWebSession() {
+  if (refreshInFlight) return refreshInFlight;
+  if (logoutInFlight) return Promise.reject(new HermesApiError("La sesion Hermes se esta cerrando."));
+  const refreshToken = getHermesRefreshToken();
+  if (!refreshToken || !getAdminToken()) return Promise.reject(new HermesApiError("Sesion web no disponible."));
+  refreshInFlight = (async () => {
+    const adminToken = getAdminToken();
+    const admin = await adminApi.profile();
+    if (adminToken !== getAdminToken() || !Number.isSafeInteger(admin?.expiresAt) || admin.expiresAt <= Date.now() ||
+        admin?.user?.email?.trim().toLowerCase() !== "gerencia@undercodeec.com") {
+      throw new HermesApiError("Sesion administrativa no verificada.");
+    }
+    try {
+      const session = await request("/auth/web/refresh", { method: "POST", auth: false,
+        body: { refreshToken }, cache: "no-store" });
+      return storeRotatedWebSession(session, refreshToken);
+    } catch (error) {
+      if (error?.status === 401 && getHermesRefreshToken() === refreshToken) {
+        clearHermesAccess();
+        window.dispatchEvent(new CustomEvent(HERMES_SESSION_EXPIRED_EVENT));
+      }
+      throw error;
+    }
+  })().finally(() => { refreshInFlight = null; });
+  return refreshInFlight;
+}
+
+async function currentHermesAccess() {
+  const token = getHermesToken();
+  if (getHermesRefreshToken() && (!token || !webAccessExpiry(token) || webAccessExpiry(token) - Date.now() < 60_000)) {
+    await refreshHermesWebSession();
+  }
+  return getHermesToken();
 }
 
 export function toQueryString(params = {}) {
@@ -79,11 +172,13 @@ export function toQueryString(params = {}) {
 async function request(path, options = {}) {
   const {
     auth = true,
+    retryAfterRotation = false,
     body,
     headers: customHeaders,
     ...fetchOptions
   } = options;
-  const token = getHermesToken();
+  const token = auth ? await currentHermesAccess() : getHermesToken();
+  const refreshAtStart = getHermesRefreshToken();
   const headers = new Headers(customHeaders);
   const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
 
@@ -109,8 +204,17 @@ async function request(path, options = {}) {
     : await response.text().catch(() => "");
 
   if (!response.ok) {
-    if (response.status === 401 && auth) {
-      clearHermesSession();
+    if (response.status === 401 && auth && !retryAfterRotation && token === getHermesToken() &&
+        refreshAtStart && webAccessExpiry(token) && webAccessExpiry(token) <= Date.now()) {
+      await refreshHermesWebSession();
+      return request(path, { ...options, retryAfterRotation: true });
+    }
+    if (response.status === 401 && auth && !retryAfterRotation && refreshAtStart &&
+        refreshAtStart !== getHermesRefreshToken() && token !== getHermesToken()) {
+      return request(path, { ...options, retryAfterRotation: true });
+    }
+    if (response.status === 401 && auth && token === getHermesToken() && path !== "/auth/profile") {
+      clearHermesAccess();
       window.dispatchEvent(new CustomEvent(HERMES_SESSION_EXPIRED_EVENT));
     }
     throw new HermesApiError(
@@ -166,24 +270,42 @@ function reconnectDelay(ms, signal) {
 export function subscribeHermesEvents(onEvent, onConnectionChange = () => {}) {
   const controller = new AbortController();
   const { signal } = controller;
+  let activeConnection;
+  let rotated = false;
+  const onRotation = () => { rotated = true; activeConnection?.abort(); };
+  window.addEventListener("hermes:token-rotated", onRotation);
 
   const connect = async () => {
     let retryDelay = 3000;
     while (!signal.aborted) {
       try {
-        const token = getHermesToken();
+        rotated = false;
+        const token = await currentHermesAccess();
+        rotated = false;
         if (!token) return;
+        activeConnection = new AbortController();
+        const onStop = () => activeConnection?.abort();
+        signal.addEventListener("abort", onStop, { once: true });
         const response = await fetch(`${API_BASE_URL}/conversations/events`, {
           headers: {
             Accept: "text/event-stream",
             Authorization: `Bearer ${token}`,
           },
           cache: "no-store",
-          signal,
+          signal: activeConnection.signal,
         });
+        signal.removeEventListener("abort", onStop);
         if (response.status === 401) {
-          clearHermesSession();
-          window.dispatchEvent(new CustomEvent(HERMES_SESSION_EXPIRED_EVENT));
+          if (rotated) continue;
+          if (token === getHermesToken() && getHermesRefreshToken() &&
+              webAccessExpiry(token) && webAccessExpiry(token) <= Date.now()) {
+            await refreshHermesWebSession();
+            continue;
+          }
+          if (token === getHermesToken() && !rotated) {
+            clearHermesAccess();
+            window.dispatchEvent(new CustomEvent(HERMES_SESSION_EXPIRED_EVENT));
+          }
           return;
         }
         if (!response.ok || !response.body) {
@@ -218,18 +340,21 @@ export function subscribeHermesEvents(onEvent, onConnectionChange = () => {}) {
           }
         }
       } catch (error) {
-        if (error?.name === "AbortError" || signal.aborted) return;
+        if (signal.aborted) return;
+        if (error?.name === "AbortError" && !rotated) return;
       } finally {
+        activeConnection = null;
         onConnectionChange(false);
       }
 
+      if (rotated) continue;
       await reconnectDelay(retryDelay, signal);
       retryDelay = Math.min(retryDelay * 2, 30000);
     }
   };
 
   void connect();
-  return () => controller.abort();
+  return () => { window.removeEventListener("hermes:token-rotated", onRotation); controller.abort(); activeConnection?.abort(); };
 }
 
 async function requestAdminCrmAuth(path, body) {
@@ -280,9 +405,14 @@ async function requestAdmin(path, options = {}) {
 
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
-    if (response.status === 401 && broadcastUnauthorized) {
+    if (response.status === 401 && broadcastUnauthorized && token === getAdminToken()) {
+      const refreshToken = getHermesRefreshToken();
       clearHermesSession();
       window.dispatchEvent(new CustomEvent(HERMES_SESSION_EXPIRED_EVENT));
+      // Best effort only: a server-to-server binding is needed for guaranteed
+      // cross-system revocation when this browser is offline.
+      if (refreshToken) void request("/auth/web/logout-refresh", { method: "POST", auth: false,
+        body: { refreshToken }, cache: "no-store" }).catch(() => {});
     }
     throw new HermesApiError(
       errorMessage(payload, `Administración respondió con estado ${response.status}.`),
@@ -310,6 +440,61 @@ export const hermesApi = {
       body: { proof: verification.proof },
     });
     return { ...session, adminToken: verification.adminToken };
+  },
+  async renewSession() {
+    // The admin session is checked server-side on every proof issuance. Never
+    // exchange a cached proof or trust a locally stored operator identity.
+    if (refreshInFlight) return refreshInFlight;
+    if (logoutInFlight) throw new HermesApiError("La sesion Hermes se esta cerrando.");
+    const existingRefreshToken = getHermesRefreshToken();
+    if (!existingRefreshToken) throw new HermesApiError("La sesion Hermes fue cerrada. Solicita un nuevo codigo.");
+    refreshInFlight = (async () => {
+      const admin = await adminApi.profile();
+      if (!Number.isSafeInteger(admin?.expiresAt) || admin.expiresAt <= Date.now() ||
+          admin?.user?.email?.trim().toLowerCase() !== "gerencia@undercodeec.com") {
+        throw new HermesApiError("Acceso CRM no autorizado.", { status: 403 });
+      }
+      const { proof } = await requestAdmin("/api/crm/auth/session-proof", { method: "POST" });
+      if (typeof proof !== "string") throw new HermesApiError("No se pudo renovar el acceso CRM.");
+      const session = await request("/auth/crm-proof", {
+        method: "POST", auth: false, body: { proof, existingRefreshToken }, cache: "no-store",
+      });
+      return storeRotatedWebSession(session, existingRefreshToken);
+    })().finally(() => { refreshInFlight = null; });
+    return refreshInFlight;
+  },
+  async webSession() {
+    const token = getHermesToken();
+    const result = await request("/auth/web/session", { cache: "no-store" });
+    if (result?.active && getHermesToken() === token) {
+      const deadline = parseHermesDeadline(result.expiresAt);
+      if (deadline) window.sessionStorage.setItem(HERMES_DEADLINE_KEY, String(Math.max(getHermesDeadline(), deadline)));
+    }
+    return result;
+  },
+  async webActivity() {
+    const result = await request("/auth/web/activity", { method: "POST", cache: "no-store" });
+    const deadline = parseHermesDeadline(result?.expiresAt);
+    if (result?.active && deadline && getHermesRefreshToken()) {
+      window.sessionStorage.setItem(HERMES_DEADLINE_KEY, String(Math.max(getHermesDeadline(), deadline)));
+    }
+    return result;
+  },
+  logoutWeb() {
+    if (logoutInFlight) return logoutInFlight;
+    const initialRefresh = getHermesRefreshToken();
+    const sessionId = initialRefresh?.split(".")[0];
+    logoutInFlight = (async () => {
+      if (refreshInFlight) await refreshInFlight.catch(() => {});
+      const refreshToken = getHermesRefreshToken();
+      if (!refreshToken || refreshToken.split(".")[0] !== sessionId) return;
+      await request("/auth/web/logout-refresh", { method: "POST", auth: false,
+        body: { refreshToken }, cache: "no-store" });
+    })().finally(() => {
+      if (sessionId && getHermesRefreshToken()?.split(".")[0] === sessionId) clearHermesAccess();
+      logoutInFlight = null;
+    });
+    return logoutInFlight;
   },
   profile() {
     return request("/auth/profile");
@@ -419,12 +604,28 @@ export const hermesApi = {
   rejectTransfer(id, data) {
     return request(`/transfers/${encodeURIComponent(id)}/reject`, { method: 'POST', body: data });
   },
-  async inboxMedia(conversationId, messageId) {
-    const token = getHermesToken();
+  async inboxMedia(conversationId, messageId, retried = false) {
+    const token = await currentHermesAccess();
+    const refreshAtStart = getHermesRefreshToken();
     const response = await fetch(`${API_BASE_URL}/conversations/${encodeURIComponent(conversationId)}/messages/${encodeURIComponent(messageId)}/media`, {
       headers: { Authorization: `Bearer ${token}` }, cache: 'no-store',
     });
-    if (!response.ok) throw new HermesApiError('No se pudo abrir el adjunto de WhatsApp.', { status: response.status });
+    if (!response.ok) {
+      if (response.status === 401 && !retried && token === getHermesToken() &&
+          refreshAtStart && webAccessExpiry(token) && webAccessExpiry(token) <= Date.now()) {
+        await refreshHermesWebSession();
+        return this.inboxMedia(conversationId, messageId, true);
+      }
+      if (response.status === 401 && !retried && refreshAtStart &&
+          refreshAtStart !== getHermesRefreshToken() && token !== getHermesToken()) {
+        return this.inboxMedia(conversationId, messageId, true);
+      }
+      if (response.status === 401 && token === getHermesToken()) {
+        clearHermesAccess();
+        window.dispatchEvent(new CustomEvent(HERMES_SESSION_EXPIRED_EVENT));
+      }
+      throw new HermesApiError('No se pudo abrir el adjunto de WhatsApp.', { status: response.status });
+    }
     return response.blob();
   },
   updateLead(id, changes) {

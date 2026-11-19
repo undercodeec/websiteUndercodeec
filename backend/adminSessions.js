@@ -24,13 +24,13 @@ function createAdminSessions({ now = Date.now } = {}) {
       sessions.delete(token);
       return null;
     }
-    return session;
+    return { ...session, expiresAt: session.lastHumanActivityAt + ADMIN_IDLE_TIMEOUT_MS };
   }
 
   function recordHumanActivity(token) {
     const session = get(token);
     if (!session) return false;
-    session.lastHumanActivityAt = now();
+    sessions.get(token).lastHumanActivityAt = now();
     return true;
   }
 

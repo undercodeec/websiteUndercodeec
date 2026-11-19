@@ -12,6 +12,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const { createCrmAuthRouter } = require('./crmAuthRoutes');
+const { createCrmSessionProof } = require('./crmSessionProof');
 const { createCrmOtpStore } = require('./crmOtpStore');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const db = require('./db');
@@ -3830,13 +3831,19 @@ const adminAuth = (req, res, next) => {
   next();
 };
 
+// Only a live CRM operator admin session may obtain a fresh, short-lived
+// Hermes exchange proof. This endpoint never accepts an OTP or a client email.
+app.post('/api/crm/auth/session-proof', adminAuth, createCrmSessionProof({ proofSecret: getCrmHermesProofSecret }));
+
 // Solo llamadas generadas desde eventos humanos del cliente (no profile,
 // refresh, polling ni visibilidad/reanudación del dispositivo) renuevan el plazo.
 app.post('/api/admin/activity', adminAuth, (req, res) => {
   if (!adminSessions.recordHumanActivity(req.adminToken)) {
     return res.status(401).json({ success: false, error: 'Sesión inválida o expirada' });
   }
-  return res.json({ success: true });
+  const current = adminSessions.get(req.adminToken);
+  if (!current) return res.status(401).json({ success: false, error: 'Sesión inválida o expirada' });
+  return res.json({ success: true, expiresAt: current.expiresAt });
 });
 
 // Verification Codes Store
@@ -4122,6 +4129,7 @@ app.post('/api/admin/logout', adminAuth, (req, res) => {
 app.get('/api/admin/profile', adminAuth, (req, res) => {
   return res.json({
     success: true,
+    expiresAt: req.adminSession.expiresAt,
     user: {
       email: req.adminSession.email,
       role: 'ADMIN'

@@ -7,8 +7,10 @@ test('automatic reads cannot renew a session; exactly 24h idle expires', () => {
   const sessions = createAdminSessions({ now: () => time });
   const token = sessions.create('operator@example.test');
   assert.equal(token.length, 64);
+  assert.equal(sessions.get(token).expiresAt, time + DAY);
   time += DAY - 1;
   assert.equal(sessions.get(token).email, 'operator@example.test');
+  assert.equal(sessions.get(token).expiresAt, 100_000 + DAY);
   sessions.cleanup();
   time += 1;
   assert.equal(sessions.get(token), null);
@@ -22,6 +24,7 @@ test('human activity extends indefinitely with no absolute lifetime cap', () => 
   for (let day = 0; day < 40; day++) {
     time += DAY - 1;
     assert.equal(sessions.recordHumanActivity(token), true);
+    assert.equal(sessions.get(token).expiresAt, time + DAY);
     sessions.cleanup();
   }
   assert.equal(sessions.get(token).email, 'operator@example.test');

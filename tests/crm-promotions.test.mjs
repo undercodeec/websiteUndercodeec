@@ -56,7 +56,7 @@ test('Hermes API sends only isActive in the authorized PUT', async () => {
   const originalFetch = globalThis.fetch;
   const originalWindow = globalThis.window;
   const requests = [];
-  globalThis.window = { sessionStorage: { getItem: () => 'synthetic-token' } };
+  globalThis.window = { sessionStorage: { getItem: key => key === 'hermesCrmToken' ? 'synthetic-token' : null } };
   globalThis.fetch = async (url, options) => {
     requests.push({ url, options });
     return { ok: true, headers: new Headers({ 'content-type': 'application/json' }), json: async () => ({ isActive: true }) };
@@ -82,7 +82,7 @@ test('403 keeps the CRM session and 401 expires it', async () => {
   const events = [];
   let status = 403;
   globalThis.window = {
-    sessionStorage: { getItem: () => 'synthetic-token', removeItem: (key) => removed.push(key) },
+    sessionStorage: { getItem: key => key === 'hermesCrmToken' ? 'synthetic-token' : null, removeItem: (key) => removed.push(key) },
     localStorage: { removeItem: (key) => removed.push(key) },
     dispatchEvent: (event) => events.push(event.type),
   };
@@ -97,6 +97,7 @@ test('403 keeps the CRM session and 401 expires it', async () => {
     status = 401;
     await assert.rejects(hermesApi.priceLists(), (error) => error.status === 401);
     assert.ok(removed.includes('hermesCrmToken'));
+    assert.ok(!removed.includes('adminToken'));
     assert.ok(events.includes('hermes:session-expired'));
   } finally {
     globalThis.fetch = originalFetch;

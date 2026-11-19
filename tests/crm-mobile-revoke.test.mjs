@@ -42,7 +42,7 @@ test("revoke-all uses the current Hermes web JWT only when invoked", async () =>
 test("revoke-all never claims success from an unconfirmed 200 response", async () => {
   const originalWindow = globalThis.window;
   const originalFetch = globalThis.fetch;
-  globalThis.window = { sessionStorage: { getItem: () => "web-jwt" } };
+  globalThis.window = { sessionStorage: { getItem: key => key === "hermesCrmToken" ? "web-jwt" : null } };
   try {
     for (const body of [{ revoked: true }, { revokedSessions: -1 }, {}]) {
       globalThis.fetch = async () => new Response(JSON.stringify(body), {
@@ -59,7 +59,7 @@ test("revoke-all never claims success from an unconfirmed 200 response", async (
 test("revoke-all rejects a failed Hermes request without silently succeeding", async () => {
   const originalWindow = globalThis.window;
   const originalFetch = globalThis.fetch;
-  globalThis.window = { sessionStorage: { getItem: () => "web-jwt" } };
+  globalThis.window = { sessionStorage: { getItem: key => key === "hermesCrmToken" ? "web-jwt" : null } };
   globalThis.fetch = async () => new Response(JSON.stringify({ message: "Forbidden" }), {
     status: 403,
     headers: { "content-type": "application/json" },

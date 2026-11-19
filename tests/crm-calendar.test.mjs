@@ -84,7 +84,7 @@ test('meetings API uses the authenticated proxy with only defined calendar param
   const { hermesApi } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
   const previousFetch = globalThis.fetch;
   const previousWindow = globalThis.window;
-  globalThis.window = { sessionStorage: { getItem: () => 'test-bearer' } };
+  globalThis.window = { sessionStorage: { getItem: key => key === 'hermesCrmToken' ? 'test-bearer' : null } };
   globalThis.fetch = async (url, options) => {
     assert.equal(url, '/api/hermes/meetings?from=2026-09-28T05%3A00%3A00.000Z&to=2026-10-05T05%3A00%3A00.000Z&status=PENDING');
     assert.equal(options.headers.get('authorization'), 'Bearer test-bearer');
