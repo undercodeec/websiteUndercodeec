@@ -24,6 +24,7 @@ import {
 import { hermesApi } from "@/lib/hermes/api";
 import AttributionDetails from '../../_components/AttributionDetails';
 import { canMoveLeadStage } from "@/lib/hermes/lead-stage-transitions.mjs";
+import { advertisingEventPayload, advertisingEventSuccessMessage } from "@/lib/hermes/advertising-event.mjs";
 import { useCrmSession } from "../../_components/CrmSession";
 import {
   HANDOFF_REASON,
@@ -394,6 +395,9 @@ function Kpi({ icon: Icon, label, value }) {
 function AdvertisingLeadPanel({ lead, history, historyError, user, onRefresh, onToast }) {
   const [saving, setSaving] = useState(false);
   const [eventType, setEventType] = useState("MEETING_CONFIRMED");
+  const [eventError, setEventError] = useState("");
+  const [amounts, setAmounts] = useState({ value: "", revenueReceived: "" });
+  const [currency, setCurrency] = useState("");
   const attribution = history.find((item) => item.attribution)?.attribution || null;
   const touch = attribution?.touch || history.find((item) => item.touch)?.touch || null;
   const clickId = touch?.gclid || touch?.gbraid || touch?.wbraid || null;
@@ -404,32 +408,30 @@ function AdvertisingLeadPanel({ lead, history, historyError, user, onRefresh, on
     event.preventDefault();
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
-    const occurredAt = String(form.get("occurredAt") || "");
-    const value = String(form.get("value") || "");
-    const revenueReceived = String(form.get("revenueReceived") || "");
-    const commercialReference = String(form.get("commercialReference") || "").trim();
-    const serviceRequested = String(form.get("serviceRequested") || "").trim();
-    const payload = {
-      eventType,
-      ...(occurredAt ? { occurredAt: new Date(occurredAt).toISOString() } : {}),
-      ...(value ? { value: Number(value) } : {}),
-      ...(revenueReceived ? { revenueReceived: Number(revenueReceived) } : {}),
-      ...((value || eventType === "CONTRACT_WON") ? { currency: String(form.get("currency") || "EUR") } : {}),
-      ...(commercialReference ? { commercialReference } : {}),
-      ...(serviceRequested ? { serviceRequested } : {}),
-    };
+    let payload;
+    setEventError("");
+    try {
+      payload = advertisingEventPayload(eventType, form);
+    } catch (validationError) {
+      setEventError(validationError.message);
+      return;
+    }
 
     setSaving(true);
     try {
-      await hermesApi.recordAdvertisingEvent(lead.id, payload);
-      onToast({ tone: "success", message: "Hito comercial registrado y auditado." });
+      const result = await hermesApi.recordAdvertisingEvent(lead.id, payload);
+      onToast({ tone: "success", message: advertisingEventSuccessMessage(result) });
       await onRefresh();
       formElement.reset();
       setEventType("MEETING_CONFIRMED");
+      setAmounts({ value: "", revenueReceived: "" });
+      setCurrency("");
     } catch (requestError) {
+      const message = apiErrorMessage(requestError, "No se pudo registrar el hito comercial.");
+      setEventError(message);
       onToast({
         tone: "error",
-        message: apiErrorMessage(requestError, "No se pudo registrar el hito comercial."),
+        message,
       });
     } finally {
       setSaving(false);
@@ -475,9 +477,11 @@ function AdvertisingLeadPanel({ lead, history, historyError, user, onRefresh, on
       </p>
 
       <form className="crm-commercial-event-form" onSubmit={submitEvent}>
+        {eventError && <p role="alert" className="crm-feedback is-error">{eventError}</p>}
+        {eventType === "CONTRACT_WON" && <p id="won-commercial-help" className="crm-advertising-help">Deja vacíos los datos comerciales si aún no se conocen. Si indicas datos del contrato o ingresos recibidos, completa un importe contratado mayor que cero, la moneda y una referencia verificable.</p>}
         <label>
           <span>Hito comercial</span>
-          <select value={eventType} onChange={(event) => setEventType(event.target.value)}>
+          <select value={eventType} onChange={(event) => { setEventType(event.target.value); setAmounts({ value: "", revenueReceived: "" }); setCurrency(""); setEventError(""); }}>
             <option value="MEETING_CONFIRMED">Reunión confirmada</option>
             <option value="PROPOSAL_SENT">Propuesta enviada</option>
             <option value="CONTRACT_WON">Contrato ganado</option>
@@ -495,25 +499,25 @@ function AdvertisingLeadPanel({ lead, history, historyError, user, onRefresh, on
         {!["MEETING_CONFIRMED", "CONTRACT_LOST"].includes(eventType) && (
           <label>
             <span>{eventType === "CONTRACT_WON" ? "Importe contratado" : "Valor de propuesta"}</span>
-            <input name="value" type="number" min="0" step="0.01" required={eventType === "CONTRACT_WON"} />
+            <input name="value" type="number" min="0" step="0.01" aria-describedby={eventType === "CONTRACT_WON" ? "won-commercial-help" : undefined} value={amounts.value} onChange={(event) => setAmounts((current) => ({ ...current, value: event.target.value }))} />
           </label>
         )}
         {eventType === "CONTRACT_WON" && (
           <label>
             <span>Ingresos recibidos</span>
-            <input name="revenueReceived" type="number" min="0" step="0.01" />
+            <input name="revenueReceived" type="number" min="0" step="0.01" aria-describedby="won-commercial-help" value={amounts.revenueReceived} onChange={(event) => setAmounts((current) => ({ ...current, revenueReceived: event.target.value }))} />
           </label>
         )}
         {!["MEETING_CONFIRMED", "CONTRACT_LOST"].includes(eventType) && (
           <label>
-            <span>Moneda</span>
-            <select name="currency" defaultValue="EUR"><option value="EUR">EUR</option><option value="USD">USD</option></select>
+            <span>Moneda (obligatoria si indicas un importe)</span>
+            <select name="currency" value={currency} onChange={(event) => setCurrency(event.target.value)} aria-describedby={eventType === "CONTRACT_WON" ? "won-commercial-help" : undefined} required={Boolean(amounts.value || amounts.revenueReceived)}><option value="">Selecciona una moneda</option><option value="EUR">EUR</option><option value="USD">USD</option></select>
           </label>
         )}
         {["CONTRACT_WON", "CONTRACT_LOST"].includes(eventType) && (
           <label className="is-wide">
-            <span>{eventType === "CONTRACT_WON" ? "Referencia verificable del contrato" : "Motivo o referencia de pérdida"}</span>
-            <input name="commercialReference" maxLength={200} required={eventType === "CONTRACT_WON"} />
+            <span>{eventType === "CONTRACT_WON" ? "Referencia verificable del contrato (obligatoria con datos comerciales)" : "Motivo o referencia de pérdida (opcional)"}</span>
+            <input name="commercialReference" maxLength={200} aria-describedby={eventType === "CONTRACT_WON" ? "won-commercial-help" : undefined} />
           </label>
         )}
         <div className="crm-commercial-event-actions">

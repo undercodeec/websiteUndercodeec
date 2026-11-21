@@ -23,5 +23,13 @@ test("payment stages and WON respect their separate workflows", () => {
   assert.equal(canMoveLeadStage(lead, "WON"), false);
   assert.equal(canMoveLeadStage(lead, "WON", { status: "UNDER_REVIEW" }), false);
   assert.equal(canMoveLeadStage(lead, "WON", null), true);
-  assert.equal(canMoveLeadStage({ ...lead, contractReference: "" }, "WON", null), false);
+  assert.equal(canMoveLeadStage({ stage: "PROPOSAL" }, "WON", null), true);
+  assert.equal(canMoveLeadStage({ stage: "NEGOTIATION" }, "WON", null), true);
+  assert.equal(canMoveLeadStage({ stage: "QUALIFIED" }, "WON", null), true);
+  assert.equal(canMoveLeadStage({ stage: "QUALIFIED" }, "WON", undefined), false);
+  assert.equal(canMoveLeadStage({ stage: "QUALIFIED" }, "WON", { status: "PROOF_RECEIVED" }), false);
+  for (const status of ["INSTRUCTIONS_PREPARED", "INSTRUCTIONS_SENT", "PROOF_RECEIVED", "UNDER_REVIEW"]) {
+    assert.equal(canMoveLeadStage({ stage: "PROPOSAL" }, "WON", { status }), false);
+  }
+  assert.equal(canMoveLeadStage({ stage: "PROPOSAL" }, "WON", undefined), false);
 });
