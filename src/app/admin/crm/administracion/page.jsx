@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AdminDashboard from "../../dashboard/page";
 import { PageHeader } from "../_components/Ui";
 import { useCrmSession } from '../_components/CrmSession';
@@ -8,6 +8,54 @@ import { hermesApi } from '@/lib/hermes/api';
 
 const EMPTY_ACCOUNT = { label: '', bankName: '', accountHolder: '', holderIdentification: '',
   accountType: 'SAVINGS', accountNumber: '', currency: 'USD', instructions: '', priority: 0, isActive: true };
+
+function MobileAccessRevoke() {
+  const { user } = useCrmSession();
+  const [status, setStatus] = useState('idle');
+  const requestInProgress = useRef(false);
+
+  if (user?.role !== 'ADMIN') return null;
+
+  const confirmRevoke = async () => {
+    if (status !== 'confirm' || requestInProgress.current) return;
+    requestInProgress.current = true;
+    setStatus('loading');
+    try {
+      await hermesApi.revokeAllMobileAccess();
+      setStatus('success');
+    } catch {
+      // No mostrar el cuerpo del error: puede contener datos de la cuenta.
+      setStatus('error');
+    } finally {
+      requestInProgress.current = false;
+    }
+  };
+
+  return (
+    <section className="crm-panel" aria-labelledby="crm-mobile-access-heading" style={{ marginBottom: 24, padding: 20 }}>
+      <h2 id="crm-mobile-access-heading">Acceso desde teléfonos</h2>
+      <p>Revoca las sesiones de la aplicación móvil. Esta acción no cierra tu sesión web del CRM.</p>
+      {status === 'confirm' ? (
+        <div role="group" aria-label="Confirmar revocación del acceso móvil" style={{ display: 'grid', gap: 10 }}>
+          <p>¿Confirmas que quieres revocar el acceso de todos los teléfonos? Tendrán que volver a iniciar sesión en la aplicación móvil. Tu sesión web seguirá abierta.</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            <button type="button" className="crm-button is-primary" onClick={confirmRevoke}>Sí, revocar acceso de los teléfonos</button>
+            <button type="button" className="crm-button" onClick={() => setStatus('idle')}>Cancelar</button>
+          </div>
+        </div>
+      ) : (
+        <button type="button" className="crm-button" disabled={status === 'loading'} onClick={() => setStatus('confirm')}>
+          Revocar acceso del teléfono
+        </button>
+      )}
+      <div role="status" aria-live="polite">
+        {status === 'loading' && 'Revocando acceso de los teléfonos…'}
+        {status === 'success' && 'Acceso móvil revocado. Tu sesión web del CRM sigue abierta.'}
+      </div>
+      {status === 'error' && <p role="alert">No se pudo revocar el acceso móvil. Comprueba tu sesión e inténtalo de nuevo.</p>}
+    </section>
+  );
+}
 
 function BankAccounts() {
   const { user } = useCrmSession();
@@ -83,6 +131,7 @@ export default function UnifiedAdministrationPage() {
         title="Administración general"
         description="Pagos, formularios, facturación, uso del asistente y configuración en el mismo panel de Hermes CRM."
       />
+      <MobileAccessRevoke />
       <BankAccounts />
       <AdminDashboard embedded />
     </>
