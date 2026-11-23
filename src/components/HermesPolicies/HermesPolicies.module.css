@@ -1,0 +1,27 @@
+.hermes :global(.politica-tags) {
+  max-height: calc(100vh - 9rem);
+  overflow-y: auto;
+}
+
+.hermes :global(.politica-document-header p:not(:first-child)) {
+  margin-top: 2rem;
+  text-transform: none;
+  line-height: 1.7;
+}
+
+.section { scroll-margin-top: 7rem; }
+
+.hermes :global(.politica-content ol) {
+  padding-left: 2rem;
+}
+
+.hermes :global(.politica-content ol li) {
+  list-style: decimal;
+  padding-left: .5rem;
+}
+
+.hermes :global(.politica-content ol li::before) { content: none; }
+
+@media (max-width: 700px) {
+  .hermes :global(.politica-tags) { max-height: none; overflow: visible; }
+}

@@ -1,0 +1,211 @@
+{
+  "privacyIntro": "# Política de Privacidad y Protección de Datos Personales — Hermes\n\n**Undercodeec | Hermes CRM y Asistente de Inteligencia Artificial**\n\n**Última actualización:** [FECHA DE PUBLICACIÓN]  \n**Versión:** 1.0  \n**Sitio web:** https://undercodeec.com  \n**Contacto de privacidad:** undercodeec@gmail.com",
+  "privacy": [
+    {
+      "title": "1. Introducción",
+      "blocks": [
+        "Undercodeec reconoce la importancia de la privacidad, la seguridad y la protección de los datos personales.",
+        "Esta Política de Privacidad explica cómo se recopila, utiliza, almacena, protege y, cuando corresponde, comparte información personal mediante Hermes, una solución tecnológica de gestión de relaciones con clientes (CRM), automatización de comunicaciones y asistencia mediante inteligencia artificial.",
+        "Hermes puede integrarse con la plataforma oficial de WhatsApp Business de Meta para facilitar la atención comercial, gestionar conversaciones, enviar comunicaciones autorizadas y automatizar respuestas.",
+        "El tratamiento de los datos personales se realiza conforme a las finalidades informadas, las bases jurídicas aplicables y la normativa vigente de protección de datos personales."
+      ]
+    },
+    {
+      "title": "2. Identificación del responsable",
+      "blocks": [
+        "**Nombre comercial:** Undercodeec  \n**Titular o razón social:** [NOMBRE LEGAL DEL TITULAR DEL NEGOCIO]  \n**RUC:** [RUC, SI CORRESPONDE PUBLICARLO]  \n**País:** Ecuador  \n**Domicilio legal:** [DIRECCIÓN LEGAL]  \n**Teléfono de contacto:** [TELÉFONO COMERCIAL]  \n**Correo de privacidad:** undercodeec@gmail.com  \n**Sitio web:** https://undercodeec.com",
+        "Undercodeec es responsable de los tratamientos cuyos fines y medios determina directamente, como la atención a sus propios clientes y las comunicaciones comerciales de sus servicios.",
+        "Cuando Hermes procesa información por cuenta de otra empresa que utiliza el CRM, dicha empresa puede actuar como responsable del tratamiento y Undercodeec como encargado, conforme a los acuerdos y las instrucciones aplicables."
+      ]
+    },
+    {
+      "title": "3. Alcance de esta política",
+      "blocks": [
+        "Esta política se aplica a los tratamientos realizados a través de:",
+        "- Hermes CRM y sus interfaces de administración.\n- Integraciones autorizadas con WhatsApp Business Platform y Cloud API.\n- Asistentes conversacionales y automatizaciones de atención comercial.\n- Comunicaciones y campañas enviadas mediante canales autorizados.\n- Formularios, solicitudes y comunicaciones que se integren efectivamente con Hermes.\n- Sistemas necesarios para la administración, seguridad y funcionamiento del servicio.",
+        "Esta política no sustituye las políticas de privacidad de WhatsApp, Meta ni de otros proveedores externos."
+      ]
+    },
+    {
+      "title": "4. Información personal que podemos tratar",
+      "blocks": [
+        "Dependiendo del servicio utilizado y de la información proporcionada, Hermes puede tratar las siguientes categorías:",
+        "**Datos de identificación y contacto**",
+        "Nombres, apellidos, números de teléfono, direcciones de correo electrónico, nombre de la empresa y otros datos de contacto facilitados voluntariamente o incorporados legítimamente al CRM.",
+        "**Datos de comunicaciones**",
+        "Mensajes enviados y recibidos por WhatsApp, consultas comerciales, respuestas, archivos adjuntos admitidos, fechas y horarios de interacción e identificadores de mensajes.",
+        "**Datos de actividad comercial**",
+        "Servicios solicitados, intereses comerciales manifestados, solicitudes de cotización, estado de seguimiento, preferencias de contacto y antecedentes de atención necesarios para gestionar la relación comercial.",
+        "**Datos técnicos y operativos**",
+        "Identificadores proporcionados por Meta, identificadores de cuenta o número empresarial, estados de mensajes, eventos de integración, registros de funcionamiento y datos técnicos necesarios para la seguridad y resolución de incidencias.",
+        "**Datos de consentimiento**",
+        "Fecha, origen y finalidad de las autorizaciones de contacto cuando correspondan, así como las solicitudes de baja u oposición y su registro.",
+        "No solicitamos información personal sensible que no sea necesaria para los servicios ofrecidos. Si una persona comparte voluntariamente información sensible, su tratamiento deberá limitarse a lo permitido por la legislación aplicable."
+      ]
+    },
+    {
+      "title": "5. Origen de los datos personales",
+      "blocks": [
+        "La información puede obtenerse directamente cuando una persona:",
+        "- Se comunica voluntariamente con Undercodeec por WhatsApp u otros canales habilitados.\n- Solicita información sobre nuestros productos o servicios.\n- Completa formularios vinculados a nuestros servicios.\n- Responde a una comunicación previamente autorizada.\n- Proporciona datos durante una conversación con el asistente comercial.",
+        "También puede proceder de contactos incorporados por usuarios empresariales autorizados en Hermes, siempre bajo la responsabilidad correspondiente y de acuerdo con la normativa aplicable.",
+        "La disponibilidad pública de un número telefónico no constituye por sí sola consentimiento para recibir publicidad."
+      ]
+    },
+    {
+      "title": "6. Finalidades y bases jurídicas del tratamiento",
+      "blocks": [
+        "Utilizamos los datos personales, según corresponda, para:",
+        "**Atención y comunicación comercial:** recibir y responder consultas, ofrecer información solicitada y mantener la continuidad de las conversaciones.",
+        "**Gestión de solicitudes:** registrar oportunidades comerciales, elaborar cotizaciones, programar seguimientos y administrar relaciones con clientes.",
+        "**Automatización:** gestionar mensajes entrantes, proporcionar respuestas asistidas y facilitar la organización de las conversaciones.",
+        "**Comunicaciones informativas:** enviar información relacionada con solicitudes o relaciones comerciales existentes, cuando exista una base jurídica válida.",
+        "**Marketing autorizado:** enviar campañas, promociones o comunicaciones comerciales únicamente cuando exista la autorización u otra base jurídica válida exigida para la finalidad y el canal utilizados.",
+        "**Seguridad y operación:** prevenir abusos, detectar incidencias, mantener registros técnicos, garantizar la disponibilidad del servicio y cumplir obligaciones legales.",
+        "Las bases jurídicas pueden incluir, según el tratamiento específico, el consentimiento, la ejecución de un contrato, las gestiones precontractuales solicitadas por la persona, el cumplimiento de obligaciones legales y otras bases expresamente reconocidas por la normativa aplicable.",
+        "La elección de una base jurídica se determinará según la finalidad y las circunstancias reales de cada tratamiento."
+      ]
+    },
+    {
+      "title": "7. Integración con WhatsApp Business Platform",
+      "blocks": [
+        "Hermes utiliza integraciones oficiales de Meta para facilitar la comunicación con usuarios de WhatsApp.",
+        "A través de esta integración es posible:",
+        "- Recibir y procesar mensajes entrantes.\n- Enviar respuestas y mensajes autorizados.\n- Utilizar plantillas de mensajes aprobadas cuando corresponda.\n- Consultar estados técnicos de envío y entrega.\n- Gestionar eventos de integración y automatización.\n- Registrar información necesaria para la continuidad de la atención.",
+        "Los datos relacionados con estas funciones pueden ser procesados por Meta y las entidades que intervengan en la prestación de WhatsApp Business Platform, de acuerdo con sus términos y políticas aplicables.",
+        "**Documentación de Meta:** https://www.whatsapp.com/legal/",
+        "La utilización de WhatsApp por parte del destinatario también está sujeta a las condiciones de privacidad del servicio."
+      ]
+    },
+    {
+      "title": "8. Uso de inteligencia artificial",
+      "blocks": [
+        "Hermes incorpora funcionalidades de inteligencia artificial para apoyar la atención comercial y automatizar determinadas respuestas.",
+        "Cuando estas funciones están activadas, el sistema puede procesar el contenido de una consulta y el contexto necesario de la conversación para interpretar solicitudes, generar respuestas y facilitar tareas de atención.",
+        "Las conversaciones pueden ser enviadas al proveedor tecnológico de IA configurado para realizar dichas operaciones.",
+        "**Proveedor o proveedores de IA utilizados:** [IDENTIFICAR LOS PROVEEDORES REALES Y SUS CONDICIONES DE TRATAMIENTO]",
+        "El tratamiento se limitará a las finalidades autorizadas, con controles destinados a restringir accesos y evitar la exposición innecesaria de información personal.",
+        "Las respuestas generadas automáticamente pueden contener errores y no deben considerarse asesoramiento jurídico, médico o financiero.",
+        "Las personas podrán solicitar intervención o revisión humana mediante los canales de contacto disponibles cuando corresponda.",
+        "La existencia de funciones de inteligencia artificial no autoriza utilizar indiscriminadamente las conversaciones para otros fines, como entrenar modelos propios o de terceros.",
+        "Cualquier utilización adicional de información personal requerirá una base jurídica adecuada y la información correspondiente al titular."
+      ]
+    },
+    {
+      "title": "9. Comunicación a proveedores y transferencias internacionales",
+      "blocks": [
+        "Para operar Hermes puede ser necesario comunicar o permitir el acceso a determinados datos a proveedores de:",
+        "- Infraestructura tecnológica, alojamiento y bases de datos.\n- Servicios de mensajería, incluidos Meta y WhatsApp Business Platform.\n- Modelos o servicios de inteligencia artificial efectivamente integrados.\n- Herramientas necesarias de mantenimiento, seguridad y soporte.",
+        "Estas comunicaciones deben limitarse a la información necesaria para prestar el servicio correspondiente.",
+        "Debido a la naturaleza internacional de algunos proveedores, ciertos datos pueden ser tratados o almacenados fuera de Ecuador.",
+        "Undercodeec adoptará las garantías legales, contractuales y técnicas aplicables para dichas transferencias y permitirá consultar información adicional sobre sus destinatarios y condiciones.",
+        "Los proveedores concretos, los países de destino conocidos y las garantías aplicables deberán informarse conforme a las operaciones reales."
+      ]
+    },
+    {
+      "title": "10. Seguridad y confidencialidad",
+      "blocks": [
+        "Undercodeec establece medidas técnicas y organizativas proporcionales a los riesgos asociados con el tratamiento de información personal.",
+        "Estas medidas comprenden, según el componente del sistema, conexiones seguras, controles de acceso, mecanismos de autenticación, protección de credenciales, restricciones de permisos y registros de actividad necesarios para supervisar la operación.",
+        "El acceso a la información se limita al personal y a los proveedores que lo requieran legítimamente para cumplir funciones autorizadas.",
+        "Ningún sistema informático puede garantizar la ausencia absoluta de incidentes de seguridad. Ante un incidente que afecte datos personales, se aplicarán las medidas de gestión, mitigación y notificación que correspondan conforme a la legislación vigente."
+      ]
+    },
+    {
+      "title": "11. Conservación de datos",
+      "blocks": [
+        "Los datos personales se conservarán durante los períodos necesarios para las finalidades informadas, conforme a las políticas de retención aplicables y a las obligaciones legales o contractuales.",
+        "La duración puede variar según la clase de información:",
+        "- Conversaciones e historiales comerciales: [PLAZO O CRITERIO REAL].\n- Registros técnicos de mensajes y errores: [PLAZO O CRITERIO REAL].\n- Registros de consentimiento y revocación: [PLAZO O CRITERIO REAL].\n- Información de cuentas empresariales: [PLAZO O CRITERIO REAL].\n- Documentación que deba conservarse por obligación legal: el período legal aplicable.",
+        "Una vez concluido el plazo correspondiente, los datos serán eliminados, anonimizados o conservados únicamente cuando exista una justificación legal válida."
+      ]
+    },
+    {
+      "title": "12. Derechos de los titulares",
+      "blocks": [
+        "De acuerdo con la normativa de protección de datos aplicable, las personas pueden ejercer los derechos que les correspondan, incluidos:",
+        "- Acceso a sus datos personales e información sobre su tratamiento.\n- Rectificación y actualización de información incorrecta.\n- Eliminación de información cuando proceda.\n- Oposición y limitación del tratamiento.\n- Portabilidad de datos en los casos previstos por la ley.\n- Revocación del consentimiento cuando esta sea la base jurídica utilizada.\n- Derechos relacionados con decisiones basadas únicamente en tratamientos automatizados, cuando resulten aplicables.",
+        "Para ejercer estos derechos, el titular puede escribir a:",
+        "**undercodeec@gmail.com**",
+        "**Asunto sugerido:** Solicitud de protección de datos personales — Hermes",
+        "La solicitud debe describir el derecho que desea ejercer y aportar la información mínima necesaria para localizar los datos y verificar de manera proporcional la identidad o legitimación del solicitante.",
+        "Cuando Undercodeec actúe como encargado de otro negocio responsable, coordinará la solicitud con dicho responsable conforme a las obligaciones aplicables.",
+        "Las solicitudes se atenderán dentro de los plazos legales correspondientes.",
+        "La persona también puede presentar una reclamación ante la Superintendencia de Protección de Datos Personales de Ecuador, cuando resulte competente.",
+        "**Autoridad:** https://www.spdp.gob.ec/"
+      ]
+    },
+    {
+      "title": "13. Eliminación de datos personales",
+      "blocks": [
+        "Los titulares pueden solicitar la eliminación de sus datos personales asociados con Hermes cuando se cumplan los requisitos legales.",
+        "Para ello, pueden escribir a undercodeec@gmail.com indicando:",
+        "- Que solicitan la eliminación de datos relacionados con Hermes.\n- El número de WhatsApp o correo asociado a la solicitud.\n- La información adicional estrictamente necesaria para identificar los registros correspondientes.",
+        "Tras verificar la legitimación del solicitante, se evaluará la procedencia de la eliminación, se ejecutarán las acciones necesarias sobre los sistemas bajo nuestra responsabilidad y se comunicará el resultado.",
+        "Cuando determinados registros deban conservarse por razones legales, de seguridad o para la defensa de derechos, se informará de las limitaciones aplicables.",
+        "**Instrucciones de eliminación:** https://undercodeec.com/eliminacion-de-datos-hermes/"
+      ]
+    },
+    {
+      "title": "14. Comunicaciones comerciales y revocación",
+      "blocks": [
+        "Las comunicaciones promocionales mediante WhatsApp deben respetar las preferencias del destinatario, los requisitos de consentimiento y las políticas de la plataforma.",
+        "Las personas pueden solicitar que se detengan las comunicaciones comerciales respondiendo a la conversación con una solicitud clara de baja o escribiendo a undercodeec@gmail.com.",
+        "La solicitud será gestionada conforme a las obligaciones aplicables y no impedirá necesariamente el envío de comunicaciones estrictamente necesarias para atender una solicitud legítima o cumplir una obligación legal."
+      ]
+    },
+    {
+      "title": "15. Información de menores de edad",
+      "blocks": [
+        "Hermes es una herramienta destinada principalmente a la gestión de comunicaciones empresariales.",
+        "No está diseñado para recopilar deliberadamente datos personales de niñas, niños o adolescentes sin una base jurídica válida y las salvaguardas que correspondan.",
+        "Si se detecta un tratamiento indebido de información de menores, se adoptarán las medidas necesarias conforme a la legislación aplicable."
+      ]
+    },
+    {
+      "title": "16. Cambios en la política de privacidad",
+      "blocks": [
+        "Undercodeec podrá actualizar esta política cuando existan cambios en sus servicios, tecnologías, proveedores, finalidades de tratamiento u obligaciones legales.",
+        "La versión vigente estará disponible públicamente en:",
+        "https://undercodeec.com/politica-de-privacidad-hermes/",
+        "Cuando corresponda, los cambios relevantes serán informados por los canales adecuados."
+      ]
+    },
+    {
+      "title": "17. Contacto",
+      "blocks": [
+        "Para dudas, solicitudes y consultas relacionadas con esta política o con el tratamiento de datos personales:",
+        "**Undercodeec — Hermes CRM**",
+        "**Correo electrónico:** undercodeec@gmail.com  \n**Sitio web:** https://undercodeec.com  \n**País:** Ecuador  \n**Domicilio legal:** [DIRECCIÓN LEGAL]  \n**Teléfono:** [TELÉFONO COMERCIAL]",
+        "*Esta política se aplica a Hermes y a las funcionalidades que efectivamente estén habilitadas. Su publicación no implica que otros productos de Undercodeec, como NAVA, estén integrados automáticamente con las cuentas de WhatsApp gestionadas por Hermes.*"
+      ]
+    }
+  ],
+  "deletionIntro": "Undercodeec facilita a los usuarios de Hermes y a las personas que se comunican mediante sus canales integrados el ejercicio de sus derechos de protección de datos personales.",
+  "deletion": [
+    {
+      "title": "¿Cómo solicitar la eliminación de información?",
+      "blocks": [
+        "Envía un correo electrónico a **undercodeec@gmail.com** con el asunto:",
+        "**Solicitud de eliminación de datos — Hermes**",
+        "Incluye:",
+        "1. El número de WhatsApp o correo electrónico relacionado con la solicitud.\n2. Una descripción de los datos que deseas eliminar.\n3. Información adicional necesaria para verificar tu identidad, únicamente cuando resulte indispensable."
+      ]
+    },
+    {
+      "title": "¿Qué sucede después?",
+      "blocks": [
+        "Undercodeec revisará la solicitud, comprobará la legitimación del solicitante y determinará qué información puede eliminarse conforme a la legislación aplicable.",
+        "Cuando los datos sean administrados por un negocio que utilice Hermes, la solicitud podrá coordinarse con el responsable correspondiente.",
+        "Una vez gestionada, se informará del resultado, incluidas las limitaciones legales que puedan impedir la eliminación inmediata de determinados registros.",
+        "No se exige ningún pago por presentar una solicitud, sin perjuicio de las excepciones expresamente previstas en la legislación."
+      ]
+    },
+    {
+      "title": "Contacto",
+      "blocks": [
+        "**Responsable o encargado del servicio:** Undercodeec  \n**Correo:** undercodeec@gmail.com  \n**Política de privacidad:** https://undercodeec.com/politica-de-privacidad-hermes/"
+      ]
+    }
+  ]
+}
