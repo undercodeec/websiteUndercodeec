@@ -11,7 +11,7 @@ import localStyles from "./HermesPolicies.module.css";
 import content from "./content.json";
 
 function inline(text: string) {
-  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|https?:\/\/[^\s]+|undercodeec@gmail\.com)/g);
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|https?:\/\/[^\s]+|gerencia@undercodeec\.com)/g);
   return parts.map((part, index) => {
     if (part.startsWith("**") && part.endsWith("**")) return <strong key={index}>{inline(part.slice(2, -2))}</strong>;
     if (part.startsWith("*") && part.endsWith("*")) return <em key={index}>{inline(part.slice(1, -1))}</em>;
@@ -19,7 +19,7 @@ function inline(text: string) {
       const url = new URL(part);
       return <a key={index} href={url.hostname === "undercodeec.com" ? url.pathname : part}>{part}</a>;
     }
-    if (part === "undercodeec@gmail.com") return <a key={index} href={`mailto:${part}`}>{part}</a>;
+    if (part === "gerencia@undercodeec.com") return <a key={index} href={`mailto:${part}`}>{part}</a>;
     return <Fragment key={index}>{part}</Fragment>;
   });
 }
