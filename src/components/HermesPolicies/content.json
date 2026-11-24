@@ -82,7 +82,7 @@
       "blocks": [
         "Hermes incorpora funcionalidades de inteligencia artificial para apoyar la atención comercial y automatizar determinadas respuestas.",
         "Cuando estas funciones están activadas, el sistema puede procesar el contenido de una consulta y el contexto necesario de la conversación para interpretar solicitudes, generar respuestas y facilitar tareas de atención.",
-        "Las conversaciones pueden ser enviadas al proveedor tecnológico de IA configurado para realizar dichas operaciones.",
+        "Cuando se utiliza Google Gemini, se envían determinadas consultas necesarias para generar la respuesta. Los modelos ejecutados mediante Ollama se procesan localmente; las condiciones aplicables dependen de la configuración efectiva del servicio.",
         "**Proveedor o proveedores de IA utilizados:** Google Gemini y modelos locales mediante Ollama. Las condiciones aplicables de Google dependen del servicio y la configuración utilizados; Ollama permite ejecutar modelos localmente.",
         "El tratamiento se limitará a las finalidades autorizadas, con controles destinados a restringir accesos y evitar la exposición innecesaria de información personal.",
         "Las respuestas generadas automáticamente pueden contener errores y no deben considerarse asesoramiento jurídico, médico o financiero.",
@@ -97,7 +97,7 @@
         "Para operar Hermes puede ser necesario comunicar o permitir el acceso a determinados datos a proveedores de:",
         "- Infraestructura tecnológica y alojamiento: RackNerd (VPS); base de datos: Neon.\n- Servicios de mensajería, incluidos Meta y WhatsApp Business Platform.\n- Modelos o servicios de inteligencia artificial efectivamente integrados.\n- Servicios de Google Cloud, incluidas API como Google Maps y servicios de inicio de sesión, cuando estén habilitados.\n- Herramientas necesarias de mantenimiento, seguridad y soporte.",
         "Estas comunicaciones deben limitarse a la información necesaria para prestar el servicio correspondiente.",
-        "Debido a la naturaleza internacional de algunos proveedores, ciertos datos pueden ser tratados o almacenados fuera de Ecuador.",
+        "El VPS de RackNerd y la base de datos de Neon están ubicados en Virginia, Estados Unidos. Otros proveedores pueden tratar o almacenar información en otros lugares, según sus servicios y configuraciones.",
         "Undercodeec adoptará las garantías legales, contractuales y técnicas aplicables para dichas transferencias y permitirá consultar información adicional sobre sus destinatarios y condiciones.",
         "Los proveedores concretos, los países de destino conocidos y las garantías aplicables deberán informarse conforme a las operaciones reales."
       ]
@@ -115,8 +115,9 @@
       "title": "11. Conservación de datos",
       "blocks": [
         "Los datos personales se conservarán durante los períodos necesarios para las finalidades informadas, conforme a las políticas de retención aplicables y a las obligaciones legales o contractuales.",
-        "La duración puede variar según la clase de información:",
-        "- Conversaciones e historiales comerciales: el plazo de conservación específico aún no está definido.\n- Registros técnicos de mensajes y errores: [PLAZO O CRITERIO REAL].\n- Registros de consentimiento y revocación: [PLAZO O CRITERIO REAL].\n- Información de cuentas empresariales: [PLAZO O CRITERIO REAL].\n- Documentación que deba conservarse por obligación legal: el período legal aplicable.",
+        "Los criterios de conservación dependen de la finalidad y de la clase de información:",
+        "- Conversaciones e historiales comerciales: mientras sean necesarios para la atención y el seguimiento de la relación correspondiente.\n- Registros técnicos de mensajes y errores: durante el tiempo necesario para seguridad, diagnóstico y resolución de incidencias.\n- Registros de consentimiento y revocación: mientras sean necesarios para acreditar la autorización o respetar la baja y atender obligaciones o reclamaciones aplicables.\n- Información de cuentas empresariales: durante la prestación del servicio y el tiempo adicional justificado por obligaciones contractuales o legales.\n- Comprobantes de venta, retención y documentos complementarios sujetos a la normativa tributaria: el plazo legal aplicable, que para los comprobantes electrónicos indicados por el SRI es de siete años.",
+        "Los plazos específicos de revisión y eliminación para conversaciones, registros técnicos, consentimientos y cuentas empresariales están pendientes de definición e implementación. La conservación no debe exceder lo necesario para la finalidad correspondiente; las solicitudes de eliminación se evaluarán conforme a la ley.",
         "Una vez concluido el plazo correspondiente, los datos serán eliminados, anonimizados o conservados únicamente cuando exista una justificación legal válida."
       ]
     },
