@@ -311,6 +311,12 @@
 
   const featuredWorks = [
     {
+      name: "Nuestra Señora del Rosario",
+      image: "/landing-preview/img/demos/instituto.webp",
+      href: "https://web.nsr.edu.ec/",
+      services: ["● Diseño web", "△ Desarrollo", "⁂ Sitio institucional"],
+    },
+    {
       name: "Undercodeec Studio",
       image: "/assets/img/FireShot%20Capture%20014%20-%20Undercodeec%20Studio%20%C2%B7%20Animaciones%20de%20Vanguardia%20-%20%5B127.0.0.1%5D.png",
       href: "https://understudio.undercodeec.com/",
@@ -373,6 +379,7 @@
     {
       name: "Casa Gangotena",
       image: "/landing-preview/img/demos/4.4.webp",
+      href: "https://www.casagangotena.com/es/",
       services: ["● Diseño web", "△ Desarrollo", "⁂ Sitio turístico"],
     },
     {
@@ -386,7 +393,7 @@
   const featuredWorkGrid = document.querySelector("[home-work] .hcs-grid-w");
 
   if (featuredWorkGrid && !featuredWorkGrid.dataset.worksReady) {
-    const visibleCards = [...featuredWorkGrid.querySelectorAll(":scope > .hcs-item-w:not([display-none])")];
+    const visibleCards = [...featuredWorkGrid.querySelectorAll(":scope > .hcs-item-w:not([display-none]):not(.display-none)")];
 
     while (visibleCards.length > 0 && visibleCards.length < featuredWorks.length) {
       const card = visibleCards[0].cloneNode(true);
@@ -396,7 +403,7 @@
       visibleCards.push(card);
     }
 
-    [...featuredWorkGrid.querySelectorAll(":scope > .hcs-item-w:not([display-none])")]
+    [...featuredWorkGrid.querySelectorAll(":scope > .hcs-item-w:not([display-none]):not(.display-none)")]
       .slice(0, featuredWorks.length)
       .forEach((card, index) => {
         const work = featuredWorks[index];
