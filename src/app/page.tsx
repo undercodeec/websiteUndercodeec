@@ -6,7 +6,6 @@ import PreviewLayout from "@/layouts/Preview";
 import HeroSlider from "@/components/Slider/HeroSlider";
 import Features from "@/components/Preview/Features";
 import InnerPages from "@/components/Preview/InnerPages";
-import BlackFridayLandingModal from "@/components/BlackFridayLandingModal/BlackFridayLandingModal";
 import { fixPreviewStylesheetOrder } from "@/common/fixStylesheetsOrder";
 import { usePageReady } from "@/common/usePageReady";
 
@@ -63,7 +62,6 @@ export default function HomePage() {
       <AllFeatures />
       <Testimonials />
       <CallToAction />
-      <BlackFridayLandingModal isPageReady={isReady} />
     </PreviewLayout>
   );
 }
