@@ -2,17 +2,17 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 
-test("serves the simplified Black Friday offer from the static root landing", async () => {
+test("preserves the static offer without activating it on the root landing", async () => {
   const page = await readFile("public/landing-primary/index.html", "utf8");
 
   assert.match(page, /black-friday-modal\.css/);
-  assert.match(page, /data-black-friday-modal/);
+  assert.match(page, /data-black-friday-modal hidden/);
   assert.match(page, /aria-label="Precio especial 80 dólares"/);
   assert.match(page, /<span>\$<\/span><strong>80,00<\/strong>/);
   const promoLink = page.match(/<a\s+class="black-friday-modal__whatsapp"\s+href="([^"]+)"/);
   assert.ok(promoLink);
   assert.equal(new URL(promoLink[1]).searchParams.get("text"), "hola quiero mas informacion de la promocion de $80.00");
-  assert.match(page, /black-friday-modal\.js/);
+  assert.doesNotMatch(page, /<script[^>]+src="[^\"]*black-friday-modal\.js/);
   assert.match(page, /<h2[^>]*id="black-friday-modal-title"/);
   assert.match(page, /Escríbenos para saber más/);
   assert.doesNotMatch(page, /class="black-friday-modal__benefits"/);
@@ -94,5 +94,5 @@ test("starts the desktop pointer motion promptly and shows a click on WhatsApp",
   assert.match(styles, /\.black-friday-modal__whatsapp::after\s*\{/);
   assert.match(styles, /@keyframes black-friday-button-click/);
   assert.match(page, /black-friday-modal\.css\?v=20261109-consent-layer/);
-  assert.match(page, /black-friday-modal\.js\?v=20261109-mobile-pointer/);
+  assert.doesNotMatch(page, /<script[^>]+src="[^\"]*black-friday-modal\.js/);
 });

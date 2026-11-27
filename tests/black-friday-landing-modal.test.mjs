@@ -65,11 +65,10 @@ test("contains keyboard focus inside the dialog and exposes scrollable benefits 
   assert.match(component, /aria-label="Beneficios incluidos en la oferta"/);
 });
 
-test("mounts the Black Friday modal in the root page using the preloader-ready state", async () => {
+test("does not mount the preserved Black Friday modal in the root page", async () => {
   const page = await readFile("src/app/page.tsx", "utf8");
 
-  assert.match(page, /import BlackFridayLandingModal from "@\/components\/BlackFridayLandingModal\/BlackFridayLandingModal"/);
-  assert.match(page, /<BlackFridayLandingModal isPageReady=\{isReady\}\s*\/>/);
+  assert.doesNotMatch(page, /BlackFridayLandingModal/);
 });
 
 test("uses a responsive overlay and a rectangular WhatsApp CTA", async () => {
